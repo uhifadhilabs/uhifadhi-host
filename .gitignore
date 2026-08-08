@@ -23,3 +23,7 @@
 /.idea/
 /.deptrac.cache
 ###< project ###
+
+###> claude ###
+/CLAUDE.md
+###< claude ###
