@@ -1,0 +1,26 @@
+# Dependency rules — one layer per bounded context (modular monolith), mirroring the
+# vivutio convention. A cross-module reach that isn't in a module's allow-list below is
+# a build failure, not a convention. Each module's own sublayers (Entity/Service/
+# Repository/Domain/Controller/ApiResource/…) are covered by its module layer, so
+# intra-module dependencies never need to be spelled out.
+#
+# Spatial is the shared spatial kernel: every topic domain may use it; it uses nothing but
+# itself. Each DNCA topic (Forest now; Settlement/Drainage/Invasives later) is added as
+# a sibling layer allowed to depend only on [<Topic>, Spatial].
+deptrac:
+  paths:
+    - src
+  exclude_files:
+    - '#src/Kernel\.php#'
+  layers:
+    - name: Spatial
+      collectors:
+        - { type: classLike, value: 'App\\Spatial\\.*' }
+    - name: Forest
+      collectors:
+        - { type: classLike, value: 'App\\Forest\\.*' }
+  ruleset:
+    # Shared spatial kernel — depends only on itself.
+    Spatial: [Spatial]
+    # Topic 6 (Deforestation) — isolated; may use the Spatial kernel only.
+    Forest: [Forest, Spatial]

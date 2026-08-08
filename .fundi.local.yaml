@@ -1,0 +1,45 @@
+# fundi manifest — the only file fundi needs, and it's optional: with no
+# manifest, `fundi server:start` still serves https://<dir-name>.localhost.
+# Write one only to enable Mercure or declare workers. Everything is derived:
+# the host from THIS directory's name, the backend port auto-assigned, the web
+# root defaulting to public/. Runtime (generated Caddyfile, PID, logs) lives
+# under ~/.fundi/, never in the repo.
+
+server:
+    # Embed a Mercure hub in the app origin (same-origin SSE). When true, fundi
+    # injects MERCURE_URL + MERCURE_PUBLIC_URL into the app for you — no Mercure
+    # settings needed in the project's own .env.
+    mercure: false
+
+    # Overrides — uncomment only to change a default:
+    # url: https://myapp.localhost   # default: https://<dir-name>.localhost
+    # port: 8000                     # default: an auto-assigned free port
+    # root: public                   # default: public
+
+# ── Database ────────────────────────────────────────────────────────────────
+# GENERAL SQL (default — no config needed): fundi reads your app's OWN .env
+# DATABASE_URL and, if it names a local Postgres, makes sure this project's
+# database exists there (createdb) and mirrors the URL into .env.local. If that
+# server isn't running, fundi says so and stops — it never runs a plain database
+# server for you; that one's yours (e.g. brew services start postgresql@17).
+#
+# POSTGIS (opt-in — uncomment below): fundi runs its OWN native PostGIS cluster,
+# no Docker, ONE per Postgres major so 16- and 17-based projects coexist. It
+# createdb's + enables the postgis extension, and injects/writes DATABASE_URL —
+# nothing needed in your .env. Requires once per major: brew install postgresql@17 postgis
+#
+database: postgis                # simplest: your ACTIVE (brew-linked) Postgres major, db = this dir's slug
+# ...or override any of these (all optional — each omitted line keeps its default):
+# database:
+#     engine: postgis
+#     version: 17                  # pin a SPECIFIC major (needs postgresql@17 + its PostGIS); default: your active PATH Postgres
+#     port: 5434                   # hard-pin the cluster port; default: auto-assigned once, then persisted
+#     name: otherdb                # default: this directory's slug
+
+# Optional: long-running processes to supervise alongside the server, each in
+# its own process group (so stop never orphans them). A map of name ->
+# { cmd: [...], respawn: true|false }; respawn defaults to true. Empty by
+# default — fundi runs whatever you put here and needs to know nothing about it.
+workers:
+    tailwind:
+        cmd: ['php', 'bin/console', 'tailwind:build', '--watch']

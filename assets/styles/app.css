@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+/* Conservation-green palette (used as bg-forest-*, text-forest-*, …). */
+@theme {
+    --color-forest-50: #eef4ef;
+    --color-forest-100: #d6e6da;
+    --color-forest-300: #8fc194;
+    --color-forest-400: #4f9e54;
+    --color-forest-500: #2e7d32;
+    --color-forest-600: #256a29;
+    --color-forest-700: #1d5322;
+    --color-forest-900: #13251a;
+    --color-forest-950: #0d1a12;
+}
+
+/* The Hansen year ramp, reused by the map legend. */
+@utility loss-ramp {
+    background-image: linear-gradient(90deg, #ffffb2, #fecc5c, #fd8d3c, #f03b20, #bd0026);
+}
+
+/* One of the two stacked <input type="range"> that together form a dual-handle
+   range slider: the input itself is invisible and ignores the pointer; only its
+   thumb is interactive. The visible track/fill are separate divs underneath. */
+@utility range-thumb {
+    appearance: none;
+    -webkit-appearance: none;
+    background: transparent;
+    pointer-events: none;
+    height: 100%;
+
+    &::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        pointer-events: auto;
+        width: 15px;
+        height: 15px;
+        border-radius: 9999px;
+        background: #fff;
+        border: 2px solid var(--color-forest-500);
+        box-shadow: 0 1px 3px rgb(0 0 0 / 0.35);
+        cursor: pointer;
+    }
+
+    &::-moz-range-thumb {
+        pointer-events: auto;
+        width: 15px;
+        height: 15px;
+        border-radius: 9999px;
+        background: #fff;
+        border: 2px solid var(--color-forest-500);
+        box-shadow: 0 1px 3px rgb(0 0 0 / 0.35);
+        cursor: pointer;
+    }
+}

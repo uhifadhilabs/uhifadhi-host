@@ -1,0 +1,57 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="flex h-screen bg-gray-100 text-gray-800">
+        {# ── Sidebar ───────────────────────────────────────────────────────── #}
+        <aside class="flex w-64 flex-col bg-forest-950 px-4 py-5 text-forest-50">
+            <div class="flex items-center gap-3 px-2 pb-6">
+                <span class="grid size-9 place-items-center rounded-xl bg-forest-500 text-white shadow-inner">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+                </span>
+                <span class="leading-tight">
+                    <span class="block text-[15px] font-semibold tracking-tight">Ngorongoro</span>
+                    <span class="block text-[11px] text-forest-300/70">Conservation monitor</span>
+                </span>
+            </div>
+
+            <p class="px-3 pb-2 text-[10px] font-semibold uppercase tracking-wider text-forest-300/50">Topics</p>
+            <nav class="flex flex-col gap-1">
+                <a href="{{ path('forest_map') }}" class="flex items-center gap-3 rounded-lg bg-forest-500 px-3 py-2 text-sm font-medium text-white shadow-sm">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M10 10v.2A3 3 0 0 1 8.9 16H5a3 3 0 0 1-1-5.8V10a3 3 0 0 1 6 0Z"/><path d="M7 16v6"/><path d="M13 19v3"/><path d="M12 19h8.3a1 1 0 0 0 .7-1.7L18 14h.3a1 1 0 0 0 .7-1.7L16 9h.2a1 1 0 0 0 .8-1.7L13 3l-1.4 1.5"/></svg>
+                    Forest loss
+                </a>
+                {% for topic in [
+                    { label: 'Settlements', icon: 'house' },
+                    { label: 'Drainage', icon: 'droplets' },
+                    { label: 'Invasives', icon: 'sprout' },
+                    { label: 'Wildlife', icon: 'paw' },
+                ] %}
+                    <span class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-forest-100/40">
+                        <span class="text-forest-300/60">
+                            {% if topic.icon == 'house' %}<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+                            {% elseif topic.icon == 'droplets' %}<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 4.24 7 2c-.29 2.24-1.14 4.13-2.29 5.06S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"/><path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97"/></svg>
+                            {% elseif topic.icon == 'sprout' %}<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M7 20h10"/><path d="M10 20c5.5-2.5.8-6.4 3-10"/><path d="M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z"/><path d="M14.1 6a7 7 0 0 0-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z"/></svg>
+                            {% else %}<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="4" r="2"/><circle cx="18" cy="8" r="2"/><circle cx="20" cy="16" r="2"/><path d="M9 10a5 5 0 0 1 5 5v3.5a3.5 3.5 0 0 1-6.84 1.045Q6.52 17.48 4.46 16.84A3.5 3.5 0 0 1 5.5 10Z"/></svg>{% endif %}
+                        </span>
+                        {{ topic.label }}
+                        <span class="ml-auto rounded-md bg-forest-900 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-forest-300/70">Soon</span>
+                    </span>
+                {% endfor %}
+            </nav>
+
+            <div class="mt-auto space-y-0.5 px-3 text-[11px] text-forest-300/40">
+                <p>Sources: Hansen GFC · WDPA</p>
+                <p>Proof of concept</p>
+            </div>
+        </aside>
+
+        {# ── Main ──────────────────────────────────────────────────────────── #}
+        <div class="flex min-w-0 flex-1 flex-col">
+            <header class="flex h-16 items-center gap-4 border-b border-gray-200 bg-white px-6">
+                <h1 class="text-base font-semibold text-gray-800">{% block heading %}Dashboard{% endblock %}</h1>
+                <div class="ml-auto flex gap-2.5">{% block chips %}{% endblock %}</div>
+            </header>
+            <section class="relative min-h-0 flex-1">{% block content %}{% endblock %}</section>
+        </div>
+    </div>
+{% endblock %}
