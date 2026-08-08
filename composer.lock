@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b96190dd490f31901c9c9f7e47b54ec3",
+    "content-hash": "d72bf3323e49d166d1fe12c4f837db74",
     "packages": [
         {
             "name": "composer/semver",
@@ -1268,17 +1268,17 @@
             "time": "2025-03-06T22:45:56+00:00"
         },
         {
-            "name": "fundistadi/fundi-postgis",
-            "version": "v0.1.1",
+            "name": "fundistadi/postgis-bundle",
+            "version": "v0.2.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/fundistadi/fundi-postgis.git",
-                "reference": "2752f9fcda93dd6693672a0b0c79f7691104a422"
+                "url": "https://github.com/fundistadi/postgis-bundle.git",
+                "reference": "e61fe6cf375ee572f9c9839901f4680a9eb319d6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fundistadi/fundi-postgis/zipball/2752f9fcda93dd6693672a0b0c79f7691104a422",
-                "reference": "2752f9fcda93dd6693672a0b0c79f7691104a422",
+                "url": "https://api.github.com/repos/fundistadi/postgis-bundle/zipball/e61fe6cf375ee572f9c9839901f4680a9eb319d6",
+                "reference": "e61fe6cf375ee572f9c9839901f4680a9eb319d6",
                 "shasum": ""
             },
             "require": {
@@ -1301,7 +1301,7 @@
             },
             "autoload": {
                 "psr-4": {
-                    "FundiStadi\\PostGIS\\": "src/"
+                    "FundiStadi\\PostGISBundle\\": "src/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -1311,7 +1311,7 @@
             "authors": [
                 {
                     "name": "Ezekiel Mjema",
-                    "homepage": "https://github.com/fundistadi"
+                    "homepage": "https://github.com/eemjema"
                 }
             ],
             "description": "PostGIS spatial types, automatic GiST indexing, and ST_* DQL functions for Doctrine ORM 3 / DBAL 4 on Symfony.",
@@ -1328,10 +1328,10 @@
                 "symfony"
             ],
             "support": {
-                "issues": "https://github.com/fundistadi/fundi-postgis/issues",
-                "source": "https://github.com/fundistadi/fundi-postgis/tree/v0.1.1"
+                "issues": "https://github.com/fundistadi/postgis-bundle/issues",
+                "source": "https://github.com/fundistadi/postgis-bundle/tree/v0.2.0"
             },
-            "time": "2026-08-07T18:10:34+00:00"
+            "time": "2026-08-08T08:51:49+00:00"
         },
         {
             "name": "monolog/monolog",

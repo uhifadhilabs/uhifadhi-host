@@ -38,6 +38,9 @@
             "migrations/.gitignore"
         ]
     },
+    "fundistadi/postgis-bundle": {
+        "version": "v0.2.0"
+    },
     "phpstan/phpstan": {
         "version": "2.2.8"
     },
