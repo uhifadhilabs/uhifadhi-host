@@ -1,4 +1,13 @@
-# dnca — Project Handover & State
+# uhifadhi — Project Handover & State
+
+> **RENAMED 2026-08-08: `dnca` → `uhifadhi`** (Swahili: *conservation*). The app
+> generalized to any user-provided boundary, so the product got a product name;
+> **DNCA** stays as the commissioning initiative / first deployment, and
+> Ngorongoro is simply the first area in the index. Folder is now
+> `~/Programming/PhpstormProjects/uhifadhi`, app at `https://uhifadhi.localhost`,
+> DBs `uhifadhi` / `uhifadhi_test` (fundi PostGIS-17 cluster, port 5434).
+> Product vision ("Grafana for conservation") is parked in **`VISION.md`**.
+> Historical "dnca" mentions below are pre-rename facts left as written.
 
 _Last updated: 2026-08-08. Self-contained: written for a fresh Claude Code session
 started in THIS directory (session memory from the old `RStudioProjects/DNCA`
@@ -36,7 +45,7 @@ mentioned in the public `fundistadi/*` repos** (this repo is private — fine he
 | `fundistadi/postgis-bundle` (public, Packagist **^0.2** — **renamed** from `fundistadi/fundi-postgis`; namespace `FundiStadi\PostGISBundle`) | In-house Doctrine DBAL 4 / ORM 3 PostGIS bundle: `geometry`/`multipolygon` types (GeoJSON in/out), auto `USING gist` indexes, churn-free typed-column introspection | Proven end-to-end in this app; dnca migrated to the new name (commit 78adb3d) |
 | `fundistadi/fundi-cli` (private, Go, **v0.4.2** via `brew install fundistadi/tap/fundi`) | Docker-free dev supervisor: FrankenPHP + Mercure + workers + shared HTTPS proxy + native DB provisioning | This app runs under it |
 | `fundistadi/postgis` (public, GHCR) | Own multi-arch PostGIS Docker image (postgres:17 + PGDG) — used by CI, not local dev | Published |
-| Local paths | `~/Programming/PhpstormProjects/fundi-postgis`, `~/Programming/GoLandProjects/fundi-cli`, `~/Programming/DockerProjects/postgis` | — |
+| Local paths | Bundles live in the `~/Programming/PhpstormProjects/fundistadi/` **workspace** (`postgis-bundle/`, `gdal-bundle/` — each its own repo; the workspace itself is a private repo tracking only shared `CLAUDE.md` + `.claude/skills`); `~/Programming/GoLandProjects/fundi-cli`; `~/Programming/DockerProjects/postgis` | — |
 
 **fundi-cli database model** (shipped): no `database:` key in `.fundi.local.yaml`
 → fundi ensures the project DB on whatever local Postgres the app's `.env` names;
@@ -132,7 +141,31 @@ Also noted by a parallel session: `doctrine:schema:validate` flags unmapped
 `ogr_system_tables.*` (GDAL bookkeeping from the data imports) — do NOT let
 Doctrine drop them; optionally hide via a doctrine `schema_filter` regex.
 
-## 5. NEXT UP — Python Hansen ingestion pipeline (proposal on the table)
+## 5. Ingestion — IMPLEMENTED in PHP (2026-08-08); the Python proposal below is SUPERSEDED
+
+The Hansen ETL now lives in the app as the **`App\Ingestion` bounded context**
+(deptrac: `Ingestion: [Ingestion, Spatial, Forest]`), built on
+**`fundistadi/gdal-bundle` ^0.1** — no Python, no microservice:
+
+- `Service\HansenTileService` (behind `Service\TileSourceInterface`) — bbox →
+  granule /vsicurl URIs (unit-tested).
+- `MessageHandler\IngestHansenLossHandler` — gdalwarp clip (nodata **255**) →
+  **`gdal raster polygonize`** (GDAL 3.11+ C++ subcommand — this is why no
+  raster2pgsql detour and no gdal_polygonize.py) → ogr2ogr into the
+  `ingest_hansen_raw` staging table (`--config OGR_PG_ENABLE_METADATA NO` so
+  ogr_system_tables never reappears) → transactional per-year dissolve into
+  forest_loss_year → `Entity\DatasetRun` provenance row (params/report/error).
+- `Command\IngestHansenCommand` — `app:ingest:hansen <aoi-id-or-name>
+  [--gfc-version --source --simplify]`, sync (message unrouted).
+- doctrine `schema_filter: '~^(?!ogr_|ingest_)~'` hides OGR bookkeeping and
+  staging tables from migrations:diff / schema:validate — both fully clean.
+- **Validated:** the real run reproduced the manual pipeline's numbers exactly
+  (3,214 ha total; 2001: 1,657; 2013: 186; DatasetRun #1). Integration test runs
+  the whole ETL network-free via a generated fixture granule + stubbed
+  TileSourceInterface.
+
+Python remains reserved for future *pixel-math* science work (zonal stats,
+NDVI, ML) — not ETL. Historical context (original Python proposal):
 
 Replace the manual GDAL run (which loaded the current data) with a repeatable,
 AOI-parameterized CLI. **Proposed and awaiting 3 decisions** (user was about to
