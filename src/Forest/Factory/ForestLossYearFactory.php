@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Forest\Factory;
 
 use App\Forest\Entity\ForestLossYear;
+use App\Spatial\Factory\AreaOfInterestFactory;
 use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
 /**
@@ -26,6 +27,7 @@ final class ForestLossYearFactory extends PersistentObjectFactory
         ];
 
         return [
+            'aoi' => AreaOfInterestFactory::new(),
             'year' => self::faker()->numberBetween(2001, 2023),
             'geom' => json_encode($geom, \JSON_THROW_ON_ERROR),
             'areaHa' => self::faker()->randomFloat(1, 5, 500),

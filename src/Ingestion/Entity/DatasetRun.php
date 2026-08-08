@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Ingestion\Entity;
 
 use App\Ingestion\Repository\DatasetRunRepository;
+use App\Spatial\Entity\AreaOfInterest;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -28,6 +29,12 @@ class DatasetRun
 
     #[ORM\Column(length: 64)]
     private ?string $dataset = null;
+
+    // Nullable: future datasets may not be AOI-scoped (e.g. global layers); the
+    // run record must outlive a deleted area (SET NULL), unlike the data rows.
+    #[ORM\ManyToOne(targetEntity: AreaOfInterest::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?AreaOfInterest $aoi = null;
 
     #[ORM\Column(length: 16)]
     private string $status = self::STATUS_RUNNING;
@@ -57,6 +64,18 @@ class DatasetRun
     public function getDataset(): ?string
     {
         return $this->dataset;
+    }
+
+    public function getAoi(): ?AreaOfInterest
+    {
+        return $this->aoi;
+    }
+
+    public function setAoi(?AreaOfInterest $aoi): static
+    {
+        $this->aoi = $aoi;
+
+        return $this;
     }
 
     public function setDataset(string $dataset): static

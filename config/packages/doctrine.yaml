@@ -2,10 +2,10 @@ doctrine:
     dbal:
         url: '%env(resolve:DATABASE_URL)%'
 
-        # Hide non-Doctrine tables from migrations:diff / schema:validate:
-        #  - ogr_*      GDAL/OGR bookkeeping (ogr_system_tables, created by ogr2ogr)
-        #  - ingest_*   transient staging tables written by ingestion pipelines
-        schema_filter: '~^(?!ogr_|ingest_)~'
+        # Hide GDAL/OGR bookkeeping (ogr_system_tables — legacy of pre-ORM loads)
+        # from migrations:diff / schema:validate. The pipeline no longer creates
+        # it (staging is a Doctrine entity now); this is cheap insurance.
+        schema_filter: '~^(?!ogr_)~'
 
         # IMPORTANT: You MUST configure your server version,
         # either here or in the DATABASE_URL env var (see .env file)

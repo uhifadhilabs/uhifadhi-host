@@ -43,3 +43,9 @@ database: postgis                # simplest: your ACTIVE (brew-linked) Postgres 
 workers:
     tailwind:
         cmd: ['php', 'bin/console', 'tailwind:build', '--watch']
+
+    # Runs async ingestion jobs (Hansen ETL: network + raster work). Exits hourly
+    # by design (--time-limit); respawn brings it straight back. The raised
+    # memory limit covers the polygonize-GeoJSON decode on large areas.
+    messenger:
+        cmd: ['php', '-d', 'memory_limit=1G', 'bin/console', 'messenger:consume', 'async', '--time-limit=3600', '-vv']

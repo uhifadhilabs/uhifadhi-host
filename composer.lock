@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ab6486e51be1b3de6f26dc66a24feb7e",
+    "content-hash": "eaf84046dbadaf79378f48fe03794cde",
     "packages": [
         {
             "name": "composer/semver",
@@ -1333,34 +1333,35 @@
         },
         {
             "name": "fundistadi/postgis-bundle",
-            "version": "v0.2.0",
+            "version": "v0.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/fundistadi/postgis-bundle.git",
-                "reference": "e61fe6cf375ee572f9c9839901f4680a9eb319d6"
+                "reference": "546ab1e5a78847b9ce0a254f149dfa6d4993e66d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fundistadi/postgis-bundle/zipball/e61fe6cf375ee572f9c9839901f4680a9eb319d6",
-                "reference": "e61fe6cf375ee572f9c9839901f4680a9eb319d6",
+                "url": "https://api.github.com/repos/fundistadi/postgis-bundle/zipball/546ab1e5a78847b9ce0a254f149dfa6d4993e66d",
+                "reference": "546ab1e5a78847b9ce0a254f149dfa6d4993e66d",
                 "shasum": ""
             },
             "require": {
                 "doctrine/dbal": "^4.0",
                 "doctrine/doctrine-bundle": "^3.0",
-                "doctrine/orm": "^3.0",
+                "doctrine/orm": "^3.5",
                 "php": ">=8.4",
                 "symfony/framework-bundle": "^7.3 || ^8.0"
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^3.95",
                 "phpstan/phpstan": "^2.2",
-                "phpunit/phpunit": "^13.2"
+                "phpunit/phpunit": "^13.2",
+                "symfony/dependency-injection": "^7.3"
             },
             "type": "symfony-bundle",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "0.1-dev"
+                    "dev-main": "0.3-dev"
                 }
             },
             "autoload": {
@@ -1393,9 +1394,9 @@
             ],
             "support": {
                 "issues": "https://github.com/fundistadi/postgis-bundle/issues",
-                "source": "https://github.com/fundistadi/postgis-bundle/tree/v0.2.0"
+                "source": "https://github.com/fundistadi/postgis-bundle/tree/v0.3.0"
             },
-            "time": "2026-08-08T08:51:49+00:00"
+            "time": "2026-08-08T20:58:43+00:00"
         },
         {
             "name": "monolog/monolog",

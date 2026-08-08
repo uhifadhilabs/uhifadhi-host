@@ -4,39 +4,46 @@ declare(strict_types=1);
 
 namespace App\Ingestion\MessageHandler;
 
+use App\Forest\Entity\ForestLossYear;
+use App\Forest\Repository\ForestLossYearRepository;
 use App\Ingestion\Entity\DatasetRun;
+use App\Ingestion\Entity\HansenLossPolygon;
 use App\Ingestion\Message\IngestHansenLoss;
+use App\Ingestion\Repository\HansenLossPolygonRepository;
 use App\Ingestion\Service\TileSourceInterface;
+use App\Spatial\Entity\AreaOfInterest;
 use App\Spatial\Repository\AreaOfInterestRepository;
-use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use FundiStadi\GDALBundle\Process\GdalRunner;
 use FundiStadi\GDALBundle\Tool\Gdalwarp;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
- * The Hansen ETL, entirely on compiled tools + PostGIS SQL:
+ * The Hansen ETL. GDAL tools touch FILES ONLY; every database write goes
+ * through the ORM (entities) or DQL with the PostGIS bundle's functions —
+ * nothing writes SQL by hand:
  *
- *   gdalwarp (clip granule to AOI, nodata 255)     — gdal-bundle
- *   gdal raster polygonize (pixels → polygons)     — GDAL 3.11+ C++ subcommand
- *   ogr2ogr → ingest_hansen_raw staging table      — OGR metadata disabled
- *   SQL: dissolve per year → forest_loss_year      — transactional replace
+ *   gdalwarp (clip granule to AOI, nodata 255)      — file → file
+ *   gdal raster polygonize → GeoJSON                — file → file (C++, no Python)
+ *   batched ORM persist → HansenLossPolygon staging — the bundle's geometry type
+ *   DQL dissolve (ST_Union → ST_MakeValid → …)      — hydrates per-year rows
+ *   ForestLossYear entities, replace per (aoi, source), one transaction
  *
- * Every run writes a DatasetRun provenance row (params, per-year report, error).
- * The nodata=255 and staging-table hygiene here encode two data bugs hit during
- * the original manual run: -dstnodata 0 silently turns no-loss pixels into
- * "year 2001", and stale intermediate outputs mix runs.
+ * Every run writes a DatasetRun provenance row. nodata=255 encodes a real data
+ * bug: -dstnodata 0 silently turns no-loss pixels into "year 2001".
  */
 #[AsMessageHandler]
 final class IngestHansenLossHandler
 {
-    private const string STAGING_TABLE = 'ingest_hansen_raw';
+    private const int BATCH_SIZE = 500;
 
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly GdalRunner $gdal,
         private readonly TileSourceInterface $tiles,
         private readonly AreaOfInterestRepository $areas,
+        private readonly ForestLossYearRepository $lossYears,
+        private readonly HansenLossPolygonRepository $staging,
     ) {
     }
 
@@ -44,6 +51,7 @@ final class IngestHansenLossHandler
     {
         $run = (new DatasetRun())
             ->setDataset('hansen_gfc_lossyear')
+            ->setAoi($this->areas->find($message->aoiId))
             ->setParams([
                 'aoiId' => $message->aoiId,
                 'version' => $message->version,
@@ -53,23 +61,43 @@ final class IngestHansenLossHandler
             ->setStartedAt(new \DateTimeImmutable());
         $this->em->persist($run);
         $this->em->flush();
+        $runId = (int) $run->getId();
 
         $workdir = sys_get_temp_dir().'/ingest-hansen-'.bin2hex(random_bytes(4));
         mkdir($workdir);
 
         try {
             $report = $this->pipeline($message, $workdir);
-            $run->setStatus(DatasetRun::STATUS_SUCCEEDED)->setReport($report);
+            $this->finishRun($runId, static function (DatasetRun $run) use ($report): void {
+                $run->setStatus(DatasetRun::STATUS_SUCCEEDED)->setReport($report);
+            });
         } catch (\Throwable $e) {
-            $run->setStatus(DatasetRun::STATUS_FAILED)->setError($e->getMessage());
+            $this->finishRun($runId, static function (DatasetRun $run) use ($e): void {
+                $run->setStatus(DatasetRun::STATUS_FAILED)->setError($e->getMessage());
+            });
 
             throw $e;
         } finally {
-            $run->setFinishedAt(new \DateTimeImmutable());
-            $this->em->flush();
             array_map(unlink(...), glob($workdir.'/*') ?: []);
             @rmdir($workdir);
         }
+    }
+
+    /**
+     * The batched staging load clears the EntityManager, detaching anything
+     * loaded before it — so the run is always re-fetched fresh by id.
+     *
+     * @param callable(DatasetRun): void $mutate
+     */
+    private function finishRun(int $runId, callable $mutate): void
+    {
+        $run = $this->em->find(DatasetRun::class, $runId);
+        if (null === $run) {
+            return;
+        }
+        $mutate($run);
+        $run->setFinishedAt(new \DateTimeImmutable());
+        $this->em->flush();
     }
 
     /**
@@ -93,7 +121,7 @@ final class IngestHansenLossHandler
         [$minX, $minY, $maxX, $maxY] = self::bbox($geoJson);
         $sources = $this->tiles->sources($minX, $minY, $maxX, $maxY, $message->version);
 
-        $connection = $this->em->getConnection();
+        $this->staging->truncate();
         foreach ($sources as $i => $source) {
             // Clip. nodata MUST be 255: 0 means "no loss" and would otherwise be
             // silently rewritten to 1 (= year 2001).
@@ -105,94 +133,114 @@ final class IngestHansenLossHandler
                     ->argv($source, $clip),
             );
 
-            // Pixels → polygons (compiled C++ subcommand, replaces gdal_polygonize.py).
-            $vectors = \sprintf('%s/loss_%d.gpkg', $workdir, $i);
+            // Pixels → polygons, to a FILE (compiled C++ subcommand; the database
+            // is never touched by an external tool).
+            $vectors = \sprintf('%s/loss_%d.geojson', $workdir, $i);
             $this->gdal->run([
                 'gdal', 'raster', 'polygonize', '--quiet', '--overwrite',
-                '--band', '1', '--attribute-name', 'dn',
+                '-f', 'GeoJSON', '--band', '1', '--attribute-name', 'dn',
                 '-i', $clip, '-o', $vectors,
             ]);
 
-            // Load into the staging table (Doctrine-invisible via schema_filter).
-            // OGR metadata bookkeeping is disabled so ogr_system_tables never appears.
-            $this->gdal->run([
-                'ogr2ogr', '-f', 'PostgreSQL', $this->pgConnectionString($connection), $vectors,
-                '-nln', self::STAGING_TABLE, '-lco', 'GEOMETRY_NAME=geom',
-                '--config', 'OGR_PG_ENABLE_METADATA', 'NO',
-                0 === $i ? '-overwrite' : '-append',
-            ]);
+            $this->loadStaging($vectors);
         }
 
-        return $this->dissolve($connection, $message);
+        try {
+            return $this->dissolve($message);
+        } finally {
+            $this->staging->truncate();
+        }
     }
 
     /**
-     * Dissolve the staging polygons into one MultiPolygon per loss year and
-     * replace this source's rows in forest_loss_year, in one transaction.
+     * Streams the polygonized features into the staging entity, batched — every
+     * geometry goes through the bundle's polygon type (ST_GeomFromGeoJSON).
+     */
+    private function loadStaging(string $geoJsonFile): void
+    {
+        // A full-AOI feature collection decodes to a large array; the worker/CLI
+        // context may run with a small default memory_limit.
+        if ('-1' !== ini_get('memory_limit')) {
+            ini_set('memory_limit', '1G');
+        }
+
+        $document = json_decode((string) file_get_contents($geoJsonFile), true, 512, \JSON_THROW_ON_ERROR);
+        if (!\is_array($document) || !\is_array($document['features'] ?? null)) {
+            throw new \RuntimeException(\sprintf('Polygonize output %s is not a FeatureCollection.', $geoJsonFile));
+        }
+
+        $batch = 0;
+        foreach ($document['features'] as $feature) {
+            if (!\is_array($feature) || !\is_array($feature['geometry'] ?? null)) {
+                continue;
+            }
+            $properties = \is_array($feature['properties'] ?? null) ? $feature['properties'] : [];
+            $dn = $properties['dn'] ?? null;
+            if (!is_numeric($dn) || (int) $dn < 1 || (int) $dn > 23) {
+                continue; // 0 = no loss, 255 = nodata — not loss data
+            }
+
+            $this->em->persist(
+                (new HansenLossPolygon())
+                    ->setDn((int) $dn)
+                    ->setGeom((string) json_encode($feature['geometry'], \JSON_THROW_ON_ERROR)),
+            );
+            if (0 === ++$batch % self::BATCH_SIZE) {
+                $this->em->flush();
+                $this->em->clear();
+            }
+        }
+        $this->em->flush();
+        $this->em->clear();
+    }
+
+    /**
+     * Dissolves staging into one MultiPolygon per loss year — entirely in DQL
+     * via the PostGIS bundle's functions — and replaces this area's rows as
+     * ForestLossYear ENTITIES, in one transaction.
      *
      * @return array<string, mixed>
      */
-    private function dissolve(Connection $connection, IngestHansenLoss $message): array
+    private function dissolve(IngestHansenLoss $message): array
     {
-        $connection->beginTransaction();
-        try {
-            $connection->executeStatement(
-                'DELETE FROM forest_loss_year WHERE source = :source',
-                ['source' => $message->source],
-            );
-            $connection->executeStatement(
-                'INSERT INTO forest_loss_year (year, geom, area_ha, source)
-                 SELECT dn + 2000,
-                        ST_Multi(ST_CollectionExtract(ST_MakeValid(
-                            ST_SimplifyPreserveTopology(ST_Union(geom), :simplify)), 3)),
-                        round((SUM(ST_Area(geom::geography)) / 10000)::numeric)::float,
-                        :source
-                 FROM '.self::STAGING_TABLE.'
-                 WHERE dn BETWEEN 1 AND 23
-                 GROUP BY dn',
-                ['simplify' => $message->simplifyDegrees, 'source' => $message->source],
-            );
-            $connection->executeStatement('DROP TABLE IF EXISTS '.self::STAGING_TABLE);
-            $connection->commit();
-        } catch (\Throwable $e) {
-            $connection->rollBack();
+        /** @var list<array{dn: int, geojson: string, m2: string|float}> $rows */
+        $rows = $this->em->createQuery(\sprintf(
+            'SELECT p.dn AS dn,
+                    ST_AsGeoJSON(ST_Multi(ST_CollectionExtract(ST_MakeValid(
+                        ST_SimplifyPreserveTopology(ST_Union(p.geom), :tolerance)), 3))) AS geojson,
+                    SUM(ST_Area(Geography(p.geom))) AS m2
+             FROM %s p
+             GROUP BY p.dn
+             ORDER BY p.dn',
+            HansenLossPolygon::class,
+        ))->setParameter('tolerance', $message->simplifyDegrees)->getArrayResult();
 
-            throw $e;
-        }
+        // The load cleared the EntityManager — fetch a managed AOI reference.
+        $aoi = $this->em->find(AreaOfInterest::class, $message->aoiId)
+            ?? throw new \RuntimeException(\sprintf('AreaOfInterest %d disappeared mid-run.', $message->aoiId));
 
-        /** @var list<array{year: int, area_ha: float}> $rows */
-        $rows = $connection->fetchAllAssociative(
-            'SELECT year, area_ha FROM forest_loss_year WHERE source = :source ORDER BY year',
-            ['source' => $message->source],
-        );
         $byYear = [];
         $total = 0.0;
-        foreach ($rows as $row) {
-            $byYear[(string) $row['year']] = (float) $row['area_ha'];
-            $total += (float) $row['area_ha'];
-        }
+        $this->em->wrapInTransaction(function () use ($rows, $aoi, $message, &$byYear, &$total): void {
+            $this->lossYears->deleteForAoiAndSource($message->aoiId, $message->source);
+            foreach ($rows as $row) {
+                $year = 2000 + (int) $row['dn'];
+                $areaHa = round((float) $row['m2'] / 10_000);
+                $this->em->persist(
+                    (new ForestLossYear())
+                        ->setAoi($aoi)
+                        ->setYear($year)
+                        ->setGeom($row['geojson'])
+                        ->setAreaHa($areaHa)
+                        ->setSource($message->source),
+                );
+                $byYear[(string) $year] = $areaHa;
+                $total += $areaHa;
+            }
+            $this->em->flush();
+        });
 
         return ['years' => \count($rows), 'totalHa' => $total, 'byYearHa' => $byYear];
-    }
-
-    /**
-     * OGR PG connection string from the app's own Doctrine connection — one
-     * database, one source of truth.
-     */
-    private function pgConnectionString(Connection $connection): string
-    {
-        $params = $connection->getParams();
-        $parts = [
-            'host='.(\is_string($params['host'] ?? null) ? $params['host'] : '127.0.0.1'),
-            'port='.(is_numeric($params['port'] ?? null) ? (string) $params['port'] : '5432'),
-            'dbname='.(\is_string($params['dbname'] ?? null) ? $params['dbname'] : ''),
-            'user='.(\is_string($params['user'] ?? null) ? $params['user'] : ''),
-        ];
-        if (\is_string($params['password'] ?? null) && '' !== $params['password']) {
-            $parts[] = 'password='.$params['password'];
-        }
-
-        return 'PG:'.implode(' ', $parts);
     }
 
     /**

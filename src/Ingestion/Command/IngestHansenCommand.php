@@ -15,6 +15,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Messenger\Stamp\TransportNamesStamp;
 
 /**
  * Runs the Hansen GFC forest-loss ingestion for an area of interest (by id or
@@ -69,12 +70,14 @@ final class IngestHansenCommand extends Command
 
         $io->section(\sprintf('Ingesting %s for "%s" (AOI %d)', $version, (string) $aoi->getName(), $aoi->getId()));
 
+        // The message is routed async for the web UI; the CLI overrides to the
+        // sync transport so the operator sees the run (and its report) inline.
         $this->bus->dispatch(new IngestHansenLoss(
             aoiId: $aoi->getId(),
             version: $version,
             source: $source,
             simplifyDegrees: (float) $simplify,
-        ));
+        ), [new TransportNamesStamp(['sync'])]);
 
         $run = $this->runs->findOneBy(['dataset' => 'hansen_gfc_lossyear'], ['id' => 'DESC']);
         $report = $run?->getReport();

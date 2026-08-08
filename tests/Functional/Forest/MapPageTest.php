@@ -19,9 +19,9 @@ final class MapPageTest extends WebTestCase
     public function testTheMapPageRendersTheDashboardWithMapWiring(): void
     {
         $client = static::createClient();
-        AreaOfInterestFactory::createOne(['name' => 'Ngorongoro Conservation Area']);
-        ForestLossYearFactory::createOne(['year' => 2010, 'areaHa' => 185.0]);
-        ForestLossYearFactory::createOne(['year' => 2013, 'areaHa' => 186.0]);
+        $aoi = AreaOfInterestFactory::createOne(['name' => 'Ngorongoro Conservation Area']);
+        ForestLossYearFactory::createOne(['aoi' => $aoi, 'year' => 2010, 'areaHa' => 185.0]);
+        ForestLossYearFactory::createOne(['aoi' => $aoi, 'year' => 2013, 'areaHa' => 186.0]);
 
         $crawler = $client->request('GET', '/map');
 

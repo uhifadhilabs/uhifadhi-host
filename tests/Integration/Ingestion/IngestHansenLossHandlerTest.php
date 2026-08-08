@@ -8,7 +8,10 @@ use App\Ingestion\Entity\DatasetRun;
 use App\Ingestion\Message\IngestHansenLoss;
 use App\Ingestion\MessageHandler\IngestHansenLossHandler;
 use App\Ingestion\Repository\DatasetRunRepository;
+use App\Ingestion\Repository\HansenLossPolygonRepository;
 use App\Ingestion\Service\TileSourceInterface;
+use App\Forest\Factory\ForestLossYearFactory;
+use App\Forest\Repository\ForestLossYearRepository;
 use App\Spatial\Factory\AreaOfInterestFactory;
 use App\Spatial\Repository\AreaOfInterestRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -24,10 +27,7 @@ use Zenstruck\Foundry\Test\Factories;
  * dissolve — runs end to end and lands one dissolved 2013 MultiPolygon in
  * forest_loss_year plus a succeeded DatasetRun.
  *
- * Note: ogr2ogr writes the staging table over its OWN connection (committed,
- * outside DAMA's transaction); the handler drops it inside the rolled-back
- * transaction, so an empty staging table may linger in dnca_test — harmless,
- * the next run's -overwrite replaces it.
+ * Fully DAMA-covered: every write (staging included) rides the test transaction.
  */
 final class IngestHansenLossHandlerTest extends KernelTestCase
 {
@@ -56,7 +56,7 @@ final class IngestHansenLossHandlerTest extends KernelTestCase
         @rmdir($this->workdir);
     }
 
-    public function testThePipelineLandsDissolvedLossAndProvenance(): void
+    public function testThePipelineIsPerAreaAndLandsDissolvedLossAndProvenance(): void
     {
         self::bootKernel();
         $container = self::getContainer();
@@ -79,6 +79,10 @@ final class IngestHansenLossHandlerTest extends KernelTestCase
                 'coordinates' => [[[[35.2, -3.8], [35.8, -3.8], [35.8, -3.2], [35.2, -3.2], [35.2, -3.8]]]],
             ]),
         ]);
+        // ANOTHER area already has loss rows from the same dataset — ingesting
+        // $aoi must not touch them.
+        $other = AreaOfInterestFactory::createOne(['name' => 'Untouched neighbour']);
+        ForestLossYearFactory::createOne(['aoi' => $other, 'year' => 2007, 'source' => 'hansen_test']);
 
         $stub = new class($tile) implements TileSourceInterface {
             public function __construct(private readonly string $tile)
@@ -96,25 +100,36 @@ final class IngestHansenLossHandlerTest extends KernelTestCase
             $this->runner,
             $stub,
             $container->get(AreaOfInterestRepository::class),
+            $container->get(ForestLossYearRepository::class),
+            $container->get(HansenLossPolygonRepository::class),
         );
         $handler(new IngestHansenLoss(aoiId: (int) $aoi->getId(), version: 'TEST', source: 'hansen_test'));
 
-        // One dissolved MultiPolygon for 2013, geodesic area in the right range.
-        /** @var array{year: int, area_ha: float, t: string}|false $row */
+        // One dissolved MultiPolygon for 2013, owned by $aoi.
+        /** @var array{year: int, area_ha: float, t: string, aoi_id: int}|false $row */
         $row = $em->getConnection()->fetchAssociative(
-            "SELECT year, area_ha, GeometryType(geom) AS t FROM forest_loss_year WHERE source = 'hansen_test'",
+            "SELECT year, area_ha, GeometryType(geom) AS t, aoi_id FROM forest_loss_year WHERE source = 'hansen_test' AND aoi_id = :aoi",
+            ['aoi' => $aoi->getId()],
         );
-        self::assertNotFalse($row, 'expected exactly one forest_loss_year row');
+        self::assertNotFalse($row, 'expected exactly one forest_loss_year row for the ingested area');
         self::assertSame(2013, (int) $row['year']);
         self::assertSame('MULTIPOLYGON', $row['t']);
         self::assertGreaterThan(300_000, (float) $row['area_ha']);
         self::assertLessThan(600_000, (float) $row['area_ha']);
 
-        // Provenance: a succeeded run carrying the per-year report.
+        // The neighbour's row survived the replace.
+        $neighbour = $em->getConnection()->fetchOne(
+            "SELECT count(*) FROM forest_loss_year WHERE aoi_id = :aoi AND source = 'hansen_test'",
+            ['aoi' => $other->getId()],
+        );
+        self::assertSame(1, (int) $neighbour, 'ingesting one area must not delete another area\'s rows');
+
+        // Provenance: a succeeded run linked to the area, carrying the report.
         $run = $container->get(DatasetRunRepository::class)
             ->findOneBy(['dataset' => 'hansen_gfc_lossyear'], ['id' => 'DESC']);
         self::assertNotNull($run);
         self::assertSame(DatasetRun::STATUS_SUCCEEDED, $run->getStatus());
+        self::assertSame($aoi->getId(), $run->getAoi()?->getId());
         self::assertNotNull($run->getFinishedAt());
         $report = $run->getReport();
         self::assertNotNull($report);
@@ -139,6 +154,8 @@ final class IngestHansenLossHandlerTest extends KernelTestCase
             $this->runner,
             $stub,
             $container->get(AreaOfInterestRepository::class),
+            $container->get(ForestLossYearRepository::class),
+            $container->get(HansenLossPolygonRepository::class),
         );
 
         try {

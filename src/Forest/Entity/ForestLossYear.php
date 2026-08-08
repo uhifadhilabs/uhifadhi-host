@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace App\Forest\Entity;
 
 use App\Forest\Repository\ForestLossYearRepository;
+use App\Spatial\Entity\AreaOfInterest;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * One year's forest-loss footprint (Hansen Global Forest Change), clipped to the
- * NCA area of interest. `geom` is a MultiPolygon in WGS84, exchanged as GeoJSON.
+ * One year's forest-loss footprint (Hansen Global Forest Change) for one area
+ * of interest. `geom` is a MultiPolygon in WGS84, exchanged as GeoJSON. Rows
+ * die with their area (CASCADE).
  */
 #[ORM\Entity(repositoryClass: ForestLossYearRepository::class)]
 #[ORM\Table(name: 'forest_loss_year')]
@@ -19,6 +21,10 @@ class ForestLossYear
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
+
+    #[ORM\ManyToOne(targetEntity: AreaOfInterest::class)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
+    private ?AreaOfInterest $aoi = null;
 
     #[ORM\Column(type: 'smallint')]
     private ?int $year = null;
@@ -35,6 +41,18 @@ class ForestLossYear
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getAoi(): ?AreaOfInterest
+    {
+        return $this->aoi;
+    }
+
+    public function setAoi(?AreaOfInterest $aoi): static
+    {
+        $this->aoi = $aoi;
+
+        return $this;
     }
 
     public function getYear(): ?int
