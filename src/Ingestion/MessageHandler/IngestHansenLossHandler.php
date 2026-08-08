@@ -222,7 +222,11 @@ final class IngestHansenLossHandler
         $byYear = [];
         $total = 0.0;
         $this->em->wrapInTransaction(function () use ($rows, $aoi, $message, &$byYear, &$total): void {
-            $this->lossYears->deleteForAoiAndSource($message->aoiId, $message->source);
+            // Replace = native remove() of this area's previous rows (~a couple
+            // dozen entities — the plain ORM way; no bulk query needed).
+            foreach ($this->lossYears->findBy(['aoi' => $message->aoiId, 'source' => $message->source]) as $previous) {
+                $this->em->remove($previous);
+            }
             foreach ($rows as $row) {
                 $year = 2000 + (int) $row['dn'];
                 $areaHa = round((float) $row['m2'] / 10_000);

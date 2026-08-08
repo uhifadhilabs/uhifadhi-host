@@ -63,7 +63,7 @@ final class MapController extends AbstractController
                 'totalLossHa' => $totalLossHa,
                 'yearFrom' => $years !== [] ? $years[array_key_first($years)]->getYear() : null,
                 'yearTo' => $years !== [] ? $years[array_key_last($years)]->getYear() : null,
-                'boundaryKm2' => (int) round($areas->totalAreaKm2()),
+                'boundaryKm2' => (int) round($areas->stAreaKm2()),
                 'boundaryName' => $boundaryName,
             ],
         ]);

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "eaf84046dbadaf79378f48fe03794cde",
+    "content-hash": "99a25b158c472a1311d21a1dd66990c5",
     "packages": [
         {
             "name": "composer/semver",
@@ -1333,16 +1333,16 @@
         },
         {
             "name": "fundistadi/postgis-bundle",
-            "version": "v0.3.0",
+            "version": "v0.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/fundistadi/postgis-bundle.git",
-                "reference": "546ab1e5a78847b9ce0a254f149dfa6d4993e66d"
+                "reference": "1f6f5a7d8df4ddff5c7e04dd98021d7738f08858"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fundistadi/postgis-bundle/zipball/546ab1e5a78847b9ce0a254f149dfa6d4993e66d",
-                "reference": "546ab1e5a78847b9ce0a254f149dfa6d4993e66d",
+                "url": "https://api.github.com/repos/fundistadi/postgis-bundle/zipball/1f6f5a7d8df4ddff5c7e04dd98021d7738f08858",
+                "reference": "1f6f5a7d8df4ddff5c7e04dd98021d7738f08858",
                 "shasum": ""
             },
             "require": {
@@ -1361,7 +1361,7 @@
             "type": "symfony-bundle",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "0.3-dev"
+                    "dev-main": "0.4-dev"
                 }
             },
             "autoload": {
@@ -1394,9 +1394,9 @@
             ],
             "support": {
                 "issues": "https://github.com/fundistadi/postgis-bundle/issues",
-                "source": "https://github.com/fundistadi/postgis-bundle/tree/v0.3.0"
+                "source": "https://github.com/fundistadi/postgis-bundle/tree/v0.4.0"
             },
-            "time": "2026-08-08T20:58:43+00:00"
+            "time": "2026-08-08T22:43:14+00:00"
         },
         {
             "name": "monolog/monolog",

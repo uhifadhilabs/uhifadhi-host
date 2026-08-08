@@ -17,18 +17,4 @@ class ForestLossYearRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, ForestLossYear::class);
     }
-
-    /**
-     * Removes one area's rows for one provenance source (DQL bulk delete) —
-     * the replace semantics of a re-ingestion, scoped so other areas are never
-     * touched.
-     */
-    public function deleteForAoiAndSource(int $aoiId, string $source): void
-    {
-        $this->getEntityManager()
-            ->createQuery(\sprintf('DELETE FROM %s f WHERE f.aoi = :aoi AND f.source = :source', ForestLossYear::class))
-            ->setParameter('aoi', $aoiId)
-            ->setParameter('source', $source)
-            ->execute();
-    }
 }

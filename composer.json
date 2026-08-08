@@ -11,7 +11,7 @@
         "doctrine/doctrine-migrations-bundle": "^4.0",
         "doctrine/orm": "3.6.7",
         "fundistadi/gdal-bundle": "^0.1",
-        "fundistadi/postgis-bundle": "^0.3",
+        "fundistadi/postgis-bundle": "^0.4",
         "phpdocumentor/reflection-docblock": "^6.0",
         "phpstan/phpdoc-parser": "^2.3",
         "symfony/asset": "8.1.*",
