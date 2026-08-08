@@ -14,12 +14,20 @@
         <ini name="display_errors" value="1" />
         <ini name="error_reporting" value="-1" />
         <server name="APP_ENV" value="test" force="true" />
+        <!-- The Panther web server must boot an env the Kernel allows -->
+        <server name="PANTHER_APP_ENV" value="test" />
         <server name="SHELL_VERBOSITY" value="-1" />
     </php>
 
     <testsuites>
-        <testsuite name="Project Test Suite">
+        <!-- Default suite: everything except the browser-driven E2E tests -->
+        <testsuite name="default">
             <directory>tests</directory>
+            <exclude>tests/Panther</exclude>
+        </testsuite>
+        <!-- E2E suite: real Chrome via Panther; run explicitly (composer test:e2e) -->
+        <testsuite name="panther">
+            <directory>tests/Panther</directory>
         </testsuite>
     </testsuites>
 
@@ -40,5 +48,8 @@
     </source>
 
     <extensions>
+        <bootstrap class="Symfony\Component\Panther\ServerExtension" />
+        <bootstrap class="Zenstruck\Foundry\PHPUnit\FoundryExtension" />
+        <bootstrap class="DAMA\DoctrineTestBundle\PHPUnit\PHPUnitExtension" />
     </extensions>
 </phpunit>

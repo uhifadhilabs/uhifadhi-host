@@ -33,7 +33,7 @@ mentioned in the public `fundistadi/*` repos** (this repo is private — fine he
 
 | Repo | What | Status |
 |---|---|---|
-| `fundistadi/fundi-postgis` (public, Packagist **v0.1.1**) | In-house Doctrine DBAL 4 / ORM 3 PostGIS bundle: `geometry`/`multipolygon` types (GeoJSON in/out), auto `USING gist` indexes, churn-free typed-column introspection | Proven end-to-end in this app |
+| `fundistadi/postgis-bundle` (public, Packagist **^0.2** — **renamed** from `fundistadi/fundi-postgis`; namespace `FundiStadi\PostGISBundle`) | In-house Doctrine DBAL 4 / ORM 3 PostGIS bundle: `geometry`/`multipolygon` types (GeoJSON in/out), auto `USING gist` indexes, churn-free typed-column introspection | Proven end-to-end in this app; dnca migrated to the new name (commit 78adb3d) |
 | `fundistadi/fundi-cli` (private, Go, **v0.4.2** via `brew install fundistadi/tap/fundi`) | Docker-free dev supervisor: FrankenPHP + Mercure + workers + shared HTTPS proxy + native DB provisioning | This app runs under it |
 | `fundistadi/postgis` (public, GHCR) | Own multi-arch PostGIS Docker image (postgres:17 + PGDG) — used by CI, not local dev | Published |
 | Local paths | `~/Programming/PhpstormProjects/fundi-postgis`, `~/Programming/GoLandProjects/fundi-cli`, `~/Programming/DockerProjects/postgis` | — |
@@ -111,6 +111,26 @@ self-hosted Leaflet committed.
   earlier — restart fundi. Manual build: `php bin/console tailwind:build`.
 - Deferred: Flex recipe for fundi-postgis "when well tested"; pushing this repo to
   a private remote.
+
+## 4b. Test suite (added 2026-08-08 — TDD is now enforced)
+
+Mirrors vivutio: `tests/{Smoke,Unit,Integration,Functional,Panther}`, PHPUnit
+suites `default` + `panther`, **DAMA** rollback + **Foundry** factories (factories
+live in-context: `src/<Context>/Factory/`), Panther e2e in real Chrome on a
+dedicated `dnca_test_panther` DB (`#[SkipDatabaseRollback]`, drop+migrate per
+class). 21 tests green: unit (GeoJsonNormalizer, LossYearPalette — both extracted
+from command/controller for testability), functional (/map page, forest-loss API),
+integration (aoi:import against real PostGIS, asserts `GeometryType(geom)`),
+e2e (Leaflet boots, boundary+loss SVG render, base toggle switches tiles).
+Commands: `composer test` / `test:e2e` / `check`. Key wiring: `.env.test.local`
+carries the DSN (Symfony skips `.env.local` in test env); first migration now
+does `CREATE EXTENSION IF NOT EXISTS postgis`; chromedriver via `vendor/bin/bdi
+detect drivers` (gitignored `drivers/`). Conventions encoded in
+`.claude/skills/dnca-conventions/SKILL.md`.
+
+Also noted by a parallel session: `doctrine:schema:validate` flags unmapped
+`ogr_system_tables.*` (GDAL bookkeeping from the data imports) — do NOT let
+Doctrine drop them; optionally hide via a doctrine `schema_filter` regex.
 
 ## 5. NEXT UP — Python Hansen ingestion pipeline (proposal on the table)
 

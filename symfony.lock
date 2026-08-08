@@ -1,4 +1,7 @@
 {
+    "dama/doctrine-test-bundle": {
+        "version": "v8.6.0"
+    },
     "deptrac/deptrac": {
         "version": "4.7.1"
     },
@@ -200,6 +203,15 @@
             "config/packages/notifier.yaml"
         ]
     },
+    "symfony/panther": {
+        "version": "2.4",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "1.0",
+            "ref": "eac1868f830a3e332764bb3919ab02311b3340c8"
+        }
+    },
     "symfony/property-info": {
         "version": "8.1",
         "recipe": {
@@ -339,5 +351,18 @@
     },
     "twig/extra-bundle": {
         "version": "v3.24.0"
+    },
+    "zenstruck/foundry": {
+        "version": "2.11",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "2.7",
+            "ref": "9bd824886195ebe64a24438db1b6d17eb833ac56"
+        },
+        "files": [
+            "config/packages/zenstruck_foundry.yaml",
+            "src/Story/AppStory.php"
+        ]
     }
 }

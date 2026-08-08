@@ -28,7 +28,6 @@
         "symfony/mime": "8.1.*",
         "symfony/monolog-bundle": "^3.0|^4.0",
         "symfony/notifier": "8.1.*",
-        "symfony/process": "8.1.*",
         "symfony/property-access": "8.1.*",
         "symfony/property-info": "8.1.*",
         "symfony/runtime": "8.1.*",
@@ -91,6 +90,17 @@
         ],
         "post-update-cmd": [
             "@auto-scripts"
+        ],
+        "deptrac": "deptrac analyse --no-progress",
+        "lint:twig": "php bin/console lint:twig templates",
+        "lint:container": "php bin/console lint:container",
+        "test": "phpunit --testsuite=default",
+        "test:e2e": "phpunit --testsuite=panther",
+        "check": [
+            "@deptrac",
+            "@lint:twig",
+            "@lint:container",
+            "@test"
         ]
     },
     "conflict": {
@@ -103,13 +113,18 @@
         }
     },
     "require-dev": {
+        "dama/doctrine-test-bundle": "^8.6",
+        "dbrekelmans/bdi": "^1.4",
         "deptrac/deptrac": "^4.7",
         "phpunit/phpunit": "^13.3",
         "symfony/browser-kit": "8.1.*",
         "symfony/css-selector": "8.1.*",
         "symfony/debug-bundle": "8.1.*",
         "symfony/maker-bundle": "^1.0",
+        "symfony/panther": "^2.4",
+        "symfony/process": "8.1.*",
         "symfony/stopwatch": "8.1.*",
-        "symfony/web-profiler-bundle": "8.1.*"
+        "symfony/web-profiler-bundle": "8.1.*",
+        "zenstruck/foundry": "^2.11"
     }
 }

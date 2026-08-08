@@ -27,3 +27,11 @@
 ###> claude ###
 /CLAUDE.md
 ###< claude ###
+
+###> dbrekelmans/bdi ###
+/drivers/
+###< dbrekelmans/bdi ###
+
+###> claude ###
+/.claude/settings.local.json
+###< claude ###

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Spatial\Command;
 
 use App\Spatial\Entity\AreaOfInterest;
+use App\Spatial\Service\GeoJsonNormalizer;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -16,9 +17,9 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * Loads a boundary from a GeoJSON file into {@see AreaOfInterest}. Accepts a
- * Geometry, Feature, or FeatureCollection and normalises everything to a single
- * MultiPolygon (WGS84) — the geom column's type. No spatial toolchain required;
- * PostGIS parses the GeoJSON on insert (via fundi-postgis' ST_GeomFromGeoJSON).
+ * Geometry, Feature, or FeatureCollection ({@see GeoJsonNormalizer}) and stores a
+ * single MultiPolygon (WGS84) — the geom column's type. No spatial toolchain
+ * required; PostGIS parses the GeoJSON on insert (via ST_GeomFromGeoJSON).
  */
 #[AsCommand(
     name: 'app:aoi:import',
@@ -26,8 +27,10 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 )]
 final class ImportAreaOfInterestCommand extends Command
 {
-    public function __construct(private readonly EntityManagerInterface $em)
-    {
+    public function __construct(
+        private readonly EntityManagerInterface $em,
+        private readonly GeoJsonNormalizer $normalizer,
+    ) {
         parent::__construct();
     }
 
@@ -64,7 +67,7 @@ final class ImportAreaOfInterestCommand extends Command
             if (!\is_array($doc)) {
                 throw new \InvalidArgumentException('GeoJSON root must be an object.');
             }
-            $polygons = $this->collectPolygons($doc);
+            $polygons = $this->normalizer->toMultiPolygonCoordinates($doc);
         } catch (\JsonException $e) {
             $io->error(\sprintf('Invalid JSON: %s', $e->getMessage()));
 
@@ -100,80 +103,5 @@ final class ImportAreaOfInterestCommand extends Command
         ));
 
         return Command::SUCCESS;
-    }
-
-    /**
-     * Flatten any GeoJSON document into a list of Polygon coordinate arrays (each
-     * a list of linear rings), so several features/polygons merge into one
-     * MultiPolygon.
-     *
-     * @param array<array-key, mixed> $node
-     *
-     * @return list<mixed> the `coordinates` value for a MultiPolygon
-     */
-    private function collectPolygons(array $node): array
-    {
-        $type = $node['type'] ?? null;
-        if (!\is_string($type)) {
-            throw new \InvalidArgumentException('GeoJSON object is missing a "type".');
-        }
-
-        return match ($type) {
-            'FeatureCollection' => $this->fromFeatures($node['features'] ?? null),
-            'Feature' => $this->collectPolygons($this->geometryOf($node)),
-            'Polygon' => [$this->coordinatesOf($node)],
-            'MultiPolygon' => array_values($this->coordinatesOf($node)),
-            default => throw new \InvalidArgumentException(\sprintf('Unsupported geometry type "%s" (need Polygon/MultiPolygon).', $type)),
-        };
-    }
-
-    /**
-     * @param mixed $features
-     *
-     * @return list<mixed>
-     */
-    private function fromFeatures($features): array
-    {
-        if (!\is_array($features)) {
-            throw new \InvalidArgumentException('FeatureCollection has no "features" array.');
-        }
-        $polygons = [];
-        foreach ($features as $feature) {
-            if (\is_array($feature)) {
-                array_push($polygons, ...$this->collectPolygons($this->geometryOf($feature)));
-            }
-        }
-
-        return $polygons;
-    }
-
-    /**
-     * @param array<array-key, mixed> $feature
-     *
-     * @return array<array-key, mixed>
-     */
-    private function geometryOf(array $feature): array
-    {
-        $geometry = $feature['geometry'] ?? null;
-        if (!\is_array($geometry)) {
-            throw new \InvalidArgumentException('Feature has no "geometry".');
-        }
-
-        return $geometry;
-    }
-
-    /**
-     * @param array<array-key, mixed> $geometry
-     *
-     * @return array<array-key, mixed>
-     */
-    private function coordinatesOf(array $geometry): array
-    {
-        $coordinates = $geometry['coordinates'] ?? null;
-        if (!\is_array($coordinates)) {
-            throw new \InvalidArgumentException('Geometry has no "coordinates".');
-        }
-
-        return $coordinates;
     }
 }
