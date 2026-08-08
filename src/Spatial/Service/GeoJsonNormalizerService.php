@@ -10,7 +10,7 @@ namespace App\Spatial\Service;
  * (the AOI importer above all) can store one geometry per area regardless of how
  * the source file is shaped.
  */
-final class GeoJsonNormalizer
+final class GeoJsonNormalizerService
 {
     /**
      * @param array<array-key, mixed> $document decoded GeoJSON object

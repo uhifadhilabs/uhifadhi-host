@@ -41,6 +41,9 @@
             "migrations/.gitignore"
         ]
     },
+    "fundistadi/gdal-bundle": {
+        "version": "v0.1.0"
+    },
     "fundistadi/postgis-bundle": {
         "version": "v0.2.0"
     },

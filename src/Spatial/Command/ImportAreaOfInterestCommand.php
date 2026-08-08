@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Spatial\Command;
 
 use App\Spatial\Entity\AreaOfInterest;
-use App\Spatial\Service\GeoJsonNormalizer;
+use App\Spatial\Service\GeoJsonNormalizerService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -17,7 +17,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * Loads a boundary from a GeoJSON file into {@see AreaOfInterest}. Accepts a
- * Geometry, Feature, or FeatureCollection ({@see GeoJsonNormalizer}) and stores a
+ * Geometry, Feature, or FeatureCollection ({@see GeoJsonNormalizerService}) and stores a
  * single MultiPolygon (WGS84) — the geom column's type. No spatial toolchain
  * required; PostGIS parses the GeoJSON on insert (via ST_GeomFromGeoJSON).
  */
@@ -29,7 +29,7 @@ final class ImportAreaOfInterestCommand extends Command
 {
     public function __construct(
         private readonly EntityManagerInterface $em,
-        private readonly GeoJsonNormalizer $normalizer,
+        private readonly GeoJsonNormalizerService $normalizer,
     ) {
         parent::__construct();
     }

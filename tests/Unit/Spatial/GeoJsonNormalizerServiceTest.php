@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Spatial;
 
-use App\Spatial\Service\GeoJsonNormalizer;
+use App\Spatial\Service\GeoJsonNormalizerService;
 use PHPUnit\Framework\TestCase;
 
-final class GeoJsonNormalizerTest extends TestCase
+final class GeoJsonNormalizerServiceTest extends TestCase
 {
-    private GeoJsonNormalizer $normalizer;
+    private GeoJsonNormalizerService $normalizer;
 
     protected function setUp(): void
     {
-        $this->normalizer = new GeoJsonNormalizer();
+        $this->normalizer = new GeoJsonNormalizerService();
     }
 
     /** @var list<mixed> one square linear ring */

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Forest\Controller;
 
 use App\Forest\Repository\ForestLossYearRepository;
-use App\Forest\Service\LossYearPalette;
+use App\Forest\Service\LossYearPaletteService;
 use App\Spatial\Repository\AreaOfInterestRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -23,7 +23,7 @@ use Symfony\Component\Routing\Attribute\Route;
 final class MapController extends AbstractController
 {
     #[Route('/map', name: 'forest_map', methods: ['GET'])]
-    public function page(AreaOfInterestRepository $areas, ForestLossYearRepository $loss, LossYearPalette $palette): Response
+    public function page(AreaOfInterestRepository $areas, ForestLossYearRepository $loss, LossYearPaletteService $palette): Response
     {
         $boundary = ['type' => 'FeatureCollection', 'features' => []];
         $boundaryName = 'Conservation area';

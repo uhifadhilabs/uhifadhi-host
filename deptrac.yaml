@@ -19,8 +19,14 @@ deptrac:
     - name: Forest
       collectors:
         - { type: classLike, value: 'App\\Forest\\.*' }
+    - name: Ingestion
+      collectors:
+        - { type: classLike, value: 'App\\Ingestion\\.*' }
   ruleset:
     # Shared spatial kernel — depends only on itself.
     Spatial: [Spatial]
     # Topic 6 (Deforestation) — isolated; may use the Spatial kernel only.
     Forest: [Forest, Spatial]
+    # Data ingestion — reads AOIs (Spatial) and fills topic tables (Forest);
+    # topics never depend back on Ingestion.
+    Ingestion: [Ingestion, Spatial, Forest]

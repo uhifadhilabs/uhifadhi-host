@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Forest;
 
-use App\Forest\Service\LossYearPalette;
+use App\Forest\Service\LossYearPaletteService;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -12,13 +12,13 @@ use PHPUnit\Framework\TestCase;
  * assets/controllers/map_controller.js — the chart bars and the map polygons
  * share these exact colours.
  */
-final class LossYearPaletteTest extends TestCase
+final class LossYearPaletteServiceTest extends TestCase
 {
-    private LossYearPalette $palette;
+    private LossYearPaletteService $palette;
 
     protected function setUp(): void
     {
-        $this->palette = new LossYearPalette();
+        $this->palette = new LossYearPaletteService();
     }
 
     public function testTheRampEndpointsMatchTheStops(): void

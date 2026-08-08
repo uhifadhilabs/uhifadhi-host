@@ -47,6 +47,30 @@ before every commit.
   in test env). The first migration `CREATE EXTENSION IF NOT EXISTS postgis`, so
   fresh test DBs just work.
 
+## Naming & placement (class categories)
+
+Every class belongs to an explicit category, and the name says which:
+
+| Category | Naming | Placement |
+|---|---|---|
+| Service (stateless logic, DI-registered) | **`XxxService` suffix — mandatory.** Distinguishes our services from Symfony core classes (a bare `GeoJsonNormalizer` collides mentally with Symfony's Normalizer world) | `<Context>/Service/` |
+| Interface | `XxxInterface` suffix (Symfony coding conventions) | **with what it abstracts**: service contract → `<Context>/Service/` beside its implementations (core-Symfony style, e.g. `NormalizerInterface`); entity/model contract → `<Context>/Model/` (Symfony's resolve_target_entity doc, e.g. `InvoiceSubjectInterface`). **Never an `Interface/` subfolder** — the suffix already categorizes, adjacency keeps the seam readable, and `Interface` is a PHP reserved word. If a context ever accumulates 3+ contracts forming a real boundary API, promote them to `<Context>/Contract/` (the symfony/contracts name) — earned, not preallocated |
+| Abstract class | `AbstractXxx` prefix | with its subclasses |
+| Trait / Exception | `XxxTrait` / `XxxException` suffix | `<Context>/Exception/` for exceptions |
+| Entity | plain noun, thin | `<Context>/Entity/` (Doctrine scans this dir — nothing non-entity in it) |
+| Messenger message | plain imperative noun phrase (`IngestHansenLoss`) — it's a DTO | `<Context>/Message/` |
+| Message handler | `XxxHandler` suffix | `<Context>/MessageHandler/` |
+| Foundry factory | `XxxFactory` suffix | `<Context>/Factory/` |
+
+### Category self-audit (run it every time)
+
+Whenever classes are added or moved — and before every commit — run the audit
+against the table above and SHOW it: one row per new/changed class with
+`Class | Category | Verdict`. A class that doesn't cleanly fit a category
+(wrong suffix, wrong folder, behavior in a DTO, logic in an entity…) is a ⚠️
+**flagged for the user's ruling — never silently reclassified or renamed.**
+The audit is part of the definition of done, like the test suite.
+
 ## Architecture
 
 - Bounded contexts under `src/<Context>/` with a marker class; **deptrac is the

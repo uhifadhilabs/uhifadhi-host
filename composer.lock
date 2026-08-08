@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "803ac6fe1cb73f71a39281bd57c7ef70",
+    "content-hash": "ab6486e51be1b3de6f26dc66a24feb7e",
     "packages": [
         {
             "name": "composer/semver",
@@ -1266,6 +1266,70 @@
                 }
             ],
             "time": "2025-03-06T22:45:56+00:00"
+        },
+        {
+            "name": "fundistadi/gdal-bundle",
+            "version": "v0.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/fundistadi/gdal-bundle.git",
+                "reference": "293d21030b2219d7e00dcb45df8a21d5590fdace"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/fundistadi/gdal-bundle/zipball/293d21030b2219d7e00dcb45df8a21d5590fdace",
+                "reference": "293d21030b2219d7e00dcb45df8a21d5590fdace",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.4",
+                "symfony/framework-bundle": "^7.3 || ^8.0",
+                "symfony/process": "^7.3 || ^8.0"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.95",
+                "phpstan/phpstan": "^2.2",
+                "phpunit/phpunit": "^13.2",
+                "symfony/yaml": "^7.3 || ^8.0"
+            },
+            "type": "symfony-bundle",
+            "extra": {
+                "branch-alias": {
+                    "dev-main": "0.1-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "FundiStadi\\GDALBundle\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Ezekiel Mjema",
+                    "homepage": "https://github.com/eemjema"
+                }
+            ],
+            "description": "Typed Symfony services around the GDAL command-line tools: raster/vector inspection, warping and conversion — compiled binaries only, no Python.",
+            "keywords": [
+                "gdal",
+                "geospatial",
+                "geotiff",
+                "gis",
+                "ogr",
+                "raster",
+                "symfony",
+                "vector",
+                "warp"
+            ],
+            "support": {
+                "issues": "https://github.com/fundistadi/gdal-bundle/issues",
+                "source": "https://github.com/fundistadi/gdal-bundle/tree/v0.1.0"
+            },
+            "time": "2026-08-08T18:19:05+00:00"
         },
         {
             "name": "fundistadi/postgis-bundle",

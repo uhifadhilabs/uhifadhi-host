@@ -2,6 +2,11 @@ doctrine:
     dbal:
         url: '%env(resolve:DATABASE_URL)%'
 
+        # Hide non-Doctrine tables from migrations:diff / schema:validate:
+        #  - ogr_*      GDAL/OGR bookkeeping (ogr_system_tables, created by ogr2ogr)
+        #  - ingest_*   transient staging tables written by ingestion pipelines
+        schema_filter: '~^(?!ogr_|ingest_)~'
+
         # IMPORTANT: You MUST configure your server version,
         # either here or in the DATABASE_URL env var (see .env file)
         #server_version: '16'
@@ -28,6 +33,12 @@ doctrine:
                 dir: '%kernel.project_dir%/src/Forest/Entity'
                 prefix: 'App\Forest\Entity'
                 alias: Forest
+            Ingestion:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Ingestion/Entity'
+                prefix: 'App\Ingestion\Entity'
+                alias: Ingestion
 
 when@test:
     doctrine:

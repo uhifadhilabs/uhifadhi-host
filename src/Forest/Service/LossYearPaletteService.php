@@ -7,9 +7,9 @@ namespace App\Forest\Service;
 /**
  * The Hansen YlOrRd year ramp (2001–2023) — MUST stay identical to the stops in
  * assets/controllers/map_controller.js, so the panel's chart bars match the
- * polygons on the map. Guarded by LossYearPaletteTest.
+ * polygons on the map. Guarded by LossYearPaletteServiceTest.
  */
-final class LossYearPalette
+final class LossYearPaletteService
 {
     /** @var list<array{int, array{int, int, int}}> */
     private const STOPS = [
