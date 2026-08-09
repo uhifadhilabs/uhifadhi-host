@@ -22,6 +22,9 @@ deptrac:
     - name: Ingestion
       collectors:
         - { type: classLike, value: 'App\\Ingestion\\.*' }
+    - name: Dashboard
+      collectors:
+        - { type: classLike, value: 'App\\Dashboard\\.*' }
   ruleset:
     # Shared spatial kernel — depends only on itself.
     Spatial: [Spatial]
@@ -30,3 +33,6 @@ deptrac:
     # Data ingestion — reads AOIs (Spatial) and fills topic tables (Forest);
     # topics never depend back on Ingestion.
     Ingestion: [Ingestion, Spatial, Forest]
+    # UI composition layer — the only place allowed to see everything; nothing
+    # depends on it.
+    Dashboard: [Dashboard, Spatial, Forest, Ingestion]

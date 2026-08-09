@@ -1,0 +1,76 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}Areas — Uhifadhi{% endblock %}
+{% block heading %}Areas{% endblock %}
+
+{% block chips %}
+    <a href="{{ path('dashboard_area_new') }}"
+       class="rounded-lg bg-forest-500 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-forest-600">
+        + New area
+    </a>
+{% endblock %}
+
+{% block content %}
+    <div class="h-full overflow-y-auto p-6">
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="mb-4 rounded-lg border border-forest-100 bg-forest-50 px-4 py-3 text-sm text-forest-700">{{ message }}</div>
+            {% endfor %}
+        {% endfor %}
+
+        {% if rows is empty %}
+            <div class="mx-auto mt-16 max-w-md rounded-2xl border border-dashed border-gray-300 bg-white p-10 text-center">
+                <p class="text-base font-semibold text-gray-800">No areas yet</p>
+                <p class="mt-2 text-sm text-gray-500">Upload a boundary — GeoJSON, zipped Shapefile, GeoPackage, KML/KMZ or a zipped File Geodatabase — and start monitoring it.</p>
+                <a href="{{ path('dashboard_area_new') }}"
+                   class="mt-6 inline-block rounded-lg bg-forest-500 px-4 py-2 text-sm font-medium text-white hover:bg-forest-600">Upload the first boundary</a>
+            </div>
+        {% else %}
+            <div class="overflow-hidden rounded-xl border border-gray-200 bg-white">
+                <table class="w-full text-left text-sm">
+                    <thead class="border-b border-gray-200 bg-gray-50 text-[11px] uppercase tracking-wide text-gray-500">
+                        <tr>
+                            <th class="px-5 py-3">Area</th>
+                            <th class="px-5 py-3 text-right">Size</th>
+                            <th class="px-5 py-3 text-right">Forest loss</th>
+                            <th class="px-5 py-3">Last ingestion</th>
+                            <th class="px-5 py-3"></th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        {% for row in rows %}
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-5 py-3.5">
+                                    <a href="{{ path('dashboard_area_show', {id: row.area.id}) }}" class="font-medium text-gray-800 hover:text-forest-600">{{ row.area.name }}</a>
+                                    <span class="ml-2 text-[11px] text-gray-400">{{ row.area.source }}</span>
+                                </td>
+                                <td class="px-5 py-3.5 text-right tabular-nums">{{ row.areaKm2|number_format }} km²</td>
+                                <td class="px-5 py-3.5 text-right tabular-nums">
+                                    {% if row.lossYears > 0 %}
+                                        {{ row.lossTotalHa|number_format }} ha <span class="text-gray-400">· {{ row.lossYears }} yr</span>
+                                    {% else %}
+                                        <span class="text-gray-400">not ingested</span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-5 py-3.5">
+                                    {% if row.lastRun %}
+                                        {% set status = row.lastRun.status %}
+                                        <span class="rounded-full px-2.5 py-1 text-[11px] font-semibold
+                                            {{ status == 'succeeded' ? 'bg-forest-50 text-forest-600' : (status == 'running' ? 'bg-amber-50 text-amber-600' : 'bg-red-50 text-red-600') }}">
+                                            {{ status }}
+                                        </span>
+                                    {% else %}
+                                        <span class="text-gray-400">—</span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-5 py-3.5 text-right">
+                                    <a href="{{ path('dashboard_area_show', {id: row.area.id}) }}" class="text-sm font-medium text-forest-600 hover:text-forest-700">View →</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
