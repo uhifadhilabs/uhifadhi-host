@@ -154,10 +154,29 @@ true is the moment this must already be in force.
   contributors dislike CLAs, which is why the *scope* should be honest — an
   Apache-style individual CLA, not a copyright grab.
 
-**uhifadhi's rule: CLA, automated, from the very first outside PR** (a DCO
-sign-off may be layered on top for provenance hygiene, but the CLA is the
-load-bearing instrument). Documented in `CONTRIBUTING.md` when the repo goes
-public, enforced by bot so it costs maintainer time zero.
+**uhifadhi's rule: CLA only — no DCO fallback, no exceptions.** Every
+contribution requires the signed CLA, automated from the very first outside PR.
+A contributor unwilling to sign it is, by definition, unwilling to let the
+project remain commercially viable — that contribution has no value to uhifadhi,
+however good the code. The DCO is described above only to explain why it is
+insufficient, not as an accepted alternative. Documented in `CONTRIBUTING.md`
+when the repo goes public, enforced by bot so it costs maintainer time zero and
+is never negotiated case by case.
+
+**"What if a contributor later says they don't want their code used anymore?"**
+They cannot withdraw it — this is exactly what the CLA is for. A standard
+Apache-style CLA grants the project a **perpetual, worldwide, irrevocable**
+license to the contribution. "Irrevocable" is the operative word: once signed
+and merged, the grant survives the contributor's change of heart, change of
+employer, or change of politics. The contributor loses nothing they need — the
+grant is *non-exclusive*, so they keep their own copyright and may reuse their
+code anywhere else, forever; they simply cannot un-license what they gave.
+(Even without a CLA, an AGPL contribution is already irrevocable under the
+license's own terms — GPLv3 §2 — so a revocation demand fails either way; the
+CLA's real additions are the relicensing right and the contributor's *warranty*
+that the code was theirs to give. That warranty is the recourse in the one
+genuine edge case: if someone contributes code they didn't own, the CLA puts
+that liability on them, and the offending code is removed regardless.)
 
 #### 2. The "uhifadhi" trademark — the fork-proof asset
 
