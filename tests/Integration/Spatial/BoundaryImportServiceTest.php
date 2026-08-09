@@ -110,6 +110,43 @@ final class BoundaryImportServiceTest extends KernelTestCase
         self::assertEqualsWithDelta(-3.5, (float) $row['y'], 0.05);
     }
 
+    public function testImportsAWdpaStyleNestedZip(): void
+    {
+        // WDPA's real download shape: an OUTER zip holding the shapefile in a
+        // NESTED zip, next to CSVs and PDFs.
+        $geojson = $this->workdir.'/src.geojson';
+        file_put_contents($geojson, self::SQUARE_GEOJSON);
+        $this->runner->run(['ogr2ogr', '-f', 'ESRI Shapefile', $this->workdir.'/shape', $geojson]);
+
+        $inner = $this->workdir.'/WDPA_test_shp_0.zip';
+        $zip = new \ZipArchive();
+        $zip->open($inner, \ZipArchive::CREATE);
+        foreach (glob($this->workdir.'/shape/*') ?: [] as $part) {
+            $zip->addFile($part, basename($part));
+        }
+        $zip->close();
+
+        $outer = $this->workdir.'/WDPA_test_shp.zip';
+        $zip = new \ZipArchive();
+        $zip->open($outer, \ZipArchive::CREATE);
+        $zip->addFile($inner, 'WDPA_test_shp_0.zip');
+        $zip->addFromString('WDPA_sources.csv', "id,name\n1,x\n");
+        $zip->addFromString('Resources_in_English/Manual.pdf', '%PDF-fake');
+        $zip->close();
+
+        $aoi = $this->service()->import($outer, 'WDPA_test_shp.zip', 'Nested WDPA area', 'test');
+
+        $em = self::getContainer()->get(EntityManagerInterface::class);
+        /** @var array{t: string, srid: int}|false $row */
+        $row = $em->getConnection()->fetchAssociative(
+            'SELECT GeometryType(geom) AS t, ST_SRID(geom) AS srid FROM area_of_interest WHERE id = :id',
+            ['id' => $aoi->getId()],
+        );
+        self::assertNotFalse($row);
+        self::assertSame('MULTIPOLYGON', $row['t']);
+        self::assertSame(4326, (int) $row['srid']);
+    }
+
     public function testAGeometrylessFileIsRejectedWithAFriendlyError(): void
     {
         $file = $this->workdir.'/attributes.csv';
