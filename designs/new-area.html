@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>New area — Uhifadhi</title>
+<link rel="stylesheet" href="uhifadhi.css">
+</head><body>
+<div class="bar">
+  <a class="logo" href="index.html"><i>U</i>Uhifadhi</a>
+  <nav><a href="index.html">Overview</a><a href="areas.html">Areas</a><a href="alerts.html">Alerts</a><a href="compare.html">Compare</a><a href="ingestion.html">Runs</a><a href="gallery.html">Gallery</a></nav>
+  <span class="right"><span class="live"><i></i>worker</span>
+  <button class="tgl" onclick="toggleTheme()">☀ / ☾</button>
+  <a class="cta" href="new-area.html">+ New area</a></span>
+</div>
+<div class="page">
+<div class="crumb"><a href="index.html">uhifadhi</a> / new area</div>
+<h1 class="pg">New area</h1>
+<p class="pgsub">Upload as a watched job: the form is small, the pipeline is the page. A finished import births a new park sub-app.</p>
+
+
+<div class="grid g32">
+<div class="c" id="upload" style=""><span class="tab"><span class="idx">PL·121</span>Boundary upload<span class="src">· BoundaryImportService</span></span><input class="fld" placeholder="Area name — e.g. Katavi National Park" style="margin-bottom:12px"><div style="border:1.5px dashed color-mix(in srgb,var(--acc) 45%,transparent);border-radius:12px;padding:44px 20px;text-align:center;color:var(--fog);font-size:13px;line-height:1.8;background:color-mix(in srgb,var(--acc) 4%,transparent)">Drop your boundary here<br><span class="mono" style="font-size:10px;color:var(--dim)">GeoJSON · zipped Shapefile · GeoPackage · KML/KMZ · zipped FGDB — WDPA nested archives are scanned automatically</span></div><div style="display:flex;margin-top:14px"><span class="cta" style="margin-left:auto">Import boundary</span></div></div>
+<div class="c" id="pipeline" style=""><span class="tab"><span class="idx">PL·122</span>Import pipeline — live<span class="src">· mercure</span></span><div class="rln"><span class="g mono">✓</span><span>archive scanned — 3 nested zips found</span></div><div class="rln"><span class="g mono">✓</span><span>polygon layer picked</span></div><div class="rln"><span class="live" style="font-size:10px"><i></i></span><span>reprojecting → EPSG:4326</span></div><div class="rln"><span class="d mono">○</span><span class="d">persist via ORM</span></div><div class="rln"><span class="d mono">○</span><span class="d">module activation offer</span></div><div class="mono" style="margin-top:10px;font-size:9.5px;color:var(--dim);border-top:1px dashed color-mix(in srgb,var(--fog) 25%,transparent);padding-top:10px">ambiguous archives pause and ask — see <a href="ingestion.html" style="color:var(--acc)">Runs</a></div></div>
+</div>
+<div class="footer">Design template — static HTML generated from the case-study dataset (Ngorongoro forest
+loss is <b>real</b> app data; Serengeti/other series are plausibility-tuned placeholders). Regenerate:
+<span class="mono">python3 designs/_build/build.py</span>.</div>
+</div>
+
+<script>
+(function(){
+  if(localStorage.getItem('uhifadhi-theme')==='light')document.documentElement.classList.add('light');
+  window.toggleTheme=function(){
+    const l=document.documentElement.classList.toggle('light');
+    localStorage.setItem('uhifadhi-theme',l?'light':'dark');
+  };
+})();
+</script>
+</body></html>
