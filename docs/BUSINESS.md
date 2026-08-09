@@ -7,8 +7,7 @@ written down beats re-explaining it every time._
 
 ## Mission
 
-An open, self-hostable **conservation observability platform** — "Grafana for
-conservation" — that turns free global datasets (Hansen forest change, CHIRPS,
+An open, self-hostable **conservation observability platform** that turns free global datasets (Hansen forest change, CHIRPS,
 FIRMS, WorldClim, ESA WorldCover, …) and a park's own instruments into the
 canonical scientific figures conservation decisions are made with. The thesis:
 scientists know which visual aids to use but rarely build software; programmers
@@ -17,8 +16,7 @@ protected areas in eastern and southern Africa first.
 
 ## The model in one line
 
-**Open-core, Grafana-style: the software is free and open; the operations are the
-product.**
+**Open-core: the software is free and open; the operations are the product.**
 
 - **uhifadhi.org** — the project: AGPL-licensed core with **all analytical modules
   included and documented**. Module breadth is the moat and the grant story;
@@ -32,8 +30,8 @@ product.**
   operations, never science.
 
 Rejected alternatives, for the record: fully closed source fights the sector's
-donor-and-trust culture (SMART, Global Forest Watch, OpenForis, EarthRanger — the
-tools that won are all open or free) and forfeits the network effect; a purely
+donor-and-trust culture (the sector's most successful and most widely deployed
+tools are all open or free) and forfeits the network effect; a purely
 donation-funded model is too precarious to sustain maintenance.
 
 ## Who pays
@@ -55,9 +53,9 @@ public-good contribution in one deployment.
 ## Positioning
 
 uhifadhi is the **analytical observatory**: ingestion, statistics, visualization,
-alerting. It does not compete with ranger-operations tools (SMART, EarthRanger) —
+alerting. It does not compete with ranger-operations and patrol platforms —
 it integrates them as data sources. Go-to-market runs through the
-conservation-tech community (WILDLABS, the GFW ecosystem) and a first-deployment
+conservation-technology communities and networks, and a first-deployment
 case study.
 
 ---
@@ -133,17 +131,17 @@ outside contributors is jointly owned by a hundred people — and then the
 copyright-holder immunity that powers this business model **evaporates**:
 dual-licensing, commercial exceptions, or any future relicensing would require
 the permission of *every* contributor, including ones who have vanished. This is
-not theoretical: MongoDB and Elastic could relicense only because they had CLAs;
-projects without them are permanently locked to their license by their own
-history. Today the codebase is 100% one author's — the moment that stops being
+not theoretical: several major open-source companies were able to relicense only
+because they had collected contributor agreements from day one; projects without
+them are permanently locked to their license by their own history. Today the codebase is 100% one author's — the moment that stops being
 true is the moment this must already be in force.
 
 **The two instruments:**
 
 - **DCO (Developer Certificate of Origin)** — the lightweight one. The
   contributor adds a `Signed-off-by:` line (`git commit -s`) certifying they
-  have the right to submit the code under the project's license. Used by the
-  Linux kernel and GitLab. Near-zero friction — but it only certifies
+  have the right to submit the code under the project's license. Used by some of the
+  largest open-source projects in existence. Near-zero friction — but it only certifies
   *provenance*. **Contributors keep their copyright; a DCO alone does NOT
   preserve the ability to dual-license.**
 - **CLA (Contributor License Agreement)** — the strong one. The contributor
@@ -183,12 +181,14 @@ that liability on them, and the offending code is removed regardless.)
 Open code does not mean an open *name*. Register the **"uhifadhi"** word mark
 (start with the home jurisdiction and key markets; extend as the business does)
 and publish a short trademark policy: forks are welcome and lawful — **under a
-different name**. This is the Grafana/WordPress playbook: anyone may run the
-code, but only the steward may sell "uhifadhi" hosting, which is exactly what
+different name**. This is standard practice among successful open-source
+businesses: anyone may run the code, but only the steward may sell "uhifadhi"
+hosting, which is exactly what
 keeps managed hosting defensible while the software is free. Anyone can fork the
 code; nobody can fork the brand.
 
-Precedents on AGPL for the same reasons: **Grafana, Mastodon, Nextcloud, MinIO.**
+AGPL is the license of choice for many of the most widely used open-source
+platforms that face these same hosting dynamics.
 
 ---
 
