@@ -14,6 +14,7 @@ use App\Spatial\Exception\BoundaryImportException;
 use App\Spatial\Repository\AreaOfInterestRepository;
 use App\Spatial\Service\BoundaryImportService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -58,6 +59,17 @@ final class AreaController extends AbstractController
         $form = $this->createForm(AreaUploadType::class);
         $form->handleRequest($request);
 
+        // A POST that exceeds post_max_size arrives EMPTY: the form never counts
+        // as submitted. Say so — never a silent 200 (Turbo requires 422/redirect).
+        if ($request->isMethod('POST') && !$form->isSubmitted()) {
+            $form->addError(new FormError(\sprintf(
+                'The upload exceeds the server upload limit (%s) — the file never reached the application.',
+                (string) ini_get('post_max_size'),
+            )));
+
+            return $this->render('dashboard/new.html.twig', ['form' => $form], new Response(status: 422));
+        }
+
         if ($form->isSubmitted() && $form->isValid()) {
             $name = $form->get('name')->getData();
             $file = $form->get('boundaryFile')->getData();
@@ -73,7 +85,7 @@ final class AreaController extends AbstractController
 
                     return $this->redirectToRoute('dashboard_area_show', ['id' => $area->getId()]);
                 } catch (BoundaryImportException $e) {
-                    $form->get('boundaryFile')->addError(new \Symfony\Component\Form\FormError($e->getMessage()));
+                    $form->get('boundaryFile')->addError(new FormError($e->getMessage()));
                 }
             }
         }

@@ -52,6 +52,19 @@ final class AreaUploadTest extends WebTestCase
         self::assertResponseRedirects('/areas/'.$area->getId());
     }
 
+    public function testAnOversizedUploadDroppedByPhpIsReportedNotSwallowed(): void
+    {
+        $client = static::createClient();
+
+        // When a POST exceeds post_max_size, PHP delivers an EMPTY request and
+        // the form never registers as submitted — the page must still answer
+        // 422 with a human explanation, never a silent 200 (Turbo requires it).
+        $client->request('POST', '/areas/new');
+
+        self::assertResponseIsUnprocessable();
+        self::assertSelectorTextContains('form', 'upload limit');
+    }
+
     public function testAGeometrylessFileShowsAFriendlyFormError(): void
     {
         $client = static::createClient();
