@@ -40,7 +40,7 @@ const rgb = (c) => `rgb(${c[0]},${c[1]},${c[2]})`;
 
 export default class extends Controller {
     static values = { boundary: Object, forestLossUrl: String };
-    static targets = ['canvas', 'fromYear', 'toYear', 'bar', 'rangeFill', 'rangeSummary'];
+    static targets = ['canvas', 'frame', 'fromYear', 'toYear', 'bar', 'rangeFill', 'rangeSummary', 'dimBtn'];
 
     static YEAR_MIN = 2001;
     static YEAR_MAX = 2023;
@@ -53,10 +53,10 @@ export default class extends Controller {
         }
         this.L = L;
 
-        // Zoom top-right: the control panel owns the top-left corner.
+        // Zoom top-left (navigation); the layer toggle + expand own the top-right.
         this.map = L.map(this.canvasTarget, { zoomControl: false });
-        L.control.zoom({ position: 'topright' }).addTo(this.map);
-        L.control.scale({ imperial: false, position: 'bottomright' }).addTo(this.map);
+        L.control.zoom({ position: 'topleft' }).addTo(this.map);
+        L.control.scale({ imperial: false, position: 'bottomleft' }).addTo(this.map);
         this.map.attributionControl.setPrefix(false);
 
         this.bases = {
@@ -81,10 +81,45 @@ export default class extends Controller {
             this.map.setView([-3.2, 35.5], 9);
             return;
         }
-        // White casing under a green line so the boundary reads on any base.
+        // Dim everything OUTSIDE the boundary (a scrim with the AOI punched out) so
+        // inside vs outside reads as figure/ground — toggleable via the DIM control.
+        this.dimLayer = this.buildDim(data);
+        this.dimLayer.addTo(this.map);
+
+        // White casing under a jade line so the boundary reads on any base.
         this.L.geoJSON(data, { style: { color: '#ffffff', weight: 6, opacity: 0.9, fill: false } }).addTo(this.map);
-        const line = this.L.geoJSON(data, { style: { color: '#2e7d32', weight: 3, fill: false } }).addTo(this.map);
+        const line = this.L.geoJSON(data, { style: { color: '#49E6B4', weight: 3, fill: false } }).addTo(this.map);
         this.map.fitBounds(line.getBounds(), { padding: [40, 40] });
+    }
+
+    // A world-covering polygon with the boundary rings as holes → dims the outside.
+    buildDim(geojson) {
+        const world = [[-89, -179], [-89, 179], [89, 179], [89, -179]];
+        const holes = [];
+        const collect = (poly) => holes.push(poly[0].map(([lng, lat]) => [lat, lng]));
+        for (const f of geojson.features ?? []) {
+            const g = f.geometry;
+            if (g?.type === 'Polygon') collect(g.coordinates);
+            else if (g?.type === 'MultiPolygon') g.coordinates.forEach(collect);
+        }
+        return this.L.polygon([world, ...holes], {
+            stroke: false, fillColor: '#060a08', fillOpacity: 0.42, interactive: false,
+        });
+    }
+
+    // Toggle the outside-boundary scrim (the DIM control).
+    toggleDim() {
+        if (!this.dimLayer) return;
+        const on = this.map.hasLayer(this.dimLayer);
+        if (on) {
+            this.map.removeLayer(this.dimLayer);
+        } else {
+            this.dimLayer.addTo(this.map);
+        }
+        if (this.hasDimBtnTarget) {
+            this.dimBtnTarget.classList.toggle('on', !on);
+            this.dimBtnTarget.textContent = on ? 'DIM OFF' : 'DIM ON';
+        }
     }
 
     async loadForestLoss() {
@@ -121,7 +156,7 @@ export default class extends Controller {
         }).addTo(this.map);
     }
 
-    // Toggle the OSM / satellite base layer.
+    // Toggle the satellite ⇄ street base layer (the SATELLITE/MAP pill).
     showBase(event) {
         const base = event.currentTarget.dataset.base;
         Object.entries(this.bases).forEach(([name, layer]) => {
@@ -132,10 +167,20 @@ export default class extends Controller {
             }
         });
         event.currentTarget.parentElement.querySelectorAll('button').forEach((b) => {
-            const on = b === event.currentTarget;
-            b.classList.toggle('bg-forest-500', on);
-            b.classList.toggle('text-white', on);
+            b.classList.toggle('on', b === event.currentTarget);
         });
+    }
+
+    // Expand to full screen (the ⤢ affordance). Fullscreens the whole frame — map
+    // plus the loss-year strip and its controls — so filtering stays available.
+    expand() {
+        const frame = this.hasFrameTarget ? this.frameTarget : this.canvasTarget.parentElement;
+        if (document.fullscreenElement) {
+            document.exitFullscreen();
+        } else if (frame.requestFullscreen) {
+            frame.requestFullscreen().then(() => this.map.invalidateSize());
+        }
+        setTimeout(() => this.map.invalidateSize(), 200);
     }
 
     // Show only loss within the selected [from, to] year range; the slider fill,

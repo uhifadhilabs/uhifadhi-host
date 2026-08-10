@@ -65,19 +65,29 @@
             <div class="c" id="nca-map" style="padding-top:26px">
                 <span class="tab"><span class="idx">PL·14</span>Boundary + tree cover loss<span class="src">· Esri imagery · Hansen/UMD</span></span>
                 <span class="lib">leaflet in-app</span>
-                <div style="position:relative;height:380px;border-radius:10px;overflow:hidden">
+                {# The whole frame (map + loss-year strip + controls) is what expands, so
+                   the dim toggle and forest-loss filter stay usable in full screen. #}
+                <div class="map-frame" data-map-target="frame">
+                <div class="map-view" style="position:relative;height:380px;border-radius:10px;overflow:hidden">
                     <div id="map" class="absolute inset-0 isolate" data-map-target="canvas" style="position:absolute;inset:0"></div>
 
-                    <div class="glass" style="position:absolute;left:12px;top:12px;z-index:10;width:216px;padding:12px">
-                        <p class="mono" style="font-size:8.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--color-fog);margin:0 0 8px">Base map</p>
-                        <div style="display:flex;overflow:hidden;border:1px solid var(--c-ln2);border-radius:8px;font-size:12px;margin-bottom:14px">
-                            <button type="button" data-base="osm" data-action="map#showBase" class="flex flex-1 items-center justify-center gap-1.5 py-1.5" style="flex:1;padding:6px;color:var(--color-fog)">Map</button>
-                            <button type="button" data-base="satellite" data-action="map#showBase" class="flex flex-1 items-center justify-center gap-1.5 bg-forest-500 py-1.5 text-white" style="flex:1;padding:6px">Satellite</button>
+                    {# Dim toggle + expand + layer toggle own the top-right; Leaflet's zoom owns the top-left. #}
+                    <div style="position:absolute;top:10px;right:10px;z-index:10;display:flex;gap:6px;align-items:flex-start">
+                        <button type="button" class="map-pill on" data-map-target="dimBtn" data-action="map#toggleDim" title="Dim outside the boundary">DIM&nbsp;ON</button>
+                        <button type="button" class="map-btn" data-action="map#expand" title="Expand map" aria-label="Expand map">{{ ux_icon('lucide:maximize') }}</button>
+                        <div class="map-toggle">
+                            <button type="button" class="on" data-base="satellite" data-action="map#showBase">Satellite</button>
+                            <button type="button" data-base="osm" data-action="map#showBase">Map</button>
                         </div>
+                    </div>
+                </div>
 
-                        {% if lossByYear is not empty %}
-                            <p class="mono" style="font-size:8.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--color-fog);margin:0 0 6px">Loss years</p>
-                            <div class="relative h-6" style="position:relative;height:22px">
+                {# Loss-year strip — below the map, so the boundary reads unobstructed. #}
+                {% if lossByYear is not empty %}
+                    <div class="loss-strip" style="display:flex;align-items:center;gap:18px;margin-top:14px;flex-wrap:wrap">
+                        <div style="flex:1 1 260px;min-width:220px;max-width:460px">
+                            <p class="mono" style="font-size:8.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--color-fog);margin:0 0 7px">Loss years</p>
+                            <div style="position:relative;height:22px">
                                 <div style="position:absolute;top:50%;height:6px;width:100%;transform:translateY(-50%);border-radius:99px;background:var(--color-raised)"></div>
                                 <div data-map-target="rangeFill" style="position:absolute;top:50%;height:6px;transform:translateY(-50%);border-radius:99px;background:rgb(var(--c-acc));left:0;width:100%"></div>
                                 <input type="range" min="2001" max="2023" step="1" value="2001" aria-label="From year"
@@ -85,18 +95,20 @@
                                 <input type="range" min="2001" max="2023" step="1" value="2023" aria-label="To year"
                                        data-map-target="toYear" data-action="input->map#filterYears" class="range-thumb absolute inset-0 w-full" style="position:absolute;inset:0;width:100%">
                             </div>
-                            <p class="mono" style="text-align:center;font-size:11px;color:var(--color-fog);margin:4px 0 0" data-map-target="rangeSummary">
-                                {{ stats.yearFrom }}–{{ stats.yearTo }} · {{ stats.totalLossHa|number_format }} ha
-                            </p>
-                            <div style="margin-top:12px">
-                                <div class="loss-ramp" style="height:8px;border-radius:4px"></div>
-                                <div class="mono" style="display:flex;justify-content:space-between;font-size:8.5px;color:var(--color-dim);margin-top:2px"><span>2001</span><span>2012</span><span>2023</span></div>
-                            </div>
-                        {% else %}
-                            <p class="fog" style="font-size:11.5px">No forest-loss data yet — run the Hansen ingestion below.</p>
-                        {% endif %}
+                        </div>
+                        <p class="mono" data-map-target="rangeSummary" style="font-size:12px;color:var(--color-fog);white-space:nowrap;margin:0">
+                            {{ stats.yearFrom }}–{{ stats.yearTo }} · {{ stats.totalLossHa|number_format }} ha
+                        </p>
+                        <div style="min-width:140px">
+                            <div class="loss-ramp" style="height:8px;border-radius:4px"></div>
+                            <div class="mono" style="display:flex;justify-content:space-between;font-size:8.5px;color:var(--color-dim);margin-top:3px"><span>2001</span><span>2012</span><span>2023</span></div>
+                        </div>
                     </div>
-                </div>
+                {% else %}
+                    <p class="fog" style="font-size:11.5px;margin-top:12px">No forest-loss data yet — run the Hansen ingestion below.</p>
+                {% endif %}
+                </div>{# /.map-frame #}
+
                 <div class="use"><b>The real thing</b>: satellite mosaic, Hansen loss polygons graduated by year (hover a bar to spotlight), the WDPA boundary from the database.</div>
                 <span class="stamp">EPSG:4326 · aoi #{{ area.id }}</span>
             </div>

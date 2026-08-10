@@ -392,7 +392,8 @@ def nca_map():
     poly = ' '.join(f'{x:.1f},{y:.1f}' for x, y in pts)
     path_d = 'M' + ' L'.join(f'{x:.1f} {y:.1f}' for x, y in pts) + ' Z'
     # vignette outside the boundary — focuses the eye, and works on both basemaps
-    dim = f'<path d="M0 0 H{CANVAS} V{CANVAS} H0 Z {path_d}" fill="#060a08" opacity="0.42" fill-rule="evenodd"/>'
+    # (toggleable via the DIM control: hides the inside/outside separation on demand)
+    dim = f'<path id="nca-dim" visibility="visible" d="M0 0 H{CANVAS} V{CANVAS} H0 Z {path_d}" fill="#060a08" opacity="0.42" fill-rule="evenodd"/>'
     # two toggleable basemap layers (satellite default + real z10 street tiles)
     sat_g = f'<g id="nca-sat" visibility="visible">{"".join(sat_imgs)}{"".join(loss)}</g>'
     osm_g = f'<g id="nca-osm" visibility="hidden">{"".join(osm_imgs)}</g>'
@@ -430,16 +431,19 @@ def nca_map():
         f'border-radius:8px;overflow:hidden;border:1px solid rgba(245,247,243,.25)">'
         f'<button title="zoom in" style="{zbtn}">+</button>'
         f'<button title="zoom out" style="{zbtn};border-top:1px solid rgba(245,247,243,.2)">−</button></div>'
-        # layer toggle + expand — top-right, the view corner
-        f'<div style="position:absolute;top:10px;right:10px;display:flex;border-radius:8px;overflow:hidden;'
-        f'border:1px solid rgba(245,247,243,.25)">'
+        # dim toggle + expand + layer toggle — top-right, the view corner
+        f'<div style="position:absolute;top:10px;right:10px;display:flex;gap:6px;align-items:flex-start">'
+        f'<button id="nca-b-dim" title="dim outside the boundary" style="{btn};border-radius:8px;'
+        f'background:var(--acc);color:var(--accT);border:1px solid rgba(245,247,243,.25)" '
+        f'onclick="uhiDim(\'nca\')">DIM&nbsp;ON</button>'
+        f'<button title="expand" style="{btn};border-radius:8px;padding:5px 8px;display:grid;place-items:center;'
+        f'background:rgba(8,13,10,.72);color:#F5F7F3;border:1px solid rgba(245,247,243,.25)">{IC_EXPAND}</button>'
+        f'<div style="display:flex;border-radius:8px;overflow:hidden;border:1px solid rgba(245,247,243,.25)">'
         f'<button id="nca-b-sat" style="{btn};background:var(--acc);color:var(--accT)" '
         f'onclick="uhiBase(\'nca\',\'sat\')">SATELLITE</button>'
         f'<button id="nca-b-osm" style="{btn};background:rgba(8,13,10,.72);color:#F5F7F3" '
         f'onclick="uhiBase(\'nca\',\'osm\')">MAP</button></div>'
-        f'<button title="expand" style="{btn};position:absolute;top:10px;right:152px;border-radius:8px;padding:5px 8px;'
-        f'display:grid;place-items:center;background:rgba(8,13,10,.72);color:#F5F7F3;'
-        f'border:1px solid rgba(245,247,243,.25)">{IC_EXPAND}</button>')
+        f'</div>')
     script = ("""<script>
 function uhiBase(p, which){
   document.getElementById(p+'-sat').setAttribute('visibility', which==='sat'?'visible':'hidden');
@@ -448,6 +452,14 @@ function uhiBase(p, which){
   const on='var(--acc)', off='rgba(8,13,10,.72)';
   bs.style.background=which==='sat'?on:off; bs.style.color=which==='sat'?'var(--accT)':'#F5F7F3';
   bo.style.background=which==='osm'?on:off; bo.style.color=which==='osm'?'var(--accT)':'#F5F7F3';
+}
+function uhiDim(p){
+  const d=document.getElementById(p+'-dim'), b=document.getElementById(p+'-b-dim');
+  const on=d.getAttribute('visibility')!=='hidden';
+  d.setAttribute('visibility', on?'hidden':'visible');
+  b.style.background=on?'rgba(8,13,10,.72)':'var(--acc)';
+  b.style.color=on?'#F5F7F3':'var(--accT)';
+  b.innerHTML=on?'DIM&nbsp;OFF':'DIM&nbsp;ON';
 }
 </script>""")
     return f'<div style="position:relative">{svg}{controls}</div>{script}'
@@ -590,6 +602,30 @@ def build_areas():
 NCA_CRUMB = '<a href="index.html">uhifadhi</a> / <a href="areas.html">areas</a> / ngorongoro'
 
 
+def loss_year_strip():
+    """Loss-year range control shown as a strip UNDER the map (in the app it filters
+    the map + chart; here it's a static representation, off the map so nothing is
+    obscured)."""
+    ramp = 'linear-gradient(90deg,#ffffb2,#fecc5c,#fd8d3c,#f03b20,#bd0026)'
+    knob = ('width:14px;height:14px;border-radius:50%;background:#fff;border:2px solid var(--acc);'
+            'box-shadow:0 1px 3px rgba(0,0,0,.35);top:50%')
+    return ('<div style="display:flex;align-items:center;gap:18px;margin-top:14px;flex-wrap:wrap">'
+            '<div style="flex:1 1 260px;min-width:220px;max-width:460px">'
+            '<div class="mono" style="font-size:8.5px;letter-spacing:.16em;text-transform:uppercase;'
+            'color:var(--fog);margin-bottom:7px">Loss years</div>'
+            '<div style="position:relative;height:6px;border-radius:99px;background:var(--raised)">'
+            '<div style="position:absolute;inset:0;border-radius:99px;background:var(--acc)"></div>'
+            f'<span style="position:absolute;left:0;transform:translate(-50%,-50%);{knob}"></span>'
+            f'<span style="position:absolute;right:0;transform:translate(50%,-50%);{knob}"></span>'
+            '</div></div>'
+            '<div class="mono" style="font-size:12px;color:var(--fog);white-space:nowrap">2001–2023 · 3,214 ha</div>'
+            '<div style="min-width:140px">'
+            f'<div style="height:8px;border-radius:4px;background:{ramp}"></div>'
+            '<div class="mono" style="display:flex;justify-content:space-between;font-size:8.5px;color:var(--dim);'
+            'margin-top:3px"><span>2001</span><span>2012</span><span>2023</span></div>'
+            '</div></div>')
+
+
 def build_nca_hub():
     PL[0] = 9
     body = f"""
@@ -600,7 +636,7 @@ def build_nca_hub():
 {kpi("Stations", "4/5", "", "Empakaai rim offline")}
 </div>
 <div class="grid g32">
-{plate("Boundary + tree cover loss", nca_map(), src="Esri imagery · Hansen/UMD via GFW", lib="leaflet in-app",
+{plate("Boundary + tree cover loss", nca_map() + loss_year_strip(), src="Esri imagery · Hansen/UMD via GFW", lib="leaflet in-app",
        use="<b>The real thing</b>: actual satellite mosaic, actual GFW loss tiles (pink), the WDPA boundary from the database. Loss hugs the Northern Highland Forest edge — exactly what the 2013 bar says.",
        pid="nca-map", stamp="EPSG:3857 · z10 · aoi #2")}
 <div style="display:flex;flex-direction:column;gap:20px">

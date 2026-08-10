@@ -608,6 +608,38 @@ table.tbl tr:hover .open-btn { background: rgb(var(--c-acc)); color: rgb(var(--c
 .glass { background: var(--glass); backdrop-filter: blur(10px); border: 1px solid var(--c-ln2); border-radius: 10px; }
 .footer { margin-top: 44px; border-top: 1px solid var(--c-ln); padding-top: 18px; color: rgb(var(--c-dim)); font-size: 11.5px; max-width: 96ch; line-height: 1.6; }
 
+/* ==================== MAP CONTROLS (over the satellite base) ==================== */
+/* Dark controls regardless of theme — they sit on the satellite imagery. */
+.map-toggle { display: flex; border-radius: 8px; overflow: hidden; border: 1px solid rgba(245, 247, 243, .25); }
+.map-toggle button {
+    font-family: var(--font-mono); font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+    padding: 6px 13px; border: 0; cursor: pointer; background: rgba(8, 13, 10, .72); color: #F5F7F3;
+}
+.map-toggle button.on { background: rgb(var(--c-acc)); color: rgb(var(--c-accT)); }
+.map-btn {
+    display: grid; place-items: center; padding: 5px 8px; border-radius: 8px; cursor: pointer;
+    background: rgba(8, 13, 10, .72); color: #F5F7F3; border: 1px solid rgba(245, 247, 243, .25);
+}
+.map-btn svg { width: 17px; height: 17px; }
+/* Standalone toggle pill (DIM ON / DIM OFF) — label + colour both carry state. */
+.map-pill {
+    font-family: var(--font-mono); font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+    padding: 6px 13px; border-radius: 8px; cursor: pointer;
+    background: rgba(8, 13, 10, .72); color: #F5F7F3; border: 1px solid rgba(245, 247, 243, .25);
+}
+.map-pill.on { background: rgb(var(--c-acc)); color: rgb(var(--c-accT)); }
+
+/* Full-screen frame: the map fills, the loss-year strip + controls ride along. */
+.map-frame:fullscreen { background: var(--color-bg, #0A0F0C); padding: 16px; display: flex; flex-direction: column; }
+.map-frame:fullscreen .map-view { flex: 1; height: auto; }
+/* Keep the loss-year strip a compact control row, not a full-width sprawl. */
+.map-frame:fullscreen .loss-strip { margin: 16px auto 0; max-width: 640px; width: 100%; }
+/* Leaflet's own zoom control, restyled to the survey-plate dark chrome (top-left). */
+.leaflet-control-zoom a {
+    background: rgba(8, 13, 10, .72); color: #F5F7F3; border: 1px solid rgba(245, 247, 243, .25);
+}
+.leaflet-control-zoom a:hover { background: rgba(8, 13, 10, .9); }
+
 /* ==================== DATA-ONLY: Hansen fire ramp ==================== */
 /* The yellow→red loss ramp, reused by the map legend. Data-only — never chrome. */
 @utility loss-ramp {

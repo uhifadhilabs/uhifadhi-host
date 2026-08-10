@@ -40,6 +40,11 @@ final class ForestMapE2ETest extends E2ETestCase
         $client->getCrawler()->filter('button[data-base="osm"]')->click();
         $client->waitFor('.leaflet-tile-pane img[src*="openstreetmap"]', 10);
 
+        // The dim control (scrim outside the boundary) is present and toggles its state label.
+        self::assertSelectorExists('[data-map-target="dimBtn"][data-action*="map#toggleDim"]');
+        $client->getCrawler()->filter('[data-map-target="dimBtn"]')->click();
+        $client->waitForElementToContain('[data-map-target="dimBtn"]', 'OFF', 5);
+
         // The chart bar and the armed ingestion trigger are present.
         self::assertSelectorExists('[data-map-target="bar"][data-year="2010"]');
         self::assertSelectorExists(\sprintf('form[action="/areas/%s/ingest"] button', $aoi->getUuidString()));
