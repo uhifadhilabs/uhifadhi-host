@@ -1,9 +1,19 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>{% block title %}Welcome!{% endblock %}</title>
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>{% block title %}Uhifadhi{% endblock %}</title>
+        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><rect width=%22128%22 height=%22128%22 rx=%2228%22 fill=%22%233ED9A8%22/><text y=%221.05em%22 x=%220.5em%22 text-anchor=%22middle%22 font-size=%2288%22 font-family=%22sans-serif%22 font-weight=%22800%22 fill=%22%230C1310%22>U</text></svg>">
+
+        {# Theme (light default; opt-in dark) is applied by the `theme` Stimulus
+           controller on the top bar — see assets/controllers/theme_controller.js. #}
+
+        {# Design-system fonts: Archivo (display) · JetBrains Mono (data / labels). #}
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+
         {% block stylesheets %}
         {% endblock %}
 

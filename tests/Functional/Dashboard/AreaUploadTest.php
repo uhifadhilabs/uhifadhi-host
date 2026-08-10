@@ -49,7 +49,7 @@ final class AreaUploadTest extends WebTestCase
         $area = static::getContainer()->get(AreaOfInterestRepository::class)->findOneBy(['name' => 'Uploaded area']);
         self::assertNotNull($area);
         self::assertSame('upload', $area->getSource());
-        self::assertResponseRedirects('/areas/'.$area->getId());
+        self::assertResponseRedirects('/areas/'.$area->getUuidString());
     }
 
     public function testAnOversizedUploadDroppedByPhpIsReportedNotSwallowed(): void

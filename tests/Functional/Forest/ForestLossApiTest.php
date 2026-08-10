@@ -26,7 +26,7 @@ final class ForestLossApiTest extends WebTestCase
         ForestLossYearFactory::createOne(['aoi' => $mine, 'year' => 2004, 'areaHa' => 53.0]);
         ForestLossYearFactory::createOne(['aoi' => $other, 'year' => 2010, 'areaHa' => 999.0]);
 
-        $client->request('GET', '/api/areas/'.$mine->getId().'/forest-loss.geojson');
+        $client->request('GET', '/api/areas/'.$mine->getUuidString().'/forest-loss.geojson');
 
         self::assertResponseIsSuccessful();
         /** @var array{type: string, features: list<array{properties: array{year: int}, geometry: array{type: string}}>} $doc */
@@ -42,7 +42,7 @@ final class ForestLossApiTest extends WebTestCase
     {
         $client = static::createClient();
 
-        $client->request('GET', '/api/areas/999999/forest-loss.geojson');
+        $client->request('GET', '/api/areas/'.\Symfony\Component\Uid\Uuid::v7()->toRfc4122().'/forest-loss.geojson');
 
         self::assertResponseStatusCodeSame(404);
     }

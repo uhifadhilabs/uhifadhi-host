@@ -1,0 +1,22 @@
+{# Rich-table sparkline (design idiom PL·31): a per-year loss line in a 92×22 box.
+   Params: series (list of numbers, oldest→newest). Renders a dash when < 2 points.
+   Uses the fire/loss orange (#D97742), which is data — never chrome. #}
+{%- set n = series|length -%}
+{%- if n < 2 -%}
+    <span class="mono d" style="font-size:10px">—</span>
+{%- else -%}
+    {%- set w = 92 -%}{%- set h = 22 -%}{%- set pad = 3 -%}
+    {%- set lo = min(series) -%}{%- set hi = max(series) -%}
+    {%- set span = (hi - lo) > 0 ? (hi - lo) : 1 -%}
+    {%- set pts = [] -%}
+    {%- for v in series -%}
+        {%- set px = pad + loop.index0 * ((w - 2 * pad) / (n - 1)) -%}
+        {%- set py = pad + (h - 2 * pad) * (1 - (v - lo) / span) -%}
+        {%- set pts = pts|merge([(px|round(1)) ~ ',' ~ (py|round(1))]) -%}
+    {%- endfor -%}
+    {%- set last = pts|last|split(',') -%}
+    <svg viewBox="0 0 {{ w }} {{ h }}" width="{{ w }}" height="{{ h }}" style="display:block">
+        <polyline points="{{ pts|join(' ') }}" fill="none" stroke="#D97742" stroke-width="1.3"/>
+        <circle cx="{{ last[0] }}" cy="{{ last[1] }}" r="1.8" fill="#D97742"/>
+    </svg>
+{%- endif -%}

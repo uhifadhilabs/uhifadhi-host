@@ -1,0 +1,69 @@
+{# Annual forest-loss bars — a faithful in-app port of the design's annual_chart
+   idiom (designs/_build/charts.py:annual_chart): linear ha axis with gridlines and
+   a dashed mean line, uniform fire-orange bars (year is already on the x-axis — the
+   ramp is reserved for the map, so bars don't double-encode it), and the tall 2001
+   baseline-artifact bar clipped with a top fade + annotation. Each <rect> keeps the
+   map controller's interaction hooks so hovering/clicking a bar drives the map.
+
+   Params:
+     series : list of { year, ha }  (oldest → newest) #}
+{%- set w = 470 -%}{%- set h = 176 -%}
+{%- set l = 44 -%}{%- set r = 10 -%}{%- set t = 24 -%}{%- set b = 24 -%}
+{%- set pw = w - l - r -%}{%- set ph = h - t - b -%}
+{%- set n = series|length -%}
+{%- set slot = n > 0 ? pw / n : pw -%}
+{%- set bw = slot * 0.72 -%}
+{# scale basis: ignore 2001 (the Hansen baseline artifact) so it clips instead of flattening the rest #}
+{%- set haList = (series|filter(row => row.year != 2001))|map(row => row.ha) -%}
+{%- set peak = haList is not empty ? max(haList) : 0 -%}
+{%- set mean = haList is not empty ? (haList|reduce((c, v) => c + v, 0) / (haList|length)) : 0 -%}
+{%- set ymax = peak > 0 ? ((peak / 50)|round(0, 'ceil')) * 50 : 50 -%}
+{%- set step = ymax / 4 -%}
+<svg class="ch" viewBox="0 0 {{ w }} {{ h }}" role="img" aria-label="Annual forest loss by year, hectares">
+    <defs>
+        <linearGradient id="lossclip" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#D97742" stop-opacity="0.22"/>
+            <stop offset="0.4" stop-color="#D97742"/>
+        </linearGradient>
+    </defs>
+    {# y gridlines + labels #}
+    {%- for k in 0..4 -%}
+        {%- set v = step * k -%}
+        {%- set gy = (t + ph - (v / ymax) * ph)|round(1) -%}
+        <line class="grid" x1="{{ l }}" y1="{{ gy }}" x2="{{ w - r }}" y2="{{ gy }}"/>
+        <text x="{{ l - 5 }}" y="{{ gy + 2.5 }}" text-anchor="end">{{ v|round }}</text>
+    {%- endfor -%}
+    <text x="{{ l - 5 }}" y="{{ t - 6 }}" text-anchor="end">ha yr⁻¹</text>
+    {# mean reference line (excludes 2001) #}
+    {%- set my = (t + ph - (mean / ymax) * ph)|round(1) -%}
+    <line class="ref" x1="{{ l }}" y1="{{ my }}" x2="{{ w - r }}" y2="{{ my }}"/>
+    {# bars #}
+    {%- for row in series -%}
+        {%- set cx = l + (loop.index0 + 0.5) * slot -%}
+        {%- set clipped = row.ha > ymax -%}
+        {%- set by = clipped ? t : (t + ph - (row.ha / ymax) * ph) -%}
+        {%- set bh = (t + ph - by) -%}
+        <rect
+            data-map-target="bar"
+            data-year="{{ row.year }}"
+            data-ha="{{ row.ha }}"
+            data-action="click->map#focusYear mouseenter->map#highlightYear mouseleave->map#unhighlightYear"
+            x="{{ (cx - bw / 2)|round(1) }}" y="{{ by|round(1) }}"
+            width="{{ bw|round(1) }}" height="{{ max(1, bh)|round(1) }}"
+            rx="1.2" fill="{{ clipped ? 'url(#lossclip)' : '#D97742' }}" style="cursor:pointer">
+            <title>{{ row.year }}: {{ row.ha|round|number_format }} ha{{ row.year == 2001 ? ' (includes Hansen baseline artifact)' : '' }}</title>
+        </rect>
+        {%- if row.year % 4 == 1 -%}
+            <text x="{{ cx|round(1) }}" y="{{ h - 8 }}" text-anchor="middle">{{ row.year|slice(2) }}</text>
+        {%- endif -%}
+        {# peak-year value label #}
+        {%- if not clipped and row.ha == peak and peak > 0 -%}
+            <text class="anno" x="{{ cx|round(1) }}" y="{{ (by - 4)|round(1) }}" text-anchor="middle">{{ row.ha|round }}</text>
+        {%- endif -%}
+        {# 2001 baseline-artifact annotation on the clipped bar #}
+        {%- if row.year == 2001 and clipped -%}
+            <text class="anno" x="{{ (cx + bw / 2 + 4)|round(1) }}" y="{{ t + 8 }}">⇡ {{ row.ha|round|number_format }} ha — 2001 baseline artifact</text>
+        {%- endif -%}
+    {%- endfor -%}
+    <line class="ax" x1="{{ l }}" y1="{{ t + ph }}" x2="{{ w - r }}" y2="{{ t + ph }}"/>
+</svg>

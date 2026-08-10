@@ -1,21 +1,6 @@
 {% extends 'layout.html.twig' %}
 
 {% block title %}{{ area.name }} — Uhifadhi{% endblock %}
-{% block heading %}{{ area.name }}{% endblock %}
-
-{% block chips %}
-    {% set chips = [
-        { value: (stats.areaKm2|number_format) ~ ' km²', label: 'area' },
-        { value: stats.totalLossHa > 0 ? (stats.totalLossHa|number_format) ~ ' ha' : '—', label: 'total loss' },
-        { value: stats.yearFrom ? stats.yearFrom ~ '–' ~ stats.yearTo : 'not ingested', label: 'loss years' },
-    ] %}
-    {% for chip in chips %}
-        <div class="rounded-lg border border-gray-200 bg-gray-50 px-3 py-1.5 leading-tight">
-            <span class="block text-sm font-semibold tabular-nums text-forest-600">{{ chip.value }}</span>
-            <span class="block text-[11px] text-gray-500">{{ chip.label }}</span>
-        </div>
-    {% endfor %}
-{% endblock %}
 
 {% block stylesheets %}
     {{ parent() }}
@@ -32,125 +17,150 @@
 {% endblock %}
 
 {% block content %}
-    <div class="flex h-full">
-        {# ── Map ─────────────────────────────────────────────────────────── #}
-        <div
-            class="relative min-w-0 flex-1"
-            data-controller="map"
-            data-map-boundary-value="{{ boundary|json_encode|e('html_attr') }}"
-            data-map-forest-loss-url-value="{{ path('forest_loss_geojson', {id: area.id}) }}"
-        >
-            <div id="map" class="absolute inset-0 isolate" data-map-target="canvas"></div>
+    <div class="page">
+        <div class="crumb"><a href="{{ path('dashboard_index') }}">uhifadhi</a> / <a href="{{ path('dashboard_index') }}">areas</a> / {{ area.name|lower }}</div>
+        <h1 class="pg">{{ area.name }}</h1>
+        <p class="pgsub">The park hub: identity, the live map, and one door per analytical module, grouped by the taxonomy — flux (what the ecosystem does), pressure (what people do), pulse (live instruments).</p>
 
-            <div class="absolute left-4 top-4 z-10 w-60 rounded-xl bg-white/95 p-3.5 shadow-lg backdrop-blur">
-                <p class="mb-2 text-[11px] font-semibold uppercase tracking-wide text-gray-500">Base map</p>
-                <div class="mb-4 flex overflow-hidden rounded-lg border border-gray-300 text-sm">
-                    <button type="button" data-base="osm" data-action="map#showBase" class="flex flex-1 items-center justify-center gap-1.5 py-1.5">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"/><path d="M15 5.764v15"/><path d="M9 3.236v15"/></svg>
-                        Map
-                    </button>
-                    <button type="button" data-base="satellite" data-action="map#showBase" class="flex flex-1 items-center justify-center gap-1.5 bg-forest-500 py-1.5 text-white">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M13 7 9 3 5 7l4 4"/><path d="m17 11 4 4-4 4-4-4"/><path d="m8 12 4 4 6-6-4-4Z"/><path d="m16 8 3-3"/><path d="M9 21a6 6 0 0 0-6-6"/></svg>
-                        Satellite
-                    </button>
+        <div class="subnav">
+            <a href="{{ path('dashboard_area_show', {uuid: area.uuid}) }}" class="on">Overview</a>
+            <a href="#annual">Forest loss</a>
+            <span class="off">Climate</span>
+            <span class="off">Drought</span>
+            <span class="off">Vegetation</span>
+            <span class="off">Stations</span>
+            <span class="off">Land cover</span>
+            <span class="off">Anthropogenic</span>
+            <span class="off">Tourism</span>
+            <span class="off">Livestock</span>
+            <span class="off">Statistics</span>
+        </div>
+
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="c" style="padding:12px 16px;margin-bottom:16px"><span class="acc">✓</span> {{ message }}</div>
+            {% endfor %}
+        {% endfor %}
+
+        {# ── KPI plates ─────────────────────────────────────────────────── #}
+        <div class="grid g4">
+            <div class="c kpi"><span class="tab"><span class="idx">PL·10</span>Area</span>
+                <b class="disp">{{ stats.areaKm2|number_format }}<em>km²</em></b><span class="sub">ST_Area geography</span></div>
+            <div class="c kpi hot"><span class="tab"><span class="idx">PL·11</span>Forest lost</span>
+                <b class="disp">{% if stats.totalLossHa > 0 %}{{ stats.totalLossHa|number_format }}<em>ha</em>{% else %}—{% endif %}</b>
+                <span class="sub">{% if stats.yearFrom %}{{ stats.yearFrom }}–{{ stats.yearTo }} · real{% else %}not ingested{% endif %}</span></div>
+            <div class="c kpi"><span class="tab"><span class="idx">PL·12</span>Worst year</span>
+                <b class="disp">{% if stats.worstYear %}{{ stats.worstYear }}{% else %}—{% endif %}</b>
+                <span class="sub">{% if stats.worstYear %}{{ stats.worstHa|number_format }} ha · ex-2001{% else %}awaiting ingestion{% endif %}</span></div>
+            <div class="c kpi"><span class="tab"><span class="idx">PL·13</span>Ingestion runs</span>
+                <b class="disp">{{ runCount }}</b><span class="sub">dataset_run provenance</span></div>
+        </div>
+
+        {# ── Flux: the live map + annual loss (one map controller over both) ─ #}
+        <h2 class="zone">Flux — what the ecosystem is doing</h2>
+        <div class="grid g32"
+             data-controller="map"
+             data-map-boundary-value="{{ boundary|json_encode|e('html_attr') }}"
+             data-map-forest-loss-url-value="{{ path('forest_loss_geojson', {uuid: area.uuid}) }}">
+            <div class="c" id="nca-map" style="padding-top:26px">
+                <span class="tab"><span class="idx">PL·14</span>Boundary + tree cover loss<span class="src">· Esri imagery · Hansen/UMD</span></span>
+                <span class="lib">leaflet in-app</span>
+                <div style="position:relative;height:380px;border-radius:10px;overflow:hidden">
+                    <div id="map" class="absolute inset-0 isolate" data-map-target="canvas" style="position:absolute;inset:0"></div>
+
+                    <div class="glass" style="position:absolute;left:12px;top:12px;z-index:10;width:216px;padding:12px">
+                        <p class="mono" style="font-size:8.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--color-fog);margin:0 0 8px">Base map</p>
+                        <div style="display:flex;overflow:hidden;border:1px solid var(--c-ln2);border-radius:8px;font-size:12px;margin-bottom:14px">
+                            <button type="button" data-base="osm" data-action="map#showBase" class="flex flex-1 items-center justify-center gap-1.5 py-1.5" style="flex:1;padding:6px;color:var(--color-fog)">Map</button>
+                            <button type="button" data-base="satellite" data-action="map#showBase" class="flex flex-1 items-center justify-center gap-1.5 bg-forest-500 py-1.5 text-white" style="flex:1;padding:6px">Satellite</button>
+                        </div>
+
+                        {% if lossByYear is not empty %}
+                            <p class="mono" style="font-size:8.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--color-fog);margin:0 0 6px">Loss years</p>
+                            <div class="relative h-6" style="position:relative;height:22px">
+                                <div style="position:absolute;top:50%;height:6px;width:100%;transform:translateY(-50%);border-radius:99px;background:var(--color-raised)"></div>
+                                <div data-map-target="rangeFill" style="position:absolute;top:50%;height:6px;transform:translateY(-50%);border-radius:99px;background:rgb(var(--c-acc));left:0;width:100%"></div>
+                                <input type="range" min="2001" max="2023" step="1" value="2001" aria-label="From year"
+                                       data-map-target="fromYear" data-action="input->map#filterYears" class="range-thumb absolute inset-0 w-full" style="position:absolute;inset:0;width:100%">
+                                <input type="range" min="2001" max="2023" step="1" value="2023" aria-label="To year"
+                                       data-map-target="toYear" data-action="input->map#filterYears" class="range-thumb absolute inset-0 w-full" style="position:absolute;inset:0;width:100%">
+                            </div>
+                            <p class="mono" style="text-align:center;font-size:11px;color:var(--color-fog);margin:4px 0 0" data-map-target="rangeSummary">
+                                {{ stats.yearFrom }}–{{ stats.yearTo }} · {{ stats.totalLossHa|number_format }} ha
+                            </p>
+                            <div style="margin-top:12px">
+                                <div class="loss-ramp" style="height:8px;border-radius:4px"></div>
+                                <div class="mono" style="display:flex;justify-content:space-between;font-size:8.5px;color:var(--color-dim);margin-top:2px"><span>2001</span><span>2012</span><span>2023</span></div>
+                            </div>
+                        {% else %}
+                            <p class="fog" style="font-size:11.5px">No forest-loss data yet — run the Hansen ingestion below.</p>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="use"><b>The real thing</b>: satellite mosaic, Hansen loss polygons graduated by year (hover a bar to spotlight), the WDPA boundary from the database.</div>
+                <span class="stamp">EPSG:4326 · aoi #{{ area.id }}</span>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:20px">
+                <div class="c" id="annual" style="padding-top:26px">
+                    <span class="tab"><span class="idx">PL·15</span>Annual loss<span class="src">· forest_loss_year</span></span>
+                    <span class="lib">bar + annotate</span>
+                    {% if lossByYear is not empty %}
+                        {{ include('forest/_annual_loss_chart.html.twig', {series: lossByYear}) }}
+                        <div class="use">Hectares per year; the mean (dashed) excludes 2001, whose bar is clipped — it carries the known Hansen baseline artifact. Hover a bar to spotlight that year on the map, click to filter to it.</div>
+                    {% else %}
+                        <p class="fog" style="font-size:12px;padding:24px 0;text-align:center">No annual series yet — run the Hansen ingestion.</p>
+                    {% endif %}
                 </div>
 
-                {% if lossByYear is not empty %}
-                    <p class="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-gray-500">Loss years</p>
-                    <div class="relative h-6">
-                        <div class="absolute top-1/2 h-1.5 w-full -translate-y-1/2 rounded-full bg-gray-200"></div>
-                        <div class="absolute top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-forest-500"
-                             data-map-target="rangeFill" style="left: 0%; width: 100%;"></div>
-                        <input type="range" min="2001" max="2023" step="1" value="2001" aria-label="From year"
-                               data-map-target="fromYear" data-action="input->map#filterYears"
-                               class="range-thumb absolute inset-0 w-full">
-                        <input type="range" min="2001" max="2023" step="1" value="2023" aria-label="To year"
-                               data-map-target="toYear" data-action="input->map#filterYears"
-                               class="range-thumb absolute inset-0 w-full">
-                    </div>
-                    <p class="mt-1 text-center text-[12px] tabular-nums text-gray-600" data-map-target="rangeSummary">
-                        2001–2023 · {{ stats.totalLossHa|number_format }} ha
-                    </p>
-
-                    <div class="mt-4">
-                        <p class="mb-1 flex items-baseline justify-between text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                            Loss by year <span class="font-normal normal-case tracking-normal text-gray-400">√ ha</span>
-                        </p>
-                        <div class="flex h-12 items-end gap-px">
-                            {% for row in lossByYear %}
-                                <div
-                                    class="min-h-0.5 flex-1 cursor-pointer rounded-t-[1px] transition-opacity hover:outline hover:outline-1 hover:outline-forest-700"
-                                    data-map-target="bar"
-                                    data-year="{{ row.year }}"
-                                    data-ha="{{ row.ha }}"
-                                    data-action="click->map#focusYear mouseenter->map#highlightYear mouseleave->map#unhighlightYear"
-                                    title="{{ row.year }} — {{ row.ha|number_format }} ha{{ row.year == 2001 ? ' (includes Hansen baseline artifact)' : '' }}"
-                                    style="height: {{ maxLossHa > 0 ? max(2, ((row.ha / maxLossHa) ** 0.5 * 48)|round) : 2 }}px; background: {{ row.color }};"
-                                ></div>
+                <div class="c" id="ingest" style="padding-top:26px">
+                    <span class="tab"><span class="idx">PL·17</span>Ingestion<span class="src">· Hansen GFC · async</span></span>
+                    <form method="post" action="{{ path('dashboard_area_ingest', {uuid: area.uuid}) }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token('ingest' ~ area.uuidString) }}">
+                        <button type="submit" class="cta" style="width:100%;border:0;cursor:pointer{{ hasRunningRun ? ';opacity:.5;cursor:not-allowed' : '' }}" {{ hasRunningRun ? 'disabled' : '' }}>
+                            {{ hasRunningRun ? 'Ingestion running…' : 'Run Hansen forest-loss ingestion' }}
+                        </button>
+                    </form>
+                    {% if runs is empty %}
+                        <p class="fog" style="font-size:12px;margin-top:12px">No runs yet.</p>
+                    {% else %}
+                        <div style="margin-top:12px">
+                            {% for run in runs %}
+                                <div class="rln">
+                                    <span>#{{ run.id }} · {{ run.dataset }}
+                                        {% if run.report %}<span class="d mono" style="font-size:9px">{{ run.report.years ?? '?' }} yr · {{ (run.report.totalHa ?? 0)|number_format }} ha</span>{% endif %}
+                                    </span>
+                                    <span class="chip {{ run.status == 'succeeded' ? 'ok' : (run.status == 'running' ? 'warn' : 'fail') }}">{{ run.status }}</span>
+                                </div>
+                                {% if run.error %}<div class="r" style="font-size:10px;padding:0 2px 6px">{{ run.error|slice(0, 160) }}</div>{% endif %}
                             {% endfor %}
                         </div>
-                    </div>
-
-                    <div class="mt-3.5">
-                        <div class="loss-ramp h-2 rounded"></div>
-                        <div class="mt-0.5 flex justify-between text-[11px] text-gray-500"><span>2001</span><span>2012</span><span>2023</span></div>
-                    </div>
-                {% else %}
-                    <p class="text-[12px] text-gray-500">No forest-loss data yet — run the Hansen ingestion on the right.</p>
-                {% endif %}
-                <div class="mt-2.5 flex items-center gap-2 text-sm text-gray-700">
-                    <i class="inline-block w-4 border-t-[3px] border-forest-500 shadow-[0_0_0_1px_#fff]"></i> Boundary
+                    {% endif %}
                 </div>
             </div>
         </div>
 
-        {# ── Side panel: actions + runs ─────────────────────────────────── #}
-        <aside class="flex w-80 flex-col gap-4 overflow-y-auto border-l border-gray-200 bg-white p-5">
-            {% for label, messages in app.flashes %}
-                {% for message in messages %}
-                    <div class="rounded-lg border border-forest-100 bg-forest-50 px-3 py-2.5 text-sm text-forest-700">{{ message }}</div>
-                {% endfor %}
-            {% endfor %}
-
-            <div>
-                <p class="mb-2 text-[11px] font-semibold uppercase tracking-wide text-gray-500">Datasets</p>
-                <form method="post" action="{{ path('dashboard_area_ingest', {id: area.id}) }}">
-                    <input type="hidden" name="_token" value="{{ csrf_token('ingest' ~ area.id) }}">
-                    <button type="submit" {{ hasRunningRun ? 'disabled' : '' }}
-                            class="w-full rounded-lg bg-forest-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-forest-600 disabled:cursor-not-allowed disabled:opacity-50">
-                        {{ hasRunningRun ? 'Ingestion running…' : 'Run Hansen forest-loss ingestion' }}
-                    </button>
-                </form>
-                <p class="mt-1.5 text-xs text-gray-500">Clips the Hansen GFC loss-year granules to this boundary and rebuilds the per-year metrics. Takes a few minutes.</p>
-            </div>
-
-            <div>
-                <p class="mb-2 text-[11px] font-semibold uppercase tracking-wide text-gray-500">Ingestion runs</p>
-                {% if runs is empty %}
-                    <p class="text-sm text-gray-400">No runs yet.</p>
-                {% else %}
-                    <ul class="space-y-2">
-                        {% for run in runs %}
-                            <li class="rounded-lg border border-gray-200 p-3 text-sm">
-                                <div class="flex items-center justify-between">
-                                    <span class="font-medium text-gray-700">#{{ run.id }} · {{ run.dataset }}</span>
-                                    <span class="rounded-full px-2 py-0.5 text-[11px] font-semibold
-                                        {{ run.status == 'succeeded' ? 'bg-forest-50 text-forest-600' : (run.status == 'running' ? 'bg-amber-50 text-amber-600' : 'bg-red-50 text-red-600') }}">
-                                        {{ run.status }}
-                                    </span>
-                                </div>
-                                <p class="mt-1 text-xs text-gray-500">
-                                    {{ run.startedAt ? run.startedAt|date('Y-m-d H:i') : '' }}
-                                    {% if run.report %} · {{ run.report.years ?? '?' }} yr · {{ (run.report.totalHa ?? 0)|number_format }} ha{% endif %}
-                                </p>
-                                {% if run.error %}<p class="mt-1 break-words text-xs text-red-600">{{ run.error|slice(0, 200) }}</p>{% endif %}
-                            </li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-            </div>
-
-            <a href="{{ path('dashboard_index') }}" class="mt-auto text-sm text-gray-500 hover:text-gray-700">← All areas</a>
-        </aside>
+        {# ── Module doors (stubs until each context ships) ──────────────── #}
+        <h2 class="zone">Flux — what the ecosystem is doing</h2>
+        <div class="grid g4">
+            <a class="c mod" href="#annual" style="padding:20px 16px 16px"><span class="mt">Forest loss</span><span class="md">The real Hansen series: accounting, decomposition, trend.</span><span class="chip ok">live</span></a>
+            <div class="c mod" style="padding:20px 16px 16px"><span class="mt">Climate</span><span class="md">WorldClim normals, CHIRPS anomalies, CMIP futures.</span><span class="chip warn">template</span></div>
+            <div class="c mod" style="padding:20px 16px 16px"><span class="mt">Drought</span><span class="md">SPEI monitor, drought-class extent, soil-moisture percentiles.</span><span class="chip warn">template</span></div>
+            <div class="c mod" style="padding:20px 16px 16px"><span class="mt">Vegetation</span><span class="md">NDVI envelopes, Hovmöller, phenology shift.</span><span class="chip warn">template</span></div>
+        </div>
+        <h2 class="zone">Pressure — what people are doing</h2>
+        <div class="grid g4">
+            <div class="c mod" style="padding:20px 16px 16px"><span class="mt">Anthropogenic</span><span class="md">Boundary-buffer encroachment: built-up rings, distance decay, edge pressure.</span><span class="chip warn">template</span></div>
+            <div class="c mod" style="padding:20px 16px 16px"><span class="mt">Tourism</span><span class="md">Camps &amp; lodges monitor: expansion, concentration, displacement.</span><span class="chip warn">template</span></div>
+            <div class="c mod" style="padding:20px 16px 16px"><span class="mt">Livestock</span><span class="md">Herd census trends, grazing pressure, stocking vs capacity.</span><span class="chip warn">template</span></div>
+            <div class="c mod" style="padding:20px 16px 16px;opacity:.65"><span class="mt">Roads &amp; access</span><span class="md">OSM/GRIP road density, isochrones, fragmentation — planned.</span><span class="chip idle">planned</span></div>
+        </div>
+        <h2 class="zone">Pulse &amp; synthesis</h2>
+        <div class="grid g4">
+            <div class="c mod" style="padding:20px 16px 16px"><span class="mt">Weather stations</span><span class="md">Meteograms, wind roses, soil profiles, warming stripes.</span><span class="chip warn">template</span></div>
+            <div class="c mod" style="padding:20px 16px 16px"><span class="mt">Land cover</span><span class="md">WorldCover composition, sankey transitions, cropland creep.</span><span class="chip warn">template</span></div>
+            <div class="c mod" style="padding:20px 16px 16px"><span class="mt">Statistics</span><span class="md">Fits, uncertainty, diagnostics, PCA — the inferential layer.</span><span class="chip warn">template</span></div>
+            <div class="c mod" style="padding:20px 16px 16px;opacity:.65"><span class="mt">Water &amp; hydrology</span><span class="md">JRC surface water, lake levels, hydrographs — planned.</span><span class="chip idle">planned</span></div>
+        </div>
     </div>
 {% endblock %}

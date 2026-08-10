@@ -3,18 +3,31 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Ngorongoro — Land cover — Uhifadhi</title>
 <link rel="stylesheet" href="uhifadhi.css">
+<link rel="stylesheet" href="nav.css">
 </head><body>
-<div class="bar">
-  <a class="logo" href="index.html"><i>U</i>Uhifadhi</a>
-  <nav><a href="index.html">Overview</a><a href="areas.html" class=on>Areas</a><a href="alerts.html">Alerts</a><a href="compare.html">Compare</a><a href="ingestion.html">Runs</a><a href="gallery.html">Gallery</a></nav>
-  <span class="right"><span class="live"><i></i>worker</span>
-  <button class="tgl" onclick="toggleTheme()">☀ / ☾</button>
-  <a class="cta" href="new-area.html">+ New area</a></span>
-</div>
+<div class="shell">
+<aside class="side" id="side">
+  <div class="side-top">
+    <a class="brand" href="index.html"><i>U</i><b>Uhifadhi</b></a>
+    <button class="collapse-btn" onclick="uhiNav()" title="Collapse sidebar" aria-label="Collapse sidebar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m11 17-5-5 5-5"/><path d="m18 17-5-5 5-5"/></svg></button>
+  </div>
+  <nav class="nav"><a class="nav-item" href="index.html" title="Overview"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg><span>Overview</span></a><a class="nav-item on" href="areas.html" title="Areas"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"/><path d="M15 5.764v15"/><path d="M9 3.236v15"/></svg><span>Areas</span></a><a class="nav-item" href="alerts.html" title="Alerts"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/></svg><span>Alerts</span></a><a class="nav-item" href="compare.html" title="Compare"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M12 3v18"/></svg><span>Compare</span></a><a class="nav-item" href="ingestion.html" title="Runs"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/></svg><span>Runs</span></a><a class="nav-item" href="gallery.html" title="Gallery"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg><span>Gallery</span></a></nav>
+  <div class="side-foot">
+    <a class="row" href="#" title="Settings"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg><span>Settings</span></a>
+  </div>
+</aside>
+<main class="main">
+<header class="topbar">
+  <span class="tb-right">
+    <span class="live"><i></i>worker</span>
+    <button class="tb-icon" title="Alerts"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/></svg><span class="badge">6</span></button>
+    <button class="tb-icon" onclick="toggleTheme()" title="Toggle theme"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg></button>
+    <span class="user"><span class="avatar">NK</span><span class="uinfo"><b>N. Kileo</b><em>NCAA · operator</em></span></span>
+  </span>
+</header>
 <div class="page">
 <div class="crumb"><a href="index.html">uhifadhi</a> / <a href="areas.html">areas</a> / ngorongoro / land cover</div>
-<h1 class="pg">Ngorongoro — Land cover</h1>
-<p class="pgsub">ESA WorldCover-style composition and change: flows, hierarchy and shares each in the idiom that does that one job best.</p>
+<div class="pghead"><div><h1 class="pg">Ngorongoro — Land cover</h1><p class="pgsub">ESA WorldCover-style composition and change: flows, hierarchy and shares each in the idiom that does that one job best.</p></div></div>
 <div class="subnav"><a href="area-ngorongoro.html">Overview</a><a href="ngoro-forest.html">Forest loss</a><a href="ngoro-climate.html">Climate</a><a href="ngoro-drought.html">Drought</a><a href="ngoro-veg.html">Vegetation</a><a href="ngoro-stations.html">Stations</a><a href="ngoro-landcover.html" class=on>Land cover</a><a href="ngoro-anthro.html">Anthropogenic</a><a href="ngoro-tourism.html">Tourism</a><a href="ngoro-livestock.html">Livestock</a><a href="ngoro-stats.html">Statistics</a></div>
 
 <div class="grid g2">
@@ -29,14 +42,25 @@
 loss is <b>real</b> app data; Serengeti/other series are plausibility-tuned placeholders). Regenerate:
 <span class="mono">python3 designs/_build/build.py</span>.</div>
 </div>
+</main>
+</div>
 
 <script>
 (function(){
-  if(localStorage.getItem('uhifadhi-theme')==='light')document.documentElement.classList.add('light');
+  const d=document.documentElement;
+  if(localStorage.getItem('uhifadhi-theme')==='light')d.classList.add('light');
   window.toggleTheme=function(){
-    const l=document.documentElement.classList.toggle('light');
+    const l=d.classList.toggle('light');
     localStorage.setItem('uhifadhi-theme',l?'light':'dark');
   };
+  window.uhiNav=function(){
+    const s=document.getElementById('side');
+    const rail=s.classList.toggle('rail');
+    localStorage.setItem('uhifadhi-nav',rail?'rail':'full');
+  };
+  if(localStorage.getItem('uhifadhi-nav')==='rail'){
+    const s=document.getElementById('side'); if(s)s.classList.add('rail');
+  }
 })();
 </script>
 </body></html>

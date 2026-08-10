@@ -23,8 +23,12 @@ final class AreaIndexTest extends WebTestCase
         $client->request('GET', '/');
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('main, body', 'No areas yet');
+        self::assertSelectorTextContains('body', 'No areas yet');
         self::assertSelectorExists(\sprintf('a[href="%s"]', '/areas/new'));
+
+        // Survey-plate shell: sidebar with the Areas nav item active + the top-header theme toggle.
+        self::assertSelectorTextContains('.side .nav-item.on', 'Areas');
+        self::assertSelectorExists('.topbar [data-action="theme#toggle"]');
     }
 
     public function testAreasAreListedWithTheirMetrics(): void
@@ -39,10 +43,25 @@ final class AreaIndexTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('table', 'Listed area');
-        self::assertSelectorTextContains('table', '371 ha');
+        // Summed loss (185 + 186) shown as a bare figure under the loss column.
+        self::assertSelectorTextContains('table', '371');
+        self::assertSelectorTextContains('table', 'ha/yr');
         self::assertSelectorTextContains('table', 'Bare area');
-        self::assertSelectorTextContains('table', 'not ingested');
+        // A never-ingested area reads as queued (no live module yet).
+        self::assertSelectorTextContains('table', 'queued');
         // stAreaKm2 renders a real geodesic size for the factory square.
         self::assertSelectorTextContains('table', 'km²');
+
+        // Every filter pill renders with its live count (Listed = live, Bare = queued).
+        self::assertSelectorTextContains('.subnav', 'All · 2');
+        self::assertSelectorTextContains('.subnav', 'Live data · 1');
+        self::assertSelectorTextContains('.subnav', 'Queued · 1');
+        self::assertSelectorExists('[data-register-target="pill"][data-filter="alerts"]');
+        // The controls are wired (search + sort), not decorative.
+        self::assertSelectorExists('[data-register-target="search"][data-action*="register#search"]');
+        self::assertSelectorExists('th[data-sort="loss"][data-action*="register#sortBy"]');
+        // Every row shows a visible action + is clickable (not just a tinted title).
+        self::assertSelectorTextContains('.open-btn', 'Open');
+        self::assertSelectorExists('tr[data-action*="register#open"][data-href]');
     }
 }

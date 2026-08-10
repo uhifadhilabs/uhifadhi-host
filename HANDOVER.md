@@ -136,7 +136,7 @@ Commands: `composer test` / `test:e2e` / `check`. Key wiring: `.env.test.local`
 carries the DSN (Symfony skips `.env.local` in test env); first migration now
 does `CREATE EXTENSION IF NOT EXISTS postgis`; chromedriver via `vendor/bin/bdi
 detect drivers` (gitignored `drivers/`). Conventions encoded in
-`.claude/skills/dnca-conventions/SKILL.md`.
+`.claude/skills/uhifadhi-conventions/SKILL.md`.
 
 Also noted by a parallel session: `doctrine:schema:validate` flags unmapped
 `ogr_system_tables.*` (GDAL bookkeeping from the data imports) — do NOT let
@@ -365,7 +365,7 @@ Packagist→badge verification.
    against `designs/{areas,new-area,area-ngorongoro}.html`; charts as app-internal
    Twig SVG components (port from `_build/charts.py`); screenshot-verify both
    themes (headless Chrome tips in §6). TDD; category self-audit before commits
-   (`.claude/skills/dnca-conventions`).
+   (`.claude/skills/uhifadhi-conventions`).
 2. **Unambiguous-scan patch** for `BoundaryImportService` (teaching error on
    multi-dataset archives) — agreed, unbuilt, guards real uploads.
 3. **Interactive ingestion jobs** milestone: async upload as a watched job,

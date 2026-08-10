@@ -518,22 +518,12 @@ def sat_bubble_map():
 
 
 def sat_alerts_map(view="index"):
-    """Open alerts on the real satellite basemap — the feed's spatial twin."""
-    import base64
-    import os
-    T = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'tiles')
+    """Open alerts on the real satellite basemap — the feed's spatial twin. Carries
+    the shared map chrome (zoom, satellite⇄street toggle, expand)."""
     X0, Y0 = 37, 32
-    out = ['<svg viewBox="0 0 768 512" style="width:100%;height:auto;display:block;border-radius:9px" '
-           'xmlns="http://www.w3.org/2000/svg">']
-    for xi in range(3):
-        for yi in range(2):
-            p = os.path.join(T, f'tz_{X0+xi}_{Y0+yi}.jpg')
-            if os.path.exists(p):
-                with open(p, 'rb') as fh:
-                    b = base64.b64encode(fh.read()).decode()
-                out.append(f'<image x="{xi*256}" y="{yi*256}" width="256" height="256" '
-                           f'href="data:image/jpeg;base64,{b}"/>')
-    out.append('<rect x="0" y="0" width="768" height="512" fill="#060a08" opacity="0.34"/>')
+    out = ['<div style="position:relative">',
+           '<svg viewBox="0 0 768 512" style="width:100%;height:auto;display:block;border-radius:9px" '
+           'xmlns="http://www.w3.org/2000/svg">', _basemap_layers("na")]
 
     def px(lon, lat):
         mx = (lon + 180) / 360 * 64
@@ -576,6 +566,8 @@ def sat_alerts_map(view="index"):
     out.append('<text x="482" y="500" font-size="11" fill="#9DB8A5" font-family="JetBrains Mono,monospace">'
                'radius = severity · dots = monitored areas · basemap auto-fits</text>')
     out.append('</svg>')
+    out.append(_map_controls("na"))
+    out.append('</div>')
     return ''.join(out)
 
 
@@ -602,6 +594,43 @@ def _basemap_layers(pfx):
                '<rect x="0" y="0" width="768" height="512" fill="#060a08" opacity="0.06"/>')
         layers.append(f'<g id="{pfx}-{name}" visibility="{vis}">{"".join(imgs)}{dim}</g>')
     return ''.join(layers)
+
+
+def _map_controls(pfx):
+    """Reusable map chrome — zoom (top-left) + satellite⇄street toggle & expand
+    (top-right) + the uhiBase visibility toggler. Pairs with _basemap_layers, which
+    emits the <g id="{pfx}-sat"> / <g id="{pfx}-osm"> layers this switches."""
+    btn = ('font-family:JetBrains Mono,ui-monospace,monospace;font-size:10px;font-weight:700;'
+           'letter-spacing:.08em;padding:6px 13px;border:0;cursor:pointer')
+    zbtn = btn + ';background:rgba(8,13,10,.72);color:#F5F7F3;padding:4px 12px;font-size:14px'
+    ic = ('<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" '
+          'stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3"/>'
+          '<path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/>'
+          '<path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg>')
+    return (
+        f'<div style="position:absolute;top:10px;left:10px;display:flex;flex-direction:column;border-radius:8px;'
+        f'overflow:hidden;border:1px solid rgba(245,247,243,.25)">'
+        f'<button title="zoom in" style="{zbtn}">+</button>'
+        f'<button title="zoom out" style="{zbtn};border-top:1px solid rgba(245,247,243,.2)">−</button></div>'
+        f'<div style="position:absolute;top:10px;right:10px;display:flex;border-radius:8px;overflow:hidden;'
+        f'border:1px solid rgba(245,247,243,.25)">'
+        f'<button id="{pfx}-b-sat" style="{btn};background:var(--acc);color:var(--accT)" '
+        f'onclick="uhiBase(\'{pfx}\',\'sat\')">SATELLITE</button>'
+        f'<button id="{pfx}-b-osm" style="{btn};background:rgba(8,13,10,.72);color:#F5F7F3" '
+        f'onclick="uhiBase(\'{pfx}\',\'osm\')">MAP</button></div>'
+        f'<button title="expand" style="{btn};position:absolute;top:10px;right:152px;border-radius:8px;padding:5px 8px;'
+        f'display:grid;place-items:center;background:rgba(8,13,10,.72);color:#F5F7F3;'
+        f'border:1px solid rgba(245,247,243,.25)">{ic}</button>'
+        """<script>
+function uhiBase(p, which){
+  document.getElementById(p+'-sat').setAttribute('visibility', which==='sat'?'visible':'hidden');
+  document.getElementById(p+'-osm').setAttribute('visibility', which==='osm'?'visible':'hidden');
+  const bs=document.getElementById(p+'-b-sat'), bo=document.getElementById(p+'-b-osm');
+  const on='var(--acc)', off='rgba(8,13,10,.72)';
+  bs.style.background=which==='sat'?on:off; bs.style.color=which==='sat'?'var(--accT)':'#F5F7F3';
+  bo.style.background=which==='osm'?on:off; bo.style.color=which==='osm'?'var(--accT)':'#F5F7F3';
+}
+</script>""")
 
 
 def alerts_map_toggle(pfx="al"):
@@ -651,15 +680,27 @@ def alerts_map_toggle(pfx="al"):
     out.append('</svg>')
     btn = ('font-family:JetBrains Mono,ui-monospace,monospace;font-size:10px;font-weight:700;'
            'letter-spacing:.08em;padding:6px 13px;border:0;cursor:pointer')
+    zbtn = btn + ';background:rgba(8,13,10,.72);color:#F5F7F3;padding:4px 12px;font-size:14px'
+    ic_expand = ('<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" '
+                 'stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3"/>'
+                 '<path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/>'
+                 '<path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg>')
     out.append(
+        # zoom — top-left, the conventional navigation corner
+        f'<div style="position:absolute;top:10px;left:10px;display:flex;flex-direction:column;border-radius:8px;'
+        f'overflow:hidden;border:1px solid rgba(245,247,243,.25)">'
+        f'<button title="zoom in" style="{zbtn}">+</button>'
+        f'<button title="zoom out" style="{zbtn};border-top:1px solid rgba(245,247,243,.2)">−</button></div>'
+        # layer toggle + expand — top-right, the view corner
         f'<div style="position:absolute;top:10px;right:10px;display:flex;border-radius:8px;overflow:hidden;'
         f'border:1px solid rgba(245,247,243,.25)">'
         f'<button id="{pfx}-b-sat" style="{btn};background:var(--acc);color:var(--accT)" '
         f'onclick="uhiBase(\'{pfx}\',\'sat\')">SATELLITE</button>'
         f'<button id="{pfx}-b-osm" style="{btn};background:rgba(8,13,10,.72);color:#F5F7F3" '
         f'onclick="uhiBase(\'{pfx}\',\'osm\')">MAP</button></div>'
-        f'<button title="expand" style="{btn};position:absolute;top:10px;right:172px;border-radius:8px;'
-        f'background:rgba(8,13,10,.72);color:#F5F7F3;border:1px solid rgba(245,247,243,.25)">⤢</button>')
+        f'<button title="expand" style="{btn};position:absolute;top:10px;right:172px;border-radius:8px;padding:5px 8px;'
+        f'display:grid;place-items:center;background:rgba(8,13,10,.72);color:#F5F7F3;'
+        f'border:1px solid rgba(245,247,243,.25)">{ic_expand}</button>')
     out.append('</div>')
     out.append("""<script>
 function uhiBase(p, which){

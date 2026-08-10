@@ -26,10 +26,11 @@ final class ForestMapE2ETest extends E2ETestCase
         // Index lists the area with its metrics.
         $client->request('GET', '/');
         self::assertSelectorTextContains('table', 'E2E area');
-        self::assertSelectorTextContains('table', '185 ha');
+        // Loss shown as a bare figure under the "loss ha" column header.
+        self::assertSelectorTextContains('table', '185');
 
         // Detail: Leaflet boots, boundary + fetched loss render as SVG overlays.
-        $client->request('GET', '/areas/'.$aoi->getId());
+        $client->request('GET', '/areas/'.$aoi->getUuidString());
         $client->waitFor('.leaflet-container', 10);
         $client->waitFor('.leaflet-overlay-pane svg path', 10);
         self::assertGreaterThanOrEqual(3, $client->getCrawler()->filter('.leaflet-overlay-pane svg path')->count());
@@ -41,6 +42,6 @@ final class ForestMapE2ETest extends E2ETestCase
 
         // The chart bar and the armed ingestion trigger are present.
         self::assertSelectorExists('[data-map-target="bar"][data-year="2010"]');
-        self::assertSelectorExists(\sprintf('form[action="/areas/%d/ingest"] button', $aoi->getId()));
+        self::assertSelectorExists(\sprintf('form[action="/areas/%s/ingest"] button', $aoi->getUuidString()));
     }
 }

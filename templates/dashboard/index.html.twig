@@ -1,76 +1,118 @@
 {% extends 'layout.html.twig' %}
 
 {% block title %}Areas — Uhifadhi{% endblock %}
-{% block heading %}Areas{% endblock %}
-
-{% block chips %}
-    <a href="{{ path('dashboard_area_new') }}"
-       class="rounded-lg bg-forest-500 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-forest-600">
-        + New area
-    </a>
-{% endblock %}
 
 {% block content %}
-    <div class="h-full overflow-y-auto p-6">
+    <div class="page">
+        <div class="crumb"><a href="{{ path('dashboard_index') }}">uhifadhi</a> / areas</div>
+        <div class="pghead">
+            <div>
+                <h1 class="pg">Areas</h1>
+                <p class="pgsub">The register: every monitored area, each opening into its own analytical sub-app.</p>
+            </div>
+            <div class="pgact"><a class="cta" href="{{ path('dashboard_area_new') }}">{{ ux_icon('lucide:plus') }}New area</a></div>
+        </div>
+
         {% for label, messages in app.flashes %}
             {% for message in messages %}
-                <div class="mb-4 rounded-lg border border-forest-100 bg-forest-50 px-4 py-3 text-sm text-forest-700">{{ message }}</div>
+                <div class="c" style="padding:12px 16px;margin-bottom:16px"><span class="acc">✓</span> {{ message }}</div>
             {% endfor %}
         {% endfor %}
 
         {% if rows is empty %}
-            <div class="mx-auto mt-16 max-w-md rounded-2xl border border-dashed border-gray-300 bg-white p-10 text-center">
-                <p class="text-base font-semibold text-gray-800">No areas yet</p>
-                <p class="mt-2 text-sm text-gray-500">Upload a boundary — GeoJSON, zipped Shapefile, GeoPackage, KML/KMZ or a zipped File Geodatabase — and start monitoring it.</p>
-                <a href="{{ path('dashboard_area_new') }}"
-                   class="mt-6 inline-block rounded-lg bg-forest-500 px-4 py-2 text-sm font-medium text-white hover:bg-forest-600">Upload the first boundary</a>
+            <div class="c" style="text-align:center;padding:56px 20px">
+                <p class="disp" style="font-size:18px;font-weight:700;margin:0 0 8px">No areas yet</p>
+                <p class="fog" style="font-size:13px;margin:0 auto 22px;max-width:52ch">
+                    Upload a boundary — GeoJSON, zipped Shapefile, GeoPackage, KML/KMZ or a zipped
+                    File Geodatabase — and start monitoring it.
+                </p>
+                <a class="cta" href="{{ path('dashboard_area_new') }}">Upload the first boundary</a>
             </div>
         {% else %}
-            <div class="overflow-hidden rounded-xl border border-gray-200 bg-white">
-                <table class="w-full text-left text-sm">
-                    <thead class="border-b border-gray-200 bg-gray-50 text-[11px] uppercase tracking-wide text-gray-500">
+            <div {{ stimulus_controller('register') }}>
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px">
+                <input class="fld" placeholder="Search areas… (⌘K)" style="max-width:260px"
+                       data-register-target="search" data-action="input->register#search">
+                <span class="subnav" style="margin:0">
+                    {% for p in [
+                        {k: 'all', label: 'All', n: counts.all},
+                        {k: 'live', label: 'Live data', n: counts.live},
+                        {k: 'fire', label: 'Fire module', n: counts.fire},
+                        {k: 'alerts', label: 'With alerts', n: counts.alerts},
+                        {k: 'queued', label: 'Queued', n: counts.queued},
+                    ] %}
+                        <a href="#" data-register-target="pill" data-filter="{{ p.k }}"
+                           data-action="register#setFilter"{{ p.k == 'all' ? ' class=on' }}>{{ p.label }} · {{ p.n }}</a>
+                    {% endfor %}
+                </span>
+                <span style="margin-left:auto" class="mono"><span class="chip acc" data-register-target="sortLabel">sort: total loss ↓</span></span>
+            </div>
+
+            <div class="grid">
+                <div class="c">
+                    <span class="tab"><span class="idx">PL·31</span>All areas<span class="src">· area_of_interest ⋈ forest_loss_year</span></span>
+                    <span class="lib">register</span>
+                    <table class="tbl">
                         <tr>
-                            <th class="px-5 py-3">Area</th>
-                            <th class="px-5 py-3 text-right">Size</th>
-                            <th class="px-5 py-3 text-right">Forest loss</th>
-                            <th class="px-5 py-3">Last ingestion</th>
-                            <th class="px-5 py-3"></th>
+                            <th data-register-target="header" data-sort="name" data-label="name" data-action="register#sortBy" style="cursor:pointer">Protected area — click to open its sub-app</th>
+                            <th data-register-target="header" data-sort="km2" data-label="km²" data-action="register#sortBy" style="text-align:right;cursor:pointer">km²</th>
+                            <th data-register-target="header" data-sort="forest" data-label="forest" data-action="register#sortBy" style="text-align:right;cursor:pointer">forest</th>
+                            <th data-register-target="header" data-sort="loss" data-label="total loss" data-action="register#sortBy" style="text-align:right;cursor:pointer">loss 01–23 ha</th>
+                            <th data-register-target="header" data-sort="hayr" data-label="ha/yr" data-action="register#sortBy" style="text-align:right;cursor:pointer">ha/yr</th>
+                            <th>trend 02–23</th>
+                            <th data-register-target="header" data-sort="delta" data-label="3-yr Δ" data-action="register#sortBy" style="cursor:pointer">3-yr Δ</th>
+                            <th>alerts</th>
+                            <th>modules</th>
+                            <th></th>
                         </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-100">
                         {% for row in rows %}
-                            <tr class="hover:bg-gray-50">
-                                <td class="px-5 py-3.5">
-                                    <a href="{{ path('dashboard_area_show', {id: row.area.id}) }}" class="font-medium text-gray-800 hover:text-forest-600">{{ row.area.name }}</a>
-                                    <span class="ml-2 text-[11px] text-gray-400">{{ row.area.source }}</span>
+                            <tr data-register-target="row"
+                                data-action="click->register#open"
+                                data-href="{{ path('dashboard_area_show', {uuid: row.area.uuid}) }}"
+                                data-name="{{ row.area.name|lower }}"
+                                data-live="{{ row.liveModules > 0 ? 1 : 0 }}" data-fire="0" data-alerts="0"
+                                data-km2="{{ row.areaKm2 }}" data-forest="{{ row.area.treeCoverPct ?? 0 }}"
+                                data-loss="{{ row.lossTotalHa }}" data-hayr="{{ row.haPerYr }}" data-delta="{{ row.delta ?? 0 }}">
+                                <td>
+                                    <div style="display:flex;gap:12px;align-items:center">
+                                        {% if row.thumb %}<img class="thumb" src="{{ row.thumb }}" alt="" loading="lazy" referrerpolicy="no-referrer">{% endif %}
+                                        <div>
+                                            <div style="font-size:13.5px;font-weight:600">
+                                                <a href="{{ path('dashboard_area_show', {uuid: row.area.uuid}) }}">{{ row.area.name }}</a>
+                                            </div>
+                                            <div class="mono" style="font-size:9px;color:var(--color-dim);margin-top:2px">
+                                                {%- if row.area.iucnCategory %}IUCN {{ row.area.iucnCategory }} · {% endif -%}
+                                                {%- if row.area.establishedYear %}est. {{ row.area.establishedYear }} · {% endif -%}
+                                                {{ row.coords ?? ('source ' ~ row.area.source) }}
+                                            </div>
+                                        </div>
+                                    </div>
                                 </td>
-                                <td class="px-5 py-3.5 text-right tabular-nums">{{ row.areaKm2|number_format }} km²</td>
-                                <td class="px-5 py-3.5 text-right tabular-nums">
-                                    {% if row.lossYears > 0 %}
-                                        {{ row.lossTotalHa|number_format }} ha <span class="text-gray-400">· {{ row.lossYears }} yr</span>
-                                    {% else %}
-                                        <span class="text-gray-400">not ingested</span>
-                                    {% endif %}
+                                <td class="num">{{ row.areaKm2|number_format }}</td>
+                                <td class="num">{% if row.area.treeCoverPct is not null %}{{ row.area.treeCoverPct|round }}%{% else %}<span class="d">—</span>{% endif %}</td>
+                                <td class="num">{% if row.lossYears > 0 %}{{ row.lossTotalHa|number_format }}{% else %}<span class="d">—</span>{% endif %}</td>
+                                <td class="num">{% if row.lossYears > 0 %}{{ row.haPerYr|number_format }}{% else %}<span class="d">—</span>{% endif %}</td>
+                                <td>{{ include('_sparkline.html.twig', {series: row.series}) }}</td>
+                                <td>
+                                    {%- if row.delta is not null -%}
+                                        <span class="chip {{ row.delta > 100 ? 'fail' : (row.delta > 0 ? 'idle' : 'ok') }}">{{ row.delta > 0 ? '+' }}{{ row.delta }}%</span>
+                                    {%- else -%}<span class="d">—</span>{%- endif -%}
                                 </td>
-                                <td class="px-5 py-3.5">
-                                    {% if row.lastRun %}
-                                        {% set status = row.lastRun.status %}
-                                        <span class="rounded-full px-2.5 py-1 text-[11px] font-semibold
-                                            {{ status == 'succeeded' ? 'bg-forest-50 text-forest-600' : (status == 'running' ? 'bg-amber-50 text-amber-600' : 'bg-red-50 text-red-600') }}">
-                                            {{ status }}
-                                        </span>
-                                    {% else %}
-                                        <span class="text-gray-400">—</span>
-                                    {% endif %}
+                                {# alerts — populated once the Alerts context ships #}
+                                <td><span class="d">—</span></td>
+                                <td>
+                                    {%- if row.liveModules > 0 -%}
+                                        <a href="{{ path('dashboard_area_show', {uuid: row.area.uuid}) }}"><span class="chip ok">live · {{ row.liveModules }} module{{ row.liveModules > 1 ? 's' }}</span></a>
+                                    {%- else -%}<span class="chip idle">queued</span>{%- endif -%}
                                 </td>
-                                <td class="px-5 py-3.5 text-right">
-                                    <a href="{{ path('dashboard_area_show', {id: row.area.id}) }}" class="text-sm font-medium text-forest-600 hover:text-forest-700">View →</a>
-                                </td>
+                                <td style="text-align:right"><a class="open-btn" href="{{ path('dashboard_area_show', {uuid: row.area.uuid}) }}">Open →</a></td>
                             </tr>
                         {% endfor %}
-                    </tbody>
-                </table>
+                    </table>
+                    <div class="use"><b>The register as a working list</b> — real satellite thumbnail, identity metadata, full time series, recent-trend delta and module state per row. Geography lives inside each sub-app; here, density wins.</div>
+                </div>
             </div>
+            </div>{# /register controller #}
         {% endif %}
     </div>
 {% endblock %}

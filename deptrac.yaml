@@ -13,6 +13,9 @@ deptrac:
   exclude_files:
     - '#src/Kernel\.php#'
   layers:
+    - name: Foundation
+      collectors:
+        - { type: classLike, value: 'App\\Foundation\\.*' }
     - name: Spatial
       collectors:
         - { type: classLike, value: 'App\\Spatial\\.*' }
@@ -26,13 +29,15 @@ deptrac:
       collectors:
         - { type: classLike, value: 'App\\Dashboard\\.*' }
   ruleset:
-    # Shared spatial kernel — depends only on itself.
-    Spatial: [Spatial]
+    # Cross-cutting entity concerns (UUID/timestamps). Seen by all, sees none.
+    Foundation: [Foundation]
+    # Shared spatial kernel — depends only on itself + Foundation.
+    Spatial: [Spatial, Foundation]
     # Topic 6 (Deforestation) — isolated; may use the Spatial kernel only.
-    Forest: [Forest, Spatial]
+    Forest: [Forest, Spatial, Foundation]
     # Data ingestion — reads AOIs (Spatial) and fills topic tables (Forest);
     # topics never depend back on Ingestion.
-    Ingestion: [Ingestion, Spatial, Forest]
+    Ingestion: [Ingestion, Spatial, Forest, Foundation]
     # UI composition layer — the only place allowed to see everything; nothing
     # depends on it.
-    Dashboard: [Dashboard, Spatial, Forest, Ingestion]
+    Dashboard: [Dashboard, Spatial, Forest, Ingestion, Foundation]

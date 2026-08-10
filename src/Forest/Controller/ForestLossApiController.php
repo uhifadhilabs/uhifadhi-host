@@ -5,27 +5,27 @@ declare(strict_types=1);
 namespace App\Forest\Controller;
 
 use App\Forest\Repository\ForestLossYearRepository;
-use App\Spatial\Repository\AreaOfInterestRepository;
+use App\Spatial\Entity\AreaOfInterest;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Requirement\Requirement;
 
 /**
  * Per-area forest-loss GeoJSON — the data endpoint the dashboard map fetches.
  * Geometry comes from the bundle's geometry type already as GeoJSON, so each
- * row decodes straight into a feature.
+ * row decodes straight into a feature. The area is addressed by UUID.
  */
 final class ForestLossApiController extends AbstractController
 {
-    #[Route('/api/areas/{id}/forest-loss.geojson', name: 'forest_loss_geojson', requirements: ['id' => '\d+'], methods: ['GET'])]
-    public function __invoke(int $id, AreaOfInterestRepository $areas, ForestLossYearRepository $loss): JsonResponse
-    {
-        if (null === $areas->find($id)) {
-            throw $this->createNotFoundException(\sprintf('Area %d not found.', $id));
-        }
-
+    #[Route('/api/areas/{uuid}/forest-loss.geojson', name: 'forest_loss_geojson', requirements: ['uuid' => Requirement::UUID], methods: ['GET'])]
+    public function __invoke(
+        #[MapEntity(mapping: ['uuid' => 'uuid'])] AreaOfInterest $area,
+        ForestLossYearRepository $loss,
+    ): JsonResponse {
         $features = [];
-        foreach ($loss->findBy(['aoi' => $id], ['year' => 'ASC']) as $footprint) {
+        foreach ($loss->findBy(['aoi' => $area], ['year' => 'ASC']) as $footprint) {
             $geom = $footprint->getGeom();
             if (null === $geom) {
                 continue;

@@ -24,6 +24,44 @@ TILES = os.path.join(HERE, 'tiles')
 NAV = [("index.html", "Overview"), ("areas.html", "Areas"), ("alerts.html", "Alerts"),
        ("compare.html", "Compare"), ("ingestion.html", "Runs"), ("gallery.html", "Gallery")]
 
+
+def _svg(paths):
+    return ('<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" '
+            'stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">' + paths + '</svg>')
+
+
+# Lucide glyphs for the collapsible sidebar (icon rail when collapsed).
+SIDE_ICON = {
+    "Overview": _svg('<rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/>'
+                     '<rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/>'),
+    "Areas": _svg('<path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894'
+                  'l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618'
+                  'a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"/><path d="M15 5.764v15"/><path d="M9 3.236v15"/>'),
+    "Alerts": _svg('<path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673'
+                   'C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/>'),
+    "Compare": _svg('<rect width="18" height="18" x="3" y="3" rx="2"/><path d="M12 3v18"/>'),
+    "Runs": _svg('<path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0'
+                 'l-2.35 8.36A2 2 0 0 1 4.49 12H2"/>'),
+    "Gallery": _svg('<rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/>'
+                    '<rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/>'),
+}
+IC_THEME = _svg('<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41'
+                'M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>')
+IC_PLUS = _svg('<path d="M5 12h14M12 5v14"/>')
+IC_COLLAPSE = _svg('<path d="m11 17-5-5 5-5"/><path d="m18 17-5-5 5-5"/>')
+# maximize / expand — clearer than the thin ⤢ glyph
+IC_EXPAND = ('<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" '
+             'stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3"/>'
+             '<path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg>')
+IC_BELL = _svg('<path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673'
+               'C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/>')
+IC_GEAR = _svg('<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73'
+               'l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38'
+               'a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18'
+               'a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08'
+               'a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08'
+               'a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>')
+
 FEED = [
     ("S3", "fail", "Nyerere", "GLAD cluster · 41 px in 3 days, new road spur visible", "deforestation", "2 h"),
     ("S3", "fail", "Ruaha", "fire OUTSIDE burn plan, 14 detections", "fire", "5 h"),
@@ -226,11 +264,20 @@ table.tbl .num{text-align:right;font-family:"JetBrains Mono",ui-monospace,monosp
 JS = """
 <script>
 (function(){
-  if(localStorage.getItem('uhifadhi-theme')==='light')document.documentElement.classList.add('light');
+  const d=document.documentElement;
+  if(localStorage.getItem('uhifadhi-theme')==='light')d.classList.add('light');
   window.toggleTheme=function(){
-    const l=document.documentElement.classList.toggle('light');
+    const l=d.classList.toggle('light');
     localStorage.setItem('uhifadhi-theme',l?'light':'dark');
   };
+  window.uhiNav=function(){
+    const s=document.getElementById('side');
+    const rail=s.classList.toggle('rail');
+    localStorage.setItem('uhifadhi-nav',rail?'rail':'full');
+  };
+  if(localStorage.getItem('uhifadhi-nav')==='rail'){
+    const s=document.getElementById('side'); if(s)s.classList.add('rail');
+  }
 })();
 </script>
 """
@@ -255,30 +302,49 @@ def subnav(items, active, planned=()):
     return f'<div class="subnav">{links}{off}</div>'
 
 
-def page(fname, title, active, crumb, sub, body, sub_nav=""):
-    nav = ''.join(f'<a href="{f}"{" class=on" if f == active else ""}>{t}</a>' for f, t in NAV)
+def page(fname, title, active, crumb, sub, body, sub_nav="", action=""):
+    items = ''.join(
+        f'<a class="nav-item{" on" if f == active else ""}" href="{f}" title="{t}">{SIDE_ICON[t]}<span>{t}</span></a>'
+        for f, t in NAV)
+    head = (f'<div class="pghead"><div><h1 class="pg">{title}</h1><p class="pgsub">{sub}</p></div>'
+            f'{f"<div class=pgact>{action}</div>" if action else ""}</div>')
     html = f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{title} — Uhifadhi</title>
 <link rel="stylesheet" href="uhifadhi.css">
+<link rel="stylesheet" href="nav.css">
 </head><body>
-<div class="bar">
-  <a class="logo" href="index.html"><i>U</i>Uhifadhi</a>
-  <nav>{nav}</nav>
-  <span class="right"><span class="live"><i></i>worker</span>
-  <button class="tgl" onclick="toggleTheme()">☀ / ☾</button>
-  <a class="cta" href="new-area.html">+ New area</a></span>
-</div>
+<div class="shell">
+<aside class="side" id="side">
+  <div class="side-top">
+    <a class="brand" href="index.html"><i>U</i><b>Uhifadhi</b></a>
+    <button class="collapse-btn" onclick="uhiNav()" title="Collapse sidebar" aria-label="Collapse sidebar">{IC_COLLAPSE}</button>
+  </div>
+  <nav class="nav">{items}</nav>
+  <div class="side-foot">
+    <a class="row" href="#" title="Settings">{IC_GEAR}<span>Settings</span></a>
+  </div>
+</aside>
+<main class="main">
+<header class="topbar">
+  <span class="tb-right">
+    <span class="live"><i></i>worker</span>
+    <button class="tb-icon" title="Alerts">{IC_BELL}<span class="badge">6</span></button>
+    <button class="tb-icon" onclick="toggleTheme()" title="Toggle theme">{IC_THEME}</button>
+    <span class="user"><span class="avatar">NK</span><span class="uinfo"><b>N. Kileo</b><em>NCAA · operator</em></span></span>
+  </span>
+</header>
 <div class="page">
 <div class="crumb">{crumb}</div>
-<h1 class="pg">{title}</h1>
-<p class="pgsub">{sub}</p>
+{head}
 {sub_nav}
 {body}
 <div class="footer">Design template — static HTML generated from the case-study dataset (Ngorongoro forest
 loss is <b>real</b> app data; Serengeti/other series are plausibility-tuned placeholders). Regenerate:
 <span class="mono">python3 designs/_build/build.py</span>.</div>
+</div>
+</main>
 </div>
 {JS}</body></html>"""
     open(os.path.join(OUT, fname), 'w').write(html)
@@ -286,56 +352,105 @@ loss is <b>real</b> app data; Serengeti/other series are plausibility-tuned plac
 
 
 def nca_map():
-    X0, Y0, N = 611, 519, 4
+    """The area map in the alerts-map idiom: a fixed landscape frame, a working
+    satellite⇄street toggle (uhiBase), and an expand affordance — no controls
+    obscuring the map (loss-year filtering lives in a strip beside the plate)."""
+    # Composed from z9 tiles (3×3 = 768² canvas) so the ~square NCA boundary fits
+    # inside a landscape 768×512 frame (same size as the alerts map): a lower zoom
+    # trades ground detail for "the whole area is always visible if a boundary exists".
+    X0, Y0, N = 305, 259, 3
+    CANVAS = N * 256
+    # landscape crop centred on the boundary (its y-centre ≈ 346 in the 768² canvas)
+    VBX, VBY, VBW, VBH = 0, 90, 768, 512
 
     def b64(p, m):
         with open(p, 'rb') as fh:
             return f'data:{m};base64,' + base64.b64encode(fh.read()).decode()
 
     def px(lon, lat):
-        mx = (lon + 180) / 360 * 1024
-        my = (1 - math.asinh(math.tan(math.radians(lat))) / math.pi) / 2 * 1024
+        mx = (lon + 180) / 360 * 512
+        my = (1 - math.asinh(math.tan(math.radians(lat))) / math.pi) / 2 * 512
         return ((mx - X0) * 256, (my - Y0) * 256)
 
-    imgs, loss = [], []
+    sat_imgs, osm_imgs, loss = [], [], []
     for xi in range(N):
         for yi in range(N):
             x, y = X0 + xi, Y0 + yi
-            sp = os.path.join(TILES, f'sat_{x}_{y}.jpg')
-            lp = os.path.join(TILES, f'loss_{x}_{y}.png')
+            sp = os.path.join(TILES, f'z9sat_{x}_{y}.jpg')
+            op = os.path.join(TILES, f'z9osm_{x}_{y}.png')
+            lp = os.path.join(TILES, f'z9loss_{x}_{y}.png')
+            tag = f'x="{xi*256}" y="{yi*256}" width="256" height="256"'
             if os.path.exists(sp):
-                imgs.append(f'<image x="{xi*256}" y="{yi*256}" width="256" height="256" href="{b64(sp,"image/jpeg")}"/>')
+                sat_imgs.append(f'<image {tag} href="{b64(sp,"image/jpeg")}"/>')
+            if os.path.exists(op):
+                osm_imgs.append(f'<image {tag} href="{b64(op,"image/png")}"/>')
             if os.path.exists(lp) and os.path.getsize(lp) > 0:
-                loss.append(f'<image x="{xi*256}" y="{yi*256}" width="256" height="256" href="{b64(lp,"image/png")}" opacity="0.9"/>')
+                loss.append(f'<image {tag} href="{b64(lp,"image/png")}" opacity="0.9"/>')
     g = json.load(open(os.path.join(TILES, 'nca.geojson')))
     ring = g['coordinates'][0] if g['type'] == 'Polygon' else g['coordinates'][0][0]
     pts = [px(lon, lat) for lon, lat in ring]
     poly = ' '.join(f'{x:.1f},{y:.1f}' for x, y in pts)
     path_d = 'M' + ' L'.join(f'{x:.1f} {y:.1f}' for x, y in pts) + ' Z'
-    dim = f'<path d="M0 0 H1024 V1024 H0 Z {path_d}" fill="#060a08" opacity="0.52" fill-rule="evenodd"/>'
+    # vignette outside the boundary — focuses the eye, and works on both basemaps
+    dim = f'<path d="M0 0 H{CANVAS} V{CANVAS} H0 Z {path_d}" fill="#060a08" opacity="0.42" fill-rule="evenodd"/>'
+    # two toggleable basemap layers (satellite default + real z10 street tiles)
+    sat_g = f'<g id="nca-sat" visibility="visible">{"".join(sat_imgs)}{"".join(loss)}</g>'
+    osm_g = f'<g id="nca-osm" visibility="hidden">{"".join(osm_imgs)}</g>'
     labels = [(35.585, -3.172, 'Ngorongoro Crater'), (35.843, -2.920, 'Empakaai'),
-              (35.700, -3.070, 'Northern Highland Forest'), (35.050, -2.950, 'Serengeti Plains')]
+              (35.700, -3.070, 'Northern Highland Forest')]
     lab = []
     for lon, lat, t in labels:
         x, y = px(lon, lat)
-        lab.append(f'<text x="{x:.0f}" y="{y:.0f}" font-size="17" fill="#F5F7F3" stroke="#0A0F0C" '
+        lab.append(f'<text x="{x:.0f}" y="{y:.0f}" font-size="15" fill="#F5F7F3" stroke="#0A0F0C" '
                    f'stroke-width="3" paint-order="stroke" font-family="JetBrains Mono,ui-monospace,monospace" '
                    f'text-anchor="middle" opacity="0.9">{t}</text>')
-    mpp = 156543.03 * math.cos(math.radians(-3.1)) / 1024
+    mpp = 156543.03 * math.cos(math.radians(-3.1)) / 512  # z9 metres-per-pixel
     w20 = 20000 / mpp
-    scale = (f'<g><rect x="40" y="984" width="{w20:.0f}" height="7" fill="none" stroke="#F5F7F3" stroke-width="1.5"/>'
-             f'<rect x="40" y="984" width="{w20/4:.0f}" height="7" fill="#F5F7F3"/>'
-             f'<rect x="{40+w20/2:.0f}" y="984" width="{w20/4:.0f}" height="7" fill="#F5F7F3"/>'
-             f'<text x="{50+w20:.0f}" y="992" font-size="16" fill="#F5F7F3" stroke="#0A0F0C" stroke-width="3" '
+    sx, sy = VBX + 22, VBY + VBH - 22
+    scale = (f'<g><rect x="{sx:.0f}" y="{sy:.0f}" width="{w20:.0f}" height="6" fill="none" stroke="#F5F7F3" stroke-width="1.5"/>'
+             f'<rect x="{sx:.0f}" y="{sy:.0f}" width="{w20/4:.0f}" height="6" fill="#F5F7F3"/>'
+             f'<rect x="{sx+w20/2:.0f}" y="{sy:.0f}" width="{w20/4:.0f}" height="6" fill="#F5F7F3"/>'
+             f'<text x="{sx+w20+10:.0f}" y="{sy+6:.0f}" font-size="14" fill="#F5F7F3" stroke="#0A0F0C" stroke-width="3" '
              f'paint-order="stroke" font-family="JetBrains Mono,ui-monospace,monospace">20 km</text></g>')
-    legend = ('<g><rect x="742" y="962" width="252" height="36" rx="8" fill="rgba(8,13,10,.75)"/>'
-              '<rect x="756" y="973" width="13" height="13" rx="2" fill="#DD64B0"/>'
-              '<text x="778" y="984" font-size="15" fill="#F5F7F3" font-family="JetBrains Mono,ui-monospace,monospace">'
+    lx, ly = VBX + VBW - 250, VBY + VBH - 40
+    legend = (f'<g><rect x="{lx:.0f}" y="{ly:.0f}" width="240" height="32" rx="8" fill="rgba(8,13,10,.75)"/>'
+              f'<rect x="{lx+14:.0f}" y="{ly+10:.0f}" width="12" height="12" rx="2" fill="#DD64B0"/>'
+              f'<text x="{lx+34:.0f}" y="{ly+20:.0f}" font-size="14" fill="#F5F7F3" font-family="JetBrains Mono,ui-monospace,monospace">'
               'tree cover loss 2001–2024</text></g>')
-    return ('<svg viewBox="0 0 1024 1024" style="width:100%;height:auto;display:block;border-radius:9px" '
-            'xmlns="http://www.w3.org/2000/svg">' + ''.join(imgs) + ''.join(loss) + dim +
-            f'<polygon points="{poly}" fill="none" stroke="#49E6B4" stroke-width="3" opacity="0.95"/>' +
-            ''.join(lab) + scale + legend + '</svg>')
+    svg = (f'<svg viewBox="{VBX} {VBY} {VBW} {VBH}" style="width:100%;height:auto;display:block;border-radius:9px" '
+           'xmlns="http://www.w3.org/2000/svg">' + sat_g + osm_g + dim +
+           f'<polygon points="{poly}" fill="none" stroke="#49E6B4" stroke-width="3" opacity="0.95"/>' +
+           ''.join(lab) + scale + legend + '</svg>')
+    btn = ('font-family:JetBrains Mono,ui-monospace,monospace;font-size:10px;font-weight:700;'
+           'letter-spacing:.08em;padding:6px 13px;border:0;cursor:pointer')
+    zbtn = (btn + ';background:rgba(8,13,10,.72);color:#F5F7F3;padding:4px 12px;font-size:14px')
+    controls = (
+        # zoom — top-left, the conventional navigation corner
+        f'<div style="position:absolute;top:10px;left:10px;display:flex;flex-direction:column;'
+        f'border-radius:8px;overflow:hidden;border:1px solid rgba(245,247,243,.25)">'
+        f'<button title="zoom in" style="{zbtn}">+</button>'
+        f'<button title="zoom out" style="{zbtn};border-top:1px solid rgba(245,247,243,.2)">−</button></div>'
+        # layer toggle + expand — top-right, the view corner
+        f'<div style="position:absolute;top:10px;right:10px;display:flex;border-radius:8px;overflow:hidden;'
+        f'border:1px solid rgba(245,247,243,.25)">'
+        f'<button id="nca-b-sat" style="{btn};background:var(--acc);color:var(--accT)" '
+        f'onclick="uhiBase(\'nca\',\'sat\')">SATELLITE</button>'
+        f'<button id="nca-b-osm" style="{btn};background:rgba(8,13,10,.72);color:#F5F7F3" '
+        f'onclick="uhiBase(\'nca\',\'osm\')">MAP</button></div>'
+        f'<button title="expand" style="{btn};position:absolute;top:10px;right:152px;border-radius:8px;padding:5px 8px;'
+        f'display:grid;place-items:center;background:rgba(8,13,10,.72);color:#F5F7F3;'
+        f'border:1px solid rgba(245,247,243,.25)">{IC_EXPAND}</button>')
+    script = ("""<script>
+function uhiBase(p, which){
+  document.getElementById(p+'-sat').setAttribute('visibility', which==='sat'?'visible':'hidden');
+  document.getElementById(p+'-osm').setAttribute('visibility', which==='osm'?'visible':'hidden');
+  const bs=document.getElementById(p+'-b-sat'), bo=document.getElementById(p+'-b-osm');
+  const on='var(--acc)', off='rgba(8,13,10,.72)';
+  bs.style.background=which==='sat'?on:off; bs.style.color=which==='sat'?'var(--accT)':'#F5F7F3';
+  bo.style.background=which==='osm'?on:off; bo.style.color=which==='osm'?'var(--accT)':'#F5F7F3';
+}
+</script>""")
+    return f'<div style="position:relative">{svg}{controls}</div>{script}'
 
 
 def kpi(title, value, unit, sub, hot=False):
@@ -425,15 +540,12 @@ def build_areas():
     PL[0] = 30
     rows = []
     for a in sorted(D.AREAS, key=lambda a: -a["total"]):
-        if a["short"] == "NCA":
-            link = f'<a href="area-ngorongoro.html">{a["name"]}</a>'
-            chip = '<span class="chip ok">live · 6 modules</span>'
-        elif a["short"] == "SER":
-            link = f'<a href="area-serengeti.html">{a["name"]}</a>'
-            chip = '<span class="chip warn">fire module</span>'
-        else:
-            link = f'{a["name"]}'
-            chip = '<span class="chip idle">queued</span>'
+        href = ('area-ngorongoro.html' if a["short"] == "NCA"
+                else 'area-serengeti.html' if a["short"] == "SER" else '#')
+        link = f'<a href="{href}">{a["name"]}</a>'
+        chip = ('<span class="chip ok">live · 6 modules</span>' if a["short"] == "NCA"
+                else '<span class="chip warn">fire module</span>' if a["short"] == "SER"
+                else '<span class="chip idle">queued</span>')
         al = {"NYE": ('2 open', 'fail'), "RUA": ('1 open', 'fail'), "NCA": ('2 open', 'warn'),
               "SER": ('1 open', 'idle'), "MAN": ('1 open', 'fail'), "KAT": ('1 open', 'warn')}.get(a["short"])
         alert_cell = (f'<a href="alerts.html"><span class="chip {al[1]}">{al[0]}</span></a>' if al
@@ -444,14 +556,16 @@ def build_areas():
                      f'<div><div style="font-size:13.5px;font-weight:600">{link}</div>'
                      f'<div class="mono" style="font-size:9px;color:var(--dim);margin-top:2px">'
                      f'IUCN {a["iucn"]} · est. {a["established"]} · {abs(a["lat"]):.1f}°S {a["lon"]:.1f}°E</div></div></div>')
-        rows.append(f'<tr><td>{name_cell}</td><td class="num">{a["km2"]:,}</td>'
+        rows.append(f'<tr style="cursor:pointer" onclick="if(!event.target.closest(\'a\'))location.href=\'{href}\'">'
+                    f'<td>{name_cell}</td><td class="num">{a["km2"]:,}</td>'
                     f'<td class="num">{a["forest_pct"]}%</td><td class="num">{a["total"]:,}</td>'
                     f'<td class="num">{a["mean"]:.0f}</td><td>{C.spark(a["loss"][1:])}</td>'
-                    f'<td>{delta}</td><td>{alert_cell}</td><td>{chip}</td></tr>')
+                    f'<td>{delta}</td><td>{alert_cell}</td><td>{chip}</td>'
+                    f'<td style="text-align:right"><a class="open-btn" href="{href}">Open →</a></td></tr>')
     tbl = ('<table class="tbl"><tr><th>Protected area — click to open its sub-app</th>'
            '<th style="text-align:right">km²</th><th style="text-align:right">forest</th>'
            '<th style="text-align:right">loss 01–23 ha</th><th style="text-align:right">ha/yr</th>'
-           '<th>trend 02–23</th><th>3-yr Δ</th><th>alerts</th><th>modules</th></tr>' + ''.join(rows) + '</table>')
+           '<th>trend 02–23</th><th>3-yr Δ</th><th>alerts</th><th>modules</th><th></th></tr>' + ''.join(rows) + '</table>')
     controls = (
         '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px">'
         '<input class="fld" placeholder="Search areas… (⌘K)" style="max-width:260px">'
@@ -468,7 +582,8 @@ def build_areas():
 </div>"""
     page("areas.html", "Areas", "areas.html",
          '<a href="index.html">uhifadhi</a> / areas',
-         "The register: every monitored area, each opening into its own analytical sub-app.", body)
+         "The register: every monitored area, each opening into its own analytical sub-app.", body,
+         action=f'<a class="cta" href="new-area.html">{IC_PLUS}New area</a>')
 
 
 # ═══════════════════════ NGORONGORO SUB-APP ═══════════════════════
