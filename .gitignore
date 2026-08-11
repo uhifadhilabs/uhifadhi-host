@@ -4,6 +4,7 @@
 /.env.local.php
 /.env.*.local
 /config/secrets/prod/prod.decrypt.private.php
+/.kamal/secrets
 /public/bundles/
 /var/
 /vendor/
@@ -33,6 +34,6 @@
 ###< dbrekelmans/bdi ###
 
 ###> claude ###
-/.claude/settings.local.json
+/.claude/
 ###< claude ###
 /designs/_build/__pycache__/

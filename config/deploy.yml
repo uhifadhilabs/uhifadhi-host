@@ -1,0 +1,71 @@
+# Kamal 2 deployment for uhifadhi → Hetzner (ncaa.uhifadhi.com PoC).
+# Deploy is driven by GitHub Actions (.github/workflows/deploy.yml): it builds the
+# amd64 image on a GH runner and runs `kamal deploy` (or `kamal setup` on first run).
+# No secret VALUES live here — only names under `secret:`; real values come from GH
+# Actions secrets, written into .kamal/secrets by the workflow at deploy time.
+
+service: uhifadhi
+image: uhifadhilabs/uhifadhi        # → ghcr.io/uhifadhilabs/uhifadhi (registry.server prepended)
+
+servers:
+  web:
+    - 78.47.239.40
+
+# Kamal Proxy: zero-downtime rollouts + host routing + automatic Let's Encrypt TLS.
+# The `ncaa.uhifadhi.com` DNS record must resolve to this server (Cloudflare DNS-only /
+# grey-cloud) so the ACME HTTP-01 challenge reaches the proxy. Switch to a Cloudflare
+# Origin cert (like vivutio) later if you want the CF proxy on.
+proxy:
+  ssl: true
+  host: ncaa.uhifadhi.com
+  app_port: 80
+  healthcheck:
+    path: /                          # areas index returns 200 even on an empty DB
+    interval: 3
+    timeout: 5
+
+registry:
+  server: ghcr.io
+  username: uhifadhilabs
+  password:
+    - KAMAL_REGISTRY_PASSWORD        # the workflow's GITHUB_TOKEN (packages:write)
+
+builder:
+  arch: amd64                        # Hetzner Cloud is x86-64
+
+# Non-secret runtime env. Secret env is written from GH Actions secrets.
+env:
+  clear:
+    APP_ENV: prod
+    APP_DEBUG: "0"
+    SERVER_NAME: ":80"
+    # Behind kamal-proxy on a private Docker network — trust the proxy for X-Forwarded-*.
+    SYMFONY_TRUSTED_PROXIES: private_ranges
+    # Async queue over the Postgres DB (no broker). auto_setup creates the table on demand.
+    MESSENGER_TRANSPORT_DSN: "doctrine://default?auto_setup=1"
+  secret:
+    - APP_SECRET
+    - DATABASE_URL                   # points at the `db` accessory below
+
+# Persist Symfony logs across releases.
+volumes:
+  - "uhifadhi_var:/app/var/log"
+
+# PostGIS runs as a Kamal accessory on the same host; data on a named volume.
+# uhifadhi's first migration does CREATE EXTENSION IF NOT EXISTS postgis.
+accessories:
+  db:
+    image: postgis/postgis:17-3.5
+    host: 78.47.239.40
+    port: "127.0.0.1:5432:5432"
+    env:
+      clear:
+        POSTGRES_USER: uhifadhi
+        POSTGRES_DB: uhifadhi
+      secret:
+        - POSTGRES_PASSWORD
+    directories:
+      - data:/var/lib/postgresql/data
+
+# Keep the last 5 releases for instant `kamal rollback`.
+retain_containers: 5
