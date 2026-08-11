@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Uhifadhi">
+  <!-- Jade tile with the brand's chamfered bottom-right corner -->
+  <path d="M4 0 H28 a4 4 0 0 1 4 4 V23 L23 32 H4 a4 4 0 0 1 -4 -4 V4 a4 4 0 0 1 4 -4 Z" fill="#3ED9A8"/>
+  <!-- U -->
+  <path d="M10.5 8 v7.8 a5.5 5.5 0 0 0 11 0 V8" fill="none" stroke="#0C1310" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

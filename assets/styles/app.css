@@ -292,6 +292,7 @@ body::before {
     font-size: 13px; font-weight: 800; font-family: var(--font-display);
     clip-path: polygon(0 0, 100% 0, 100% 72%, 72% 100%, 0 100%);
 }
+.side .brand .brandmark { width: 28px; height: 28px; flex-shrink: 0; display: block; }
 .side .brand b { font-family: var(--font-display); font-weight: 700; font-size: 15px; letter-spacing: -.01em; white-space: nowrap; }
 .collapse-btn {
     display: grid; place-items: center; width: 30px; height: 30px; flex-shrink: 0;

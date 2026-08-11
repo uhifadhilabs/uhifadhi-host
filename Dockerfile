@@ -11,11 +11,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && install-php-extensions pdo_pgsql intl zip opcache bcmath \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# GDAL 3.11 for the Hansen ingestion — the handler uses `gdal raster polygonize`
-# (unified CLI, GDAL ≥ 3.11); Debian ships 3.6. Installed via conda-forge (micromamba)
-# into /opt/gdal — self-contained, version-pinned, reads granules over /vsicurl.
+# GDAL for the Hansen ingestion — the handler uses the unified `gdal raster polygonize`
+# CLI, which is evolving FAST across releases (e.g. 3.11.5 rejects `--quiet` on that
+# subcommand, 3.13 accepts it). So pin prod to the SAME major.minor as dev (3.13) to
+# avoid flag skew. Debian ships only 3.6, so install via conda-forge into /opt/gdal —
+# self-contained, version-pinned, reads granules over /vsicurl.
+# TODO (tech debt): drop conda-forge for `apt-get install gdal-bin` once a stable
+# Debian/Ubuntu release ships this GDAL. Keep the pin in lockstep with the dev GDAL
+# version (which the ingestion handler's CLI flags target) — a mismatch breaks ingestion.
 RUN curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/latest | tar -xj -C /usr/local bin/micromamba \
-    && /usr/local/bin/micromamba create -y -p /opt/gdal -c conda-forge "gdal=3.11" \
+    && /usr/local/bin/micromamba create -y -p /opt/gdal -c conda-forge "gdal=3.13" \
     && /usr/local/bin/micromamba clean -a -y \
     && rm -f /usr/local/bin/micromamba
 ENV PATH="/opt/gdal/bin:${PATH}" \
