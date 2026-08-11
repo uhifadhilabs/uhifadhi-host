@@ -11,12 +11,14 @@ servers:
   web:
     - 78.47.239.40
 
-# Kamal Proxy: zero-downtime rollouts + host routing + automatic Let's Encrypt TLS.
-# The `ncaa.uhifadhi.com` DNS record must resolve to this server (Cloudflare DNS-only /
-# grey-cloud) so the ACME HTTP-01 challenge reaches the proxy. Switch to a Cloudflare
-# Origin cert (like vivutio) later if you want the CF proxy on.
+# Kamal Proxy: zero-downtime rollouts + host routing. TLS mirrors vivutio: the origin
+# serves a Cloudflare Origin Certificate (CERTIFICATE_PEM / PRIVATE_KEY_PEM), so the
+# Cloudflare → origin hop is encrypted AND authenticated with the CF proxy ON (orange).
+# → In Cloudflare set the SSL/TLS mode to "Full (strict)".
 proxy:
-  ssl: true
+  ssl:
+    certificate_pem: CERTIFICATE_PEM
+    private_key_pem: PRIVATE_KEY_PEM
   host: ncaa.uhifadhi.com
   app_port: 80
   healthcheck:

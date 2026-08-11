@@ -52,6 +52,9 @@ jobs:
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           APP_SECRET: ${{ secrets.APP_SECRET }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          # Cloudflare Origin cert served by kamal-proxy (Full-strict TLS on the CF→origin hop)
+          CERTIFICATE_PEM: ${{ secrets.CERTIFICATE_PEM }}
+          PRIVATE_KEY_PEM: ${{ secrets.PRIVATE_KEY_PEM }}
         run: |
           # Kamal reads .kamal/secrets (gitignored). Recreate it referencing the env above.
           cat > .kamal/secrets <<'EOF'
@@ -59,6 +62,8 @@ jobs:
           POSTGRES_PASSWORD=$POSTGRES_PASSWORD
           APP_SECRET=$APP_SECRET
           DATABASE_URL=$DATABASE_URL
+          CERTIFICATE_PEM=$CERTIFICATE_PEM
+          PRIVATE_KEY_PEM=$PRIVATE_KEY_PEM
           EOF
 
           if [ "${{ inputs.bootstrap }}" = "true" ]; then
