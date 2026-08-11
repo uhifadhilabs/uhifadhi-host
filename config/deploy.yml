@@ -20,7 +20,7 @@ proxy:
   host: ncaa.uhifadhi.com
   app_port: 80
   healthcheck:
-    path: /                          # areas index returns 200 even on an empty DB
+    path: /up                        # DB-free liveness (schema may not exist pre-migration)
     interval: 3
     timeout: 5
 
