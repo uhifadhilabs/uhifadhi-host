@@ -7,9 +7,21 @@ WORKDIR /app
 
 # System libs + PHP extensions (pdo_pgsql for Postgres/PostGIS, intl/zip/bcmath, opcache).
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        git unzip libpq-dev libicu-dev libzip-dev \
+        git unzip libpq-dev libicu-dev libzip-dev curl bzip2 ca-certificates \
     && install-php-extensions pdo_pgsql intl zip opcache bcmath \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# GDAL 3.11 for the Hansen ingestion — the handler uses `gdal raster polygonize`
+# (unified CLI, GDAL ≥ 3.11); Debian ships 3.6. Installed via conda-forge (micromamba)
+# into /opt/gdal — self-contained, version-pinned, reads granules over /vsicurl.
+RUN curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/latest | tar -xj -C /usr/local bin/micromamba \
+    && /usr/local/bin/micromamba create -y -p /opt/gdal -c conda-forge "gdal=3.11" \
+    && /usr/local/bin/micromamba clean -a -y \
+    && rm -f /usr/local/bin/micromamba
+ENV PATH="/opt/gdal/bin:${PATH}" \
+    GDAL_DATA="/opt/gdal/share/gdal" \
+    PROJ_DATA="/opt/gdal/share/proj" \
+    LD_LIBRARY_PATH="/opt/gdal/lib"
 
 # Production php.ini + opcache tuning.
 RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"

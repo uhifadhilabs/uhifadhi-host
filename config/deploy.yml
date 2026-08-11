@@ -10,6 +10,16 @@ image: uhifadhilabs/uhifadhi        # → ghcr.io/uhifadhilabs/uhifadhi (registr
 servers:
   web:
     - 78.47.239.40
+  # Async queue: the Hansen ingestion (GDAL) runs here, off the web request.
+  worker:
+    hosts:
+      - 78.47.239.40
+    cmd: php bin/console messenger:consume async --time-limit=3600 --memory-limit=512M
+    proxy: false
+    options:
+      health-cmd: php -v          # a console worker never serves HTTP
+      health-interval: 5s
+      restart: unless-stopped
 
 # Kamal Proxy: zero-downtime rollouts + host routing. TLS mirrors vivutio: the origin
 # serves a Cloudflare Origin Certificate (CERTIFICATE_PEM / PRIVATE_KEY_PEM), so the
