@@ -28,11 +28,9 @@ final class AreaModuleTest extends WebTestCase
         self::assertResponseIsSuccessful();
         // Overview is the active tab; the other modules are real links.
         self::assertSelectorTextContains('.subnav a.on', 'Overview');
-        self::assertSelectorExists(\sprintf('.subnav a[href$="/%s/climate"]', $area->getUuidString()));
+        self::assertSelectorExists(\sprintf('.subnav a[href$="/%s/wildlife"]', $area->getUuidString()));
         self::assertSelectorExists(\sprintf('.subnav a[href$="/%s/statistics"]', $area->getUuidString()));
-        // Planned modules stay inert (no page yet).
-        self::assertSelectorTextContains('.subnav span.off', 'Fires');
-        // Eleven module links (Overview + ten), so no module tab was dropped to text.
+        // Eleven module links (Overview + ten question-modules), none dropped to text.
         self::assertGreaterThanOrEqual(11, $client->getCrawler()->filter('.subnav a')->count());
     }
 
@@ -55,10 +53,10 @@ final class AreaModuleTest extends WebTestCase
         $client = static::createClient();
         $area = AreaOfInterestFactory::createOne(['name' => 'Scaffold area']);
 
-        $client->request('GET', '/areas/'.$area->getUuidString().'/climate');
+        $client->request('GET', '/areas/'.$area->getUuidString().'/wildlife');
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('.subnav a.on', 'Climate');
+        self::assertSelectorTextContains('.subnav a.on', 'Wildlife');
         self::assertSelectorTextContains('.chip.warn', 'template');
     }
 

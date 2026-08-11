@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Dashboard\Controller;
 
 use App\Dashboard\Service\AreaModuleService;
+use App\Forest\Service\ForestChartService;
 use App\Forest\Service\ForestLossSummaryService;
+use App\Ingestion\Repository\DatasetRunRepository;
 use App\Spatial\Entity\AreaOfInterest;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -31,14 +33,31 @@ final class ModuleController extends AbstractController
         string $module,
         AreaModuleService $modules,
         ForestLossSummaryService $forestLoss,
+        ForestChartService $charts,
+        DatasetRunRepository $runs,
     ): Response {
         $descriptor = $modules->page($module);
         if (null === $descriptor) {
             throw $this->createNotFoundException(\sprintf('Unknown module "%s".', $module));
         }
 
-        // The one live module renders its real series; templates need no data.
-        $forest = 'forest' === $module ? $forestLoss->forArea($area) : null;
+        // The one live module renders its real series across all six plots; templates need no data.
+        $forest = null;
+        $forestCharts = null;
+        if ('forest' === $module) {
+            $forest = $forestLoss->forArea($area);
+            $statuses = array_map(
+                static fn ($run) => (string) $run->getStatus(),
+                $runs->findBy(['aoi' => $area], ['id' => 'DESC']),
+            );
+            $forestCharts = [
+                'cumulative' => $charts->cumulative($forest['lossByYear']),
+                'waterfall' => $charts->waterfall($forest['lossByYear']),
+                'trend' => $charts->trend($forest['lossByYear']),
+                'coverage' => $charts->coverage($forest['lossByYear']),
+                'shelf' => $charts->shelf($statuses),
+            ];
+        }
 
         return $this->render('dashboard/module.html.twig', [
             'area' => $area,
@@ -46,6 +65,7 @@ final class ModuleController extends AbstractController
             'modules' => $modules->modules(),
             'planned' => $modules->planned(),
             'forest' => $forest,
+            'forestCharts' => $forestCharts,
         ]);
     }
 }

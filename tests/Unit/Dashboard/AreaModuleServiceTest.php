@@ -18,20 +18,29 @@ final class AreaModuleServiceTest extends TestCase
         self::assertSame('forest', $modules[1]['slug']);
         self::assertSame('live', $modules[1]['status']);
 
-        // Every module carries a label + blurb, and there are all eleven tabs.
+        // Trimmed to the six-question set: Overview + ten modules.
         self::assertCount(11, $modules);
         foreach ($modules as $m) {
             self::assertNotSame('', $m['label']);
             self::assertNotSame('', $m['blurb']);
         }
+        // The question-modules are present; covariate/extra modules are dropped.
+        $slugs = array_column($modules, 'slug');
+        self::assertContains('wildlife', $slugs);
+        self::assertContains('structure', $slugs);
+        self::assertContains('roads', $slugs);
+        self::assertNotContains('climate', $slugs);
+        self::assertNotContains('livestock', $slugs);
     }
 
-    public function testPlannedTabsAreListedButNotRoutable(): void
+    public function testNoPlannedModulesAndExtrasAreNotRoutable(): void
     {
         $service = new AreaModuleService();
 
-        self::assertSame(['fires', 'water', 'roads'], array_column($service->planned(), 'slug'));
-        // Planned tabs have no page — the router must 404 them.
+        // Extras are deferred to the future add-module catalog, not shown as planned tabs.
+        self::assertSame([], $service->planned());
+        // Dropped extras have no page — the router must 404 them.
+        self::assertNull($service->page('climate'));
         self::assertNull($service->page('fires'));
     }
 
@@ -39,8 +48,8 @@ final class AreaModuleServiceTest extends TestCase
     {
         $service = new AreaModuleService();
 
-        self::assertSame('Climate', $service->page('climate')['label']);
-        self::assertSame('template', $service->page('climate')['status']);
+        self::assertSame('Wildlife', $service->page('wildlife')['label']);
+        self::assertSame('template', $service->page('wildlife')['status']);
         self::assertSame('Forest loss', $service->page('forest')['label']);
 
         // The Overview tab is the hub (the show page), not a module page.

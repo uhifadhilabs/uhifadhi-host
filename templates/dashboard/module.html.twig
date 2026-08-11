@@ -26,16 +26,45 @@
                     <span class="sub">single-year maximum</span></div>
             </div>
 
-            <div class="c" id="annual" style="padding-top:26px;margin-top:20px">
-                <span class="tab"><span class="idx">FL·05</span>Annual loss<span class="src">· forest_loss_year</span></span>
-                <span class="lib">bar + annotate</span>
-                {% if forest.lossByYear is not empty %}
-                    {{ include('forest/_annual_loss_chart.html.twig', {series: forest.lossByYear}) }}
-                    <div class="use">Hectares per year; the mean (dashed) excludes 2001, whose bar is clipped — it carries the known Hansen baseline artifact.</div>
-                {% else %}
-                    <p class="fog" style="font-size:12px;padding:24px 0;text-align:center">No annual series yet — run the Hansen ingestion from the <a href="{{ path('dashboard_area_show', {uuid: area.uuid}) }}#ingest" class="acc">Overview</a>.</p>
-                {% endif %}
-            </div>
+            {% if forest.lossByYear is not empty %}
+                {# The full Forest-loss module — all six plots on the real Hansen series. #}
+                <div class="grid g2" style="margin-top:20px">
+                    <div class="c" id="annual" style="padding-top:26px">
+                        <span class="tab"><span class="idx">FL·05</span>Annual loss<span class="src">· forest_loss_year</span></span><span class="lib">bar + annotate</span>
+                        {{ include('forest/_annual_loss_chart.html.twig', {series: forest.lossByYear}) }}
+                        <div class="use">Hectares per year; the mean (dashed) excludes 2001, whose bar is clipped — the known Hansen baseline artifact.</div>
+                    </div>
+                    <div class="c" style="padding-top:26px">
+                        <span class="tab"><span class="idx">FL·06</span>Cumulative loss<span class="src">· running total</span></span><span class="lib">area</span>
+                        {{ forestCharts.cumulative|raw }}
+                        <div class="use">The running total — a flattening curve means the loss rate is slowing.</div>
+                    </div>
+                    <div class="c" style="padding-top:26px">
+                        <span class="tab"><span class="idx">FL·07</span>Decomposition<span class="src">· by period</span></span><span class="lib">waterfall</span>
+                        {{ forestCharts.waterfall|raw }}
+                        <div class="use">Additive waterfall — the 2001 artifact (grey) vs genuine periods, building to the total.</div>
+                    </div>
+                    <div class="c" style="padding-top:26px">
+                        <span class="tab"><span class="idx">FL·08</span>Loss trend<span class="src">· 2002–, smoothed</span></span><span class="lib">points + smoother</span>
+                        {{ forestCharts.trend|raw }}
+                        <div class="use">Yearly points with a smoother (2001 excluded) — the drift a straight line would deny.</div>
+                    </div>
+                    <div class="c" style="padding-top:26px">
+                        <span class="tab"><span class="idx">FL·09</span>Dataset coverage<span class="src">· dataset_run</span></span><span class="lib">gantt</span>
+                        {{ forestCharts.coverage|raw }}
+                        <div class="use">What data exists for this park, over what span.</div>
+                    </div>
+                    <div class="c" style="padding-top:26px">
+                        <span class="tab"><span class="idx">FL·10</span>Shelf growth<span class="src">· dataset_run</span></span><span class="lib">step</span>
+                        {{ forestCharts.shelf|raw }}
+                        <div class="use">Datasets on the shelf — the count changes only at ingestion events.</div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="c" id="annual" style="padding:24px 0;margin-top:20px;text-align:center">
+                    <p class="fog" style="font-size:12px">No annual series yet — run the Hansen ingestion from the <a href="{{ path('dashboard_area_show', {uuid: area.uuid}) }}#ingest" class="acc">Overview</a>.</p>
+                </div>
+            {% endif %}
         {% else %}
             {# Template modules: the scaffold, honest about awaiting its ingestion. #}
             <div class="c" style="padding:48px 32px;text-align:center">
