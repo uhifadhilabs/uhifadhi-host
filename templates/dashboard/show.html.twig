@@ -20,21 +20,9 @@
     <div class="page">
         <div class="crumb"><a href="{{ path('dashboard_index') }}">uhifadhi</a> / <a href="{{ path('dashboard_index') }}">areas</a> / {{ area.name|lower }}</div>
         <h1 class="pg">{{ area.name }}</h1>
-        <p class="pgsub">The park hub: identity, the live map, and one door per analytical module, grouped by the taxonomy — flux (what the ecosystem does), pressure (what people do), pulse (live instruments).</p>
+        <p class="pgsub">The park hub — identity, the live map, and one door per analytical module.</p>
 
-        <div class="subnav">
-            <a href="{{ path('dashboard_area_show', {uuid: area.uuid}) }}" class="on">Overview</a>
-            <a href="#annual">Forest loss</a>
-            <span class="off">Climate</span>
-            <span class="off">Drought</span>
-            <span class="off">Vegetation</span>
-            <span class="off">Stations</span>
-            <span class="off">Land cover</span>
-            <span class="off">Anthropogenic</span>
-            <span class="off">Tourism</span>
-            <span class="off">Livestock</span>
-            <span class="off">Statistics</span>
-        </div>
+        {{ include('dashboard/_subnav.html.twig', {area: area, active: 'overview', modules: modules, planned: planned}) }}
 
         {% for label, messages in app.flashes %}
             {% for message in messages %}

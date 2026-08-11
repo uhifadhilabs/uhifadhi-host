@@ -726,3 +726,73 @@ def livestock_wildlife():
     f.out.append(f'<text class="annoS" x="{f.w-170}" y="{f.h-6}">livestock use (dung index)</text>')
     f.out.append(f'<text class="annoS" x="{f.l+4}" y="{f.t-6}">shared-transect counts: wildlife use declines ~0.6 per unit livestock — competition, quantified (the coexistence question, drawn)</text>')
     return f.done()
+
+
+# ═══════════════ WILDLIFE & INVASIVE SPECIES (Objective 3) ═══════════════
+def _nca_surface(seed, field, ramp, note, step=0.045):
+    """A boundary-masked grid choropleth over the NCA ring — shared by the
+    habitat-suitability and invasive-risk surfaces (SDM outputs)."""
+    P, ring = _nca_proj()
+    rng = random.Random(seed)
+    lons = [p[0] for p in ring]
+    lats = [p[1] for p in ring]
+    out = ['<svg class="ch" viewBox="0 0 470 340" xmlns="http://www.w3.org/2000/svg">']
+    lat = min(lats)
+    while lat < max(lats):
+        lon = min(lons)
+        while lon < max(lons):
+            if _inside(ring, lon + step / 2, lat + step / 2):
+                v = min(1, max(0, field(lon, lat) * (0.55 + 0.6 * rng.random())))
+                if v > 0.07:
+                    col = f'color-mix(in srgb, {ramp} {int(v*92)}%, transparent)'
+                    x0, y0 = P(lon, lat + step)
+                    x1, y1 = P(lon + step, lat)
+                    out.append(f'<rect x="{x0:.1f}" y="{y0:.1f}" width="{x1-x0:.1f}" height="{y1-y0:.1f}" fill="{col}"/>')
+            lon += step
+        lat += step
+    out.append('<polygon points="' + ' '.join(f'{P(lon,lat)[0]:.1f},{P(lon,lat)[1]:.1f}' for lon, lat in ring) +
+               '" fill="none" stroke="var(--tx)" stroke-width="1.1" opacity="0.45"/>')
+    out.append(f'<text class="annoS" x="14" y="322">{note}</text>')
+    out.append('</svg>')
+    return ''.join(out)
+
+
+def suitability_map():
+    def field(lon, lat):
+        forest = max(0, 1 - abs(lon - 35.35) / 0.30) * max(0, 1 - abs(lat + 2.95) / 0.32)
+        water = max(0, 1 - abs(lon - 35.85) / 0.26) * max(0, 1 - abs(lat + 2.90) / 0.30) * 0.7
+        crater = max(0, 1 - abs(lon - 35.585) / 0.11) * max(0, 1 - abs(lat + 3.172) / 0.11)
+        return forest * 0.95 + water * 0.7 - crater * 0.6
+    return _nca_surface(41, field, "var(--acc)",
+                        "predicted habitat suitability (MaxEnt: NDVI · distance-to-water · land cover · terrain) — highest along the Northern Highland forest edge")
+
+
+def invasive_risk_map():
+    def field(lon, lat):
+        access = max(0, 1 - abs(lon - 35.78) / 0.34) * max(0, 1 - abs(lat + 3.28) / 0.40)
+        settle = max(0, 1 - abs(lon - 35.92) / 0.30) * max(0, 1 - abs(lat + 3.36) / 0.30) * 0.85
+        return access * 0.9 + settle * 0.85
+    return _nca_surface(7, field, "#E05B41",
+                        "invasion-risk surface (invasive records + roads + disturbance) — risk tracks access routes and the settled south-east")
+
+
+def covariate_importance():
+    feats = [("Distance to water", 0.27), ("NDVI (greenness)", 0.22), ("Land cover", 0.18),
+             ("Elevation", 0.13), ("Dry-season rainfall", 0.11), ("Slope", 0.09)]
+    w, h, l, r, t, b = 470, 300, 158, 42, 18, 30
+    pw = w - l - r
+    mx = max(v for _, v in feats)
+    n = len(feats)
+    gap = (h - t - b) / n
+    mono = 'font-family="JetBrains Mono,ui-monospace,monospace"'
+    out = [f'<svg class="ch" viewBox="0 0 {w} {h}" xmlns="http://www.w3.org/2000/svg">']
+    for i, (name, v) in enumerate(feats):
+        y = t + i * gap + gap * 0.18
+        bh = gap * 0.54
+        bw = v / mx * pw
+        out.append(f'<text x="{l-10}" y="{y+bh*0.72:.1f}" text-anchor="end" fill="var(--tx)" {mono} font-size="11">{name}</text>')
+        out.append(f'<rect x="{l}" y="{y:.1f}" width="{bw:.1f}" height="{bh:.1f}" rx="2.5" fill="var(--acc)" opacity="0.85"/>')
+        out.append(f'<text x="{l+bw+7:.1f}" y="{y+bh*0.72:.1f}" fill="var(--fog)" {mono} font-size="10">{int(v*100)}%</text>')
+    out.append(f'<text class="annoS" x="{l}" y="{h-8}">permutation importance — water proximity and greenness carry both models</text>')
+    out.append('</svg>')
+    return ''.join(out)

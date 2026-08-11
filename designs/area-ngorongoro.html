@@ -27,8 +27,8 @@
 </header>
 <div class="page">
 <div class="crumb"><a href="index.html">uhifadhi</a> / <a href="areas.html">areas</a> / ngorongoro</div>
-<div class="pghead"><div><h1 class="pg">Ngorongoro Conservation Area</h1><p class="pgsub">The park hub: identity, the live map, and one door per analytical module, grouped by the taxonomy — flux (what the ecosystem does), pressure (what people do), pulse (live instruments).</p></div></div>
-<div class="subnav"><a href="area-ngorongoro.html" class=on>Overview</a><a href="ngoro-forest.html">Forest loss</a><a href="ngoro-climate.html">Climate</a><a href="ngoro-drought.html">Drought</a><a href="ngoro-veg.html">Vegetation</a><a href="ngoro-stations.html">Stations</a><a href="ngoro-landcover.html">Land cover</a><a href="ngoro-anthro.html">Anthropogenic</a><a href="ngoro-tourism.html">Tourism</a><a href="ngoro-livestock.html">Livestock</a><a href="ngoro-stats.html">Statistics</a><span class="off">Fires</span><span class="off">Water</span><span class="off">Roads</span></div>
+<div class="pghead"><div><h1 class="pg">Ngorongoro Conservation Area</h1><p class="pgsub">The park hub — identity, the live map, and one door per analytical module.</p></div><div class=pgact><a class="cta" href="ngoro-forest-edit.html" style="display:inline-flex;align-items:center;gap:7px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>Edit</a></div></div>
+<div class="subnav"><a href="area-ngorongoro.html" class=on>Overview</a><a href="ngoro-forest.html">Forest loss</a><a href="ngoro-structure.html">Forest structure</a><a href="ngoro-veg.html">Vegetation</a><a href="ngoro-landcover.html">Land cover</a><a href="ngoro-climate.html">Climate</a><a href="ngoro-drought.html">Drought</a><a href="ngoro-water.html">Water</a><a href="ngoro-anthro.html">Anthropogenic</a><a href="ngoro-livestock.html">Livestock</a><a href="ngoro-tourism.html">Tourism</a><a href="ngoro-roads.html">Roads</a><a href="ngoro-fires.html">Fires</a><a href="ngoro-wildlife.html">Wildlife</a><a href="ngoro-stations.html">Stations</a><a href="ngoro-stats.html">Statistics</a></div>
 
 <div class="grid g4">
 <div class="c kpi" style=""><span class="tab"><span class="idx">PL·10</span>Area</span><b class="disp">8,271<em>km²</em></b><span class="sub">ST_Area geography</span></div>
@@ -63,23 +63,26 @@ function uhiDim(p){
 <h2 class="zone">Flux — what the ecosystem is doing</h2>
 <div class="grid g4">
 <a class="c mod" href="ngoro-forest.html" style="padding:20px 16px 16px"><span class="mt">Forest loss</span><span class="md">The real Hansen series: accounting, decomposition, trend.</span><span class="chip ok">live</span></a>
+<a class="c mod" href="ngoro-structure.html" style="padding:20px 16px 16px"><span class="mt">Forest structure</span><span class="md">Canopy height &amp; above-ground biomass — GEDI/CCI proxy for the LiDAR objective.</span><span class="chip warn">template</span></a>
+<a class="c mod" href="ngoro-veg.html" style="padding:20px 16px 16px"><span class="mt">Vegetation</span><span class="md">NDVI envelopes, phenology, spectral composition → species richness.</span><span class="chip warn">template</span></a>
+<a class="c mod" href="ngoro-landcover.html" style="padding:20px 16px 16px"><span class="mt">Land cover</span><span class="md">WorldCover composition, sankey transitions, cropland creep.</span><span class="chip warn">template</span></a>
 <a class="c mod" href="ngoro-climate.html" style="padding:20px 16px 16px"><span class="mt">Climate</span><span class="md">WorldClim normals, CHIRPS anomalies, CMIP futures.</span><span class="chip warn">template</span></a>
 <a class="c mod" href="ngoro-drought.html" style="padding:20px 16px 16px"><span class="mt">Drought</span><span class="md">SPEI monitor, drought-class extent, soil-moisture percentiles.</span><span class="chip warn">template</span></a>
-<a class="c mod" href="ngoro-veg.html" style="padding:20px 16px 16px"><span class="mt">Vegetation</span><span class="md">NDVI envelopes, Hovmöller, phenology shift.</span><span class="chip warn">template</span></a>
+<a class="c mod" href="ngoro-water.html" style="padding:20px 16px 16px"><span class="mt">Water</span><span class="md">JRC surface water, seasonality, distance-to-water — the wildlife covariate.</span><span class="chip warn">template</span></a>
 </div>
 <h2 class="zone">Pressure — what people are doing</h2>
 <div class="grid g4">
-<a class="c mod" href="ngoro-anthro.html" style="padding:20px 16px 16px"><span class="mt">Anthropogenic</span><span class="md">Boundary-buffer encroachment: built-up rings, distance decay, edge pressure.</span><span class="chip warn">template</span></a>
-<a class="c mod" href="ngoro-tourism.html" style="padding:20px 16px 16px"><span class="mt">Tourism</span><span class="md">Camps &amp; lodges monitor: expansion, concentration, wildlife displacement.</span><span class="chip warn">template</span></a>
+<a class="c mod" href="ngoro-anthro.html" style="padding:20px 16px 16px"><span class="mt">Anthropogenic</span><span class="md">Settlement expansion &amp; boundary-buffer encroachment: built-up rings, edge pressure.</span><span class="chip warn">template</span></a>
 <a class="c mod" href="ngoro-livestock.html" style="padding:20px 16px 16px"><span class="mt">Livestock</span><span class="md">Herd census trends, grazing pressure map, stocking vs capacity.</span><span class="chip warn">template</span></a>
-<div class="c mod" style="padding:20px 16px 16px;opacity:.65"><span class="mt">Roads &amp; access</span><span class="md">OSM/GRIP road density, isochrones, fragmentation — planned.</span><span class="chip idle">planned</span></div>
+<a class="c mod" href="ngoro-tourism.html" style="padding:20px 16px 16px"><span class="mt">Tourism</span><span class="md">Camps &amp; lodges monitor: expansion, concentration, wildlife displacement.</span><span class="chip warn">template</span></a>
+<a class="c mod" href="ngoro-roads.html" style="padding:20px 16px 16px"><span class="mt">Roads</span><span class="md">OSM/GRIP network, routing &amp; a location guide, fragmentation.</span><span class="chip warn">template</span></a>
+<a class="c mod" href="ngoro-fires.html" style="padding:20px 16px 16px"><span class="mt">Fires</span><span class="md">FIRMS/VIIRS detections, dry-season pulse, burn-scar extent.</span><span class="chip warn">template</span></a>
 </div>
-<h2 class="zone">Pulse &amp; synthesis</h2>
+<h2 class="zone">Biodiversity &amp; synthesis</h2>
 <div class="grid g4">
+<a class="c mod" href="ngoro-wildlife.html" style="padding:20px 16px 16px"><span class="mt">Wildlife</span><span class="md">Animal-distribution SDM &amp; invasive-species risk from RS covariates + occurrences.</span><span class="chip warn">template</span></a>
 <a class="c mod" href="ngoro-stations.html" style="padding:20px 16px 16px"><span class="mt">Weather stations</span><span class="md">Meteograms, wind roses, soil profiles, warming stripes.</span><span class="chip warn">template</span></a>
-<a class="c mod" href="ngoro-landcover.html" style="padding:20px 16px 16px"><span class="mt">Land cover</span><span class="md">WorldCover composition, sankey transitions, cropland creep.</span><span class="chip warn">template</span></a>
 <a class="c mod" href="ngoro-stats.html" style="padding:20px 16px 16px"><span class="mt">Statistics</span><span class="md">Fits, uncertainty, diagnostics, PCA — the inferential layer.</span><span class="chip warn">template</span></a>
-<div class="c mod" style="padding:20px 16px 16px;opacity:.65"><span class="mt">Water &amp; hydrology</span><span class="md">JRC surface water, lake levels, hydrographs — planned.</span><span class="chip idle">planned</span></div>
 </div>
 <div class="footer">Design template — static HTML generated from the case-study dataset (Ngorongoro forest
 loss is <b>real</b> app data; Serengeti/other series are plausibility-tuned placeholders). Regenerate:

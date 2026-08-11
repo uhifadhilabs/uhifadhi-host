@@ -55,6 +55,13 @@ IC_EXPAND = ('<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke
              '<path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg>')
 IC_BELL = _svg('<path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673'
                'C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/>')
+IC_GRIP = ('<svg width="12" height="16" viewBox="0 0 12 16" fill="currentColor" aria-hidden="true">'
+           '<circle cx="4" cy="3" r="1.4"/><circle cx="8" cy="3" r="1.4"/><circle cx="4" cy="8" r="1.4"/>'
+           '<circle cx="8" cy="8" r="1.4"/><circle cx="4" cy="13" r="1.4"/><circle cx="8" cy="13" r="1.4"/></svg>')
+IC_GRIP_SM = ('<svg width="9" height="13" viewBox="0 0 12 16" fill="currentColor" aria-hidden="true">'
+              '<circle cx="4" cy="3" r="1.5"/><circle cx="8" cy="3" r="1.5"/><circle cx="4" cy="8" r="1.5"/>'
+              '<circle cx="8" cy="8" r="1.5"/><circle cx="4" cy="13" r="1.5"/><circle cx="8" cy="13" r="1.5"/></svg>')
+IC_PENCIL = _svg('<path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>')
 IC_GEAR = _svg('<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73'
                'l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38'
                'a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18'
@@ -82,11 +89,20 @@ def feed_html(n=6, compact=False):
             f'</span></span><a href="alerts.html" class="acc mono" style="font-size:9px;text-decoration:none">open →</a></div>')
     return ''.join(rows)
 
-NCA_SUB = [("area-ngorongoro.html", "Overview"), ("ngoro-forest.html", "Forest loss"),
+# Ordered by the flux / pressure / pulse taxonomy; each module maps to a research
+# objective (see uhifadhilabs/ops/NGORONGORO_MODULE_DATA_MAP.md).
+NCA_SUB = [("area-ngorongoro.html", "Overview"),
+           # Flux — what the ecosystem does
+           ("ngoro-forest.html", "Forest loss"), ("ngoro-structure.html", "Forest structure"),
+           ("ngoro-veg.html", "Vegetation"), ("ngoro-landcover.html", "Land cover"),
            ("ngoro-climate.html", "Climate"), ("ngoro-drought.html", "Drought"),
-           ("ngoro-veg.html", "Vegetation"), ("ngoro-stations.html", "Stations"),
-           ("ngoro-landcover.html", "Land cover"), ("ngoro-anthro.html", "Anthropogenic"),
-           ("ngoro-tourism.html", "Tourism"), ("ngoro-livestock.html", "Livestock"),
+           ("ngoro-water.html", "Water"),
+           # Pressure — what people do
+           ("ngoro-anthro.html", "Anthropogenic"), ("ngoro-livestock.html", "Livestock"),
+           ("ngoro-tourism.html", "Tourism"), ("ngoro-roads.html", "Roads"),
+           ("ngoro-fires.html", "Fires"),
+           # Biodiversity & synthesis (pulse)
+           ("ngoro-wildlife.html", "Wildlife"), ("ngoro-stations.html", "Stations"),
            ("ngoro-stats.html", "Statistics")]
 SER_SUB = [("area-serengeti.html", "Overview"), ("ser-fires.html", "Fire management"),
            ("ser-bio.html", "Biodiversity"), ("ser-air.html", "Air & smoke")]
@@ -95,7 +111,7 @@ CSS = r"""
 :root{
   --cv:#0C1310; --p1:#152019; --p2:#111A14;
   --ln:rgba(216,236,224,.09); --ln2:rgba(216,236,224,.17);
-  --tx:#EAF2EC; --fog:#87988D; --dim:#5A6960; --raised:#1C2921;
+  --tx:#EAF2EC; --fog:#96A89C; --dim:#7C8C81; --raised:#1C2921;
   --acc:#3ED9A8; --accT:#0C1310; --accGlow:rgba(62,217,168,.18);
   --ok:#63C97F; --warn:#DBA33F; --fail:#E05B41;
   --glass:rgba(12,19,15,.78); --shadow:0 8px 26px rgba(0,0,0,.34);
@@ -103,7 +119,7 @@ CSS = r"""
 html.light{
   --cv:#F3F2EB; --p1:#FFFFFF; --p2:#FBFAF6;
   --ln:rgba(23,38,30,.11); --ln2:rgba(23,38,30,.20);
-  --tx:#1B2620; --fog:#68776D; --dim:#98A49B; --raised:#ECEBE2;
+  --tx:#1B2620; --fog:#57645A; --dim:#76847A; --raised:#ECEBE2;
   --acc:#0F8A68; --accT:#FFFFFF; --accGlow:rgba(15,138,104,.13);
   --ok:#1E7A46; --warn:#9A6B14; --fail:#BA4227;
   --glass:rgba(255,255,255,.85); --shadow:0 6px 22px rgba(23,38,30,.10);
@@ -146,22 +162,35 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.5;z-
      padding:5px 11px;font-size:11px;cursor:pointer;font-family:inherit}
 
 .subnav{display:flex;gap:6px;margin:0 0 26px;flex-wrap:wrap}
-.subnav a{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:10px;font-weight:600;
+.subnav a{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:11px;font-weight:600;
      letter-spacing:.1em;text-transform:uppercase;color:var(--fog);text-decoration:none;
-     border:1px solid var(--ln2);border-radius:99px;padding:6px 15px}
+     border:1px solid var(--ln2);border-radius:99px;padding:7px 15px 6px}
 .subnav a:hover{color:var(--tx);border-color:var(--fog)}
 .subnav a.on{color:var(--accT);background:var(--acc);border-color:var(--acc)}
-.subnav span.off{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:10px;
+.subnav span.off{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:11px;
      letter-spacing:.1em;text-transform:uppercase;color:var(--dim);border:1px dashed var(--ln2);
-     border-radius:99px;padding:6px 15px}
+     border-radius:99px;padding:7px 15px 6px}
+/* Edit-mode module chips: identical pill to .subnav a, just with a grip + ×. */
+.mchip{display:inline-flex;align-items:center;gap:8px;font-family:"JetBrains Mono",ui-monospace,monospace;
+     font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--fog);
+     border:1px solid var(--ln2);border-radius:99px;padding:7px 14px 6px;text-decoration:none}
+.mchip.on{color:var(--accT);background:var(--acc);border-color:var(--acc)}
+.mchip .grip{display:inline-flex;cursor:grab;color:var(--fog)}
+.mchip .grip svg{display:block;height:12px;width:auto}
+.mchip .rm{display:inline-flex;align-items:center}
+.mchip.on .grip{color:var(--accT)}
+.mchip .rm{color:var(--fail);text-decoration:none;font-size:14px;line-height:1}
+.mchip.on .rm{color:var(--accT)}
+.mchip.add{border-style:dashed;border-color:var(--acc);color:var(--acc);cursor:pointer}
+.mchip.ghost{border-style:dashed;color:var(--fog);cursor:pointer}
 
 .page{position:relative;z-index:1;max-width:1280px;margin:0 auto;padding:26px 22px 90px}
-.crumb{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:10px;letter-spacing:.14em;
+.crumb{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:11px;letter-spacing:.14em;
      text-transform:uppercase;color:var(--fog);margin:2px 0 6px}
 .crumb a{color:var(--acc);text-decoration:none}
 h1.pg{font-family:"Archivo",system-ui,sans-serif;font-size:27px;font-weight:700;letter-spacing:-.02em;
      margin:0 0 4px}
-.pgsub{color:var(--fog);font-size:13.5px;margin:0 0 22px;max-width:96ch;line-height:1.6}
+.pgsub{color:var(--fog);font-size:14.5px;margin:0 0 22px;max-width:96ch;line-height:1.6}
 .pgsub b{color:var(--tx)}
 h2.zone{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:10.5px;font-weight:600;
      letter-spacing:.22em;text-transform:uppercase;color:var(--fog);margin:38px 0 22px;
@@ -177,7 +206,7 @@ h2.zone::after{content:"";flex:1;height:1px;background:var(--ln2)}
    border-radius:14px;padding:24px 16px 14px;position:relative;box-shadow:var(--shadow)}
 .c .tab{position:absolute;top:-9px;left:13px;background:var(--cv);border:1px solid var(--ln2);
    border-radius:7px;padding:3px 10px;font-family:"JetBrains Mono",ui-monospace,monospace;
-   font-size:8.5px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--fog);
+   font-size:9.5px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--fog);
    display:flex;gap:8px;align-items:center;white-space:nowrap;max-width:92%;overflow:hidden;z-index:2}
 .c .tab .idx{color:var(--acc);letter-spacing:.05em}
 .c .tab .src{letter-spacing:.03em;color:var(--dim);text-transform:none}
@@ -186,20 +215,25 @@ h2.zone::after{content:"";flex:1;height:1px;background:var(--ln2)}
    font-size:8px;color:var(--dim);z-index:2}
 .stamp{position:absolute;right:12px;bottom:6px;font-family:"JetBrains Mono",ui-monospace,monospace;
    font-size:7.5px;color:color-mix(in srgb,var(--fog) 62%,transparent);letter-spacing:.06em}
-.use{font-size:11.5px;color:var(--fog);margin:10px 2px 4px;line-height:1.5}
+.use{font-size:12.5px;color:var(--fog);margin:10px 2px 4px;line-height:1.55}
 .use b{color:var(--tx)}
+.modal-scroll{scrollbar-width:thin;scrollbar-color:var(--ln2) transparent}
+.modal-scroll::-webkit-scrollbar{width:10px;height:10px}
+.modal-scroll::-webkit-scrollbar-track{background:transparent}
+.modal-scroll::-webkit-scrollbar-thumb{background:var(--ln2);border-radius:8px;border:3px solid transparent;background-clip:content-box}
+.modal-scroll::-webkit-scrollbar-thumb:hover{background:var(--fog);background-clip:content-box}
 
 .kpi b{font-family:"Archivo",system-ui,sans-serif;font-size:30px;font-weight:700;letter-spacing:-.035em;
    display:block;line-height:1;font-variant-numeric:tabular-nums}
-.kpi b em{font-style:normal;font-size:12px;color:var(--fog);font-weight:500;margin-left:4px}
-.kpi .sub{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:8.5px;color:var(--dim);
+.kpi b em{font-style:normal;font-size:13px;color:var(--fog);font-weight:500;margin-left:4px}
+.kpi .sub{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:9.5px;color:var(--dim);
    margin-top:8px;display:flex;align-items:center;gap:9px}
 .kpi.hot b{color:var(--acc)}
 .sb{display:inline-flex;height:4px;width:64px;border:1px solid color-mix(in srgb,var(--tx) 42%,transparent);
    border-radius:1px;overflow:hidden}
 .sb i{flex:1}.sb i:nth-child(odd){background:color-mix(in srgb,var(--tx) 55%,transparent)}
 
-.chip{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:9px;font-weight:700;
+.chip{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:10px;font-weight:700;
    border-radius:6px;padding:2.5px 9px;border:1px solid;white-space:nowrap}
 .chip.ok{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 40%,transparent)}
 .chip.warn{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 40%,transparent)}
@@ -207,15 +241,15 @@ h2.zone::after{content:"";flex:1;height:1px;background:var(--ln2)}
 .chip.idle{color:var(--dim);border:1px dashed color-mix(in srgb,var(--fog) 45%,transparent);font-weight:600}
 .chip.acc{color:var(--acc);border-color:color-mix(in srgb,var(--acc) 45%,transparent)}
 
-table.tbl{width:100%;border-collapse:collapse;font-size:12.5px}
-table.tbl th{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:8.5px;letter-spacing:.16em;
+table.tbl{width:100%;border-collapse:collapse;font-size:13.5px}
+table.tbl th{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:9.5px;letter-spacing:.16em;
    text-transform:uppercase;color:var(--fog);text-align:left;padding:8px 10px;
    border-bottom:1px solid var(--ln2);font-weight:600}
 table.tbl td{padding:9px 10px;border-bottom:1px dashed color-mix(in srgb,var(--fog) 18%,transparent);
    font-variant-numeric:tabular-nums}
 table.tbl tr:hover td{background:color-mix(in srgb,var(--acc) 4%,transparent)}
 table.tbl a{color:var(--acc);text-decoration:none;font-weight:600}
-table.tbl .num{text-align:right;font-family:"JetBrains Mono",ui-monospace,monospace;font-size:11px}
+table.tbl .num{text-align:right;font-family:"JetBrains Mono",ui-monospace,monospace;font-size:12px}
 
 .rln{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:12px;
    padding:8px 2px;border-bottom:1px dashed color-mix(in srgb,var(--fog) 18%,transparent)}
@@ -649,28 +683,31 @@ def build_nca_hub():
 <h2 class="zone">Flux — what the ecosystem is doing</h2>
 <div class="grid g4">
 {module_card("ngoro-forest.html", "Forest loss", "The real Hansen series: accounting, decomposition, trend.", "live")}
+{module_card("ngoro-structure.html", "Forest structure", "Canopy height &amp; above-ground biomass — GEDI/CCI proxy for the LiDAR objective.", "demo")}
+{module_card("ngoro-veg.html", "Vegetation", "NDVI envelopes, phenology, spectral composition → species richness.", "demo")}
+{module_card("ngoro-landcover.html", "Land cover", "WorldCover composition, sankey transitions, cropland creep.", "demo")}
 {module_card("ngoro-climate.html", "Climate", "WorldClim normals, CHIRPS anomalies, CMIP futures.", "demo")}
 {module_card("ngoro-drought.html", "Drought", "SPEI monitor, drought-class extent, soil-moisture percentiles.", "demo")}
-{module_card("ngoro-veg.html", "Vegetation", "NDVI envelopes, Hovmöller, phenology shift.", "demo")}
+{module_card("ngoro-water.html", "Water", "JRC surface water, seasonality, distance-to-water — the wildlife covariate.", "demo")}
 </div>
 <h2 class="zone">Pressure — what people are doing</h2>
 <div class="grid g4">
-{module_card("ngoro-anthro.html", "Anthropogenic", "Boundary-buffer encroachment: built-up rings, distance decay, edge pressure.", "demo")}
-{module_card("ngoro-tourism.html", "Tourism", "Camps &amp; lodges monitor: expansion, concentration, wildlife displacement.", "demo")}
+{module_card("ngoro-anthro.html", "Anthropogenic", "Settlement expansion &amp; boundary-buffer encroachment: built-up rings, edge pressure.", "demo")}
 {module_card("ngoro-livestock.html", "Livestock", "Herd census trends, grazing pressure map, stocking vs capacity.", "demo")}
-{module_card(None, "Roads &amp; access", "OSM/GRIP road density, isochrones, fragmentation — planned.", "off")}
+{module_card("ngoro-tourism.html", "Tourism", "Camps &amp; lodges monitor: expansion, concentration, wildlife displacement.", "demo")}
+{module_card("ngoro-roads.html", "Roads", "OSM/GRIP network, routing &amp; a location guide, fragmentation.", "demo")}
+{module_card("ngoro-fires.html", "Fires", "FIRMS/VIIRS detections, dry-season pulse, burn-scar extent.", "demo")}
 </div>
-<h2 class="zone">Pulse &amp; synthesis</h2>
+<h2 class="zone">Biodiversity &amp; synthesis</h2>
 <div class="grid g4">
+{module_card("ngoro-wildlife.html", "Wildlife", "Animal-distribution SDM &amp; invasive-species risk from RS covariates + occurrences.", "demo")}
 {module_card("ngoro-stations.html", "Weather stations", "Meteograms, wind roses, soil profiles, warming stripes.", "demo")}
-{module_card("ngoro-landcover.html", "Land cover", "WorldCover composition, sankey transitions, cropland creep.", "demo")}
 {module_card("ngoro-stats.html", "Statistics", "Fits, uncertainty, diagnostics, PCA — the inferential layer.", "demo")}
-{module_card(None, "Water &amp; hydrology", "JRC surface water, lake levels, hydrographs — planned.", "off")}
 </div>"""
     page("area-ngorongoro.html", "Ngorongoro Conservation Area", "areas.html", NCA_CRUMB,
-         "The park hub: identity, the live map, and one door per analytical module, grouped by the "
-         "taxonomy — flux (what the ecosystem does), pressure (what people do), pulse (live instruments).",
-         body, subnav(NCA_SUB, "area-ngorongoro.html", planned=("Fires", "Water", "Roads")))
+         "The park hub — identity, the live map, and one door per analytical module.",
+         body, subnav(NCA_SUB, "area-ngorongoro.html"),
+         action=f'<a class="cta" href="ngoro-forest-edit.html" style="display:inline-flex;align-items:center;gap:7px">{IC_PENCIL}Edit</a>')
 
 
 def build_nca_forest():
@@ -696,7 +733,8 @@ def build_nca_forest():
 </div>"""
     page("ngoro-forest.html", "Ngorongoro — Forest loss", "areas.html", NCA_CRUMB + ' / forest',
          "The forest-loss module, computed from the 23 real rows in forest_loss_year.",
-         body, subnav(NCA_SUB, "ngoro-forest.html"))
+         body, subnav(NCA_SUB, "ngoro-forest.html"),
+         action=f'<a class="cta" href="ngoro-forest-edit.html" style="display:inline-flex;align-items:center;gap:7px">{IC_PENCIL}Edit</a>')
 
 
 def build_nca_climate():
@@ -1011,6 +1049,447 @@ def build_nca_livestock():
          "NCA's defining module: a multi-use landscape where pastoralism is legal, historic and measured — "
          "not a violation but a variable.",
          body, subnav(NCA_SUB, "ngoro-livestock.html"))
+
+
+# ─────────────────── NEW MODULES (Step A skeleton) ───────────────────
+# Scaffolds that answer a research objective's question. The panels are dashed
+# placeholders; Step B fills each with a real static visualization, then we port.
+def nca_scaffold(fname, crumb_word, title, subtitle, objective, question, panels, pid):
+    banner = (
+        '<div class="c" style="padding:15px 20px;margin-bottom:20px;border-left:3px solid var(--acc)">'
+        f'<div class="mono" style="font-size:9px;letter-spacing:.14em;color:var(--acc);'
+        f'text-transform:uppercase;margin-bottom:5px">{objective}</div>'
+        f'<div style="font-size:15px;font-weight:600;color:var(--tx)">{question}</div></div>'
+    )
+    cells = ''
+    for i, (t, note) in enumerate(panels):
+        ph = ('<div style="height:190px;display:grid;place-items:center;text-align:center;color:var(--dim);'
+              'font-family:JetBrains Mono,ui-monospace,monospace;font-size:11px;line-height:1.7;'
+              'white-space:pre-line;border:1px dashed var(--ln2);border-radius:8px;padding:12px">'
+              + note + '</div>')
+        cells += plate(t, ph, pid=f'{pid}-{i}')
+    body = banner + f'<div class="grid g2">{cells}</div>'
+    page(fname, title, "areas.html", NCA_CRUMB + f' / {crumb_word}', subtitle, body, subnav(NCA_SUB, fname))
+
+
+def build_nca_structure():
+    PL[0] = 40
+    nca_scaffold(
+        "ngoro-structure.html", "structure", "Ngorongoro — Forest structure & biomass",
+        "Objective 4 without the aircraft: spaceborne LiDAR (GEDI) and modelled canopy height stand in "
+        "for drone/airborne LiDAR until it flies.",
+        "Objective 4 · LiDAR forest structure & biomass",
+        "How tall and dense is the canopy, and how much carbon does it hold?",
+        [("Canopy height model", "GEDI L2A / Potapov 30 m\ncanopy-height map over the boundary"),
+         ("Above-ground biomass", "ESA CCI Biomass 100 m\nAGB density + total carbon stock"),
+         ("Height distribution", "GEDI footprints\ncanopy-height histogram by zone"),
+         ("Structure vs loss", "structure × Hansen loss\nwhere the tallest canopy is going")],
+        "struct")
+
+
+def build_nca_water():
+    PL[0] = 50
+    nca_scaffold(
+        "ngoro-water.html", "water", "Ngorongoro — Water & hydrology",
+        "Water availability — a wildlife-distribution covariate (Objective 3) and a drought signal in its own right.",
+        "Objective 3 covariate · Water availability",
+        "Where is water, how permanent is it, and how far must animals travel to it?",
+        [("Surface-water extent", "JRC Global Surface Water\noccurrence over the boundary"),
+         ("Seasonality & permanence", "JRC seasonality\npermanent vs seasonal water"),
+         ("Distance-to-water", "derived surface\nkm to nearest water — an SDM input"),
+         ("Dry-season shrinkage", "monthly water area\nthe dry-season minimum trend")],
+        "water")
+
+
+def build_nca_roads():
+    PL[0] = 60
+    nca_scaffold(
+        "ngoro-roads.html", "roads", "Ngorongoro — Roads & access",
+        "Objective 5: map the network and route on it. The self-driving guide is a routing product on this graph; "
+        "autonomous driving is out of scope.",
+        "Objective 5 · Road mapping & navigation guide",
+        "What is the road network, how does it fragment habitat, and how do we route safely on it?",
+        [("Road network", "OSM + GRIP\nclassified network over the park"),
+         ("Access isochrones", "OSRM/Valhalla\ndrive-time from the gates"),
+         ("Fragmentation", "road-density grid\nhabitat fragmentation index"),
+         ("Safe routing", "routing engine\nroute + sensitive-area avoidance")],
+        "roads")
+
+
+def build_nca_fires():
+    PL[0] = 70
+    nca_scaffold(
+        "ngoro-fires.html", "fires", "Ngorongoro — Fires",
+        "The dry-season fire pulse from NASA FIRMS — pressure on habitat and a driver of the vegetation and wildlife modules.",
+        "Cross-cutting · Fire regime",
+        "When and where does the park burn, and how much area does it take?",
+        [("Detections calendar", "NASA FIRMS / VIIRS\ndaily detections heatmap"),
+         ("Seasonal pulse", "FIRMS monthly\nthe Jun–Oct dry-season peak"),
+         ("Burn-scar extent", "MODIS MCD64A1\nannual burned-area map"),
+         ("Fire vs rainfall", "FIRMS × CHIRPS\nfire following the dry anomaly")],
+        "fires")
+
+
+def build_nca_wildlife():
+    PL[0] = 80
+    banner = (
+        '<div class="c" style="padding:15px 20px;margin-bottom:20px;border-left:3px solid var(--acc)">'
+        '<div class="mono" style="font-size:9.5px;letter-spacing:.14em;color:var(--acc);text-transform:uppercase;'
+        'margin-bottom:5px">Objective 3 · Animal &amp; invasive-species distribution</div>'
+        '<div style="font-size:15px;font-weight:600;color:var(--tx)">Where are species likely to occur, and where is invasion risk highest?</div></div>')
+    body = banner + f"""
+<div class="grid g2">
+{plate("Species-distribution suitability", E.suitability_map(), src="MaxEnt · RS covariates", lib="masked choropleth",
+       use="<b>Predicted habitat suitability</b> — MaxEnt on NDVI, distance-to-water, land cover and terrain. The Northern Highland forest edge scores highest; the crater floor lowest.", pid="wild-sdm")}
+{plate("Occurrence density", E.occurrence_hex(), src="GBIF + NCAA census", lib="hex-bin",
+       use="<b>Observed occurrences</b>, hex-binned — hotspots AND survey effort; blank hexes are unsurveyed, not empty.", pid="wild-occ")}
+</div>
+<div class="grid g2">
+{plate("Invasive-species risk", E.invasive_risk_map(), src="invasive records + covariates", lib="risk surface",
+       use="<b>Early-detection surface</b> — invasion risk tracks access routes and the settled south-east; patrol where red meets the boundary.", pid="wild-inv")}
+{plate("Covariate importance", E.covariate_importance(), src="permutation importance", lib="ranked bars",
+       use="<b>What drives the models</b> — water proximity and greenness dominate, and the same covariates feed both the suitability and the risk surface.", pid="wild-cov")}
+</div>"""
+    page("ngoro-wildlife.html", "Ngorongoro — Wildlife & invasive species", "areas.html",
+         NCA_CRUMB + ' / wildlife',
+         "Objective 3: model where animals — and invasive species — are likely, from remote-sensing covariates plus occurrence records.",
+         body, subnav(NCA_SUB, "ngoro-wildlife.html"),
+         action=f'<a class="cta" href="ngoro-forest-edit.html" style="display:inline-flex;align-items:center;gap:7px">{IC_PENCIL}Edit</a>')
+
+
+# ─────────────────── AREA SETTINGS: the module shop (Phase 1 design) ───────────────────
+# Full catalog for this area: (group, label, status, data source). Per-area config
+# picks which are enabled and their order — here shown as a static mock of that UI.
+NCA_CATALOG = [
+    ("Flux", "Forest loss", "live", "Hansen GFC"),
+    ("Flux", "Forest structure", "template", "GEDI · CCI biomass"),
+    ("Flux", "Vegetation", "template", "Sentinel-2 · EnMAP"),
+    ("Flux", "Land cover", "template", "ESA WorldCover"),
+    ("Flux", "Climate", "template", "CHIRPS · WorldClim"),
+    ("Flux", "Drought", "template", "SPEI · soil moisture"),
+    ("Flux", "Water", "template", "JRC surface water"),
+    ("Pressure", "Anthropogenic", "template", "GHSL · WSF"),
+    ("Pressure", "Livestock", "template", "FAO GLW · census"),
+    ("Pressure", "Tourism", "template", "OSM · imagery"),
+    ("Pressure", "Roads", "template", "OSM · GRIP"),
+    ("Pressure", "Fires", "template", "FIRMS / VIIRS"),
+    ("Biodiversity", "Wildlife", "template", "GBIF + covariates"),
+    ("Biodiversity", "Stations", "template", "station feeds"),
+    ("Biodiversity", "Statistics", "template", "derived"),
+]
+_CHIP = {"live": "ok", "template": "warn", "planned": "idle"}
+
+
+def _toggle(on):
+    bg, left = ("var(--acc)", "16px") if on else ("var(--ln2)", "2px")
+    return (f'<span title="{"enabled" if on else "disabled"}" style="display:inline-flex;width:34px;height:20px;'
+            f'border-radius:99px;background:{bg};position:relative;flex:none">'
+            f'<span style="position:absolute;top:2px;left:{left};width:16px;height:16px;border-radius:50%;'
+            'background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.3)"></span></span>')
+
+
+def _src_badge(src):
+    return (f'<span class="mono" style="font-size:9px;color:var(--dim);border:1px solid var(--ln2);'
+            f'border-radius:5px;padding:2px 6px;white-space:nowrap">{src}</span>')
+
+
+def build_nca_settings():
+    PL[0] = 90
+    # Default is every module on in taxonomy order; here Roads & Fires are shown removed
+    # to illustrate both sides of the shop.
+    removed = {"Roads", "Fires"}
+    active = [(g, l, s, src) for (g, l, s, src) in NCA_CATALOG if l not in removed]
+
+    rows = (
+        '<div style="display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--ln);'
+        'border-radius:9px;background:var(--raised);margin-bottom:8px;opacity:.75">'
+        '<span style="width:12px"></span>'
+        '<span style="font-weight:600;font-size:13px;min-width:150px">Overview</span>'
+        '<span class="chip ok">hub</span><span style="flex:1"></span>'
+        '<span class="mono" style="font-size:9px;color:var(--dim)">always on · pinned</span></div>'
+    )
+    for g, l, s, src in active:
+        rows += (
+            '<div style="display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--ln);'
+            'border-radius:9px;background:var(--card);margin-bottom:8px">'
+            f'<span style="color:var(--fog);cursor:grab" title="drag to reorder">{IC_GRIP}</span>'
+            f'<span style="font-weight:600;font-size:13px;min-width:138px">{l}</span>'
+            f'<span class="chip {_CHIP[s]}">{s}</span><span style="flex:1"></span>'
+            f'{_src_badge(src)}{_toggle(True)}</div>'
+        )
+    active_card = plate(
+        "Active modules", f'<div style="margin-top:6px">{rows}</div>',
+        src="drag to reorder", lib=f"{len(active) + 1} on",
+        use="<b>The order here is the order modules appear</b> on the area. Drag to rearrange; toggle off to "
+            "remove a module (its data stays — it just leaves the area). Overview is pinned.", pid="settings-active")
+
+    avail = ''
+    for grp in ("Flux", "Pressure", "Biodiversity"):
+        cards = ''
+        for g, l, s, src in NCA_CATALOG:
+            if g != grp or l not in removed:
+                continue
+            cards += (
+                '<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px dashed var(--ln2);'
+                'border-radius:9px;margin-bottom:8px">'
+                f'<span style="color:var(--fog);cursor:grab" title="drag to activate">{IC_GRIP}</span>'
+                f'<div style="flex:1"><div style="font-weight:600;font-size:12.5px">{l} '
+                f'<span class="chip {_CHIP[s]}" style="margin-left:4px">{s}</span></div>'
+                f'<div style="margin-top:4px">{_src_badge(src)}</div></div>'
+                '<button class="cta" style="padding:5px 12px;font-size:11px;border:0;cursor:pointer">+ Add</button></div>'
+            )
+        if cards:
+            avail += (f'<div class="mono" style="font-size:9px;letter-spacing:.14em;text-transform:uppercase;'
+                      f'color:var(--fog);margin:14px 0 8px">{grp}</div>{cards}')
+    if not avail:
+        avail = '<p class="fog" style="font-size:12px;padding:12px 0">Every module is active. Drag one here (or toggle it off) to park it.</p>'
+    avail_card = plate("Inactive modules", f'<div style="margin-top:6px">{avail}</div>', src=f"{len(removed)} parked",
+                       use="<b>Drag a module here</b> to deactivate it, or <b>drag it left / press + Add</b> to bring it "
+                           "back. Each card shows its status and the data source it needs.", pid="settings-shop")
+
+    note = ('<div class="c" style="padding:14px 18px;margin-bottom:20px;border-left:3px solid var(--acc)">'
+            '<div style="font-size:13.5px;font-weight:600">Compose this area\'s sub-app</div>'
+            '<div class="fog" style="font-size:12px;margin-top:3px">Drag modules between <b>Active</b> and '
+            '<b>Inactive</b> (or use the toggle / + Add), and drag within Active to set their order. Overview is pinned.</div></div>')
+
+    body = note + ('<div style="display:grid;grid-template-columns:1.5fr 1fr;gap:20px;align-items:start">'
+                   f'{active_card}{avail_card}</div>')
+    # The sub-nav mirrors the active set (Roads/Fires removed) so the mock is consistent.
+    active_labels = {"Overview"} | {l for _, l, _, _ in active}
+    sub_active = [(f, t) for (f, t) in NCA_SUB if t in active_labels]
+    exit_actions = (
+        '<a href="area-ngorongoro.html" style="margin-right:14px;color:var(--fog);font-size:13px;'
+        'font-weight:600;text-decoration:none">Cancel</a>'
+        '<a href="area-ngorongoro.html" class="cta">Done</a>')
+    page("ngoro-modules.html", "Ngorongoro — Customize modules", "areas.html",
+         NCA_CRUMB + ' / modules',
+         "Choose which modules appear on this area and drag to set their order — a per-area module shop.",
+         body, subnav(sub_active, "area-ngorongoro.html"), action=exit_actions)
+
+
+# ─────────────────── IN-MODULE EDIT: visualizations, in place (Phase 2 design) ───────────────────
+def _select(label, options, value):
+    opts = ''.join(f'<option{" selected" if o == value else ""}>{o}</option>' for o in options)
+    return (f'<label style="display:flex;flex-direction:column;gap:5px;font-family:JetBrains Mono,ui-monospace,monospace;'
+            f'font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--fog)">{label}'
+            f'<select style="font-family:inherit;font-size:12px;letter-spacing:0;text-transform:none;color:var(--tx);'
+            f'background:var(--card);border:1px solid var(--ln2);border-radius:7px;padding:8px 9px">{opts}</select></label>')
+
+
+def edit_subnav(active_file, inactive=("Roads", "Fires")):
+    """The module sub-nav in edit mode: each module chip gets a drag handle + ×,
+    a trailing + Add module, and a row of inactive (addable) modules — the whole
+    modules editor, inline (Grafana-style), instead of a separate shop page."""
+    active_chips = ''
+    for f, t in NCA_SUB:
+        if t in inactive:
+            continue
+        on = ' on' if f == active_file else ''
+        pinned = (t == "Overview")
+        grip = '' if pinned else f'<span class="grip" title="drag to reorder">{IC_GRIP_SM}</span>'
+        rm = ('<span class="mono" style="font-size:8px;opacity:.7;letter-spacing:.08em">pinned</span>' if pinned
+              else '<a href="#" class="rm" title="remove module">×</a>')
+        active_chips += f'<span class="mchip{on}">{grip}{t}{rm}</span>'
+    # + Add module opens the full catalog (inactive modules live there) — so no
+    # separate "not on this area" row is needed.
+    add_btn = '<a href="ngoro-add-module.html" class="mchip add">+ Add module</a>'
+    return f'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:22px">{active_chips}{add_btn}</div>'
+
+
+def _add_module_modal():
+    """What '+ Add module' opens: a searchable catalog of modules available for
+    this area. Not-yet-added ones get + Add; ones already on the area are greyed."""
+    inactive = {"Roads", "Fires"}
+    groups = {}
+    for g, l, s, src in NCA_CATALOG:
+        groups.setdefault(g, []).append((l, s, src))
+
+    def card(l, s, src):
+        on = l not in inactive
+        cta = ('<span class="mono" style="display:inline-flex;align-items:center;gap:4px;font-size:9.5px;color:var(--acc)">✓ on this area</span>'
+               if on else '<button class="cta" style="width:100%;padding:6px 0;font-size:11px;border:0;cursor:pointer">+ Add</button>')
+        return (f'<div style="min-width:0;border:1px solid var(--ln2);border-radius:10px;padding:12px;display:flex;'
+                f'flex-direction:column;gap:8px;{"opacity:.5" if on else ""}">'
+                f'<div style="display:flex;align-items:center;justify-content:space-between;gap:6px;min-width:0">'
+                f'<span style="font-weight:600;font-size:12px;line-height:1.2;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{l}</span>'
+                f'<span class="chip {_CHIP[s]}" style="flex:none">{s}</span></div>'
+                f'<div style="overflow:hidden">{_src_badge(src)}</div>'
+                f'<div style="margin-top:auto;padding-top:2px">{cta}</div></div>')
+
+    sections = ''
+    for grp in ("Flux", "Pressure", "Biodiversity"):
+        cards = ''.join(card(l, s, src) for l, s, src in groups.get(grp, []))
+        sections += (f'<div class="mono" style="font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--fog);'
+                     f'margin:18px 0 10px">{grp}</div>'
+                     f'<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">{cards}</div>')
+
+    counts = {g: len(v) for g, v in groups.items()}
+    pill_base = ('font-family:JetBrains Mono,ui-monospace,monospace;font-size:10px;font-weight:700;letter-spacing:.05em;'
+                 'text-transform:uppercase;padding:5px 12px;border-radius:99px;cursor:pointer')
+
+    def pill(label, n, active=False):
+        skin = (';background:var(--acc);color:var(--accT);border:1px solid var(--acc)' if active
+                else ';background:var(--card);color:var(--fog);border:1px solid var(--ln2)')
+        return f'<button style="{pill_base}{skin}">{label} · {n}</button>'
+
+    pills = ('<div style="display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 2px">'
+             + pill("All", sum(counts.values()), True) + pill("Flux", counts.get("Flux", 0))
+             + pill("Pressure", counts.get("Pressure", 0)) + pill("Biodiversity", counts.get("Biodiversity", 0))
+             + '</div>')
+    return (
+        '<div style="position:fixed;inset:0;background:rgba(4,8,6,.6);z-index:50;display:flex;'
+        'align-items:flex-start;justify-content:center;padding:60px 20px">'
+        '<div class="c" style="width:860px;max-width:95vw;max-height:82vh;padding:0;overflow:hidden;'
+        'display:flex;flex-direction:column;box-shadow:0 24px 70px rgba(0,0,0,.55)">'
+        # sticky header — title, search and filter pills stay put while cards scroll
+        '<div style="flex:none;padding:22px 24px 14px;border-bottom:1px solid var(--ln)">'
+        '<div style="display:flex;align-items:flex-start;gap:10px">'
+        '<div style="flex:1"><div style="font-size:16px;font-weight:700">Add a module</div>'
+        '<div class="fog" style="font-size:12px;margin-top:2px">Modules available for this area — adding one drops it '
+        'into the sub-nav. Greyed modules are already on.</div></div>'
+        '<a href="ngoro-forest-edit.html" title="close" style="color:var(--fog);font-size:22px;text-decoration:none;line-height:1">×</a></div>'
+        '<input placeholder="Search modules…" style="width:100%;margin:16px 0 0;box-sizing:border-box;'
+        'font-family:JetBrains Mono,ui-monospace,monospace;font-size:12px;color:var(--tx);background:var(--card);'
+        'border:1px solid var(--ln2);border-radius:8px;padding:9px 12px">'
+        + pills +
+        '</div>'
+        # scrolling card body — themed scrollbar via .modal-scroll
+        '<div class="modal-scroll" style="flex:1;overflow-y:auto;overflow-x:hidden;padding:2px 24px 16px">'
+        + sections +
+        '</div>'
+        # sticky footer
+        '<div style="flex:none;padding:13px 24px;border-top:1px solid var(--ln);display:flex;justify-content:flex-end">'
+        '<a href="ngoro-forest-edit.html" class="cta">Done</a></div>'
+        '</div></div>'
+    )
+
+
+def _text(label, value):
+    return (f'<label style="display:flex;flex-direction:column;gap:5px;font-family:JetBrains Mono,ui-monospace,monospace;'
+            f'font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--fog)">{label}'
+            f'<input value="{value}" style="font-family:inherit;font-size:12px;letter-spacing:0;text-transform:none;'
+            f'color:var(--tx);background:var(--card);border:1px solid var(--ln2);border-radius:7px;padding:8px 9px"></label>')
+
+
+def _configure_viz_modal():
+    """What 'Configure' on a visualization opens: its settings (title, type, the X
+    and Y, grouping, aggregation) beside a live preview — the per-visualization editor."""
+    form = (
+        _text("Title", "Annual loss")
+        + _select("Type", ["Bar", "Line", "Area", "Scatter"], "Bar")
+        + _select("X axis", ["Year", "Loss (ha)", "Rainfall (mm)", "NDVI"], "Year")
+        + _select("Y axis", ["Loss (ha)", "Year", "Rainfall (mm)", "NDVI"], "Loss (ha)")
+        + _select("Colour by", ["— none —", "Year", "Season"], "— none —")
+        + _select("Aggregation", ["Sum", "Mean", "Max", "None"], "Sum")
+    )
+    return (
+        '<div style="position:fixed;inset:0;background:rgba(4,8,6,.6);z-index:50;display:flex;'
+        'align-items:flex-start;justify-content:center;padding:56px 20px">'
+        '<div class="c" style="width:820px;max-width:95vw;max-height:84vh;overflow:auto;padding:22px 24px;'
+        'box-shadow:0 24px 70px rgba(0,0,0,.55)">'
+        '<div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:6px">'
+        '<div style="flex:1"><div style="font-size:16px;font-weight:700">Configure visualization</div>'
+        '<div class="fog" style="font-size:12px;margin-top:2px">Annual loss · Forest-loss module</div></div>'
+        '<a href="ngoro-forest-edit.html" title="close" style="color:var(--fog);font-size:22px;text-decoration:none;line-height:1">×</a></div>'
+        '<div style="display:grid;grid-template-columns:250px 1fr;gap:24px;margin-top:14px;align-items:start">'
+        f'<div style="display:flex;flex-direction:column;gap:14px">{form}</div>'
+        '<div><div class="mono" style="font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--fog);'
+        'margin-bottom:8px">Live preview</div>'
+        f'<div class="c" style="padding:12px">{C.annual_chart()}</div></div></div>'
+        '<div style="display:flex;justify-content:flex-end;align-items:center;gap:14px;margin-top:20px">'
+        '<a href="ngoro-forest-edit.html" style="color:var(--fog);font-size:13px;font-weight:600;text-decoration:none">Cancel</a>'
+        '<a href="ngoro-forest-edit.html" class="cta">Apply</a></div>'
+        '</div></div>'
+    )
+
+
+def build_nca_forest_edit(overlay=None):
+    PL[0] = 100
+    # Grafana-style edit mode on the module page: the module sub-nav is editable
+    # (add/remove/reorder modules) AND the module's real visualizations are editable
+    # in place — one mode, reached by the Edit toggle from anywhere in the area.
+    vizzes = [
+        ("Annual loss", "bar", C.annual_chart()),
+        ("Cumulative loss", "area", C.cum_chart()),
+        ("Loss decomposition", "waterfall", C.waterfall()),
+        ("Loss trend (LOESS)", "lowess", C.loess_plot()),
+        ("Dataset coverage", "gantt", C.gantt()),
+        ("Shelf growth", "step", C.step_chart()),
+    ]
+
+    def edit_viz(title, kind, chart, dragging=False):
+        # At rest a normal card (the grip dots already say "draggable"); the dashed
+        # outline + lift only appears while a card is being dragged.
+        drag = ';border:1px dashed var(--acc);box-shadow:0 16px 44px rgba(0,0,0,.5);opacity:.96' if dragging else ''
+        badge = '<span class="mono" style="margin-left:6px;font-size:8.5px;color:var(--acc)">dragging…</span>' if dragging else ''
+        head = ('<div style="display:flex;align-items:center;gap:9px;margin-bottom:10px">'
+                f'<span style="color:var(--fog);cursor:grab" title="drag to reorder">{IC_GRIP}</span>'
+                f'<span style="font-weight:600;font-size:12.5px">{title}</span>'
+                f'<span class="chip" style="background:var(--raised);color:var(--fog)">{kind}</span>{badge}'
+                '<span style="flex:1"></span>'
+                '<a href="ngoro-configure-viz.html" style="color:var(--acc);font-size:11px;font-weight:600;text-decoration:none">Configure</a>'
+                '<a href="#" title="remove" style="color:#e5646b;font-size:17px;text-decoration:none;line-height:.7">×</a>'
+                '</div>')
+        return f'<div class="c" style="padding:14px{drag}">{head}{chart}</div>'
+
+    # One card shown mid-drag to illustrate the affordance; the rest sit normally.
+    grid = ''.join(edit_viz(t, k, c, dragging=(i == 1)) for i, (t, k, c) in enumerate(vizzes))
+
+    presets = [("Year-over-year Δ", "bar"), ("Loss vs rainfall", "scatter"), ("Loss vs NDVI", "scatter")]
+    preset_html = ''
+    for name, kind in presets:
+        preset_html += (
+            '<button style="display:inline-flex;align-items:center;gap:8px;padding:9px 12px;border:1px dashed var(--ln2);'
+            'border-radius:9px;background:none;color:var(--tx);cursor:pointer;font-size:12px;font-weight:600">'
+            f'<span style="color:var(--acc)">+</span>{name}'
+            f'<span class="chip" style="background:var(--raised);color:var(--fog);font-weight:400">{kind}</span></button>'
+        )
+
+    builder = (
+        '<div class="mono" style="font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--fog);'
+        'margin:2px 0 10px">Or build a custom visualization — plot X vs Y</div>'
+        '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">'
+        + _select("Type", ["Scatter", "Line", "Bar", "Box"], "Scatter")
+        + _select("X axis", ["Rainfall (mm)", "Year", "Loss (ha)", "NDVI"], "Rainfall (mm)")
+        + _select("Y axis", ["Loss (ha)", "Year", "Rainfall (mm)", "NDVI"], "Loss (ha)")
+        + _select("Colour by", ["— none —", "Year", "Season"], "— none —")
+        + '</div>'
+        '<div style="display:flex;align-items:center;gap:10px;margin-top:14px">'
+        '<span class="mono" style="flex:1;font-size:10px;color:var(--dim)">Preview: Loss (ha) vs Rainfall (mm) · scatter</span>'
+        '<button class="cta" style="padding:7px 14px;border:0;cursor:pointer">+ Add visualization</button></div>'
+    )
+    add_section = ('<div class="c" style="padding:18px 20px;margin-top:20px">'
+                   '<div style="font-weight:600;font-size:13px;margin-bottom:4px">Add a visualization</div>'
+                   '<div class="fog" style="font-size:11.5px;margin-bottom:14px">Pick a ready-made one, or build your own.</div>'
+                   f'<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px">{preset_html}</div>'
+                   f'{builder}</div>')
+
+    banner = ('<div class="c" style="padding:13px 18px;margin-bottom:20px;border-left:3px solid var(--acc);'
+              'display:flex;align-items:center;gap:10px">'
+              f'<span style="color:var(--acc)">{IC_PENCIL}</span>'
+              '<div><div style="font-size:13px;font-weight:600">Edit mode</div>'
+              '<div class="fog" style="font-size:12px;margin-top:2px">In the bar above: drag modules to reorder, × to '
+              'remove, + Add module. Below: this module\'s visualizations — drag, Configure, remove, or add one.</div></div></div>')
+
+    body = banner + f'<div class="grid g2">{grid}</div>' + add_section
+    if overlay == "add":
+        body += _add_module_modal()
+    elif overlay == "config":
+        body += _configure_viz_modal()
+    # EDITING is a status pill, kept clearly separate from the Cancel/Save button
+    # group; the whole row is centre-aligned so nothing sits high.
+    edit_actions = (
+        '<div style="display:flex;align-items:center;gap:16px">'
+        '<span class="mono" style="color:var(--acc);font-size:10px;font-weight:700;letter-spacing:.12em;'
+        'border:1px solid var(--acc);padding:5px 11px;border-radius:99px">EDITING</span>'
+        '<span style="display:inline-flex;align-items:center;gap:12px">'
+        '<a href="ngoro-forest.html" style="color:var(--fog);font-size:13px;font-weight:600;text-decoration:none">Cancel</a>'
+        '<a href="ngoro-forest.html" class="cta">Save</a></span></div>')
+    fname = {"add": "ngoro-add-module.html", "config": "ngoro-configure-viz.html"}.get(overlay, "ngoro-forest-edit.html")
+    page(fname, "Ngorongoro — Forest loss", "areas.html",
+         NCA_CRUMB + ' / <a href="ngoro-forest.html">forest</a> · editing',
+         "Edit mode — manage this area's modules and the Forest-loss visualizations, together.",
+         body, edit_subnav("ngoro-forest.html"), action=edit_actions)
 
 
 # ═══════════════════════ SERENGETI SUB-APP ═══════════════════════
@@ -1541,6 +2020,14 @@ if __name__ == '__main__':
     build_nca_drought()
     build_nca_livestock()
     build_nca_stats()
+    build_nca_structure()
+    build_nca_water()
+    build_nca_roads()
+    build_nca_fires()
+    build_nca_wildlife()
+    build_nca_forest_edit()
+    build_nca_forest_edit(overlay="add")
+    build_nca_forest_edit(overlay="config")
     build_ser_hub()
     build_ser_fires()
     build_ser_bio()

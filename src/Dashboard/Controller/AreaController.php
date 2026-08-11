@@ -6,8 +6,9 @@ namespace App\Dashboard\Controller;
 
 use App\Dashboard\Form\AreaUploadType;
 use App\Dashboard\Service\AreaCardService;
+use App\Dashboard\Service\AreaModuleService;
 use App\Forest\Repository\ForestLossYearRepository;
-use App\Forest\Service\LossYearPaletteService;
+use App\Forest\Service\ForestLossSummaryService;
 use App\Ingestion\Message\IngestHansenLoss;
 use App\Ingestion\Repository\DatasetRunRepository;
 use App\Spatial\Entity\AreaOfInterest;
@@ -134,9 +135,9 @@ final class AreaController extends AbstractController
     public function show(
         #[MapEntity(mapping: ['uuid' => 'uuid'])] AreaOfInterest $area,
         AreaOfInterestRepository $areas,
-        ForestLossYearRepository $loss,
         DatasetRunRepository $runs,
-        LossYearPaletteService $palette,
+        ForestLossSummaryService $forestLoss,
+        AreaModuleService $modules,
     ): Response {
         $geom = $area->getGeom();
         $boundary = [
@@ -148,46 +149,26 @@ final class AreaController extends AbstractController
             ]],
         ];
 
-        $lossRows = $loss->findBy(['aoi' => $area], ['year' => 'ASC']);
-        $totalHa = 0.0;
-        $lossByYear = [];
-        $maxHa = 0.0;
-        $worstYear = null;
-        $worstHa = 0.0;
-        foreach ($lossRows as $row) {
-            $year = (int) $row->getYear();
-            $ha = $row->getAreaHa() ?? 0.0;
-            $totalHa += $ha;
-            $maxHa = max($maxHa, $ha);
-            // "Worst year" ignores 2001 — that bar is the known Hansen baseline artifact.
-            if (2001 !== $year && $ha > $worstHa) {
-                $worstHa = $ha;
-                $worstYear = $year;
-            }
-            $lossByYear[] = [
-                'year' => $year,
-                'ha' => $ha,
-                'color' => $palette->colorFor($year),
-            ];
-        }
-
+        $loss = $forestLoss->forArea($area);
         $areaRuns = $runs->findBy(['aoi' => $area], ['id' => 'DESC'], 10);
 
         return $this->render('dashboard/show.html.twig', [
             'area' => $area,
             'boundary' => $boundary,
-            'lossByYear' => $lossByYear,
-            'maxLossHa' => $maxHa,
+            'lossByYear' => $loss['lossByYear'],
+            'maxLossHa' => $loss['maxHa'],
             'runs' => $areaRuns,
             'runCount' => \count($areaRuns),
             'hasRunningRun' => [] !== array_filter($areaRuns, static fn ($run) => 'running' === $run->getStatus()),
+            'modules' => $modules->modules(),
+            'planned' => $modules->planned(),
             'stats' => [
                 'areaKm2' => (int) round($areas->stAreaKm2(['id' => $area->getId()])),
-                'totalLossHa' => (int) round($totalHa),
-                'yearFrom' => [] !== $lossRows ? $lossRows[array_key_first($lossRows)]->getYear() : null,
-                'yearTo' => [] !== $lossRows ? $lossRows[array_key_last($lossRows)]->getYear() : null,
-                'worstYear' => $worstYear,
-                'worstHa' => (int) round($worstHa),
+                'totalLossHa' => (int) round($loss['totalHa']),
+                'yearFrom' => $loss['yearFrom'],
+                'yearTo' => $loss['yearTo'],
+                'worstYear' => $loss['worstYear'],
+                'worstHa' => (int) round($loss['worstHa']),
             ],
         ]);
     }

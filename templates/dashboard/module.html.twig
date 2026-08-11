@@ -1,0 +1,50 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}{{ area.name }} — {{ module.label }} — Uhifadhi{% endblock %}
+
+{% block content %}
+    <div class="page">
+        <div class="crumb"><a href="{{ path('dashboard_index') }}">uhifadhi</a> / <a href="{{ path('dashboard_index') }}">areas</a> / <a href="{{ path('dashboard_area_show', {uuid: area.uuid}) }}">{{ area.name|lower }}</a> / {{ module.label|lower }}</div>
+        <h1 class="pg">{{ area.name }} — {{ module.label }}</h1>
+        <p class="pgsub">{{ module.blurb }}</p>
+
+        {{ include('dashboard/_subnav.html.twig', {area: area, active: module.slug, modules: modules, planned: planned}) }}
+
+        {% if module.slug == 'forest' %}
+            {# The one live module: the real Hansen series and its headline figures. #}
+            <div class="grid g4">
+                <div class="c kpi"><span class="tab"><span class="idx">FL·01</span>Forest lost</span>
+                    <b class="disp">{% if forest.totalHa > 0 %}{{ (forest.totalHa|round)|number_format }}<em>ha</em>{% else %}—{% endif %}</b>
+                    <span class="sub">{% if forest.yearFrom %}{{ forest.yearFrom }}–{{ forest.yearTo }} · real{% else %}not ingested{% endif %}</span></div>
+                <div class="c kpi hot"><span class="tab"><span class="idx">FL·02</span>Worst year</span>
+                    <b class="disp">{% if forest.worstYear %}{{ forest.worstYear }}{% else %}—{% endif %}</b>
+                    <span class="sub">{% if forest.worstYear %}{{ (forest.worstHa|round)|number_format }} ha · ex-2001{% else %}awaiting ingestion{% endif %}</span></div>
+                <div class="c kpi"><span class="tab"><span class="idx">FL·03</span>Years in series</span>
+                    <b class="disp">{{ forest.lossByYear|length }}</b><span class="sub">forest_loss_year rows</span></div>
+                <div class="c kpi"><span class="tab"><span class="idx">FL·04</span>Peak year</span>
+                    <b class="disp">{% if forest.maxHa > 0 %}{{ (forest.maxHa|round)|number_format }}<em>ha</em>{% else %}—{% endif %}</b>
+                    <span class="sub">single-year maximum</span></div>
+            </div>
+
+            <div class="c" id="annual" style="padding-top:26px;margin-top:20px">
+                <span class="tab"><span class="idx">FL·05</span>Annual loss<span class="src">· forest_loss_year</span></span>
+                <span class="lib">bar + annotate</span>
+                {% if forest.lossByYear is not empty %}
+                    {{ include('forest/_annual_loss_chart.html.twig', {series: forest.lossByYear}) }}
+                    <div class="use">Hectares per year; the mean (dashed) excludes 2001, whose bar is clipped — it carries the known Hansen baseline artifact.</div>
+                {% else %}
+                    <p class="fog" style="font-size:12px;padding:24px 0;text-align:center">No annual series yet — run the Hansen ingestion from the <a href="{{ path('dashboard_area_show', {uuid: area.uuid}) }}#ingest" class="acc">Overview</a>.</p>
+                {% endif %}
+            </div>
+        {% else %}
+            {# Template modules: the scaffold, honest about awaiting its ingestion. #}
+            <div class="c" style="padding:48px 32px;text-align:center">
+                <span class="chip warn" style="margin:0 auto 16px">template</span>
+                <h2 style="font-size:19px;font-weight:600;margin:0 0 8px">{{ module.label }} — scaffolded</h2>
+                <p class="fog" style="font-size:13px;max-width:520px;margin:0 auto 4px">{{ module.blurb }}</p>
+                <p class="fog" style="font-size:12px;max-width:520px;margin:10px auto 0">This module's analytics light up when its ingestion lands. The layout and data model are settled in the design; the live view activates once the dataset is wired for this area.</p>
+                <div style="margin-top:22px"><a href="{{ path('dashboard_area_show', {uuid: area.uuid}) }}" class="open-btn" style="display:inline-flex">← Back to overview</a></div>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

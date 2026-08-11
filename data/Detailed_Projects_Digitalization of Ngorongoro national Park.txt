@@ -1,0 +1,40 @@
+Proposed Overall Research Objectives
+
+Objective 1: Settlement Expansion and Its Impacts on Protected Areas
+
+To use satellite imagery to monitor and map settlement expansion over time around and within protected areas.
+To integrate satellite and drone imagery within a GIS framework to quantify settlement growth and identify areas of encroachment.
+To assess the impacts of settlement expansion on habitat loss, habitat fragmentation, biodiversity, and human–wildlife conflict.
+
+Objective 2: Hyperspectral Data and Species Richness
+
+To use hyperspectral data to characterize differences in plant species, vegetation composition, and vegetation condition based on detailed spectral information.
+To link hyperspectral information with field-based species richness measurements to identify spectral indicators associated with biodiversity.
+To develop statistical and machine-learning models to determine the ability of hyperspectral variables to explain and predict species richness across landscapes.
+
+Objective 3: Animal Population and Invasive Species Distribution
+
+To integrate remotely sensed variables, including vegetation cover, habitat condition, and water availability, with animal observations and invasive species records.
+To develop statistical and machine-learning models to identify factors influencing animal population abundance and invasive species distribution and to predict areas of high risk or suitable habitat.
+To use model predictions to support wildlife monitoring, early detection of invasive species, and evidence-based conservation planning.
+
+Objective 4: LiDAR-Based Forest Structure and Biomass Assessment
+
+To use LiDAR scanners and drone-mounted laser scanners to generate accurate three-dimensional information on forest structure.
+To measure individual tree height and develop detailed canopy-height models, integrating LiDAR data with field measurements to estimate above-ground biomass.
+To apply the results to improve forest inventory, carbon assessment, biodiversity monitoring, and sustainable forest management.
+
+Objective 5: Intelligent Road Mapping and Self-Driving Guide
+
+To use satellite imagery, drone photographs, and existing park information to map and assess road networks within the national park and identify safe and efficient routes for different vehicle types.
+To integrate the road network and other spatial information into an accurate digital navigation database.
+To develop a self-driving guide that provides navigation, route directions, and location-based information to park visitors while improving visitor safety, tourism management, and protection of sensitive areas.
+Database Development — Cross-Cutting Objective
+
+Objective 6: Development of an Integrated Conservation GIS Database
+
+To establish a centralized spatial database integrating satellite imagery, drone imagery, LiDAR data, hyperspectral data, field observations, wildlife records, invasive species records, settlement data, vegetation information, and road networks.
+To develop standardized procedures for collecting, storing, updating, managing, and sharing geospatial and field-based conservation information.
+To establish a database that supports spatial analysis, statistical and machine-learning modelling, monitoring, reporting, decision-making, and long-term conservation management.
+
+In summary, the project would create an integrated GIS and remote-sensing system linking settlement dynamics, biodiversity, wildlife, invasive species, forest structure, biomass, and road networks into one database. This would provide a strong foundation for evidence-based management of the national park and development of future AI-based conservation and navigation systems.
