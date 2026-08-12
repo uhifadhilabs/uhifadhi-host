@@ -46,8 +46,8 @@
     --c-p2: 251 250 246;     /* plate gradient lo */
     --c-raised: 236 235 226; /* chips / fields  */
     --c-tx: 27 38 32;        /* primary text    */
-    --c-fog: 104 119 109;    /* secondary text  */
-    --c-dim: 152 164 155;    /* tertiary        */
+    --c-fog: 87 100 90;      /* secondary text — darkened for light-theme legibility */
+    --c-dim: 118 132 122;    /* tertiary        */
     --c-acc: 15 138 104;     /* jade accent     */
     --c-accT: 255 255 255;   /* on-jade text    */
     --c-ok: 30 122 70;
@@ -66,8 +66,8 @@ html.dark {
     --c-p2: 17 26 20;        /* plate gradient lo */
     --c-raised: 28 41 33;    /* chips / fields  */
     --c-tx: 234 242 236;     /* primary text    */
-    --c-fog: 135 152 141;    /* secondary text  */
-    --c-dim: 90 105 96;      /* tertiary        */
+    --c-fog: 150 168 156;    /* secondary text — lifted so muted text isn't too dark */
+    --c-dim: 124 140 129;    /* tertiary        */
     --c-acc: 62 217 168;     /* jade accent     */
     --c-accT: 12 19 16;      /* on-jade text    */
     --c-ok: 99 201 127;
@@ -369,7 +369,7 @@ body::before {
 .subnav { display: flex; gap: 6px; margin: 0 0 26px; flex-wrap: wrap; }
 .subnav a, .subnav span.off {
     font-family: var(--font-mono);
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 600;
     letter-spacing: .1em;
     text-transform: uppercase;
@@ -377,7 +377,7 @@ body::before {
     text-decoration: none;
     border: 1px solid var(--c-ln2);
     border-radius: 99px;
-    padding: 6px 15px;
+    padding: 7px 15px 6px;      /* optical-centre the mono/uppercase label */
 }
 .subnav a:hover { color: rgb(var(--c-tx)); border-color: rgb(var(--c-fog)); }
 .subnav a.on { color: rgb(var(--c-accT)); background: rgb(var(--c-acc)); border-color: rgb(var(--c-acc)); }
@@ -387,7 +387,7 @@ body::before {
 .page { position: relative; z-index: 1; max-width: 1280px; margin: 0 auto; padding: 26px 22px 90px; }
 .crumb {
     font-family: var(--font-mono);
-    font-size: 10px;
+    font-size: 11px;
     letter-spacing: .14em;
     text-transform: uppercase;
     color: rgb(var(--c-fog));
@@ -395,7 +395,7 @@ body::before {
 }
 .crumb a { color: rgb(var(--c-acc)); text-decoration: none; }
 h1.pg { font-family: var(--font-display); font-size: 27px; font-weight: 700; letter-spacing: -.02em; margin: 0 0 4px; }
-.pgsub { color: rgb(var(--c-fog)); font-size: 13.5px; margin: 0 0 22px; max-width: 96ch; line-height: 1.6; }
+.pgsub { color: rgb(var(--c-fog)); font-size: 14.5px; margin: 0 0 22px; max-width: 96ch; line-height: 1.6; }
 .pgsub b { color: rgb(var(--c-tx)); }
 h2.zone {
     font-family: var(--font-mono);
@@ -439,7 +439,7 @@ h2.zone::after { content: ""; flex: 1; height: 1px; background: var(--c-ln2); }
     border-radius: 7px;
     padding: 3px 10px;
     font-family: var(--font-mono);
-    font-size: 8.5px;
+    font-size: 9.5px;
     font-weight: 600;
     letter-spacing: .18em;
     text-transform: uppercase;
@@ -476,7 +476,7 @@ h2.zone::after { content: ""; flex: 1; height: 1px; background: var(--c-ln2); }
     color: color-mix(in srgb, rgb(var(--c-fog)) 62%, transparent);
     letter-spacing: .06em;
 }
-.use { font-size: 11.5px; color: rgb(var(--c-fog)); margin: 10px 2px 4px; line-height: 1.5; }
+.use { font-size: 12.5px; color: rgb(var(--c-fog)); margin: 10px 2px 4px; line-height: 1.55; }
 .use b { color: rgb(var(--c-tx)); }
 
 /* KPI plate */
@@ -489,14 +489,14 @@ h2.zone::after { content: ""; flex: 1; height: 1px; background: var(--c-ln2); }
     line-height: 1;
     font-variant-numeric: tabular-nums;
 }
-.kpi b em { font-style: normal; font-size: 12px; color: rgb(var(--c-fog)); font-weight: 500; margin-left: 4px; }
-.kpi .sub { font-family: var(--font-mono); font-size: 8.5px; color: rgb(var(--c-dim)); margin-top: 8px; display: flex; align-items: center; gap: 9px; }
+.kpi b em { font-style: normal; font-size: 13px; color: rgb(var(--c-fog)); font-weight: 500; margin-left: 4px; }
+.kpi .sub { font-family: var(--font-mono); font-size: 9.5px; color: rgb(var(--c-dim)); margin-top: 8px; display: flex; align-items: center; gap: 9px; }
 .kpi.hot b { color: rgb(var(--c-acc)); }
 
 /* ==================== CHIPS ==================== */
 .chip {
     font-family: var(--font-mono);
-    font-size: 9px;
+    font-size: 10px;
     font-weight: 700;
     border-radius: 6px;
     padding: 2.5px 9px;
@@ -511,10 +511,10 @@ h2.zone::after { content: ""; flex: 1; height: 1px; background: var(--c-ln2); }
 .chip.acc { color: rgb(var(--c-acc)); border-color: color-mix(in srgb, rgb(var(--c-acc)) 45%, transparent); }
 
 /* ==================== TABLE (the register) ==================== */
-table.tbl { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+table.tbl { width: 100%; border-collapse: collapse; font-size: 13.5px; }
 table.tbl th {
     font-family: var(--font-mono);
-    font-size: 8.5px;
+    font-size: 9.5px;
     letter-spacing: .16em;
     text-transform: uppercase;
     color: rgb(var(--c-fog));
