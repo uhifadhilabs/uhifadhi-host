@@ -16,6 +16,9 @@ deptrac:
     - name: Foundation
       collectors:
         - { type: classLike, value: 'App\\Foundation\\.*' }
+    - name: Access
+      collectors:
+        - { type: classLike, value: 'App\\Access\\.*' }
     - name: Spatial
       collectors:
         - { type: classLike, value: 'App\\Spatial\\.*' }
@@ -31,6 +34,9 @@ deptrac:
   ruleset:
     # Cross-cutting entity concerns (UUID/timestamps). Seen by all, sees none.
     Foundation: [Foundation]
+    # Authentication + position/permission authorization. Uses Foundation only;
+    # the Dashboard UI layer may depend on it (for #[IsGranted] + the current user).
+    Access: [Access, Foundation]
     # Shared spatial kernel — depends only on itself + Foundation.
     Spatial: [Spatial, Foundation]
     # Topic 6 (Deforestation) — isolated; may use the Spatial kernel only.
@@ -40,4 +46,4 @@ deptrac:
     Ingestion: [Ingestion, Spatial, Forest, Foundation]
     # UI composition layer — the only place allowed to see everything; nothing
     # depends on it.
-    Dashboard: [Dashboard, Spatial, Forest, Ingestion, Foundation]
+    Dashboard: [Dashboard, Spatial, Forest, Ingestion, Access, Foundation]

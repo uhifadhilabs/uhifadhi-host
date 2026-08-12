@@ -6,19 +6,17 @@ namespace App\Tests\Functional\Dashboard;
 
 use App\Forest\Factory\ForestLossYearFactory;
 use App\Spatial\Factory\AreaOfInterestFactory;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Zenstruck\Foundry\Test\Factories;
+use App\Tests\Functional\AuthenticatedWebTestCase;
 
 /**
  * The home page: every area with its size, loss metrics and last-run status.
  */
-final class AreaIndexTest extends WebTestCase
+final class AreaIndexTest extends AuthenticatedWebTestCase
 {
-    use Factories;
-
     public function testAnEmptyPlatformInvitesTheFirstUpload(): void
     {
         $client = static::createClient();
+        $this->loginAs($client);
 
         $client->request('GET', '/');
 
@@ -34,6 +32,7 @@ final class AreaIndexTest extends WebTestCase
     public function testAreasAreListedWithTheirMetrics(): void
     {
         $client = static::createClient();
+        $this->loginAs($client);
         $aoi = AreaOfInterestFactory::createOne(['name' => 'Listed area']);
         ForestLossYearFactory::createOne(['aoi' => $aoi, 'year' => 2010, 'areaHa' => 185.0]);
         ForestLossYearFactory::createOne(['aoi' => $aoi, 'year' => 2013, 'areaHa' => 186.0]);

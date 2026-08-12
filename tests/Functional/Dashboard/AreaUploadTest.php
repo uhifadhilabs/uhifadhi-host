@@ -5,18 +5,15 @@ declare(strict_types=1);
 namespace App\Tests\Functional\Dashboard;
 
 use App\Spatial\Repository\AreaOfInterestRepository;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use App\Tests\Functional\AuthenticatedWebTestCase;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Zenstruck\Foundry\Test\Factories;
 
 /**
  * The boundary upload: any-GIS-format file in, AreaOfInterest out (or a
  * user-facing error).
  */
-final class AreaUploadTest extends WebTestCase
+final class AreaUploadTest extends AuthenticatedWebTestCase
 {
-    use Factories;
-
     private function uploadFile(string $name, string $content): UploadedFile
     {
         // BrowserKit does not carry the client filename through submitForm, so
@@ -30,6 +27,7 @@ final class AreaUploadTest extends WebTestCase
     public function testUploadingAGeoJsonBoundaryCreatesTheArea(): void
     {
         $client = static::createClient();
+        $this->loginAs($client);
 
         $client->request('GET', '/areas/new');
         self::assertResponseIsSuccessful();
@@ -55,6 +53,7 @@ final class AreaUploadTest extends WebTestCase
     public function testAnOversizedUploadDroppedByPhpIsReportedNotSwallowed(): void
     {
         $client = static::createClient();
+        $this->loginAs($client);
 
         // When a POST exceeds post_max_size, PHP delivers an EMPTY request and
         // the form never registers as submitted — the page must still answer
@@ -68,6 +67,7 @@ final class AreaUploadTest extends WebTestCase
     public function testAGeometrylessFileShowsAFriendlyFormError(): void
     {
         $client = static::createClient();
+        $this->loginAs($client);
 
         $client->request('GET', '/areas/new');
         $client->submitForm('Import boundary', [

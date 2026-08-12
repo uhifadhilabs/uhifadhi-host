@@ -14,6 +14,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Requirement\Requirement;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
  * A per-area analytical module page (a sub-app module): live modules render real
@@ -28,6 +29,7 @@ final class ModuleController extends AbstractController
         requirements: ['uuid' => Requirement::UUID, 'module' => '[a-z]+'],
         methods: ['GET'],
     )]
+    #[IsGranted('module.view')]
     public function show(
         #[MapEntity(mapping: ['uuid' => 'uuid'])] AreaOfInterest $area,
         string $module,

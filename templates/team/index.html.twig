@@ -1,0 +1,91 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}Team — Uhifadhi{% endblock %}
+
+{% block content %}
+    <div class="page">
+        <div class="crumb"><a href="{{ path('dashboard_index') }}">uhifadhi</a> / team</div>
+        <div class="pghead">
+            <div>
+                <h1 class="pg">Team</h1>
+                <p class="pgsub">People and the positions that grant them permissions. Managers and up administer the team;
+                    a <b>Staff</b> member holds exactly their position's permissions, while managers and admins hold everything by tier.</p>
+            </div>
+            <div class="pgact"><a class="cta" href="{{ path('app_team_position_new') }}">{{ ux_icon('lucide:plus') }}New position</a></div>
+        </div>
+
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="c" style="padding:12px 16px;margin-bottom:16px"><span class="acc">✓</span> {{ message }}</div>
+            {% endfor %}
+        {% endfor %}
+
+        <div class="grid" style="gap:34px">
+            {# ---------- People ---------- #}
+            <div class="c">
+                <span class="tab"><span class="idx">PL·01</span>People<span class="src">· {{ members|length }} member{{ members|length == 1 ? '' : 's' }}</span></span>
+                <table class="tbl">
+                    <thead><tr><th>Member</th><th>Email</th><th>Tier</th><th>Position</th></tr></thead>
+                    <tbody>
+                    {% for m in members %}
+                        <tr>
+                            <td><div class="who"><span class="avatar sm">{{ (m.firstName|first ~ m.lastName|first)|upper }}</span><b>{{ m.fullName }}</b></div></td>
+                            <td class="fog mono email">{{ m.email }}</td>
+                            <td><span class="tier t-{{ m.teamRole.value }}">{{ m.teamRole.label }}</span></td>
+                            <td>
+                                {% if m.teamRole.canManageContent %}
+                                    <span class="fog mono" style="font-size:11px">— by tier</span>
+                                {% else %}
+                                    <form method="post" action="{{ path('app_team_member_assign', {uuid: m.uuidString}) }}" class="assign">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('team_member_assign_' ~ m.uuidString) }}">
+                                        <select name="position" class="fld sel">
+                                            <option value="">— unassigned —</option>
+                                            {% for p in positions %}
+                                                <option value="{{ p.uuidString }}" {{ m.position and m.position.uuidString == p.uuidString ? 'selected' }}>{{ p.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <button class="open-btn" type="submit">Set</button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {# ---------- Positions ---------- #}
+            <div class="c">
+                <span class="tab"><span class="idx">PL·02</span>Positions<span class="src">· {{ positions|length }}</span></span>
+                {% if positions is empty %}
+                    <p class="fog" style="font-size:13px;margin:6px 2px 4px">No positions yet — create one to grant a Staff member a bundle of permissions.</p>
+                {% else %}
+                    <table class="tbl">
+                        <thead><tr><th>Position</th><th>Permissions</th><th class="num">Held by</th><th></th></tr></thead>
+                        <tbody>
+                        {% for p in positions %}
+                            <tr>
+                                <td><a href="{{ path('app_team_position_edit', {uuid: p.uuidString}) }}">{{ p.name }}</a></td>
+                                <td>
+                                    {% for perm in p.permissions %}<span class="perm">{{ perm.value }}</span> {% else %}<span class="fog mono" style="font-size:11px">no permissions</span>{% endfor %}
+                                </td>
+                                <td class="num">{{ members|filter(u => u.position and u.position.uuidString == p.uuidString)|length }}</td>
+                                <td class="num">
+                                    <div class="pos-actions">
+                                        <a class="open-btn" href="{{ path('app_team_position_edit', {uuid: p.uuidString}) }}">Edit</a>
+                                        <form method="post" action="{{ path('app_team_position_delete', {uuid: p.uuidString}) }}"
+                                              data-turbo-confirm="Delete “{{ p.name }}”? Its holders will be unassigned.">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('team_position_delete_' ~ p.uuidString) }}">
+                                            <button class="open-btn danger" type="submit">Delete</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

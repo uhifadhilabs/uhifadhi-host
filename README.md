@@ -25,6 +25,45 @@ The database runs in fundi's PostGIS cluster for the pinned major (see
 `.fundi.local.yaml`). PostGIS must be installed for that Postgres major
 (`brew install postgresql@17 postgis`).
 
+## Auth & demo accounts
+
+The app is behind a login. Authentication and position/permission authorization live in
+the **`App\Access`** bounded context: a `TeamRoleEnum` tier (Super Admin / Admin / Manager
+/ Staff) plus, for Staff, an assigned **Position** that bundles granular permissions
+(checked by `PermissionVoter`). Managing tiers hold every permission by tier; team
+administration (`/team`) is Manager-and-up.
+
+Create a real user (prompts for the password, which is hashed):
+
+```sh
+php bin/console app:user:create <email> <First> <Last> --role=super-admin|admin|manager|staff
+```
+
+**Demo accounts.** Set a `DEMO_PASSWORD` in `.env.local`, then seed the demo team
+(idempotent and non-destructive — it never purges, so it is safe against the dev DB's
+real Hansen/WDPA data; the password is hashed at seed time):
+
+```sh
+php bin/console app:demo:seed
+```
+
+That creates five accounts (plus the Ranger and Analyst positions). The tier accounts
+sign in with `DEMO_PASSWORD`; the Super Admin — which can impersonate anyone — gets its
+own `DEMO_SUPER_ADMIN_PASSWORD`:
+
+| Role        | Email                            | Password                    | What they can do                                     |
+| ----------- | -------------------------------- | --------------------------- | ---------------------------------------------------- |
+| Super Admin | `superadmin@ncaa.uhifadhi.com`   | `DEMO_SUPER_ADMIN_PASSWORD` | Everything + impersonate any user (`?_switch_user=`) |
+| Admin       | `admin@ncaa.uhifadhi.com`        | `DEMO_PASSWORD`             | Everything, including `/team` administration         |
+| Manager     | `manager@ncaa.uhifadhi.com`      | `DEMO_PASSWORD`             | Everything, including `/team` administration         |
+| Staff       | `ranger@ncaa.uhifadhi.com`       | `DEMO_PASSWORD`             | Areas + run ingestion (Ranger position)              |
+| Staff       | `analyst@ncaa.uhifadhi.com`      | `DEMO_PASSWORD`             | Areas + view/add modules (Analyst position)          |
+
+> These are **testing** logins for the PoC — `app:demo:seed` is not run on prod. Set a
+> throwaway `DEMO_PASSWORD`; the committed `.env` ships only a placeholder and the real
+> value lives in `.env.local` (gitignored). For real accounts (prod), use
+> `app:user:create`, which prompts for and hashes a password of your choosing.
+
 ## Notes
 
 ### `doctrine/orm` is pinned to `3.6.7` (temporary)
