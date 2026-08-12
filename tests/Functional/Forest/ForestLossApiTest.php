@@ -6,20 +6,18 @@ namespace App\Tests\Functional\Forest;
 
 use App\Forest\Factory\ForestLossYearFactory;
 use App\Spatial\Factory\AreaOfInterestFactory;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Zenstruck\Foundry\Test\Factories;
+use App\Tests\Functional\AuthenticatedWebTestCase;
 
 /**
  * The per-area GeoJSON endpoint the dashboard map fetches — scoped strictly to
  * one area.
  */
-final class ForestLossApiTest extends WebTestCase
+final class ForestLossApiTest extends AuthenticatedWebTestCase
 {
-    use Factories;
-
     public function testTheEndpointServesOnlyTheRequestedAreasFeatures(): void
     {
         $client = static::createClient();
+        $this->loginAs($client);
         $mine = AreaOfInterestFactory::createOne();
         $other = AreaOfInterestFactory::createOne();
         ForestLossYearFactory::createOne(['aoi' => $mine, 'year' => 2019, 'areaHa' => 69.0]);
@@ -41,6 +39,7 @@ final class ForestLossApiTest extends WebTestCase
     public function testAnUnknownAreaIs404(): void
     {
         $client = static::createClient();
+        $this->loginAs($client);
 
         $client->request('GET', '/api/areas/'.\Symfony\Component\Uid\Uuid::v7()->toRfc4122().'/forest-loss.geojson');
 

@@ -21,6 +21,12 @@ doctrine:
         mappings:
             # One mapping per bounded context — entities live under src/<Module>/Entity,
             # not a shared src/Entity. Add a block per new topic module.
+            Access:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Access/Entity'
+                prefix: 'App\Access\Entity'
+                alias: Access
             Spatial:
                 type: attribute
                 is_bundle: false

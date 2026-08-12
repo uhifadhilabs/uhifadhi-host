@@ -1,0 +1,51 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Sign in — Uhifadhi{% endblock %}
+
+{% block body %}
+    <main class="auth">
+        <div class="auth-card">
+            <form class="c" method="post" action="{{ path('app_login') }}">
+                <span class="tab"><span class="idx">AUTH·01</span>Sign in<span class="src">· single authority</span></span>
+
+                <div class="auth-brand">
+                    <img class="brandmark" src="{{ asset('icon.svg') }}" width="30" height="30" alt="">
+                    <b>Uhifadhi</b>
+                </div>
+
+                <p class="auth-lede">Analytical observatory for protected areas. Sign in to reach the areas register and its modules.</p>
+
+                {% if error %}
+                    <div class="auth-error">
+                        {{ ux_icon('lucide:triangle-alert', {width: 15, height: 15}) }}
+                        <span>{{ error.messageKey|trans(error.messageData, 'security') }}</span>
+                    </div>
+                {% endif %}
+
+                <div class="auth-field">
+                    <label for="username">Email</label>
+                    <input class="fld" type="email" id="username" name="_username"
+                           value="{{ last_username }}" autocomplete="email"
+                           placeholder="you@authority.go.tz" required autofocus>
+                </div>
+
+                <div class="auth-field">
+                    <label for="password">Password</label>
+                    <input class="fld" type="password" id="password" name="_password"
+                           autocomplete="current-password" placeholder="••••••••••" required>
+                </div>
+
+                <input type="hidden" name="_csrf_token" data-controller="csrf-protection"
+                       value="{{ csrf_token('authenticate') }}">
+
+                <div class="auth-row">
+                    <label class="auth-remember">
+                        <input type="checkbox" name="_remember_me"> Remember me for a week
+                    </label>
+                </div>
+
+                <button class="cta" type="submit">Sign in</button>
+            </form>
+        </div>
+    </main>
+{% endblock %}

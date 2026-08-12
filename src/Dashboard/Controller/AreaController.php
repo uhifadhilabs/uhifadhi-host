@@ -24,6 +24,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Requirement\Requirement;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
  * The dashboard pages: areas index (home), boundary upload, and the per-area
@@ -92,6 +93,7 @@ final class AreaController extends AbstractController
     }
 
     #[Route('/areas/new', name: 'dashboard_area_new', methods: ['GET', 'POST'])]
+    #[IsGranted('area.create')]
     public function new(Request $request, BoundaryImportService $importer): Response
     {
         $form = $this->createForm(AreaUploadType::class);
@@ -174,6 +176,7 @@ final class AreaController extends AbstractController
     }
 
     #[Route('/areas/{uuid}/ingest', name: 'dashboard_area_ingest', requirements: ['uuid' => Requirement::UUID], methods: ['POST'])]
+    #[IsGranted('ingestion.run')]
     public function ingest(
         #[MapEntity(mapping: ['uuid' => 'uuid'])] AreaOfInterest $area,
         Request $request,

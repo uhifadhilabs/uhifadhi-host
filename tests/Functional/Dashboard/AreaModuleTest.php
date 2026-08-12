@@ -6,21 +6,19 @@ namespace App\Tests\Functional\Dashboard;
 
 use App\Forest\Factory\ForestLossYearFactory;
 use App\Spatial\Factory\AreaOfInterestFactory;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Zenstruck\Foundry\Test\Factories;
+use App\Tests\Functional\AuthenticatedWebTestCase;
 
 /**
  * The area sub-app tabs: every module is a live link (Overview → the hub), the
  * live Forest module renders its real series, template modules show a scaffold,
  * and unknown / planned slugs 404.
  */
-final class AreaModuleTest extends WebTestCase
+final class AreaModuleTest extends AuthenticatedWebTestCase
 {
-    use Factories;
-
     public function testEverySubNavTabIsALiveLinkNotDeadText(): void
     {
         $client = static::createClient();
+        $this->loginAs($client);
         $area = AreaOfInterestFactory::createOne(['name' => 'Tabbed area']);
 
         $client->request('GET', '/areas/'.$area->getUuidString());
@@ -37,6 +35,7 @@ final class AreaModuleTest extends WebTestCase
     public function testTheLiveForestModuleRendersItsRealSeries(): void
     {
         $client = static::createClient();
+        $this->loginAs($client);
         $area = AreaOfInterestFactory::createOne(['name' => 'Forest area']);
         ForestLossYearFactory::createOne(['aoi' => $area, 'year' => 2013, 'areaHa' => 186.0]);
 
@@ -51,6 +50,7 @@ final class AreaModuleTest extends WebTestCase
     public function testATemplateModuleShowsItsScaffoldState(): void
     {
         $client = static::createClient();
+        $this->loginAs($client);
         $area = AreaOfInterestFactory::createOne(['name' => 'Scaffold area']);
 
         $client->request('GET', '/areas/'.$area->getUuidString().'/wildlife');
@@ -63,6 +63,7 @@ final class AreaModuleTest extends WebTestCase
     public function testUnknownAndPlannedModulesTriggerA404(): void
     {
         $client = static::createClient();
+        $this->loginAs($client);
         $area = AreaOfInterestFactory::createOne(['name' => 'Guarded area']);
 
         $client->request('GET', '/areas/'.$area->getUuidString().'/bogus');

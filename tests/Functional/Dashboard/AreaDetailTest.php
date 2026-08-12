@@ -7,21 +7,19 @@ namespace App\Tests\Functional\Dashboard;
 use App\Forest\Factory\ForestLossYearFactory;
 use App\Ingestion\Message\IngestHansenLoss;
 use App\Spatial\Factory\AreaOfInterestFactory;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use App\Tests\Functional\AuthenticatedWebTestCase;
 use Symfony\Component\Messenger\Transport\InMemory\InMemoryTransport;
-use Zenstruck\Foundry\Test\Factories;
 
 /**
  * The per-area detail: map wiring scoped to the area, metrics, runs, and the
  * ingestion trigger dispatching the async message.
  */
-final class AreaDetailTest extends WebTestCase
+final class AreaDetailTest extends AuthenticatedWebTestCase
 {
-    use Factories;
-
     public function testTheDetailPageWiresTheMapToThisAreaOnly(): void
     {
         $client = static::createClient();
+        $this->loginAs($client);
         $aoi = AreaOfInterestFactory::createOne(['name' => 'Detail area']);
         ForestLossYearFactory::createOne(['aoi' => $aoi, 'year' => 2013, 'areaHa' => 186.0]);
 
@@ -45,6 +43,7 @@ final class AreaDetailTest extends WebTestCase
     public function testAreasAreAddressedByUuidNotSequentialId(): void
     {
         $client = static::createClient();
+        $this->loginAs($client);
         $aoi = AreaOfInterestFactory::createOne(['name' => 'Uuid only']);
 
         // The public URL uses the UUID and works.
@@ -59,6 +58,7 @@ final class AreaDetailTest extends WebTestCase
     public function testTheIngestButtonDispatchesTheAsyncMessage(): void
     {
         $client = static::createClient();
+        $this->loginAs($client);
         $aoi = AreaOfInterestFactory::createOne(['name' => 'Ingest me']);
 
         $client->request('GET', '/areas/'.$aoi->getUuidString());
@@ -78,6 +78,7 @@ final class AreaDetailTest extends WebTestCase
     public function testAMissingAreaIs404(): void
     {
         $client = static::createClient();
+        $this->loginAs($client);
 
         // A well-formed but unknown UUID resolves to nothing.
         $client->request('GET', '/areas/'.\Symfony\Component\Uid\Uuid::v7()->toRfc4122());
