@@ -41,6 +41,10 @@ final class BoundaryImportServiceTest extends KernelTestCase
     protected function tearDown(): void
     {
         parent::tearDown();
+        // setUp() may skip (no GDAL) before $workdir is set — nothing to clean then.
+        if (!isset($this->workdir)) {
+            return;
+        }
         array_map(unlink(...), glob($this->workdir.'/*') ?: []);
         @rmdir($this->workdir);
     }
