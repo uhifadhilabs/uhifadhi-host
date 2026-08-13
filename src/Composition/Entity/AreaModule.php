@@ -1,0 +1,121 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Composition\Entity;
+
+use App\Composition\Repository\AreaModuleRepository;
+use App\Foundation\Entity\Trait\TimestampableTrait;
+use App\Foundation\Entity\Trait\UuidTrait;
+use App\Spatial\Entity\AreaOfInterest;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * A {@see Module} switched on for one {@see AreaOfInterest}, at a given position in that area's
+ * sub-nav. Toggling it off keeps the row (and any ingested data) but drops it from the area's
+ * sub-app — "its data stays, it just leaves the area". The pinned Overview module is always
+ * active and never reorderable.
+ */
+#[ORM\Entity(repositoryClass: AreaModuleRepository::class)]
+#[ORM\Table(name: 'area_module')]
+#[ORM\UniqueConstraint(name: 'uniq_area_module', columns: ['aoi_id', 'module_id'])]
+#[ORM\HasLifecycleCallbacks]
+class AreaModule
+{
+    use TimestampableTrait;
+    use UuidTrait;
+
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
+    private ?int $id = null;
+
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(name: 'aoi_id', nullable: false, onDelete: 'CASCADE')]
+    private ?AreaOfInterest $area = null;
+
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(name: 'module_id', nullable: false, onDelete: 'CASCADE')]
+    private ?Module $module = null;
+
+    /** On the area's sub-nav (true) or parked in the "add a module" shop (false). */
+    #[ORM\Column]
+    private bool $active = true;
+
+    /** Order within the area's sub-nav; the pinned Overview always leads. */
+    #[ORM\Column]
+    private int $position = 0;
+
+    /** @var Collection<int, Visualization> */
+    #[ORM\OneToMany(mappedBy: 'areaModule', targetEntity: Visualization::class, cascade: ['remove'], orphanRemoval: true)]
+    #[ORM\OrderBy(['position' => 'ASC'])]
+    private Collection $visualizations;
+
+    public function __construct()
+    {
+        $this->visualizations = new ArrayCollection();
+    }
+
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    /**
+     * @return Collection<int, Visualization>
+     */
+    public function getVisualizations(): Collection
+    {
+        return $this->visualizations;
+    }
+
+    public function getArea(): ?AreaOfInterest
+    {
+        return $this->area;
+    }
+
+    public function setArea(AreaOfInterest $area): static
+    {
+        $this->area = $area;
+
+        return $this;
+    }
+
+    public function getModule(): ?Module
+    {
+        return $this->module;
+    }
+
+    public function setModule(Module $module): static
+    {
+        $this->module = $module;
+
+        return $this;
+    }
+
+    public function isActive(): bool
+    {
+        return $this->active;
+    }
+
+    public function setActive(bool $active): static
+    {
+        $this->active = $active;
+
+        return $this;
+    }
+
+    public function getPosition(): int
+    {
+        return $this->position;
+    }
+
+    public function setPosition(int $position): static
+    {
+        $this->position = $position;
+
+        return $this;
+    }
+}

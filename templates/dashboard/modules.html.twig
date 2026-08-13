@@ -1,0 +1,107 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}{{ area.name }} — Customize modules — Uhifadhi{% endblock %}
+
+{%- macro status_chip(status) -%}
+    {%- set cls = status.value == 'template' ? 'warn' : 'ok' -%}
+    <span class="chip {{ cls }}">{{ status.label }}</span>
+{%- endmacro -%}
+
+{% block content %}
+    {% import _self as helper %}
+    <div class="page">
+        <div class="crumb"><a href="{{ path('dashboard_index') }}">uhifadhi</a> / <a href="{{ path('dashboard_index') }}">areas</a> / {{ area.name|lower }} / modules</div>
+        <div class="pghead">
+            <div>
+                <h1 class="pg">{{ area.name }} — Customize modules</h1>
+                <p class="pgsub">Choose which modules appear on this area and drag to set their order — a per-area module shop.</p>
+            </div>
+            <div class="pgact">
+                <a href="{{ path('dashboard_area_show', {uuid: area.uuid}) }}" style="margin-right:14px;color:rgb(var(--color-fog));font-size:13px;font-weight:600;text-decoration:none">Cancel</a>
+                <a href="{{ path('dashboard_area_show', {uuid: area.uuid}) }}" class="cta">Done</a>
+            </div>
+        </div>
+
+        {# Sub-nav mirrors the active modules (Overview → the hub, others → their module page). #}
+        <div class="subnav">
+            {% for am in active %}
+                {% set m = am.module %}
+                {% if m.slug == 'overview' %}
+                    <a href="{{ path('dashboard_area_show', {uuid: area.uuid}) }}" class="on">{{ m.name }}</a>
+                {% else %}
+                    <a href="{{ path('dashboard_area_module', {uuid: area.uuid, module: m.slug}) }}">{{ m.name }}</a>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        <div class="c mod-banner" style="padding:14px 18px;margin-bottom:20px">
+            <div class="t">Compose this area's sub-app</div>
+            <div class="d">Drag modules between <b>Active</b> and <b>Inactive</b> (or use the toggle / + Add), and drag within Active to set their order. Overview is pinned.</div>
+        </div>
+
+        <div class="mod-grid">
+            {# ---------- Active ---------- #}
+            <div class="c" id="settings-active">
+                <span class="tab"><span class="idx">PL·91</span>Active modules<span class="src">· drag to reorder</span></span>
+                <span class="lib">{{ active|length }} on</span>
+                <div style="margin-top:6px" {{ stimulus_controller('module_order') }}
+                     data-module-order-url-value="{{ path('dashboard_area_module_reorder', {uuid: area.uuid}) }}"
+                     data-module-order-token-value="{{ csrf_token('module_reorder_' ~ area.uuidString) }}">
+                    {% for am in active %}
+                        {% set m = am.module %}
+                        <div class="mod-row{{ m.pinned ? ' pinned' }}" data-module-order-target="row" data-uuid="{{ am.uuidString }}">
+                            {% if m.pinned %}
+                                <span style="width:12px"></span>
+                                <span class="mod-name">{{ m.name }}</span>
+                                {{ helper.status_chip(m.status) }}
+                                <span class="mod-spacer"></span>
+                                <span class="mod-pin">always on · pinned</span>
+                            {% else %}
+                                <span class="mod-grip" data-module-order-target="handle" title="drag to reorder">{{ ux_icon('lucide:grip-vertical') }}</span>
+                                <span class="mod-name">{{ m.name }}</span>
+                                {{ helper.status_chip(m.status) }}
+                                <span class="mod-spacer"></span>
+                                <span class="mod-src">{{ m.dataSource }}</span>
+                                <form method="post" action="{{ path('dashboard_area_module_toggle', {uuid: area.uuid, areaModuleUuid: am.uuidString}) }}">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('module_toggle_' ~ am.uuidString) }}">
+                                    <button type="submit" class="mod-toggle on" title="switch off — parks the module"></button>
+                                </form>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="use"><b>The order here is the order modules appear</b> on the area. Drag to rearrange; toggle off to remove a module (its data stays — it just leaves the area). Overview is pinned.</div>
+            </div>
+
+            {# ---------- Inactive (the shop) ---------- #}
+            <div class="c" id="settings-shop">
+                <span class="tab"><span class="idx">PL·92</span>Inactive modules<span class="src">· {{ parkedCount }} parked</span></span>
+                <div style="margin-top:6px">
+                    {% for category, rows in parkedByCategory %}
+                        <div class="mod-cat">{{ category }}</div>
+                        {% for am in rows %}
+                            {% set m = am.module %}
+                            <div class="mod-parked">
+                                <span class="mod-grip" title="drag to activate">{{ ux_icon('lucide:grip-vertical') }}</span>
+                                <div class="body">
+                                    <div class="name">{{ m.name }} {{ helper.status_chip(m.status) }}</div>
+                                    <div style="margin-top:4px"><span class="mod-src">{{ m.dataSource }}</span></div>
+                                </div>
+                                <form method="post" action="{{ path('dashboard_area_module_add', {uuid: area.uuid}) }}">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('module_add_' ~ area.uuidString) }}">
+                                    <input type="hidden" name="module" value="{{ m.slug }}">
+                                    <button type="submit" class="cta">+ Add</button>
+                                </form>
+                            </div>
+                        {% else %}
+                            {# handled by outer for-else below #}
+                        {% endfor %}
+                    {% else %}
+                        <p class="fog" style="font-size:12px;margin:14px 2px">Every module is active on this area — nothing parked.</p>
+                    {% endfor %}
+                </div>
+                <div class="use"><b>Drag a module here</b> to deactivate it, or <b>drag it left / press + Add</b> to bring it back. Each card shows its status and the data source it needs.</div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
