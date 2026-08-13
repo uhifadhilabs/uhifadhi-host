@@ -5,8 +5,15 @@
 {% block content %}
     <div class="page">
         <div class="crumb"><a href="{{ path('dashboard_index') }}">uhifadhi</a> / <a href="{{ path('dashboard_index') }}">areas</a> / <a href="{{ path('dashboard_area_show', {uuid: area.uuid}) }}">{{ area.name|lower }}</a> / {{ module.label|lower }}</div>
-        <h1 class="pg">{{ area.name }} — {{ module.label }}</h1>
-        <p class="pgsub">{{ module.blurb }}</p>
+        <div class="pghead">
+            <div>
+                <h1 class="pg">{{ area.name }} — {{ module.label }}</h1>
+                <p class="pgsub">{{ module.blurb }}</p>
+            </div>
+            {% if is_granted('module.create') %}
+                <div class="pgact"><a class="open-btn" style="display:inline-flex" href="{{ path('dashboard_area_module_edit', {uuid: area.uuid, module: module.slug}) }}">{{ ux_icon('lucide:pencil') }} Edit</a></div>
+            {% endif %}
+        </div>
 
         {{ include('dashboard/_subnav.html.twig', {area: area, active: module.slug, modules: modules, planned: planned}) }}
 

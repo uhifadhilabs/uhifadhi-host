@@ -162,7 +162,7 @@ final class AreaController extends AbstractController
             'runs' => $areaRuns,
             'runCount' => \count($areaRuns),
             'hasRunningRun' => [] !== array_filter($areaRuns, static fn ($run) => 'running' === $run->getStatus()),
-            'modules' => $modules->modules(),
+            'modules' => $modules->modules($area),
             'planned' => $modules->planned(),
             'stats' => [
                 'areaKm2' => (int) round($areas->stAreaKm2(['id' => $area->getId()])),

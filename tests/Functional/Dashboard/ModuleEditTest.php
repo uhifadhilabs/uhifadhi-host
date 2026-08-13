@@ -92,7 +92,7 @@ final class ModuleEditTest extends AuthenticatedWebTestCase
 
         $crawler = $client->request('GET', $this->editUrl($forest).'?addmodule=1');
         self::assertSelectorTextContains('.modal-title', 'Add a module');
-        self::assertSelectorTextContains('.cat-card', 'Roads');
+        self::assertSelectorTextContains('.modal-body', 'Roads'); // order-independent: the modal lists Roads
 
         $token = $crawler->filter('.cat-card form input[name="_token"]')->attr('value');
         $client->request('POST', $this->editUrl($forest).'/add-module', ['_token' => $token, 'module' => 'roads']);
