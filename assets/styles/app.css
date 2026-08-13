@@ -828,6 +828,15 @@ table.tbl tr:hover .open-btn.danger { background: rgb(var(--c-fail)); color: rgb
 /* A row being dragged. */
 .mod-row.dragging { opacity: .45; border-style: dashed; border-color: rgb(var(--c-acc)); }
 
+/* Switching a module on/off (toggle · × · + Add) is soft-navigated by the soft_nav controller,
+   which swaps the page inside a same-document View Transition. Naming each module's active row and
+   its parked card the same (mod-<slug>) makes the browser morph it between the Active and Inactive
+   columns instead of hard-cutting. Reordering is fetch-only (no swap) and keeps its FLIP animation. */
+::view-transition-group(*) { animation-duration: .28s; animation-timing-function: cubic-bezier(.4, 0, .2, 1); }
+@media (prefers-reduced-motion: reduce) {
+    ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
+}
+
 /* ==================== MODULE EDIT (chip bar · viz grid · builder · modal) ==================== */
 .editing-pill {
     font-family: var(--font-mono); color: rgb(var(--c-acc)); font-size: 10px; font-weight: 700;
@@ -839,9 +848,13 @@ table.tbl tr:hover .open-btn.danger { background: rgb(var(--c-fail)); color: rgb
 .mchip {
     display: inline-flex; align-items: center; gap: 6px;
     padding: 6px 11px; border: 1px solid var(--c-ln2); border-radius: 99px;
-    font-size: 12px; font-weight: 600; color: rgb(var(--c-fog));
+    font-size: 12px; font-weight: 600; color: rgb(var(--c-fog)); text-decoration: none;
     background: color-mix(in srgb, rgb(var(--c-p1)) 55%, transparent); white-space: nowrap;
 }
+.mchip:hover { border-color: rgb(var(--c-fog)); }
+.mchip.on:hover { border-color: rgb(var(--c-acc)); }
+/* The pill being dragged shows a dashed jade outline at its drop location. */
+.mchip.dragging { opacity: .5; border: 1px dashed rgb(var(--c-acc)); background: color-mix(in srgb, rgb(var(--c-acc)) 8%, transparent); }
 .mchip.on { color: rgb(var(--c-acc)); border-color: rgb(var(--c-acc)); background: color-mix(in srgb, rgb(var(--c-acc)) 10%, transparent); }
 .mchip.add { text-decoration: none; border-style: dashed; color: rgb(var(--c-acc)); }
 .mchip .grip { color: rgb(var(--c-fog)); cursor: grab; display: inline-flex; }

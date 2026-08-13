@@ -28,30 +28,25 @@
             </div>
         </div>
 
-        {# Module chip bar — every active module; the current one is `on`, Overview pinned. #}
+        {# Module chip bar — navigation between the area's modules; the current one is `on`. Reordering
+           and removing modules live on the Customize-modules page, not here. #}
         <div class="mchip-bar">
             {% for am in active %}
                 {% set m = am.module %}
                 {% if m.pinned %}
-                    <span class="mchip">{{ m.name }}<span class="mono" style="font-size:8px;opacity:.7;letter-spacing:.08em">pinned</span></span>
+                    <a href="{{ path('dashboard_area_show', {uuid: area.uuid}) }}" class="mchip">{{ m.name }}<span class="mono" style="font-size:8px;opacity:.7;letter-spacing:.08em">pinned</span></a>
                 {% else %}
-                    <span class="mchip{{ am.uuidString == current.uuidString ? ' on' }}">
-                        <span class="grip" title="reorder on the Customize page">{{ ux_icon('lucide:grip-vertical') }}</span>{{ m.name }}
-                        <form method="post" action="{{ path('dashboard_area_module_toggle', {uuid: area.uuid, areaModuleUuid: am.uuidString}) }}" style="display:inline">
-                            <input type="hidden" name="_token" value="{{ csrf_token('module_toggle_' ~ am.uuidString) }}">
-                            <button type="submit" class="rm" title="remove module">×</button>
-                        </form>
-                    </span>
+                    <a href="{{ path('dashboard_area_module_edit', {uuid: area.uuid, module: m.slug}) }}" class="mchip{{ am.uuidString == current.uuidString ? ' on' }}">{{ m.name }}</a>
                 {% endif %}
             {% endfor %}
-            <a href="{{ path('dashboard_area_module_edit', {uuid: area.uuid, module: moduleSlug, addmodule: 1}) }}" class="mchip add">+ Add module</a>
+            <a href="{{ path('dashboard_area_modules', {uuid: area.uuid}) }}" class="mchip add" title="Add, remove and reorder modules">{{ ux_icon('lucide:sliders-horizontal', {width: 13, height: 13}) }} Customize</a>
         </div>
 
         <div class="c mod-banner" style="padding:13px 18px;margin-bottom:20px;display:flex;align-items:center;gap:10px">
             <span style="color:rgb(var(--color-jade))">{{ ux_icon('lucide:pencil', {width: 18, height: 18}) }}</span>
             <div>
                 <div style="font-size:13px;font-weight:600">Edit mode</div>
-                <div class="fog" style="font-size:12px;margin-top:2px">In the bar above: × to remove a module, + Add module (reorder on the Customize page). Below: this module's visualizations — drag, Configure, remove, or add one.</div>
+                <div class="fog" style="font-size:12px;margin-top:2px">The bar above switches between this area's modules — add, remove and reorder them on the <b>Customize</b> page. Below: this module's visualizations — drag to reorder, Configure, remove, or add one.</div>
             </div>
         </div>
 
