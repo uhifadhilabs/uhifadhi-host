@@ -38,7 +38,7 @@ final class ModuleController extends AbstractController
         ForestChartService $charts,
         DatasetRunRepository $runs,
     ): Response {
-        $descriptor = $modules->page($module);
+        $descriptor = $modules->page($area, $module);
         if (null === $descriptor) {
             throw $this->createNotFoundException(\sprintf('Unknown module "%s".', $module));
         }
@@ -64,7 +64,7 @@ final class ModuleController extends AbstractController
         return $this->render('dashboard/module.html.twig', [
             'area' => $area,
             'module' => $descriptor,
-            'modules' => $modules->modules(),
+            'modules' => $modules->modules($area),
             'planned' => $modules->planned(),
             'forest' => $forest,
             'forestCharts' => $forestCharts,

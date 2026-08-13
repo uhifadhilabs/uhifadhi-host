@@ -45,6 +45,12 @@ doctrine:
                 dir: '%kernel.project_dir%/src/Ingestion/Entity'
                 prefix: 'App\Ingestion\Entity'
                 alias: Ingestion
+            Composition:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Composition/Entity'
+                prefix: 'App\Composition\Entity'
+                alias: Composition
 
 when@test:
     doctrine:

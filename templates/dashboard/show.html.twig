@@ -19,8 +19,15 @@
 {% block content %}
     <div class="page">
         <div class="crumb"><a href="{{ path('dashboard_index') }}">uhifadhi</a> / <a href="{{ path('dashboard_index') }}">areas</a> / {{ area.name|lower }}</div>
-        <h1 class="pg">{{ area.name }}</h1>
-        <p class="pgsub">The park hub — identity, the live map, and one door per analytical module.</p>
+        <div class="pghead">
+            <div>
+                <h1 class="pg">{{ area.name }}</h1>
+                <p class="pgsub">The park hub — identity, the live map, and one door per analytical module.</p>
+            </div>
+            {% if is_granted('module.create') %}
+                <div class="pgact"><a class="cta" href="{{ path('dashboard_area_modules', {uuid: area.uuid}) }}">{{ ux_icon('lucide:sliders-horizontal') }}Customize modules</a></div>
+            {% endif %}
+        </div>
 
         {{ include('dashboard/_subnav.html.twig', {area: area, active: 'overview', modules: modules, planned: planned}) }}
 

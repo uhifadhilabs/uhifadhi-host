@@ -1,0 +1,224 @@
+{% extends 'layout.html.twig' %}
+
+{% set moduleSlug = current.module.slug %}
+{% block title %}{{ area.name }} — {{ current.module.name }} — edit — Uhifadhi{% endblock %}
+
+{%- macro status_chip(status) -%}
+    {%- set cls = status.value == 'template' ? 'warn' : 'ok' -%}
+    <span class="chip {{ cls }}">{{ status.label }}</span>
+{%- endmacro -%}
+
+{% block content %}
+    {% import _self as helper %}
+    <div class="page">
+        <div class="crumb"><a href="{{ path('dashboard_index') }}">uhifadhi</a> / <a href="{{ path('dashboard_index') }}">areas</a> / {{ area.name|lower }} / <a href="{{ path('dashboard_area_module', {uuid: area.uuid, module: moduleSlug}) }}">{{ current.module.name|lower }}</a> · editing</div>
+        <div class="pghead">
+            <div>
+                <h1 class="pg">{{ area.name }} — {{ current.module.name }}</h1>
+                <p class="pgsub">Edit mode — manage this area's modules and the {{ current.module.name }} visualizations, together.</p>
+            </div>
+            <div class="pgact">
+                <div style="display:flex;align-items:center;gap:16px">
+                    <span class="editing-pill">EDITING</span>
+                    <span style="display:inline-flex;align-items:center;gap:12px">
+                        <a href="{{ path('dashboard_area_module', {uuid: area.uuid, module: moduleSlug}) }}" style="color:rgb(var(--color-fog));font-size:13px;font-weight:600;text-decoration:none">Cancel</a>
+                        <a href="{{ path('dashboard_area_module', {uuid: area.uuid, module: moduleSlug}) }}" class="cta">Save</a>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        {# Module chip bar — navigation between the area's modules; the current one is `on`. Reordering
+           and removing modules live on the Customize-modules page, not here. #}
+        <div class="mchip-bar">
+            {% for am in active %}
+                {% set m = am.module %}
+                {% if m.pinned %}
+                    <a href="{{ path('dashboard_area_show', {uuid: area.uuid}) }}" class="mchip">{{ m.name }}<span class="mono" style="font-size:8px;opacity:.7;letter-spacing:.08em">pinned</span></a>
+                {% else %}
+                    <a href="{{ path('dashboard_area_module_edit', {uuid: area.uuid, module: m.slug}) }}" class="mchip{{ am.uuidString == current.uuidString ? ' on' }}">{{ m.name }}</a>
+                {% endif %}
+            {% endfor %}
+            <a href="{{ path('dashboard_area_modules', {uuid: area.uuid}) }}" class="mchip add" title="Add, remove and reorder modules">{{ ux_icon('lucide:sliders-horizontal', {width: 13, height: 13}) }} Customize</a>
+        </div>
+
+        <div class="c mod-banner" style="padding:13px 18px;margin-bottom:20px;display:flex;align-items:center;gap:10px">
+            <span style="color:rgb(var(--color-jade))">{{ ux_icon('lucide:pencil', {width: 18, height: 18}) }}</span>
+            <div>
+                <div style="font-size:13px;font-weight:600">Edit mode</div>
+                <div class="fog" style="font-size:12px;margin-top:2px">The bar above switches between this area's modules — add, remove and reorder them on the <b>Customize</b> page. Below: this module's visualizations — drag to reorder, Configure, remove, or add one.</div>
+            </div>
+        </div>
+
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}<div class="c" style="padding:12px 16px;margin-bottom:16px"><span class="acc">✓</span> {{ message }}</div>{% endfor %}
+        {% endfor %}
+
+        {# Visualization grid — generic cards; the chart body comes from the module's provider. #}
+        <div class="grid g2" {{ stimulus_controller('module_order') }}
+             data-module-order-url-value="{{ path('dashboard_area_viz_reorder', {uuid: area.uuid, module: moduleSlug}) }}"
+             data-module-order-token-value="{{ csrf_token('viz_reorder_' ~ current.uuidString) }}">
+            {% for viz in visualizations %}
+                <div class="c viz-card" style="padding:14px" data-module-order-target="row" data-uuid="{{ viz.uuidString }}">
+                    <div class="viz-head">
+                        <span class="grip" data-module-order-target="handle" title="drag to reorder">{{ ux_icon('lucide:grip-vertical') }}</span>
+                        <span class="viz-title">{{ viz.title }}</span>
+                        <span class="chip type">{{ viz.type.label }}</span>
+                        <span style="flex:1"></span>
+                        <a href="{{ path('dashboard_area_module_edit', {uuid: area.uuid, module: moduleSlug, configure: viz.uuidString}) }}" class="viz-configure">Configure</a>
+                        <form method="post" action="{{ path('dashboard_area_viz_delete', {uuid: area.uuid, module: moduleSlug, vizUuid: viz.uuidString}) }}" style="display:inline"
+                              data-turbo-confirm="Remove “{{ viz.title }}” from this module?">
+                            <input type="hidden" name="_token" value="{{ csrf_token('viz_delete_' ~ viz.uuidString) }}">
+                            <button type="submit" class="viz-rm" title="remove">×</button>
+                        </form>
+                    </div>
+                    {% if rendered[viz.uuidString] is defined %}
+                        {{ rendered[viz.uuidString]|raw }}
+                    {% else %}
+                        <div class="viz-scaffold">
+                            <span class="chip warn">preview pending</span>
+                            <p class="fog" style="font-size:11.5px;margin:10px 0 0">{{ viz.yAxis }} vs {{ viz.xAxis }} — renders when this module's data pipeline lands.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            {% else %}
+                <div class="c" style="padding:32px;text-align:center;grid-column:1/-1">
+                    <p class="fog" style="font-size:13px">No visualizations yet — add one below.</p>
+                </div>
+            {% endfor %}
+        </div>
+
+        {# Add a visualization — presets + custom builder, with a live preview caption. #}
+        <form class="c" method="post" action="{{ path('dashboard_area_viz_add', {uuid: area.uuid, module: moduleSlug}) }}"
+              style="padding:18px 20px;margin-top:20px" {{ stimulus_controller('viz_builder') }}>
+            <input type="hidden" name="_token" value="{{ csrf_token('viz_add_' ~ current.uuidString) }}">
+            <input type="hidden" name="title" data-viz_builder-target="title">
+            <div style="font-weight:600;font-size:13px;margin-bottom:4px">Add a visualization</div>
+            <div class="fog" style="font-size:11.5px;margin-bottom:14px">Pick a ready-made one, or build your own.</div>
+
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px">
+                {% for preset in [
+                    {title: 'Year-over-year Δ', type: 'bar', x: 'Year', y: 'Loss (ha)'},
+                    {title: 'Loss vs rainfall', type: 'scatter', x: 'Rainfall (mm)', y: 'Loss (ha)'},
+                    {title: 'Loss vs NDVI', type: 'scatter', x: 'NDVI', y: 'Loss (ha)'}
+                ] %}
+                    <button type="button" class="viz-preset"
+                            data-action="viz_builder#preset"
+                            data-title="{{ preset.title }}" data-type="{{ preset.type }}" data-x="{{ preset.x }}" data-y="{{ preset.y }}">
+                        <span style="color:rgb(var(--color-jade))">+</span>{{ preset.title }}<span class="chip type">{{ preset.type }}</span>
+                    </button>
+                {% endfor %}
+            </div>
+
+            <div class="mono" style="font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:rgb(var(--color-fog));margin:2px 0 10px">Or build a custom visualization — plot X vs Y</div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+                <label class="viz-field">Type<select name="type" class="fld" data-viz_builder-target="type" data-action="viz_builder#preview"><option value="scatter">Scatter</option><option value="line">Line</option><option value="bar">Bar</option><option value="box">Box</option></select></label>
+                <label class="viz-field">X axis<select name="xAxis" class="fld" data-viz_builder-target="x" data-action="viz_builder#preview"><option>Rainfall (mm)</option><option>Year</option><option>Loss (ha)</option><option>NDVI</option></select></label>
+                <label class="viz-field">Y axis<select name="yAxis" class="fld" data-viz_builder-target="y" data-action="viz_builder#preview"><option>Loss (ha)</option><option>Year</option><option>Rainfall (mm)</option><option>NDVI</option></select></label>
+                <label class="viz-field">Colour by<select name="colourBy" class="fld"><option>— none —</option><option>Year</option><option>Season</option></select></label>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;margin-top:14px">
+                <span class="mono" style="flex:1;font-size:10px;color:rgb(var(--color-dim))" data-viz_builder-target="preview">Preview: Loss (ha) vs Rainfall (mm) · scatter</span>
+                <button type="submit" class="cta">+ Add visualization</button>
+            </div>
+        </form>
+    </div>
+
+    {# Add-a-module modal — overlays the edit page (?addmodule). #}
+    {% if addModule %}
+        {% set closeUrl = path('dashboard_area_module_edit', {uuid: area.uuid, module: moduleSlug}) %}
+        <div class="modal-scrim">
+            <div class="modal" style="max-width:760px" {{ stimulus_controller('catalog_filter') }}>
+                <div class="modal-head">
+                    <div>
+                        <div class="modal-title">Add a module</div>
+                        <div class="fog" style="font-size:11.5px">Modules available for this area — adding one drops it into the sub-nav. Greyed modules are already on.</div>
+                    </div>
+                    <a class="modal-x" href="{{ closeUrl }}" title="Close">×</a>
+                </div>
+                <div class="modal-body">
+                    <input class="fld" type="search" placeholder="Search modules…" style="margin-bottom:14px"
+                           data-catalog_filter-target="search" data-action="input->catalog_filter#search">
+                    <div class="subnav" style="margin-bottom:18px">
+                        {% for label, count in categoryCounts %}
+                            <a class="{{ label == 'All' ? 'on' }}" data-catalog_filter-target="pill" data-category="{{ label }}"
+                               data-action="catalog_filter#filter" href="#">{{ label }} · {{ count }}</a>
+                        {% endfor %}
+                    </div>
+
+                    {% for category, rows in catalogueByCategory %}
+                        <div class="mod-cat" data-catalog_filter-target="group" data-category="{{ category }}">{{ category }}</div>
+                        <div class="cat-grid" data-catalog_filter-target="group" data-category="{{ category }}">
+                            {% for row in rows %}
+                                {% set m = row.module %}
+                                <div class="cat-card{{ row.active ? ' on' }}" data-catalog_filter-target="card"
+                                     data-name="{{ m.name|lower }}" data-category="{{ category }}">
+                                    <div class="cat-name">{{ m.name }} {{ helper.status_chip(m.status) }}</div>
+                                    <div style="margin:6px 0 10px"><span class="mod-src">{{ m.dataSource }}</span></div>
+                                    {% if row.active %}
+                                        <span class="cat-on">✓ on this area</span>
+                                    {% else %}
+                                        <form method="post" action="{{ path('dashboard_area_module_addmodule', {uuid: area.uuid, module: moduleSlug}) }}">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('addmodule_' ~ area.uuidString) }}">
+                                            <input type="hidden" name="module" value="{{ m.slug }}">
+                                            <button type="submit" class="cta" style="padding:5px 12px;font-size:11px">+ Add</button>
+                                        </form>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+
+                    <div style="display:flex;margin-top:18px"><a href="{{ closeUrl }}" class="cta" style="margin-left:auto">Done</a></div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    {# Configure-visualization modal — overlays the edit page (?configure=<uuid>). #}
+    {% if configureViz %}
+        {% set v = configureViz %}
+        <div class="modal-scrim">
+            <div class="modal">
+                <div class="modal-head">
+                    <div>
+                        <div class="modal-title">Configure visualization</div>
+                        <div class="fog" style="font-size:11.5px">{{ v.title }} · {{ current.module.name }} module</div>
+                    </div>
+                    <a class="modal-x" href="{{ path('dashboard_area_module_edit', {uuid: area.uuid, module: moduleSlug}) }}" title="Close">×</a>
+                </div>
+                <div class="modal-body" style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start">
+                    <form method="post" action="{{ path('dashboard_area_viz_update', {uuid: area.uuid, module: moduleSlug, vizUuid: v.uuidString}) }}" style="display:flex;flex-direction:column;gap:12px">
+                        <input type="hidden" name="_token" value="{{ csrf_token('viz_update_' ~ v.uuidString) }}">
+                        <label class="viz-field">Title<input class="fld" name="title" value="{{ v.title }}"></label>
+                        <label class="viz-field">Type<select class="fld" name="type">
+                            {% for t in ['bar', 'line', 'area', 'scatter'] %}<option value="{{ t }}" {{ v.type.value == t ? 'selected' }}>{{ t|capitalize }}</option>{% endfor %}
+                        </select></label>
+                        <label class="viz-field">X axis<select class="fld" name="xAxis">
+                            {% for a in ['Year', 'Loss (ha)', 'Rainfall (mm)', 'NDVI'] %}<option {{ v.xAxis == a ? 'selected' }}>{{ a }}</option>{% endfor %}
+                        </select></label>
+                        <label class="viz-field">Y axis<select class="fld" name="yAxis">
+                            {% for a in ['Loss (ha)', 'Year', 'Rainfall (mm)', 'NDVI'] %}<option {{ v.yAxis == a ? 'selected' }}>{{ a }}</option>{% endfor %}
+                        </select></label>
+                        <label class="viz-field">Colour by<select class="fld" name="colourBy">
+                            {% for c in ['— none —', 'Year', 'Season'] %}<option {{ (v.colourBy ?? '— none —') == c ? 'selected' }}>{{ c }}</option>{% endfor %}
+                        </select></label>
+                        <label class="viz-field">Aggregation<select class="fld" name="aggregation">
+                            {% for g in ['Sum', 'Mean', 'Max', 'None'] %}<option {{ v.aggregation == g ? 'selected' }}>{{ g }}</option>{% endfor %}
+                        </select></label>
+                        <div style="display:flex;align-items:center;gap:12px;margin-top:6px">
+                            <a href="{{ path('dashboard_area_module_edit', {uuid: area.uuid, module: moduleSlug}) }}" class="fog" style="font-size:12px;text-decoration:none">Cancel</a>
+                            <button type="submit" class="cta" style="margin-left:auto">Apply</button>
+                        </div>
+                    </form>
+                    <div>
+                        <div class="mono" style="font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:rgb(var(--color-fog));margin-bottom:8px">Live preview</div>
+                        <div class="c" style="padding:12px">
+                            {% if rendered[v.uuidString] is defined %}{{ rendered[v.uuidString]|raw }}{% else %}<div class="viz-scaffold"><span class="chip warn">preview pending</span></div>{% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}

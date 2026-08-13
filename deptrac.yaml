@@ -28,6 +28,9 @@ deptrac:
     - name: Ingestion
       collectors:
         - { type: classLike, value: 'App\\Ingestion\\.*' }
+    - name: Composition
+      collectors:
+        - { type: classLike, value: 'App\\Composition\\.*' }
     - name: Dashboard
       collectors:
         - { type: classLike, value: 'App\\Dashboard\\.*' }
@@ -44,6 +47,9 @@ deptrac:
     # Data ingestion — reads AOIs (Spatial) and fills topic tables (Forest);
     # topics never depend back on Ingestion.
     Ingestion: [Ingestion, Spatial, Forest, Foundation]
+    # How an area's sub-app is composed — module catalogue, per-area activation, and
+    # visualization config. Uses the Spatial kernel (areas) + Foundation.
+    Composition: [Composition, Spatial, Foundation]
     # UI composition layer — the only place allowed to see everything; nothing
     # depends on it.
-    Dashboard: [Dashboard, Spatial, Forest, Ingestion, Access, Foundation]
+    Dashboard: [Dashboard, Spatial, Forest, Ingestion, Composition, Access, Foundation]

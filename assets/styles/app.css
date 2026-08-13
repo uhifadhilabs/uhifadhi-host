@@ -768,3 +768,143 @@ table.tbl tr:hover .open-btn.danger { background: rgb(var(--c-fail)); color: rgb
 .tick { display: flex; align-items: center; gap: 7px; font-size: 12.5px; color: rgb(var(--c-tx)); cursor: pointer; }
 .tick input { accent-color: rgb(var(--c-acc)); width: 15px; height: 15px; }
 .tick em { font-style: normal; color: rgb(var(--c-dim)); font-family: var(--font-mono); font-size: 9.5px; }
+
+/* ==================== CUSTOMIZE MODULES (the per-area module shop) ==================== */
+/* Info banner above the two columns — a plate with a jade left edge. */
+.mod-banner { border-left: 3px solid rgb(var(--c-acc)); }
+.mod-banner .t { font-size: 13.5px; font-weight: 600; }
+.mod-banner .d { color: rgb(var(--c-fog)); font-size: 12px; margin-top: 3px; }
+
+.mod-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 20px; align-items: start; }
+@media (max-width: 860px) { .mod-grid { grid-template-columns: 1fr; } }
+
+/* An active-module row: grip · name · status chip · data-source pill · toggle. */
+.mod-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 12px; margin-bottom: 8px;
+    border: 1px solid var(--c-ln); border-radius: 9px;
+    background: color-mix(in srgb, rgb(var(--c-p1)) 60%, transparent);
+}
+.mod-row.pinned { opacity: .75; background: rgb(var(--c-raised)); }
+.mod-grip { color: rgb(var(--c-fog)); cursor: grab; display: inline-flex; flex: none; }
+.mod-grip svg { width: 12px; height: 16px; fill: currentColor; }
+.mod-name { font-weight: 600; font-size: 13px; min-width: 138px; }
+.mod-spacer { flex: 1; }
+.mod-src {
+    font-family: var(--font-mono); font-size: 9px; color: rgb(var(--c-dim));
+    border: 1px solid var(--c-ln2); border-radius: 5px; padding: 2px 6px; white-space: nowrap;
+}
+.mod-pin { font-family: var(--font-mono); font-size: 9px; color: rgb(var(--c-dim)); }
+
+/* The on/off switch (a form button). Jade + knob-right when active. */
+.mod-toggle {
+    display: inline-flex; width: 34px; height: 20px; border-radius: 99px;
+    background: rgb(var(--c-raised)); border: 1px solid var(--c-ln2);
+    position: relative; flex: none; cursor: pointer; padding: 0;
+    transition: background .12s;
+}
+.mod-toggle::after {
+    content: ""; position: absolute; top: 2px; left: 2px;
+    width: 15px; height: 15px; border-radius: 50%; background: #fff;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .3); transition: left .12s;
+}
+.mod-toggle.on { background: rgb(var(--c-acc)); border-color: rgb(var(--c-acc)); }
+.mod-toggle.on::after { left: 16px; }
+
+/* Parked-module card in the shop (dashed), with its + Add. */
+.mod-cat {
+    font-family: var(--font-mono); font-size: 9px; letter-spacing: .14em; text-transform: uppercase;
+    color: rgb(var(--c-fog)); margin: 14px 0 8px;
+}
+.mod-parked {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; margin-bottom: 8px;
+    border: 1px dashed var(--c-ln2); border-radius: 9px;
+}
+.mod-parked .body { flex: 1; }
+.mod-parked .name { font-weight: 600; font-size: 12.5px; }
+.mod-parked .cta { padding: 5px 12px; font-size: 11px; }
+
+/* A row being dragged. */
+.mod-row.dragging { opacity: .45; border-style: dashed; border-color: rgb(var(--c-acc)); }
+
+/* Switching a module on/off (toggle · × · + Add) is soft-navigated by the soft_nav controller,
+   which swaps the page inside a same-document View Transition. Naming each module's active row and
+   its parked card the same (mod-<slug>) makes the browser morph it between the Active and Inactive
+   columns instead of hard-cutting. Reordering is fetch-only (no swap) and keeps its FLIP animation. */
+::view-transition-group(*) { animation-duration: .28s; animation-timing-function: cubic-bezier(.4, 0, .2, 1); }
+@media (prefers-reduced-motion: reduce) {
+    ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
+}
+
+/* ==================== MODULE EDIT (chip bar · viz grid · builder · modal) ==================== */
+.editing-pill {
+    font-family: var(--font-mono); color: rgb(var(--c-acc)); font-size: 10px; font-weight: 700;
+    letter-spacing: .12em; border: 1px solid rgb(var(--c-acc)); padding: 5px 11px; border-radius: 99px;
+}
+
+/* Module chip bar. */
+.mchip-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 22px; }
+.mchip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 11px; border: 1px solid var(--c-ln2); border-radius: 99px;
+    font-size: 12px; font-weight: 600; color: rgb(var(--c-fog)); text-decoration: none;
+    background: color-mix(in srgb, rgb(var(--c-p1)) 55%, transparent); white-space: nowrap;
+}
+.mchip:hover { border-color: rgb(var(--c-fog)); }
+.mchip.on:hover { border-color: rgb(var(--c-acc)); }
+/* The pill being dragged shows a dashed jade outline at its drop location. */
+.mchip.dragging { opacity: .5; border: 1px dashed rgb(var(--c-acc)); background: color-mix(in srgb, rgb(var(--c-acc)) 8%, transparent); }
+.mchip.on { color: rgb(var(--c-acc)); border-color: rgb(var(--c-acc)); background: color-mix(in srgb, rgb(var(--c-acc)) 10%, transparent); }
+.mchip.add { text-decoration: none; border-style: dashed; color: rgb(var(--c-acc)); }
+.mchip .grip { color: rgb(var(--c-fog)); cursor: grab; display: inline-flex; }
+.mchip .grip svg { width: 9px; height: 13px; }
+.rm {
+    border: 0; background: none; cursor: pointer; color: rgb(var(--c-dim));
+    font-size: 15px; line-height: .7; padding: 0 0 0 2px;
+}
+.rm:hover { color: rgb(var(--c-fail)); }
+
+/* Visualization card header. */
+.grip { color: rgb(var(--c-fog)); cursor: grab; display: inline-flex; flex: none; }
+.grip svg { width: 12px; height: 16px; }
+.viz-head { display: flex; align-items: center; gap: 9px; margin-bottom: 10px; }
+.viz-title { font-weight: 600; font-size: 12.5px; }
+.chip.type { background: rgb(var(--c-raised)); color: rgb(var(--c-fog)); border-color: var(--c-ln2); font-weight: 600; }
+.viz-configure { color: rgb(var(--c-acc)); font-size: 11px; font-weight: 600; text-decoration: none; }
+.viz-rm { border: 0; background: none; cursor: pointer; color: rgb(var(--c-fail)); font-size: 17px; line-height: .7; padding: 0; }
+.viz-card.dragging { opacity: .45; border: 1px dashed rgb(var(--c-acc)); }
+.viz-scaffold { text-align: center; padding: 26px 16px; }
+
+/* Builder fields + preset buttons. */
+.viz-field { display: flex; flex-direction: column; gap: 5px; font-family: var(--font-mono); font-size: 9px; letter-spacing: .12em; text-transform: uppercase; color: rgb(var(--c-fog)); }
+.viz-field select, .viz-field input { text-transform: none; letter-spacing: 0; font-size: 12px; }
+.viz-preset {
+    display: inline-flex; align-items: center; gap: 8px; padding: 9px 12px;
+    border: 1px dashed var(--c-ln2); border-radius: 9px; background: none;
+    color: rgb(var(--c-tx)); cursor: pointer; font-size: 12px; font-weight: 600; font-family: inherit;
+}
+.viz-preset:hover { border-color: rgb(var(--c-acc)); }
+
+/* Modal overlay (configure viz / add module). */
+.modal-scrim {
+    position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 24px;
+    background: color-mix(in srgb, rgb(var(--c-cv)) 55%, transparent); backdrop-filter: blur(3px);
+}
+.modal {
+    background: linear-gradient(180deg, rgb(var(--c-p1)), rgb(var(--c-p2)));
+    border: 1px solid var(--c-ln2); border-radius: 14px; box-shadow: var(--shadow);
+    width: 100%; max-width: 640px; max-height: 88vh; overflow: auto;
+}
+.modal-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 18px 20px; border-bottom: 1px solid var(--c-ln); }
+.modal-title { font-family: var(--font-display); font-size: 16px; font-weight: 700; }
+.modal-x { color: rgb(var(--c-fog)); font-size: 22px; line-height: .6; text-decoration: none; }
+.modal-x:hover { color: rgb(var(--c-tx)); }
+.modal-body { padding: 20px; }
+
+/* Add-module catalogue cards. */
+.cat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(158px, 1fr)); gap: 10px; margin-bottom: 6px; }
+.cat-card { border: 1px solid var(--c-ln); border-radius: 9px; padding: 11px 12px; display: flex; flex-direction: column; }
+.cat-card.on { opacity: .5; }
+.cat-name { font-weight: 600; font-size: 12.5px; }
+.cat-on { font-family: var(--font-mono); font-size: 9.5px; color: rgb(var(--c-dim)); }
