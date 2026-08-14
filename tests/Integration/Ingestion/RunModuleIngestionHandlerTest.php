@@ -1,0 +1,131 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Tests\Integration\Ingestion;
+
+use App\Ingestion\Entity\DatasetRun;
+use App\Ingestion\Enum\DatasetKind;
+use App\Ingestion\Message\RunModuleIngestion;
+use App\Ingestion\MessageHandler\RunModuleIngestionHandler;
+use App\Ingestion\Repository\DatasetRepository;
+use App\Ingestion\Repository\DatasetRunRepository;
+use App\Spatial\Factory\AreaOfInterestFactory;
+use App\Spatial\Repository\AreaOfInterestRepository;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\HttpClient\MockHttpClient;
+use Symfony\Component\HttpClient\Response\MockResponse;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Zenstruck\Foundry\Test\Factories;
+
+/**
+ * The handler is the write path of the engine contract: it POSTs an area's geometry to the geoprocessing
+ * engine, upserts each returned dataset into the generic store (keyed by module + key), and records a
+ * DatasetRun for provenance. The engine is mocked here — a failed call marks the run failed and
+ * re-throws so Messenger retries, and no partial data is stored.
+ */
+final class RunModuleIngestionHandlerTest extends KernelTestCase
+{
+    use Factories;
+
+    public function testStoresEngineDatasetsAndRecordsASucceededRun(): void
+    {
+        self::bootKernel();
+        $area = AreaOfInterestFactory::createOne();
+
+        $captured = null;
+        $engine = new MockHttpClient(function (string $method, string $url, array $options) use (&$captured): MockResponse {
+            $captured = ['method' => $method, 'url' => $url, 'options' => $options];
+
+            return new MockResponse((string) json_encode([
+                'run' => ['module' => 'landcover', 'status' => 'succeeded', 'source' => 'ESA WorldCover 2021 v200'],
+                'datasets' => [
+                    ['key' => 'landcover_area', 'kind' => 'series', 'columns' => ['class', 'area_km2', 'pct'], 'rows' => [['Grassland', 5123.4, 61.8]]],
+                    ['key' => 'landcover_map', 'kind' => 'vector', 'path' => '/data/out/landcover.geojson'],
+                ],
+            ]), ['http_code' => 200, 'response_headers' => ['content-type' => 'application/json']]);
+        }, 'http://engine.test');
+
+        ($this->handler($engine, 'secret-token'))(new RunModuleIngestion((int) $area->getId(), 'landcover', ['res_m' => 30]));
+
+        // Tabular dataset stored inline.
+        $repo = self::getContainer()->get(DatasetRepository::class);
+        \assert($repo instanceof DatasetRepository);
+        $areaDs = $repo->findOneFor($area, 'landcover', 'landcover_area');
+        self::assertNotNull($areaDs);
+        self::assertSame(DatasetKind::Series, $areaDs->getKind());
+        self::assertSame(['class', 'area_km2', 'pct'], $areaDs->getColumns());
+        self::assertSame([['Grassland', 5123.4, 61.8]], $areaDs->getRows());
+        self::assertSame('ESA WorldCover 2021 v200', $areaDs->getSource());
+
+        // Spatial dataset stored as a file path.
+        $mapDs = $repo->findOneFor($area, 'landcover', 'landcover_map');
+        self::assertNotNull($mapDs);
+        self::assertSame(DatasetKind::Vector, $mapDs->getKind());
+        self::assertSame('/data/out/landcover.geojson', $mapDs->getPath());
+
+        // A succeeded run recorded and linked to the data it produced.
+        $runs = $this->runs();
+        self::assertCount(1, $runs);
+        self::assertSame(DatasetRun::STATUS_SUCCEEDED, $runs[0]->getStatus());
+        self::assertNotNull($runs[0]->getFinishedAt());
+        self::assertSame($runs[0]->getId(), $areaDs->getRun()?->getId());
+
+        // The engine was called correctly: POST /run/<module>, token header, AOI as a GeoJSON Feature.
+        self::assertNotNull($captured);
+        self::assertSame('POST', $captured['method']);
+        self::assertSame('http://engine.test/run/landcover', $captured['url']);
+        self::assertContains('X-Engine-Token: secret-token', $captured['options']['headers']);
+        $body = json_decode((string) $captured['options']['body'], true, 512, \JSON_THROW_ON_ERROR);
+        self::assertSame('Feature', $body['aoi']['type']);
+        self::assertSame('MultiPolygon', $body['aoi']['geometry']['type']);
+        self::assertSame(['res_m' => 30], $body['params']);
+    }
+
+    public function testFailedEngineCallMarksRunFailedRethrowsAndStoresNoData(): void
+    {
+        self::bootKernel();
+        $area = AreaOfInterestFactory::createOne();
+        $engine = new MockHttpClient(new MockResponse('engine boom', ['http_code' => 500]), 'http://engine.test');
+
+        try {
+            ($this->handler($engine, 'secret-token'))(new RunModuleIngestion((int) $area->getId(), 'landcover'));
+            self::fail('the engine failure must propagate so Messenger can retry');
+        } catch (\Throwable) {
+            // expected
+        }
+
+        $runs = $this->runs();
+        self::assertCount(1, $runs);
+        self::assertSame(DatasetRun::STATUS_FAILED, $runs[0]->getStatus());
+        self::assertNotNull($runs[0]->getError());
+        self::assertNotNull($runs[0]->getFinishedAt());
+
+        $repo = self::getContainer()->get(DatasetRepository::class);
+        \assert($repo instanceof DatasetRepository);
+        self::assertCount(0, $repo->findAll(), 'a failed run must not leave partial datasets');
+    }
+
+    private function handler(HttpClientInterface $engine, string $token): RunModuleIngestionHandler
+    {
+        $c = self::getContainer();
+        $em = $c->get(EntityManagerInterface::class);
+        $areas = $c->get(AreaOfInterestRepository::class);
+        $datasets = $c->get(DatasetRepository::class);
+        \assert($em instanceof EntityManagerInterface);
+        \assert($areas instanceof AreaOfInterestRepository);
+        \assert($datasets instanceof DatasetRepository);
+
+        return new RunModuleIngestionHandler($em, $engine, $areas, $datasets, $token);
+    }
+
+    /** @return list<DatasetRun> */
+    private function runs(): array
+    {
+        $repo = self::getContainer()->get(DatasetRunRepository::class);
+        \assert($repo instanceof DatasetRunRepository);
+
+        return array_values($repo->findAll());
+    }
+}

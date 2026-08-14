@@ -24,6 +24,7 @@ final class VisualizationFactory extends PersistentObjectFactory
             'areaModule' => AreaModuleFactory::new(),
             'title' => self::faker()->unique()->words(2, true),
             'type' => VizType::Bar,
+            'datasetKey' => null,
             'xAxis' => 'Year',
             'yAxis' => 'Loss (ha)',
             'colourBy' => null,

@@ -55,13 +55,20 @@ env:
     SYMFONY_TRUSTED_PROXIES: private_ranges
     # Async queue over the Postgres DB (no broker). auto_setup creates the table on demand.
     MESSENGER_TRANSPORT_DSN: "doctrine://default?auto_setup=1"
+    # The geoprocessing engine accessory, reached by its container name on the kamal network
+    # (internal only — never published publicly). The worker calls it for RunModuleIngestion.
+    ENGINE_BASE_URI: "http://uhifadhi-engine:8000"
   secret:
     - APP_SECRET
     - DATABASE_URL                   # points at the `db` accessory below
+    - ENGINE_TOKEN                   # shared secret sent as X-Engine-Token; the engine verifies it
 
 # Persist Symfony logs across releases.
 volumes:
   - "uhifadhi_var:/app/var/log"
+  # Shared with the engine accessory: it writes spatial datasets (GeoJSON/GeoTIFF) here and returns
+  # the path; the app (web + worker) reads them from the same named volume.
+  - "uhifadhi_engine_out:/data/out"
 
 # PostGIS runs as a Kamal accessory on the same host; data on a named volume.
 # uhifadhi's first migration does CREATE EXTENSION IF NOT EXISTS postgis.
@@ -78,6 +85,27 @@ accessories:
         - POSTGRES_PASSWORD
     directories:
       - data:/var/lib/postgresql/data
+
+  # The geoprocessing engine (FastAPI + gunicorn/uvicorn) from the uhifadhi-engine repo. Internal
+  # only — NO published port; the app reaches it over the kamal network at http://uhifadhi-engine:8000.
+  # Image built + pushed to ghcr by that repo's CI. Shares uhifadhi_engine_out so the app can read the
+  # spatial datasets it writes.
+  engine:
+    image: uhifadhilabs/uhifadhi-engine   # → ghcr.io/uhifadhilabs/uhifadhi-engine
+    host: 78.47.239.40
+    env:
+      clear:
+        ENGINE_OUT_DIR: /data/out
+        WEB_CONCURRENCY: "2"
+        # /vsicurl streaming of remote WorldCover/Hansen rasters (mirrors the R script's GDAL tuning).
+        GDAL_DISABLE_READDIR_ON_OPEN: EMPTY_DIR
+        VSI_CACHE: "TRUE"
+        GDAL_HTTP_MAX_RETRY: "3"
+        GDAL_HTTP_RETRY_DELAY: "2"
+      secret:
+        - ENGINE_TOKEN                # same secret the app sends; the engine checks X-Engine-Token
+    volumes:
+      - "uhifadhi_engine_out:/data/out"
 
 # Keep the last 5 releases for instant `kamal rollback`.
 retain_containers: 5

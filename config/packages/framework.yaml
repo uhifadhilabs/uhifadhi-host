@@ -5,6 +5,12 @@ framework:
     # Note that the session will be started ONLY if you read or write from it.
     session: true
 
+    # The geoprocessing engine (separate container). Injected as `HttpClientInterface $engineClient`.
+    http_client:
+        scoped_clients:
+            engine.client:
+                base_uri: '%env(ENGINE_BASE_URI)%'
+
     #esi: true
     #fragments: true
 

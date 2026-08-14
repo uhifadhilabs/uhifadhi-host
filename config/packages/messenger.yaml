@@ -26,3 +26,5 @@ framework:
             # Ingestion jobs are minutes-long (network + raster work) — never in a
             # web request. The worker consuming `async` runs them.
             'App\Ingestion\Message\IngestHansenLoss': async
+            # Generic per-module ingestion: calls the geoprocessing engine, lands datasets.
+            'App\Ingestion\Message\RunModuleIngestion': async

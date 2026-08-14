@@ -52,6 +52,8 @@ jobs:
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           APP_SECRET: ${{ secrets.APP_SECRET }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          # Shared secret between the app and the engine accessory (X-Engine-Token).
+          ENGINE_TOKEN: ${{ secrets.ENGINE_TOKEN }}
           # Cloudflare Origin cert served by kamal-proxy (Full-strict TLS on the CF→origin hop)
           CERTIFICATE_PEM: ${{ secrets.CERTIFICATE_PEM }}
           PRIVATE_KEY_PEM: ${{ secrets.PRIVATE_KEY_PEM }}
@@ -62,6 +64,7 @@ jobs:
           POSTGRES_PASSWORD=$POSTGRES_PASSWORD
           APP_SECRET=$APP_SECRET
           DATABASE_URL=$DATABASE_URL
+          ENGINE_TOKEN=$ENGINE_TOKEN
           CERTIFICATE_PEM=$CERTIFICATE_PEM
           PRIVATE_KEY_PEM=$PRIVATE_KEY_PEM
           EOF
@@ -71,4 +74,7 @@ jobs:
             kamal setup
           else
             kamal deploy
+            # (Re)boot the engine accessory so it picks up the latest uhifadhi-engine image.
+            # reboot = stop + remove + boot, so it works whether or not it is already running.
+            kamal accessory reboot engine -y
           fi
