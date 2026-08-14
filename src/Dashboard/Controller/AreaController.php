@@ -6,7 +6,6 @@ namespace App\Dashboard\Controller;
 
 use App\Dashboard\Form\AreaUploadType;
 use App\Dashboard\Service\AreaCardService;
-use App\Dashboard\Service\AreaModuleService;
 use App\Forest\Repository\ForestLossYearRepository;
 use App\Forest\Service\ForestLossSummaryService;
 use App\Ingestion\Message\IngestHansenLoss;
@@ -139,7 +138,6 @@ final class AreaController extends AbstractController
         AreaOfInterestRepository $areas,
         DatasetRunRepository $runs,
         ForestLossSummaryService $forestLoss,
-        AreaModuleService $modules,
     ): Response {
         $geom = $area->getGeom();
         $boundary = [
@@ -162,8 +160,6 @@ final class AreaController extends AbstractController
             'runs' => $areaRuns,
             'runCount' => \count($areaRuns),
             'hasRunningRun' => [] !== array_filter($areaRuns, static fn ($run) => 'running' === $run->getStatus()),
-            'modules' => $modules->modules($area),
-            'planned' => $modules->planned(),
             'stats' => [
                 'areaKm2' => (int) round($areas->stAreaKm2(['id' => $area->getId()])),
                 'totalLossHa' => (int) round($loss['totalHa']),
@@ -172,6 +168,18 @@ final class AreaController extends AbstractController
                 'worstYear' => $loss['worstYear'],
                 'worstHa' => (int) round($loss['worstHa']),
             ],
+        ]);
+    }
+
+    #[Route('/areas/{uuid}/settings', name: 'dashboard_area_settings', requirements: ['uuid' => Requirement::UUID], methods: ['GET'])]
+    #[IsGranted('area.edit')]
+    public function settings(
+        #[MapEntity(mapping: ['uuid' => 'uuid'])] AreaOfInterest $area,
+        AreaOfInterestRepository $areas,
+    ): Response {
+        return $this->render('dashboard/area_settings.html.twig', [
+            'area' => $area,
+            'areaKm2' => (int) round($areas->stAreaKm2(['id' => $area->getId()])),
         ]);
     }
 

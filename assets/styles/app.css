@@ -417,6 +417,20 @@ body::before {
 .backbtn:hover { color: rgb(var(--c-tx)); border-color: rgb(var(--c-fog)); background: rgb(var(--c-raised)); }
 .backbtn svg { display: block; width: 15px; height: 15px; }
 
+/* Module card (Modules-tab grid) — a content-ful tile: headline metric + mini preview + source.
+   Built on .c (the card), clickable as a whole, lifting on hover. */
+.mtile { display: flex; flex-direction: column; gap: 9px; padding: 15px 16px; text-decoration: none; transition: border-color .15s, transform .12s; }
+.mtile:hover { border-color: color-mix(in srgb, rgb(var(--c-acc)) 45%, transparent); transform: translateY(-1px); }
+.mtile-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.mtile-title { font-weight: 700; font-size: 14px; color: rgb(var(--c-tx)); }
+.mtile-stat { display: flex; align-items: baseline; gap: 6px; }
+.mtile-stat .val { font-size: 21px; font-weight: 700; color: rgb(var(--c-tx)); line-height: 1; }
+.mtile-stat .sub { font-size: 10.5px; }
+.mtile-spark { margin: 1px 0 2px; min-height: 22px; }
+.mtile-summary { font-size: 11.5px; line-height: 1.35; }
+.mtile-source { margin-top: auto; padding-top: 5px; }
+.mtile-source .mono { font-size: 9px; letter-spacing: .06em; color: rgb(var(--c-dim)); }
+
 /* ==================== PAGE SCAFFOLD ==================== */
 .page { position: relative; z-index: 1; max-width: 1280px; margin: 0 auto; padding: 26px 22px 90px; }
 .crumb {

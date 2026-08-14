@@ -33,8 +33,8 @@ final class AreaDetailTest extends AuthenticatedWebTestCase
         // The park-hub KPI plate carries the headline loss figure (unit in its <em>).
         self::assertSelectorTextContains('.kpi.hot', '186');
         self::assertSelectorTextContains('.kpi.hot em', 'ha');
-        // Module sub-nav marks Overview live and Forest as a working module.
-        self::assertSelectorTextContains('.subnav a.on', 'Overview');
+        // The area tabs mark Overview active (Modules & Settings are the other tabs).
+        self::assertSelectorTextContains('.atabs a.on', 'Overview');
         self::assertCount(1, $crawler->filter('[data-map-target="bar"]'));
         // The ingestion trigger is present, addressed by UUID.
         self::assertSelectorExists(\sprintf('form[action="/areas/%s/ingest"]', $aoi->getUuidString()));

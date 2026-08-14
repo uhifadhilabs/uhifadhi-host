@@ -1,0 +1,35 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}{{ area.name }} — Modules — Uhifadhi{% endblock %}
+
+{% block content %}
+    <div class="page">
+        <div class="crumb"><a href="{{ path('dashboard_index') }}">uhifadhi</a> / <a href="{{ path('dashboard_index') }}">areas</a> / <a href="{{ path('dashboard_area_show', {uuid: area.uuid}) }}">{{ area.name|lower }}</a> / modules</div>
+        <div class="pghead">
+            <div>
+                <h1 class="pg">{{ area.name }}</h1>
+                <p class="pgsub">Every analytical module on this area — one card, one page. Open a card to view it; edit or run its data from there.</p>
+            </div>
+            {% if is_granted('module.create') %}
+                <div class="pgact"><a class="cta" href="{{ path('dashboard_area_modules', {uuid: area.uuid}) }}">{{ ux_icon('lucide:sliders-horizontal') }}Customize</a></div>
+            {% endif %}
+        </div>
+
+        {{ include('dashboard/_area_tabs.html.twig', {area: area, active: 'modules'}) }}
+
+        {% for group in groups %}
+            <h2 class="zone">{{ group.label }}</h2>
+            <div class="grid g4">
+                {% for card in group.cards %}
+                    {{ include('dashboard/_module_tile.html.twig', {area: area, card: card}) }}
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="c" style="padding:44px 32px;text-align:center">
+                <p class="fog" style="font-size:13px">No modules on this area yet.
+                    {% if is_granted('module.create') %}Add some from <a class="acc" href="{{ path('dashboard_area_modules', {uuid: area.uuid}) }}">Customize</a>.{% endif %}
+                </p>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

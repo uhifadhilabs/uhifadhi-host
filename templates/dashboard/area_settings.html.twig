@@ -1,0 +1,42 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}{{ area.name }} — Settings — Uhifadhi{% endblock %}
+
+{% block content %}
+    <div class="page">
+        <div class="crumb"><a href="{{ path('dashboard_index') }}">uhifadhi</a> / <a href="{{ path('dashboard_index') }}">areas</a> / <a href="{{ path('dashboard_area_show', {uuid: area.uuid}) }}">{{ area.name|lower }}</a> / settings</div>
+        <div class="pghead">
+            <div>
+                <h1 class="pg">{{ area.name }}</h1>
+                <p class="pgsub">Area-level settings: the dashboard, the area's identity, and who can see or change what.</p>
+            </div>
+        </div>
+
+        {{ include('dashboard/_area_tabs.html.twig', {area: area, active: 'settings'}) }}
+
+        <div class="grid g2">
+            <div class="c">
+                <span class="tab"><span class="idx">PL·40</span>Dashboard<span class="src">· area preference</span></span>
+                <div class="rln"><span>Default tab on open</span><span class="mono d">Overview</span></div>
+                <div class="rln"><span>Module order</span><span class="mono d">as arranged on Modules · Customize</span></div>
+                <div class="rln"><span>Theme</span><span class="mono d">follow system</span></div>
+            </div>
+            <div class="c">
+                <span class="tab"><span class="idx">PL·41</span>Area identity<span class="src">· area_of_interest</span></span>
+                <div class="rln"><span>Name</span><span class="mono d">{{ area.name }}</span></div>
+                <div class="rln"><span>Boundary source</span><span class="mono d">{{ area.source ?: '—' }}</span></div>
+                <div class="rln"><span>IUCN category</span><span class="mono d">{{ area.iucnCategory ?: '—' }}</span></div>
+                <div class="rln"><span>Area</span><span class="mono d">{{ areaKm2|number_format }} km²</span></div>
+            </div>
+        </div>
+        <div class="grid g2">
+            <div class="c">
+                <span class="tab"><span class="idx">PL·42</span>Access<span class="src">· permissions</span></span>
+                <div class="rln"><span>Who can view this area</span><span class="mono d">Team members</span></div>
+                <div class="rln"><span>Who can edit modules</span><span class="mono d">Managers +</span></div>
+                <div class="rln"><span>Who can run ingestion</span><span class="mono d">Managers +</span></div>
+                <div class="use">Each area tab and each module page is its own route, so access is enforced per page — lock a sensitive module down without hiding the rest.</div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

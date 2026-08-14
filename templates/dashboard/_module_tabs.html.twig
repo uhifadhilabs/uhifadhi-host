@@ -8,7 +8,7 @@
     {slug: 'explore',   label: 'Explore',   href: path('dashboard_area_module', {uuid: area.uuid, module: module.slug, tab: 'explore'})},
     {slug: 'method',    label: 'Method',    href: path('dashboard_area_module', {uuid: area.uuid, module: module.slug, tab: 'method'})},
 ] %}
-<a href="{{ path('dashboard_area_show', {uuid: area.uuid}) }}" class="backbtn">{{ ux_icon('lucide:chevron-left') }}All modules</a>
+<a href="{{ path('dashboard_area_modules_grid', {uuid: area.uuid}) }}" class="backbtn">{{ ux_icon('lucide:chevron-left') }}All modules</a>
 <div class="atabs">
     {%- for t in tabs -%}
         <a href="{{ t.href }}"{{ active == t.slug ? ' class="on"' : '' }}>{{ t.label }}</a>

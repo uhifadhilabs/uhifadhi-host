@@ -22,14 +22,11 @@
         <div class="pghead">
             <div>
                 <h1 class="pg">{{ area.name }}</h1>
-                <p class="pgsub">The park hub — identity, the live map, and one door per analytical module.</p>
+                <p class="pgsub">The park hub — identity and the live map. Its analytical modules live on the Modules tab.</p>
             </div>
-            {% if is_granted('module.create') %}
-                <div class="pgact"><a class="cta" href="{{ path('dashboard_area_modules', {uuid: area.uuid}) }}">{{ ux_icon('lucide:sliders-horizontal') }}Customize modules</a></div>
-            {% endif %}
         </div>
 
-        {{ include('dashboard/_subnav.html.twig', {area: area, active: 'overview', modules: modules, planned: planned}) }}
+        {{ include('dashboard/_area_tabs.html.twig', {area: area, active: 'overview'}) }}
 
         {% for label, messages in app.flashes %}
             {% for message in messages %}
@@ -51,8 +48,7 @@
                 <b class="disp">{{ runCount }}</b><span class="sub">dataset_run provenance</span></div>
         </div>
 
-        {# ── Flux: the live map + annual loss (one map controller over both) ─ #}
-        <h2 class="zone">Flux — what the ecosystem is doing</h2>
+        {# ── The live map + annual loss + ingestion (one map controller over the map) ─ #}
         <div class="grid g32"
              data-controller="map"
              data-map-boundary-value="{{ boundary|json_encode|e('html_attr') }}"
@@ -145,29 +141,6 @@
                     {% endif %}
                 </div>
             </div>
-        </div>
-
-        {# ── Module doors (stubs until each context ships) ──────────────── #}
-        <h2 class="zone">Flux — what the ecosystem is doing</h2>
-        <div class="grid g4">
-            <a class="c mod" href="#annual" style="padding:20px 16px 16px"><span class="mt">Forest loss</span><span class="md">The real Hansen series: accounting, decomposition, trend.</span><span class="chip ok">live</span></a>
-            <div class="c mod" style="padding:20px 16px 16px"><span class="mt">Climate</span><span class="md">WorldClim normals, CHIRPS anomalies, CMIP futures.</span><span class="chip warn">template</span></div>
-            <div class="c mod" style="padding:20px 16px 16px"><span class="mt">Drought</span><span class="md">SPEI monitor, drought-class extent, soil-moisture percentiles.</span><span class="chip warn">template</span></div>
-            <div class="c mod" style="padding:20px 16px 16px"><span class="mt">Vegetation</span><span class="md">NDVI envelopes, Hovmöller, phenology shift.</span><span class="chip warn">template</span></div>
-        </div>
-        <h2 class="zone">Pressure — what people are doing</h2>
-        <div class="grid g4">
-            <div class="c mod" style="padding:20px 16px 16px"><span class="mt">Anthropogenic</span><span class="md">Boundary-buffer encroachment: built-up rings, distance decay, edge pressure.</span><span class="chip warn">template</span></div>
-            <div class="c mod" style="padding:20px 16px 16px"><span class="mt">Tourism</span><span class="md">Camps &amp; lodges monitor: expansion, concentration, displacement.</span><span class="chip warn">template</span></div>
-            <div class="c mod" style="padding:20px 16px 16px"><span class="mt">Livestock</span><span class="md">Herd census trends, grazing pressure, stocking vs capacity.</span><span class="chip warn">template</span></div>
-            <div class="c mod" style="padding:20px 16px 16px;opacity:.65"><span class="mt">Roads &amp; access</span><span class="md">OSM/GRIP road density, isochrones, fragmentation — planned.</span><span class="chip idle">planned</span></div>
-        </div>
-        <h2 class="zone">Pulse &amp; synthesis</h2>
-        <div class="grid g4">
-            <div class="c mod" style="padding:20px 16px 16px"><span class="mt">Weather stations</span><span class="md">Meteograms, wind roses, soil profiles, warming stripes.</span><span class="chip warn">template</span></div>
-            <div class="c mod" style="padding:20px 16px 16px"><span class="mt">Land cover</span><span class="md">WorldCover composition, sankey transitions, cropland creep.</span><span class="chip warn">template</span></div>
-            <div class="c mod" style="padding:20px 16px 16px"><span class="mt">Statistics</span><span class="md">Fits, uncertainty, diagnostics, PCA — the inferential layer.</span><span class="chip warn">template</span></div>
-            <div class="c mod" style="padding:20px 16px 16px;opacity:.65"><span class="mt">Water &amp; hydrology</span><span class="md">JRC surface water, lake levels, hydrographs — planned.</span><span class="chip idle">planned</span></div>
         </div>
     </div>
 {% endblock %}

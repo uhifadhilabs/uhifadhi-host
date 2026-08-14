@@ -1,0 +1,12 @@
+{# Top-level area tabs — Overview / Modules / Settings, underlined (.atabs) so they read as sections
+   of the area, not module pills. Each is its own route, so each is permission-gated: Modules needs
+   module.view, Settings needs area.edit. `active` is the tab slug. #}
+<div class="atabs">
+    <a href="{{ path('dashboard_area_show', {uuid: area.uuid}) }}"{{ active == 'overview' ? ' class="on"' : '' }}>Overview</a>
+    {%- if is_granted('module.view') -%}
+        <a href="{{ path('dashboard_area_modules_grid', {uuid: area.uuid}) }}"{{ active == 'modules' ? ' class="on"' : '' }}>Modules</a>
+    {%- endif -%}
+    {%- if is_granted('area.edit') -%}
+        <a href="{{ path('dashboard_area_settings', {uuid: area.uuid}) }}"{{ active == 'settings' ? ' class="on"' : '' }}>Settings</a>
+    {%- endif -%}
+</div>

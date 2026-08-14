@@ -95,6 +95,12 @@ final readonly class AreaModuleService
         return [];
     }
 
+    /** The one-line blurb for a module slug — its subtitle / card summary. Empty for an unknown slug. */
+    public function blurb(string $slug): string
+    {
+        return self::BLURBS[$slug] ?? '';
+    }
+
     /**
      * A routable module page for this area (everything except the Overview hub). Returns null for the
      * hub, or a module that isn't on the area — the caller 404s on null.

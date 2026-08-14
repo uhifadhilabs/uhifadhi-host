@@ -1,0 +1,21 @@
+{# A content-ful module card: headline metric + a mini preview of what it plots + source — so the grid
+   reads like a dashboard of the area's modules, not a list of settings. Opens the module's own page.
+   `card` = {slug, title, status, source, summary, stat, statSub, series}. A live module carries a real
+   stat + series; a template one shows only its summary and source (its metric line is omitted). #}
+{%- set chip = {'live': 'ok', 'template': 'warn'}[card.status]|default('idle') -%}
+{%- set chipLabel = {'live': 'live', 'template': 'template'}[card.status]|default('planned') -%}
+<a class="c mtile" href="{{ path('dashboard_area_module', {uuid: area.uuid, module: card.slug}) }}">
+    <div class="mtile-head">
+        <span class="mtile-title">{{ card.title }}</span>
+        <span class="chip {{ chip }}">{{ chipLabel }}</span>
+    </div>
+    {% if card.stat is not null %}
+        <div class="mtile-stat">
+            <span class="mono val">{{ card.stat|number_format }}</span>
+            <span class="fog sub">{{ card.statSub }}</span>
+        </div>
+    {% endif %}
+    <div class="mtile-spark">{{ include('_sparkline.html.twig', {series: card.series}) }}</div>
+    <div class="fog mtile-summary">{{ card.summary }}</div>
+    <div class="mtile-source"><span class="mono">{{ card.source }}</span></div>
+</a>
