@@ -79,9 +79,24 @@
                     <p class="fog" style="font-size:12px;max-width:520px;margin:10px auto 0">This module's analytics light up when its ingestion lands. The layout and data model are settled in the design; the live view activates once the dataset is wired for this area.</p>
                 </div>
             {% endif %}
-        {% else %}
-            {# Dataframe / Explore / Method — the data-backed tabs, wired to the Dataset pipeline next. #}
-            {{ include('dashboard/_module_tab_pending.html.twig', {tab: activeTab, module: module}) }}
+        {% elseif activeTab == 'dataframe' %}
+            {% if table %}
+                {{ include('dashboard/_module_dataframe.html.twig', {table: table, types: tableTypes, numeric: tableNumeric}) }}
+            {% else %}
+                {{ include('dashboard/_module_tab_pending.html.twig', {tab: activeTab, module: module}) }}
+            {% endif %}
+        {% elseif activeTab == 'explore' %}
+            {% if table or spatial %}
+                {{ include('dashboard/_module_explore.html.twig', {area: area, module: module, table: table, numeric: tableNumeric, describe: describe, distribution: distribution, spatial: spatial}) }}
+            {% else %}
+                {{ include('dashboard/_module_tab_pending.html.twig', {tab: activeTab, module: module}) }}
+            {% endif %}
+        {% elseif activeTab == 'method' %}
+            {% if method %}
+                {{ include('dashboard/_module_method.html.twig', {method: method}) }}
+            {% else %}
+                {{ include('dashboard/_module_tab_pending.html.twig', {tab: activeTab, module: module}) }}
+            {% endif %}
         {% endif %}
     </div>
 {% endblock %}

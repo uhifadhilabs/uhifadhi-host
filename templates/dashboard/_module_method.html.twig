@@ -1,0 +1,29 @@
+{# Method tab: the analysis caption — what the module measures & answers, the takeaway, how it is
+   computed (the pipeline), and the data source with its honest caveats. `method` = the caption config. #}
+<div class="c">
+    <span class="tab"><span class="idx">M1</span>What this module measures<span class="src">· {{ method.measures }}</span></span>
+    <div class="rln" style="flex-direction:column;align-items:stretch;gap:4px;padding:12px 2px">
+        <span class="mono" style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:rgb(var(--c-acc))">Answers</span>
+        <span style="font-size:13px;line-height:1.55;color:rgb(var(--c-tx))">{{ method.answers }}</span>
+    </div>
+    <div class="rln" style="flex-direction:column;align-items:stretch;gap:4px;padding:12px 2px">
+        <span class="mono" style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:rgb(var(--c-acc))">Takeaway</span>
+        <span style="font-size:13px;line-height:1.55;color:rgb(var(--c-tx))">{{ method.takeaway }}</span>
+    </div>
+</div>
+<div class="grid g2" style="margin-top:22px">
+    <div class="c">
+        <span class="tab"><span class="idx">M2</span>How it is computed<span class="src">· pipeline</span></span>
+        {% for step in method.pipeline %}
+            <div class="rln"><span>{{ step.step }}</span><span class="mono d">{{ step.detail }}</span></div>
+        {% endfor %}
+        <div class="use">{{ method.pipelineNote|raw }}</div>
+    </div>
+    <div class="c">
+        <span class="tab"><span class="idx">M3</span>Data source<span class="src">· provenance</span></span>
+        {% for row in method.source %}
+            <div class="rln"><span>{{ row.label }}</span><span class="mono d">{{ row.value }}</span></div>
+        {% endfor %}
+        <div class="use">{{ method.sourceNote }}</div>
+    </div>
+</div>

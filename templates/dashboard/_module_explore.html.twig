@@ -1,0 +1,72 @@
+{# Explore tab (map + statistics): the module's spatial layer on the map, then the per-column summary
+   statistics — describe() + a distribution — over the same tabular dataset. The map renders once a
+   spatial dataset is ingested; the statistics render as soon as the tabular dataset exists.
+   `spatial` = Dataset|null (the map layer), `describe` = per-column summary, `distribution` = the
+   first numeric column's values, sorted high→low. #}
+<div style="display:grid;grid-template-columns:1fr 262px;gap:20px;align-items:start">
+    {% set palette = {'Grassland':'#f5e07a','Shrubland':'#b8a600','Tree cover':'#1a6b34','Water':'#2b7fd6','Bare/sparse':'#b0aead','Bare / sparse vegetation':'#b0aead','Cropland':'#e59b3a','Built-up':'#c81e1e','Herb. wetland':'#5ad3c8','Herbaceous wetland':'#5ad3c8','Mangroves':'#0b6e5e','Moss and lichen':'#f2f0d0','Snow and ice':'#ffffff'} %}
+    <div class="c" style="padding-top:26px">
+        <span class="tab"><span class="idx">MAP</span>Land-cover map<span class="src">· {{ table ? table.source : 'engine' }}</span></span>
+        <span class="lib">leaflet in-app</span>
+        <div style="height:360px;border-radius:10px;margin-top:12px;display:flex;align-items:center;justify-content:center;text-align:center;background:rgb(var(--c-raised))">
+            <p class="fog" style="font-size:12px;max-width:300px">The classified layer appears here once the map dataset is ingested for this area.</p>
+        </div>
+        <div class="use">The classified raster clipped to the AOI. Grassland dominates; cropland presses in at the south-eastern edge.</div>
+    </div>
+    <div class="c">
+        <span class="tab"><span class="idx">LG</span>Legend<span class="src">· classes</span></span>
+        {% if table %}
+            <div style="margin-top:8px">
+                {% for row in table.rows %}
+                    <div style="display:flex;align-items:center;gap:9px;padding:5px 0">
+                        <span style="width:14px;height:14px;border-radius:3px;flex:none;background:{{ palette[row[0]] ?? '#888888' }}"></span>
+                        <span style="font-size:12px;flex:1">{{ row[0] }}</span>
+                        <span class="mono d" style="font-size:10px">{{ table.columns[1] is defined ? (row[1]|number_format(row[1] < 10 ? 2 : 0)) ~ (table.columns[1] == 'area_km2' ? ' km²' : '') : '' }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        <div class="use">Colours match the ESA WorldCover legend.</div>
+    </div>
+</div>
+
+<div class="grid g2" style="margin-top:22px">
+    <div class="c">
+        <span class="tab"><span class="idx">DS</span>Summary<span class="src">· describe()</span></span>
+        <div style="overflow-x:auto;margin-top:2px">
+            <table class="dtable">
+                <thead>
+                    <tr><th>column</th><th class="num">count</th><th class="num">mean</th><th class="num">std</th><th class="num">min</th><th class="num">median</th><th class="num">max</th></tr>
+                </thead>
+                <tbody>
+                    {% for d in describe %}
+                        <tr>
+                            <td>{{ d.column }}</td>
+                            <td class="num">{{ d.count }}</td>
+                            <td class="num">{{ d.mean|number_format(2) }}</td>
+                            <td class="num">{{ d.std|number_format(2) }}</td>
+                            <td class="num">{{ d.min|number_format(2) }}</td>
+                            <td class="num">{{ d.median|number_format(2) }}</td>
+                            <td class="num">{{ d.max|number_format(2) }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="use">Per-column summary statistics for the module's dataframe.</div>
+    </div>
+    <div class="c">
+        <span class="tab"><span class="idx">DT</span>Distribution<span class="src">· {{ numeric|first|default('value') }}</span></span>
+        {% if distribution is not empty %}
+            {% set maxv = distribution|reduce((m, v) => max(m, v), 0) %}
+            <svg viewBox="0 0 300 90" width="100%" height="90" preserveAspectRatio="none" style="display:block;margin-top:12px">
+                {% set bw = 300 / distribution|length %}
+                {% for v in distribution %}
+                    {% set h = maxv > 0 ? (v / maxv) * 84 : 0 %}
+                    <rect x="{{ (loop.index0 * bw + 1)|round(2) }}" y="{{ (86 - h)|round(2) }}" width="{{ (bw - 2)|round(2) }}" height="{{ h|round(2) }}" rx="1" fill="rgb(var(--c-acc))"></rect>
+                {% endfor %}
+            </svg>
+        {% endif %}
+        <div class="use">The spread of a numeric column — the long tail is where the dominant class sits.</div>
+    </div>
+</div>

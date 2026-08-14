@@ -5,8 +5,12 @@ declare(strict_types=1);
 namespace App\Dashboard\Controller;
 
 use App\Dashboard\Service\AreaModuleService;
+use App\Dashboard\Service\DatasetPresenter;
+use App\Dashboard\Service\ModuleMethodService;
 use App\Forest\Service\ForestChartService;
 use App\Forest\Service\ForestLossSummaryService;
+use App\Ingestion\Entity\Dataset;
+use App\Ingestion\Repository\DatasetRepository;
 use App\Ingestion\Repository\DatasetRunRepository;
 use App\Spatial\Entity\AreaOfInterest;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
@@ -45,6 +49,9 @@ final class ModuleController extends AbstractController
         ForestLossSummaryService $forestLoss,
         ForestChartService $charts,
         DatasetRunRepository $runs,
+        DatasetRepository $datasets,
+        DatasetPresenter $presenter,
+        ModuleMethodService $methods,
     ): Response {
         $descriptor = $modules->page($area, $module);
         if (null === $descriptor) {
@@ -70,12 +77,65 @@ final class ModuleController extends AbstractController
             ];
         }
 
+        // Dataframe & Explore read the module's stored datasets: the first tabular one (the rows the
+        // viewer and describe() work on) and the first spatial one (the Explore map layer).
+        $table = null;
+        $spatial = null;
+        $describe = [];
+        $distribution = [];
+        if (\in_array($tab, ['dataframe', 'explore'], true)) {
+            foreach ($datasets->forModule($area, $module) as $dataset) {
+                if (null === $table && $dataset->getKind()->isTabular()) {
+                    $table = $dataset;
+                }
+                if (null === $spatial && $dataset->getKind()->isSpatial()) {
+                    $spatial = $dataset;
+                }
+            }
+            if (null !== $table) {
+                $describe = $presenter->describe($table);
+                $distribution = $this->distribution($table, $presenter);
+            }
+        }
+
         return $this->render('dashboard/module.html.twig', [
             'area' => $area,
             'module' => $descriptor,
             'activeTab' => $tab,
+            'table' => $table,
+            'tableTypes' => null !== $table ? $presenter->types($table) : [],
+            'tableNumeric' => null !== $table ? $presenter->numericColumns($table) : [],
+            'describe' => $describe,
+            'distribution' => $distribution,
+            'spatial' => $spatial,
+            'method' => 'method' === $tab ? $methods->forModule($module) : null,
             'forest' => $forest,
             'forestCharts' => $forestCharts,
         ]);
+    }
+
+    /**
+     * The distribution the Explore tab plots: the first numeric column's values, sorted high→low.
+     *
+     * @return list<float>
+     */
+    private function distribution(Dataset $table, DatasetPresenter $presenter): array
+    {
+        $numeric = $presenter->numericColumns($table);
+        if ([] === $numeric) {
+            return [];
+        }
+        $columns = $table->getColumns() ?? [];
+        $index = array_search($numeric[0], $columns, true);
+        $values = [];
+        foreach ($table->getRows() ?? [] as $row) {
+            $v = $row[$index] ?? null;
+            if (\is_int($v) || \is_float($v)) {
+                $values[] = (float) $v;
+            }
+        }
+        rsort($values);
+
+        return $values;
     }
 }

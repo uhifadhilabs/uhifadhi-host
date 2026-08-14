@@ -431,6 +431,41 @@ body::before {
 .mtile-source { margin-top: auto; padding-top: 5px; }
 .mtile-source .mono { font-size: 9px; letter-spacing: .06em; color: rgb(var(--c-dim)); }
 
+/* ── describe() / summary table ─────────────────────────────────────── */
+.dtable { width: 100%; border-collapse: collapse; font-size: 12px; }
+.dtable th { text-align: left; font-family: var(--font-mono); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: rgb(var(--c-fog)); font-weight: 600; padding: 8px 12px; border-bottom: 1px solid var(--c-ln2); white-space: nowrap; }
+.dtable th.num, .dtable td.num { text-align: right; font-family: var(--font-mono); }
+.dtable td { padding: 7px 12px; border-bottom: 1px solid var(--c-ln); color: rgb(var(--c-tx)); }
+.dtable tbody tr:hover td { background: rgb(var(--c-raised)); }
+.dtable tbody tr:last-child td { border-bottom: 0; }
+
+/* ── R-style dataframe viewer (IS its own card): typed columns, sort, per-column filter, paging ── */
+.rdf { font-family: var(--font-mono); font-size: 12px; border: 1px solid var(--c-ln2); border-radius: 10px; overflow: hidden; background: rgb(var(--c-p1)); }
+.rdf-bar { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding: 11px 14px; border-bottom: 1px solid var(--c-ln2); }
+.rdf-bar .tab { margin: 0; display: inline-flex; align-items: center; gap: 8px; }
+.rdf-sel { display: inline-flex; gap: 6px; align-items: center; }
+.rdf-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 14px; border-top: 1px solid var(--c-ln2); color: rgb(var(--c-fog)); font-size: 10.5px; font-family: var(--font-mono); }
+.rdf-page { display: inline-flex; align-items: center; gap: 6px; }
+.rdf-page button { background: none; border: 1px solid var(--c-ln2); color: rgb(var(--c-fog)); border-radius: 6px; width: 22px; height: 22px; cursor: pointer; font-size: 12px; line-height: 1; display: inline-flex; align-items: center; justify-content: center; }
+.rdf-page button:hover { border-color: rgb(var(--c-fog)); color: rgb(var(--c-tx)); }
+.rdf-page .pg { color: rgb(var(--c-tx)); font-weight: 700; }
+.rdf-search { display: inline-flex; align-items: center; gap: 6px; background: color-mix(in srgb, rgb(var(--c-fog)) 7%, transparent); border: 1px solid var(--c-ln2); border-radius: 7px; padding: 4px 10px; }
+.rdf-search svg { color: rgb(var(--c-fog)); display: block; }
+.rdf-search input { border: 0; background: none; font-family: inherit; font-size: 11px; color: rgb(var(--c-tx)); width: 170px; outline: none; }
+.rdf .sort { color: rgb(var(--c-dim)); font-size: 11px; margin-left: 4px; }
+.rdf .sort.on { color: rgb(var(--c-acc)); }
+.rdf-sort { background: none; border: 0; padding: 2px 0; font: inherit; color: inherit; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; border-radius: 4px; }
+.rdf-sort:hover, .rdf-sort:hover .sort { color: rgb(var(--c-acc)); }
+.rdf-cf { display: block; width: 100%; box-sizing: border-box; margin-top: 7px; font-weight: 400; background: color-mix(in srgb, rgb(var(--c-fog)) 7%, transparent); border: 1px solid var(--c-ln); border-radius: 6px; padding: 3px 8px; font-family: inherit; font-size: 10px; color: rgb(var(--c-tx)); }
+.rdf-cf:focus { border-color: rgb(var(--c-acc)); outline: none; }
+.rdf-cf::placeholder { color: rgb(var(--c-dim)); }
+.rdf table { width: 100%; border-collapse: collapse; }
+.rdf th { text-align: left; padding: 8px 13px; color: rgb(var(--c-tx)); font-weight: 700; border-bottom: 1px solid var(--c-ln2); vertical-align: top; white-space: nowrap; }
+.rdf th .ty { display: block; color: rgb(var(--c-acc)); font-weight: 400; font-size: 9.5px; margin-top: 3px; letter-spacing: .02em; }
+.rdf td { padding: 6px 13px; color: rgb(var(--c-tx)); border-bottom: 1px solid var(--c-ln); white-space: nowrap; }
+.rdf th.num, .rdf td.num { text-align: right; }
+.rdf td.idx, .rdf th.idx { color: rgb(var(--c-dim)); text-align: right; width: 36px; padding-right: 10px; user-select: none; font-size: 11px; }
+
 /* ==================== PAGE SCAFFOLD ==================== */
 .page { position: relative; z-index: 1; max-width: 1280px; margin: 0 auto; padding: 26px 22px 90px; }
 .crumb {

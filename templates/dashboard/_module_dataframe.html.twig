@@ -1,0 +1,52 @@
+{# The R-style data viewer — IS its own card (single border): a .tab header + search bar, typed column
+   headers with sort carets and per-column filters, the rows, and a pagination footer. Sort / filter /
+   search / paging are wired client-side by the `dataframe` Stimulus controller over the rendered rows.
+   `table` = Dataset, `types` = per-column type badge, `numeric` = the numeric column names. #}
+{% set cols = table.columns %}
+{% set rows = table.rows %}
+<div class="rdf" {{ stimulus_controller('dataframe', {pageSize: 25}) }}>
+    <div class="rdf-bar">
+        <span class="tab"><span class="idx">DF</span>Dataframe · {{ table.key }}</span>
+        <span class="rdf-search" style="margin-left:auto">
+            {{ ux_icon('lucide:search', {width: 13, height: 13}) }}
+            <input placeholder="Search…" {{ stimulus_target('dataframe', 'search') }} {{ stimulus_action('dataframe', 'search', 'input') }}>
+        </span>
+    </div>
+    <div style="overflow-x:auto">
+        <table>
+            <thead>
+                <tr>
+                    <th class="idx"></th>
+                    {% for c in cols %}
+                        {% set isNum = c in numeric %}
+                        <th{{ isNum ? ' class="num"' : '' }} data-col="{{ loop.index0 }}" data-type="{{ types[loop.index0] }}">
+                            <button class="rdf-sort" {{ stimulus_action('dataframe', 'sort', 'click') }} data-col="{{ loop.index0 }}">{{ c }} <span class="sort" {{ stimulus_target('dataframe', 'caret') }}>↕</span></button>
+                            <span class="ty">&lt;{{ types[loop.index0] }}&gt;</span>
+                            <input class="rdf-cf" placeholder="{{ isNum ? 'min – max' : 'filter' }}" {{ stimulus_target('dataframe', 'filter') }} {{ stimulus_action('dataframe', 'filter', 'input') }} data-col="{{ loop.index0 }}">
+                        </th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody {{ stimulus_target('dataframe', 'body') }}>
+                {% for row in rows %}
+                    <tr>
+                        <td class="idx">{{ loop.index }}</td>
+                        {% for v in row %}
+                            <td{{ cols[loop.index0] in numeric ? ' class="num"' : '' }} data-col="{{ loop.index0 }}">{{ v }}</td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="rdf-foot">
+        <span>dataframe: <span {{ stimulus_target('dataframe', 'matchCount') }}>{{ rows|length }}</span> × {{ cols|length }}</span>
+        <span class="rdf-page">Showing <span {{ stimulus_target('dataframe', 'range') }}>1–{{ min(rows|length, 25) }}</span> of <span {{ stimulus_target('dataframe', 'total') }}>{{ rows|length }}</span>
+            <button type="button" aria-label="previous page" {{ stimulus_action('dataframe', 'prev', 'click') }}>‹</button><span class="pg" {{ stimulus_target('dataframe', 'page') }}>1</span><button type="button" aria-label="next page" {{ stimulus_action('dataframe', 'next', 'click') }}>›</button>
+        </span>
+    </div>
+</div>
+<div style="display:flex;align-items:center;gap:10px;margin-top:14px">
+    <button type="button" class="cta" style="border:0;cursor:pointer;padding:7px 14px;font-size:11px" {{ stimulus_action('dataframe', 'exportCsv', 'click') }}>Export CSV</button>
+    <span class="fog" style="font-size:11.5px;margin-left:auto">Columns are bound to charts in <b>Settings</b>.</span>
+</div>
