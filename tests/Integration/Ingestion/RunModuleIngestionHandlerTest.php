@@ -107,6 +107,33 @@ final class RunModuleIngestionHandlerTest extends KernelTestCase
         self::assertCount(0, $repo->findAll(), 'a failed run must not leave partial datasets');
     }
 
+    public function testARerunReplacesTheModulesDataDroppingStaleKeys(): void
+    {
+        self::bootKernel();
+        $area = AreaOfInterestFactory::createOne();
+        $repo = self::getContainer()->get(DatasetRepository::class);
+        \assert($repo instanceof DatasetRepository);
+
+        // A prior run left two split tables on the module.
+        $repo->upsert($area, 'landcover', 'landcover_area')->setKind(DatasetKind::Series)->setSource('old');
+        $repo->upsert($area, 'landcover', 'fragmentation_class')->setKind(DatasetKind::Table)->setSource('old');
+        self::getContainer()->get(EntityManagerInterface::class)->flush();
+
+        // The new run produces a single merged table (+ the map) instead.
+        $engine = new MockHttpClient(new MockResponse((string) json_encode([
+            'run' => ['module' => 'landcover', 'status' => 'succeeded', 'source' => 'ESA WorldCover 2021 v200'],
+            'datasets' => [
+                ['key' => 'landcover_class', 'kind' => 'table', 'columns' => ['class', 'area_km2'], 'rows' => [['Grassland', 2589.78]]],
+                ['key' => 'landcover_map', 'kind' => 'vector', 'path' => '/data/out/landcover.geojson'],
+            ],
+        ]), ['http_code' => 200, 'response_headers' => ['content-type' => 'application/json']]), 'http://engine.test');
+
+        ($this->handler($engine, 'secret-token'))(new RunModuleIngestion((int) $area->getId(), 'landcover'));
+
+        $keys = array_map(static fn ($d) => $d->getKey(), $repo->forModule($area, 'landcover'));
+        self::assertSame(['landcover_class', 'landcover_map'], $keys, 'the stale split tables are gone');
+    }
+
     private function handler(HttpClientInterface $engine, string $token): RunModuleIngestionHandler
     {
         $c = self::getContainer();

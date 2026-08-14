@@ -110,6 +110,7 @@ final class RunModuleIngestionHandler
             return;
         }
 
+        $written = [];
         foreach ($datasets as $dataset) {
             if (!\is_array($dataset)) {
                 continue;
@@ -128,6 +129,16 @@ final class RunModuleIngestionHandler
                 ->setPath(\is_string($path) ? $path : null)
                 ->setSource($source)
                 ->setRun($run);
+            $written[$key] = true;
+        }
+
+        // A run REPLACES a module's data: drop any dataset this run no longer produces, so a change to
+        // the engine's output shape (e.g. two tables merged into one) doesn't leave stale keys behind.
+        $this->em->flush();
+        foreach ($this->datasets->forModule($area, $moduleSlug) as $existing) {
+            if (!isset($written[(string) $existing->getKey()])) {
+                $this->em->remove($existing);
+            }
         }
     }
 
