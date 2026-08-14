@@ -28,6 +28,16 @@ final class DatasetRepository extends ServiceEntityRepository
     }
 
     /**
+     * Every dataset a module owns on an area, by key — what an ingestion just produced.
+     *
+     * @return list<Dataset>
+     */
+    public function forModule(AreaOfInterest $area, string $moduleSlug): array
+    {
+        return $this->findBy(['area' => $area, 'moduleSlug' => $moduleSlug], ['key' => 'ASC']);
+    }
+
+    /**
      * Get-or-create the dataset for an (area, module, key) triple so an ingestion re-run replaces its
      * data in place instead of duplicating it. The returned entity is managed (persisted when new);
      * the caller sets the payload and flushes.
