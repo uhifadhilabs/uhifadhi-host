@@ -11,6 +11,7 @@ use App\Composition\Enum\VizType;
 use App\Composition\Repository\ModuleRepository;
 use App\Composition\Repository\VisualizationRepository;
 use App\Composition\Service\AreaCompositionService;
+use App\Dashboard\Module\DatasetChartRenderer;
 use App\Dashboard\Module\ModuleChartProvider;
 use App\Spatial\Entity\AreaOfInterest;
 use Doctrine\ORM\EntityManagerInterface;
@@ -42,6 +43,7 @@ final class ModuleEditController extends AbstractController
         private readonly VisualizationRepository $visualizations,
         private readonly ModuleRepository $modules,
         private readonly EntityManagerInterface $em,
+        private readonly DatasetChartRenderer $datasetCharts,
         #[AutowireIterator('app.module_chart_provider')]
         private readonly iterable $chartProviders,
     ) {
@@ -171,13 +173,12 @@ final class ModuleEditController extends AbstractController
                 break;
             }
         }
-        if (null === $provider) {
-            return [];
-        }
 
         $rendered = [];
         foreach ($areaModule->getVisualizations() as $viz) {
-            $svg = $provider->render($area, $viz);
+            // A viz bound to a dataset renders through the generic engine; a module's own canonical
+            // charts (still unbound) fall back to its provider. Either may decline → the card scaffolds.
+            $svg = $this->datasetCharts->render($area, $viz) ?? $provider?->render($area, $viz);
             if (null !== $svg) {
                 $rendered[(string) $viz->getUuidString()] = $svg;
             }
