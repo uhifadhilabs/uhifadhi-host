@@ -11,10 +11,11 @@ use App\Foundation\Entity\Trait\UuidTrait;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * A configured chart on an area's module — one card in the module's visualization grid. It plots the
- * module's variables (xAxis vs yAxis) as a {@see VizType}, optionally coloured by a dimension and
- * aggregated. Editing these (title, type, axes, colour, aggregation) is the "configure visualization"
- * modal; their order is drag-set within the module.
+ * A configured chart on an area's module — one card in the module's visualization grid. It binds to a
+ * dataset in the module's data store (by {@see $datasetKey}) and plots two of its columns (xAxis vs
+ * yAxis) as a {@see VizType}, optionally coloured by a dimension and aggregated. A viz with no
+ * datasetKey is unbound (nothing to plot yet). Editing these (title, type, dataset, columns, colour,
+ * aggregation) is the "configure visualization" modal; their order is drag-set within the module.
  */
 #[ORM\Entity(repositoryClass: VisualizationRepository::class)]
 #[ORM\HasLifecycleCallbacks]
@@ -38,13 +39,19 @@ class Visualization
     #[ORM\Column(enumType: VizType::class)]
     private VizType $type = VizType::Bar;
 
+    /** The dataset (by key, within the module's data store) this chart plots; null until configured. */
+    #[ORM\Column(length: 64, nullable: true)]
+    private ?string $datasetKey = null;
+
+    /** The dataset column plotted on the x-axis. */
     #[ORM\Column(length: 40)]
     private ?string $xAxis = null;
 
+    /** The dataset column plotted on the y-axis. */
     #[ORM\Column(length: 40)]
     private ?string $yAxis = null;
 
-    /** The dimension the marks are coloured by, or null for a single series. */
+    /** The dataset column the marks are coloured by, or null for a single series. */
     #[ORM\Column(length: 40, nullable: true)]
     private ?string $colourBy = null;
 
@@ -95,6 +102,24 @@ class Visualization
         $this->type = $type;
 
         return $this;
+    }
+
+    public function getDatasetKey(): ?string
+    {
+        return $this->datasetKey;
+    }
+
+    public function setDatasetKey(?string $datasetKey): static
+    {
+        $this->datasetKey = $datasetKey;
+
+        return $this;
+    }
+
+    /** Whether this viz is wired to a dataset to plot (an unbound viz renders nothing). */
+    public function isBound(): bool
+    {
+        return null !== $this->datasetKey && '' !== $this->datasetKey;
     }
 
     public function getXAxis(): ?string
