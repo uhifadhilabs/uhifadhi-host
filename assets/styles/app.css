@@ -383,6 +383,40 @@ body::before {
 .subnav a.on { color: rgb(var(--c-accT)); background: rgb(var(--c-acc)); border-color: rgb(var(--c-acc)); }
 .subnav span.off { color: rgb(var(--c-dim)); border-style: dashed; cursor: default; }
 
+/* Within-module tabs — underlined and left-aligned; the active tab carries the accent underline.
+   Used on a module's own pages (Overview / Dataframe / Explore / Method / Settings). */
+.atabs { display: flex; gap: 24px; border-bottom: 1px solid var(--c-ln); margin: 0 0 26px; }
+.atabs a {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: rgb(var(--c-fog));
+    text-decoration: none;
+    padding: 9px 1px 12px;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;        /* sit the underline on the container's hairline */
+    transition: color .15s, border-color .15s;
+}
+.atabs a:hover { color: rgb(var(--c-tx)); }
+.atabs a.on { color: rgb(var(--c-tx)); border-bottom-color: rgb(var(--c-acc)); }
+
+/* "All modules" back pill — chevron + label, a subtle bordered chip that lifts on hover. */
+.backbtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: rgb(var(--c-fog));
+    text-decoration: none;
+    padding: 6px 14px 6px 10px;
+    border: 1px solid var(--c-ln2);
+    border-radius: 99px;
+    margin-bottom: 16px;
+    transition: color .15s, border-color .15s, background .15s;
+}
+.backbtn:hover { color: rgb(var(--c-tx)); border-color: rgb(var(--c-fog)); background: rgb(var(--c-raised)); }
+.backbtn svg { display: block; width: 15px; height: 15px; }
+
 /* ==================== PAGE SCAFFOLD ==================== */
 .page { position: relative; z-index: 1; max-width: 1280px; margin: 0 auto; padding: 26px 22px 90px; }
 .crumb {

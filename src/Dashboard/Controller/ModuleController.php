@@ -17,22 +17,30 @@ use Symfony\Component\Routing\Requirement\Requirement;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
- * A per-area analytical module page (a sub-app module): live modules render real
- * data, template modules show their scaffold until their ingestion lands. The
- * Overview module is the area show page, so it is not routed here.
+ * A per-area analytical module page (a self-contained sub-app): its own within-module tabs
+ * (Overview / Dataframe / Explore / Method / Settings), an "All modules" way back to the area,
+ * and per-tab bodies. Overview renders the module's headline view — real data for a live module,
+ * a scaffold for a template one. Dataframe / Explore / Method render the module's data once it is
+ * wired (see the Dataset pipeline). The area Overview is the area show page, not routed here; the
+ * Settings tab links to the module edit surface ({@see ModuleEditController}, guarded module.create).
  */
 final class ModuleController extends AbstractController
 {
+    /** The view tabs served by this controller. Settings lives on the edit surface, so it is not here. */
+    private const VIEW_TABS = 'overview|dataframe|explore|method';
+
     #[Route(
-        '/areas/{uuid}/{module}',
+        '/areas/{uuid}/{module}/{tab}',
         name: 'dashboard_area_module',
-        requirements: ['uuid' => Requirement::UUID, 'module' => '[a-z]+'],
+        requirements: ['uuid' => Requirement::UUID, 'module' => '[a-z]+', 'tab' => self::VIEW_TABS],
+        defaults: ['tab' => 'overview'],
         methods: ['GET'],
     )]
     #[IsGranted('module.view')]
     public function show(
         #[MapEntity(mapping: ['uuid' => 'uuid'])] AreaOfInterest $area,
         string $module,
+        string $tab,
         AreaModuleService $modules,
         ForestLossSummaryService $forestLoss,
         ForestChartService $charts,
@@ -43,10 +51,11 @@ final class ModuleController extends AbstractController
             throw $this->createNotFoundException(\sprintf('Unknown module "%s".', $module));
         }
 
-        // The one live module renders its real series across all six plots; templates need no data.
+        // Only the Overview tab needs the module's headline data; the other view tabs render their
+        // own body (Dataframe / Explore / Method) off the Dataset pipeline, wired per module.
         $forest = null;
         $forestCharts = null;
-        if ('forest' === $module) {
+        if ('overview' === $tab && 'forest' === $module) {
             $forest = $forestLoss->forArea($area);
             $statuses = array_map(
                 static fn ($run) => (string) $run->getStatus(),
@@ -64,8 +73,7 @@ final class ModuleController extends AbstractController
         return $this->render('dashboard/module.html.twig', [
             'area' => $area,
             'module' => $descriptor,
-            'modules' => $modules->modules($area),
-            'planned' => $modules->planned(),
+            'activeTab' => $tab,
             'forest' => $forest,
             'forestCharts' => $forestCharts,
         ]);
