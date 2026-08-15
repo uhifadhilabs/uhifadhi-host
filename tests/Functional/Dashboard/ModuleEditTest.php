@@ -9,6 +9,8 @@ use App\Composition\Entity\Visualization;
 use App\Composition\Factory\AreaModuleFactory;
 use App\Composition\Factory\ModuleFactory;
 use App\Composition\Factory\VisualizationFactory;
+use App\Ingestion\Enum\DatasetKind;
+use App\Ingestion\Factory\DatasetFactory;
 use App\Spatial\Factory\AreaOfInterestFactory;
 use App\Tests\Functional\AuthenticatedWebTestCase;
 use Doctrine\ORM\EntityManagerInterface;
@@ -78,6 +80,58 @@ final class ModuleEditTest extends AuthenticatedWebTestCase
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('.modal-title', 'Configure visualization');
         self::assertSelectorExists('.modal form input[name="title"]');
+    }
+
+    public function testThePreviewEndpointRendersTheLiveConfig(): void
+    {
+        $client = static::createClient();
+        $this->loginAs($client);
+        $forest = $this->forestModuleOn(AreaOfInterestFactory::createOne());
+        DatasetFactory::createOne([
+            'area' => $forest->getArea(), 'moduleSlug' => 'forest', 'key' => 'forest_loss_year',
+            'kind' => DatasetKind::Series, 'columns' => ['year', 'ha', 'cumulative_ha'],
+            'rows' => [[2013, 186.0, 186.0], [2014, 120.0, 306.0]],
+        ]);
+
+        // A drawable (unsaved) config → the SVG, straight from the generic chart engine.
+        $client->request('GET', $this->settingsUrl($forest).'/viz/preview?type=bar&xAxis=year&yAxis=ha&datasetKey=forest_loss_year');
+        self::assertResponseIsSuccessful();
+        self::assertStringContainsString('<svg', (string) $client->getResponse()->getContent());
+
+        // Pie and histogram render through the same engine.
+        $client->request('GET', $this->settingsUrl($forest).'/viz/preview?type=pie&xAxis=year&yAxis=ha&datasetKey=forest_loss_year');
+        self::assertResponseIsSuccessful();
+        self::assertStringContainsString('Pie chart', (string) $client->getResponse()->getContent());
+        $client->request('GET', $this->settingsUrl($forest).'/viz/preview?type=histogram&yAxis=ha&datasetKey=forest_loss_year');
+        self::assertResponseIsSuccessful();
+        self::assertStringContainsString('Histogram', (string) $client->getResponse()->getContent());
+
+        // Not drawable (unknown dataset) → 204, the client shows its "no preview" note.
+        $client->request('GET', $this->settingsUrl($forest).'/viz/preview?type=bar&xAxis=year&yAxis=ha&datasetKey=bogus');
+        self::assertResponseStatusCodeSame(204);
+    }
+
+    public function testTheConfigureModalIsDataAwareWithTypedColumnsAndAPreviewPane(): void
+    {
+        $client = static::createClient();
+        $this->loginAs($client);
+        $forest = $this->forestModuleOn(AreaOfInterestFactory::createOne());
+        DatasetFactory::createOne([
+            'area' => $forest->getArea(), 'moduleSlug' => 'forest', 'key' => 'forest_loss_year',
+            'kind' => DatasetKind::Series, 'columns' => ['year', 'ha', 'cumulative_ha'],
+            'rows' => [[2013, 186.5, 186.5]],
+        ]);
+        $viz = VisualizationFactory::createOne(['areaModule' => $forest, 'title' => 'Tune me', 'position' => 9]);
+
+        $client->request('GET', $this->settingsUrl($forest).'?configure='.$viz->getUuidString());
+
+        self::assertResponseIsSuccessful();
+        // Column options carry their inferred type — the viz_config controller constrains on it.
+        self::assertSelectorExists('.modal select[name="xAxis"] option[data-type="int"]');
+        self::assertSelectorExists('.modal select[name="yAxis"] option[data-type="dbl"]');
+        // The live-preview pane + the controller wiring are present.
+        self::assertSelectorExists('.modal [data-controller~="viz-config"], .modal[data-controller~="viz-config"]');
+        self::assertSelectorExists('.modal [data-viz-config-target="preview"]');
     }
 
     private function forestModuleOn(object $area): AreaModule

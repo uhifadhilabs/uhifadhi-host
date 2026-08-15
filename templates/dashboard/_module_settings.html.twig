@@ -111,12 +111,18 @@
     {% endif %}
 </div>
 
-{# Configure-visualization modal — overlays THIS Settings page (?configure=<uuid>), one page throughout. #}
+{# Configure-visualization modal — overlays THIS Settings page (?configure=<uuid>). The form is
+   DATA-AWARE (viz_config controller): the chart type constrains which columns X may plot, Y offers
+   numeric columns only, X and Y exclude each other — and every change refreshes the LIVE PREVIEW,
+   rendered by the same server-side engine that draws the real charts. #}
 {% if configureViz %}
     {% set v = configureViz %}
     {% set closeUrl = path('dashboard_area_module', {uuid: area.uuid, module: module.slug, tab: 'settings'}) %}
     <div class="modal-scrim">
-        <div class="modal">
+        <div class="modal" style="max-width:880px"
+             {{ stimulus_controller('viz_config', {
+                 previewUrl: path('dashboard_area_viz_preview', {uuid: area.uuid, module: module.slug}),
+             }) }}>
             <div class="modal-head">
                 <div>
                     <div class="modal-title">Configure visualization</div>
@@ -124,22 +130,23 @@
                 </div>
                 <a class="modal-x" href="{{ closeUrl }}" title="Close">×</a>
             </div>
-            <div class="modal-body">
+            <div class="modal-body" style="display:grid;grid-template-columns:290px 1fr;gap:22px;align-items:start">
                 <form method="post" action="{{ path('dashboard_area_viz_update', {uuid: area.uuid, module: module.slug, vizUuid: v.uuidString}) }}" style="display:flex;flex-direction:column;gap:12px">
                     <input type="hidden" name="_token" value="{{ csrf_token('viz_update_' ~ v.uuidString) }}">
+                    <input type="hidden" name="datasetKey" value="{{ v.datasetKey ?: vizColumns.key }}" {{ stimulus_target('viz_config', 'datasetKey') }}>
                     <label class="viz-field">Title<input class="fld" name="title" value="{{ v.title }}"></label>
-                    <label class="viz-field">Type<select class="fld" name="type">
+                    <label class="viz-field">Type<select class="fld" name="type" {{ stimulus_target('viz_config', 'type') }} {{ stimulus_action('viz_config', 'changed', 'change') }}>
                         {% for t in vizTypes %}<option value="{{ t.value }}" {{ v.type == t ? 'selected' }}>{{ t.label }}</option>{% endfor %}
                     </select></label>
-                    <label class="viz-field">X axis<select class="fld" name="xAxis">
-                        {% for a in vizColumns %}<option {{ v.xAxis == a ? 'selected' }}>{{ a }}</option>{% endfor %}
+                    <label class="viz-field">X axis<select class="fld" name="xAxis" {{ stimulus_target('viz_config', 'x') }} {{ stimulus_action('viz_config', 'changed', 'change') }}>
+                        {% for c in vizColumns.columns %}<option value="{{ c.name }}" data-type="{{ c.type }}" {{ v.xAxis == c.name ? 'selected' }}>{{ c.name }} &lt;{{ c.type }}&gt;</option>{% endfor %}
                     </select></label>
-                    <label class="viz-field">Y axis<select class="fld" name="yAxis">
-                        {% for a in vizColumns %}<option {{ v.yAxis == a ? 'selected' }}>{{ a }}</option>{% endfor %}
+                    <label class="viz-field">Y axis<select class="fld" name="yAxis" {{ stimulus_target('viz_config', 'y') }} {{ stimulus_action('viz_config', 'changed', 'change') }}>
+                        {% for c in vizColumns.columns %}<option value="{{ c.name }}" data-type="{{ c.type }}" {{ v.yAxis == c.name ? 'selected' }}>{{ c.name }} &lt;{{ c.type }}&gt;</option>{% endfor %}
                     </select></label>
                     <label class="viz-field">Colour by<select class="fld" name="colourBy">
                         <option {{ (v.colourBy ?? '') == '' ? 'selected' }}>— none —</option>
-                        {% for a in vizColumns %}<option {{ v.colourBy == a ? 'selected' }}>{{ a }}</option>{% endfor %}
+                        {% for c in vizColumns.columns %}<option value="{{ c.name }}" {{ v.colourBy == c.name ? 'selected' }}>{{ c.name }}</option>{% endfor %}
                     </select></label>
                     <label class="viz-field">Aggregation<select class="fld" name="aggregation">
                         {% for g in ['None', 'Sum', 'Mean', 'Max'] %}<option {{ v.aggregation == g ? 'selected' }}>{{ g }}</option>{% endfor %}
@@ -149,6 +156,13 @@
                         <button type="submit" class="cta" style="margin-left:auto">Apply</button>
                     </div>
                 </form>
+                <div>
+                    <div class="mono" style="font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:rgb(var(--c-fog));margin-bottom:8px">Live preview</div>
+                    <div class="c" style="padding:12px;min-height:200px" {{ stimulus_target('viz_config', 'preview') }}>
+                        <div class="viz-scaffold"><span class="chip idle">loading preview…</span></div>
+                    </div>
+                    <p class="fog" style="font-size:11px;margin:8px 2px 0" {{ stimulus_target('viz_config', 'note') }}></p>
+                </div>
             </div>
         </div>
     </div>

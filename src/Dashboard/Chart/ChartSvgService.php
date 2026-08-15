@@ -221,6 +221,108 @@ final class ChartSvgService
         return $out.'</svg>';
     }
 
+    /** The categorical slice palette (jade-forward, readable on both themes). */
+    private const array WHEEL = ['#2e7d4f', '#4fae7d', '#b8a600', '#e59b3a', '#2b7fd6', '#c8642d', '#5ad3c8', '#9876aa', '#b0aead'];
+
+    /**
+     * A pie: one slice per (label, value) point, with a compact legend on the right.
+     *
+     * @param list<array{label: string, value: float}> $points
+     */
+    public function pie(array $points, string $unit = ''): string
+    {
+        $total = 0.0;
+        foreach ($points as $point) {
+            $total += max(0.0, $point['value']);
+        }
+        if ([] === $points || $total <= 0) {
+            return '';
+        }
+
+        $cx = 88.0;
+        $cy = self::H / 2;
+        $r = 62.0;
+        $angle = -M_PI / 2; // start at 12 o'clock
+        $out = $this->open('Pie chart');
+        $legend = '';
+        foreach ($points as $i => $point) {
+            $share = max(0.0, $point['value']) / $total;
+            $sweep = $share * 2 * M_PI;
+            $colour = self::WHEEL[$i % \count(self::WHEEL)];
+            if ($share >= 0.9999) {
+                $out .= \sprintf('<circle cx="%s" cy="%s" r="%s" fill="%s"/>', $cx, $cy, $r, $colour);
+            } elseif ($sweep > 0) {
+                $x1 = $cx + $r * cos($angle);
+                $y1 = $cy + $r * sin($angle);
+                $x2 = $cx + $r * cos($angle + $sweep);
+                $y2 = $cy + $r * sin($angle + $sweep);
+                $out .= \sprintf(
+                    '<path d="M%s %s L%s %s A%s %s 0 %d 1 %s %s Z" fill="%s"/>',
+                    $cx, $cy, round($x1, 2), round($y1, 2), $r, $r, $sweep > M_PI ? 1 : 0, round($x2, 2), round($y2, 2), $colour,
+                );
+            }
+            $angle += $sweep;
+
+            // Legend: swatch + label + share, two columns when more than six slices.
+            $col = intdiv($i, 6);
+            $row = $i % 6;
+            $lx = 178 + $col * 150;
+            $ly = 26 + $row * 22;
+            $legend .= \sprintf('<rect x="%d" y="%d" width="9" height="9" rx="2" fill="%s"/>', $lx, $ly - 8, $colour);
+            $legend .= \sprintf(
+                '<text x="%d" y="%d">%s · %s%%</text>',
+                $lx + 14,
+                $ly,
+                htmlspecialchars(mb_strlen($point['label']) > 14 ? mb_substr($point['label'], 0, 13).'…' : $point['label'], \ENT_QUOTES),
+                round($share * 100, $share < 0.01 ? 1 : 0),
+            );
+        }
+
+        return $out.$legend.'</svg>';
+    }
+
+    /**
+     * A histogram: the y-values binned into ~10 equal-width classes, drawn as touching bars.
+     *
+     * @param list<array{label: string, value: float}> $points
+     */
+    public function histogram(array $points, string $unit = ''): string
+    {
+        $values = array_map(static fn (array $p): float => $p['value'], $points);
+        if ([] === $values) {
+            return '';
+        }
+        $min = min($values);
+        $max = max($values);
+        $binCount = max(3, min(10, \count($values)));
+        $width = ($max - $min) > 0 ? ($max - $min) / $binCount : 1.0;
+
+        $bins = array_fill(0, $binCount, 0);
+        foreach ($values as $value) {
+            $bins[min($binCount - 1, (int) (($value - $min) / $width))]++;
+        }
+
+        $ymax = $this->niceMax((float) max($bins));
+        $slot = $this->pw() / $binCount;
+        $out = $this->open('Histogram').$this->yGrid($ymax, 'n').$this->xAxis();
+        foreach ($bins as $i => $count) {
+            $height = ($count / $ymax) * $this->ph();
+            $out .= \sprintf(
+                '<rect x="%s" y="%s" width="%s" height="%s" fill="%s" fill-opacity="0.9" stroke="#0b0f0d" stroke-width="0.5"/>',
+                round(self::L + $slot * $i, 1),
+                round(self::T + $this->ph() - $height, 1),
+                round($slot, 1),
+                round($height, 1),
+                self::ACCENT,
+            );
+            if (0 === $i % 2) { // label every other bin edge to avoid crowding
+                $out .= $this->xLabel(self::L + $slot * ($i + 0.5), $this->fmt($min + $width * ($i + 0.5)));
+            }
+        }
+
+        return $out.'</svg>';
+    }
+
     /**
      * The shared x (by index) / y (by value) scale closures for the line-family charts.
      *

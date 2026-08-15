@@ -1001,3 +1001,5 @@ table.tbl tr:hover .open-btn.danger { background: rgb(var(--c-fail)); color: rgb
 .cat-card.on { opacity: .5; }
 .cat-name { font-weight: 600; font-size: 12.5px; }
 .cat-on { font-family: var(--font-mono); font-size: 9.5px; color: rgb(var(--c-dim)); }
+/* A form field the current chart type doesn't use (e.g. X for a histogram). */
+.viz-field-off { opacity: .45; }

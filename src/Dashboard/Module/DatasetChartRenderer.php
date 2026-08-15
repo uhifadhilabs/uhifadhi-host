@@ -35,26 +35,38 @@ final class DatasetChartRenderer
             return null;
         }
 
+        return $this->renderConfig($area, $moduleSlug, $viz->getType(), $key, $viz->getXAxis(), $viz->getYAxis());
+    }
+
+    /**
+     * Draw an arbitrary (possibly unsaved) chart config — the configure modal's LIVE PREVIEW path:
+     * same resolution and drawing as a stored visualization, minus the entity.
+     */
+    public function renderConfig(AreaOfInterest $area, string $moduleSlug, VizType $type, string $key, ?string $x, ?string $y): ?string
+    {
         $dataset = $this->datasets->findOneFor($area, $moduleSlug, $key);
         if (null === $dataset) {
             return null;
         }
 
-        $points = $this->points($dataset, $viz->getXAxis(), $viz->getYAxis());
+        // A histogram bins ONE numeric column: the y column doubles as the (unused) label source.
+        $points = $this->points($dataset, VizType::Histogram === $type ? $y : $x, $y);
         if (null === $points || [] === $points) {
             return null;
         }
 
-        return match ($viz->getType()) {
+        return match ($type) {
             VizType::Bar => $this->charts->bar($points),
             VizType::Line => $this->charts->line($points),
             VizType::Area => $this->charts->area($points),
             VizType::Scatter => $this->charts->scatter($points),
+            VizType::Pie => $this->charts->pie($points),
+            VizType::Histogram => $this->charts->histogram($points),
             VizType::Waterfall => $this->charts->waterfall($points),
             VizType::Step => $this->charts->step($points),
             VizType::Lowess => $this->charts->lowess($points),
-            // Gantt (date ranges) and Box (distributions) need a data shape that isn't (x, y) points —
-            // not drawable from a plain column pair yet, so the card scaffolds.
+            // Gantt (date ranges) and Box (quartile distributions) need a data shape that isn't
+            // (x, y) points — not drawable yet, so the card scaffolds (phase E).
             VizType::Gantt, VizType::Box => null,
         };
     }

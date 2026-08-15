@@ -177,7 +177,7 @@ final class ModuleController extends AbstractController
             'moduleDatasets' => $moduleDatasets,
             'visualizations' => $visualizations,
             'configureViz' => $configureViz,
-            'vizColumns' => $this->vizColumns($moduleDatasets),
+            'vizColumns' => $this->vizColumnMeta($moduleDatasets, $presenter),
             'vizTypes' => VizType::editable(),
             'hasMapLayer' => [] !== $features->forLayer($area, $module, $definition->mapDatasetKey()),
         ]);
@@ -242,21 +242,29 @@ final class ModuleController extends AbstractController
     }
 
     /**
-     * The column names a visualization can bind to — the first tabular dataset's columns.
+     * The columns a visualization can bind to — name + inferred type from the first tabular dataset,
+     * plus that dataset's key. The configure form uses the types to constrain what each chart type
+     * may plot (Y must be numeric; a chr X only suits bar/waterfall).
      *
      * @param list<Dataset> $datasets
      *
-     * @return list<string>
+     * @return array{key: string|null, columns: list<array{name: string, type: string}>}
      */
-    private function vizColumns(array $datasets): array
+    private function vizColumnMeta(array $datasets, DatasetPresenter $presenter): array
     {
         foreach ($datasets as $dataset) {
             if ($dataset->getKind()->isTabular() && null !== $dataset->getColumns()) {
-                return array_values($dataset->getColumns());
+                $types = $presenter->types($dataset);
+                $columns = [];
+                foreach (array_values($dataset->getColumns()) as $i => $name) {
+                    $columns[] = ['name' => (string) $name, 'type' => $types[$i] ?? 'chr'];
+                }
+
+                return ['key' => $dataset->getKey(), 'columns' => $columns];
             }
         }
 
-        return [];
+        return ['key' => null, 'columns' => []];
     }
 
     /**

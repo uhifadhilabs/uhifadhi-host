@@ -9,6 +9,7 @@ use App\Composition\Entity\Visualization;
 use App\Composition\Enum\VizType;
 use App\Composition\Repository\VisualizationRepository;
 use App\Composition\Service\AreaCompositionService;
+use App\Dashboard\Module\DatasetChartRenderer;
 use App\Spatial\Entity\AreaOfInterest;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
@@ -35,6 +36,38 @@ final class ModuleEditController extends AbstractController
         private readonly VisualizationRepository $visualizations,
         private readonly EntityManagerInterface $em,
     ) {
+    }
+
+    /**
+     * The configure modal's LIVE PREVIEW: render the (unsaved) config the form currently holds.
+     * Returns the SVG, or a 204 when this config isn't drawable (missing data / bad columns) —
+     * the client shows its "no preview" note then. GET + query params, nothing persisted.
+     */
+    #[Route('/viz/preview', name: 'dashboard_area_viz_preview', methods: ['GET'])]
+    public function vizPreview(
+        #[MapEntity(mapping: ['uuid' => 'uuid'])] AreaOfInterest $area,
+        string $module,
+        Request $request,
+        DatasetChartRenderer $renderer,
+    ): Response {
+        $type = VizType::tryFrom((string) $request->query->get('type', ''));
+        $key = (string) $request->query->get('datasetKey', '');
+        if (null === $type || '' === $key) {
+            return new Response(status: Response::HTTP_NO_CONTENT);
+        }
+
+        $svg = $renderer->renderConfig(
+            $area,
+            $module,
+            $type,
+            $key,
+            (string) $request->query->get('xAxis', ''),
+            (string) $request->query->get('yAxis', ''),
+        );
+
+        return null === $svg
+            ? new Response(status: Response::HTTP_NO_CONTENT)
+            : new Response($svg, headers: ['Content-Type' => 'image/svg+xml']);
     }
 
     #[Route('/viz/add', name: 'dashboard_area_viz_add', methods: ['POST'])]
@@ -76,8 +109,10 @@ final class ModuleEditController extends AbstractController
         $viz = $this->ownedViz($area, $vizUuid);
         if (null !== $viz) {
             $title = $request->request->get('title');
+            $datasetKey = $request->request->get('datasetKey');
             $viz->setTitle(\is_string($title) && '' !== trim($title) ? $title : (string) $viz->getTitle())
                 ->setType(VizType::tryFrom((string) $request->request->get('type', $viz->getType()->value)) ?? $viz->getType())
+                ->setDatasetKey(\is_string($datasetKey) && '' !== $datasetKey ? $datasetKey : $viz->getDatasetKey())
                 ->setXAxis((string) $request->request->get('xAxis', (string) $viz->getXAxis()))
                 ->setYAxis((string) $request->request->get('yAxis', (string) $viz->getYAxis()))
                 ->setColourBy($this->colourFrom($request))
