@@ -6,9 +6,9 @@ namespace App\Dashboard\Controller;
 
 use App\Dashboard\Form\AreaUploadType;
 use App\Dashboard\Service\AreaCardService;
-use App\Forest\Repository\ForestLossYearRepository;
 use App\Forest\Service\ForestLossSummaryService;
-use App\Ingestion\Message\IngestForestLoss;
+use App\Ingestion\Message\RunModuleIngestion;
+use App\Ingestion\Repository\DatasetRepository;
 use App\Ingestion\Repository\DatasetRunRepository;
 use App\Spatial\Entity\AreaOfInterest;
 use App\Spatial\Exception\BoundaryImportException;
@@ -35,17 +35,18 @@ final class AreaController extends AbstractController
     #[Route('/', name: 'dashboard_index', methods: ['GET'])]
     public function index(
         AreaOfInterestRepository $areas,
-        ForestLossYearRepository $loss,
+        DatasetRepository $datasets,
         DatasetRunRepository $runs,
         AreaCardService $cards,
     ): Response {
         $rows = [];
         foreach ($areas->findBy([], ['id' => 'ASC']) as $area) {
-            $lossRows = $loss->findBy(['aoi' => $area], ['year' => 'ASC']);
+            // The forest series from the generic store: rows of (year, ha, cumulative_ha).
+            $lossRows = $datasets->findOneFor($area, 'forest', 'forest_loss_year')?->getRows() ?? [];
             $totalHa = 0.0;
             $series = [];
             foreach ($lossRows as $lossRow) {
-                $ha = $lossRow->getAreaHa() ?? 0.0;
+                $ha = is_numeric($lossRow[1] ?? null) ? (float) $lossRow[1] : 0.0;
                 $totalHa += $ha;
                 $series[] = $ha;
             }
@@ -195,8 +196,8 @@ final class AreaController extends AbstractController
             throw $this->createAccessDeniedException('Invalid CSRF token.');
         }
 
-        // Routed async — the worker runs the minutes-long ETL; this returns now.
-        $bus->dispatch(new IngestForestLoss(aoiId: (int) $area->getId()));
+        // Routed async — the worker calls the engine's forest module; this returns now.
+        $bus->dispatch(new RunModuleIngestion((int) $area->getId(), 'forest', ['display_factor' => 2]));
         $this->addFlash('success', \sprintf(
             'Hansen ingestion started for "%s" — the run appears below and the map updates when it finishes.',
             (string) $area->getName(),

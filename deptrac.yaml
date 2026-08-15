@@ -45,14 +45,15 @@ deptrac:
     Access: [Access, Foundation]
     # Shared spatial kernel — depends only on itself + Foundation.
     Spatial: [Spatial, Foundation]
-    # Topic 6 (Deforestation) — isolated; may use the Spatial kernel only.
-    Forest: [Forest, Spatial, Foundation]
+    # Topic 6 (Deforestation) — uses the Spatial kernel + the generic Ingestion store (its
+    # forest_loss_year series lives there; the engine writes it).
+    Forest: [Forest, Spatial, Ingestion, Foundation]
     # Topic: land cover (WorldCover composition/fragmentation) — a thin context holding its
     # ModuleDefinition; data rides the generic Ingestion store.
     LandCover: [LandCover, Spatial, Foundation]
-    # Data ingestion — reads AOIs (Spatial) and fills topic tables (Forest);
-    # topics never depend back on Ingestion.
-    Ingestion: [Ingestion, Spatial, Forest, Foundation]
+    # Data ingestion — the generic per-module store + engine pipeline. Reads AOIs (Spatial);
+    # knows NO topic (topics read from it, never the other way around).
+    Ingestion: [Ingestion, Spatial, Foundation]
     # How an area's sub-app is composed — module catalogue, per-area activation, and
     # visualization config. Uses the Spatial kernel (areas) + Foundation.
     Composition: [Composition, Spatial, Foundation]

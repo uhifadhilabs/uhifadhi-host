@@ -8,7 +8,8 @@ use App\Composition\Enum\ModuleCategory;
 use App\Composition\Enum\ModuleStatus;
 use App\Composition\Factory\AreaModuleFactory;
 use App\Composition\Factory\ModuleFactory;
-use App\Forest\Factory\ForestLossYearFactory;
+use App\Ingestion\Enum\DatasetKind;
+use App\Ingestion\Factory\DatasetFactory;
 use App\Spatial\Entity\AreaOfInterest;
 use App\Spatial\Factory\AreaOfInterestFactory;
 use App\Tests\Functional\AuthenticatedWebTestCase;
@@ -42,7 +43,11 @@ final class AreaTabsTest extends AuthenticatedWebTestCase
         $this->compose($area, 'overview', 'Overview', ModuleStatus::Hub, ModuleCategory::Hub, 0, pinned: true);
         $this->compose($area, 'forest', 'Forest loss', ModuleStatus::Live, ModuleCategory::Flux, 1);
         $this->compose($area, 'roads', 'Roads', ModuleStatus::Template, ModuleCategory::Pressure, 2);
-        ForestLossYearFactory::createOne(['aoi' => $area, 'year' => 2013, 'areaHa' => 186.0]);
+        DatasetFactory::createOne([
+            'area' => $area, 'moduleSlug' => 'forest', 'key' => 'forest_loss_year',
+            'kind' => DatasetKind::Series, 'columns' => ['year', 'ha', 'cumulative_ha'],
+            'rows' => [[2013, 186.0, 186.0]],
+        ]);
 
         $client->request('GET', '/areas/'.$area->getUuidString().'/modules');
 

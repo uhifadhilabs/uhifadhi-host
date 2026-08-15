@@ -7,7 +7,6 @@ namespace App\Tests\Functional\Dashboard;
 use App\Composition\Enum\ModuleStatus;
 use App\Composition\Factory\AreaModuleFactory;
 use App\Composition\Factory\ModuleFactory;
-use App\Forest\Factory\ForestLossYearFactory;
 use App\Ingestion\Enum\DatasetKind;
 use App\Ingestion\Factory\DatasetFactory;
 use App\Spatial\Factory\AreaOfInterestFactory;
@@ -84,7 +83,6 @@ final class AreaModuleTest extends AuthenticatedWebTestCase
             'area' => $area, 'active' => true, 'position' => 1,
             'module' => ModuleFactory::new(['slug' => 'forest', 'name' => 'Forest loss', 'status' => ModuleStatus::Live]),
         ]);
-        ForestLossYearFactory::createOne(['aoi' => $area, 'year' => 2013, 'areaHa' => 186.0]);
         DatasetFactory::createOne([
             'area' => $area, 'moduleSlug' => 'forest', 'key' => 'forest_loss_year',
             'kind' => DatasetKind::Series, 'columns' => ['year', 'ha', 'cumulative_ha'],

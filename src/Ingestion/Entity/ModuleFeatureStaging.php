@@ -10,7 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * STAGING: one raw polygon a module's engine handed over (labelled by an attribute — e.g. a
  * land-cover class), awaiting the per-label dissolve into {@see ModuleFeature}. The generic vector
- * analogue of {@see HansenLossPolygon}: rows live only for one ingestion run, emptied before and
+ * analogue of a per-source staging table: rows live only for one ingestion run, emptied before and
  * after, so the whole pipeline stays on the ORM write path and PostGIS does the geometry work.
  */
 #[ORM\Entity(repositoryClass: ModuleFeatureStagingRepository::class)]

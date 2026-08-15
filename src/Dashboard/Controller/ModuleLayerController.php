@@ -14,8 +14,7 @@ use Symfony\Component\Routing\Requirement\Requirement;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
- * A module's dissolved spatial layer as GeoJSON — the data endpoint the module map fetches, the
- * generic twin of {@see \App\Forest\Controller\ForestLossApiController}. Each {@see \App\Ingestion\Entity\ModuleFeature}
+ * A module's dissolved spatial layer as GeoJSON — the data endpoint every module map (and the area hub's loss layer) fetches. Each {@see \App\Ingestion\Entity\ModuleFeature}
  * carries its geometry already as GeoJSON (the PostGIS bundle's type), so a row decodes straight into
  * a feature; the label travels as a property so the map can colour by class. Addressed by area UUID.
  */

@@ -52,7 +52,7 @@
         <div class="grid g32"
              data-controller="map"
              data-map-boundary-value="{{ boundary|json_encode|e('html_attr') }}"
-             data-map-forest-loss-url-value="{{ path('forest_loss_geojson', {uuid: area.uuid}) }}">
+             data-map-forest-loss-url-value="{{ path('module_layer_geojson', {uuid: area.uuid, module: 'forest', key: 'forest_loss_map'}) }}">
             <div class="c" id="nca-map" style="padding-top:26px">
                 <span class="tab"><span class="idx">PL·14</span>Boundary + tree cover loss<span class="src">· Esri imagery · Hansen/UMD</span></span>
                 <span class="lib">leaflet in-app</span>

@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Dashboard;
 
-use App\Forest\Factory\ForestLossYearFactory;
-use App\Ingestion\Message\IngestForestLoss;
+use App\Ingestion\Enum\DatasetKind;
+use App\Ingestion\Factory\DatasetFactory;
+use App\Ingestion\Message\RunModuleIngestion;
 use App\Spatial\Factory\AreaOfInterestFactory;
 use App\Tests\Functional\AuthenticatedWebTestCase;
 use Symfony\Component\Messenger\Transport\InMemory\InMemoryTransport;
@@ -21,14 +22,18 @@ final class AreaDetailTest extends AuthenticatedWebTestCase
         $client = static::createClient();
         $this->loginAs($client);
         $aoi = AreaOfInterestFactory::createOne(['name' => 'Detail area']);
-        ForestLossYearFactory::createOne(['aoi' => $aoi, 'year' => 2013, 'areaHa' => 186.0]);
+        DatasetFactory::createOne([
+            'area' => $aoi, 'moduleSlug' => 'forest', 'key' => 'forest_loss_year',
+            'kind' => DatasetKind::Series, 'columns' => ['year', 'ha', 'cumulative_ha'],
+            'rows' => [[2013, 186.0, 186.0]],
+        ]);
 
         $crawler = $client->request('GET', '/areas/'.$aoi->getUuidString());
 
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('[data-controller="map"]');
         $wrapper = $crawler->filter('[data-controller="map"]');
-        self::assertSame('/api/areas/'.$aoi->getUuidString().'/forest-loss.geojson', $wrapper->attr('data-map-forest-loss-url-value'));
+        self::assertSame('/api/areas/'.$aoi->getUuidString().'/forest/forest_loss_map.geojson', $wrapper->attr('data-map-forest-loss-url-value'));
         self::assertStringContainsString('MultiPolygon', (string) $wrapper->attr('data-map-boundary-value'));
         // The park-hub KPI plate carries the headline loss figure (unit in its <em>).
         self::assertSelectorTextContains('.kpi.hot', '186');
@@ -70,9 +75,10 @@ final class AreaDetailTest extends AuthenticatedWebTestCase
         $transport = static::getContainer()->get('messenger.transport.async');
         $messages = array_map(static fn ($envelope) => $envelope->getMessage(), $transport->getSent());
         self::assertCount(1, $messages);
-        self::assertInstanceOf(IngestForestLoss::class, $messages[0]);
-        // The message still carries the internal id — only URLs use the UUID.
-        self::assertSame($aoi->getId(), $messages[0]->aoiId);
+        self::assertInstanceOf(RunModuleIngestion::class, $messages[0]);
+        // The generic message: internal id + the module slug — only URLs use the UUID.
+        self::assertSame($aoi->getId(), $messages[0]->areaId);
+        self::assertSame('forest', $messages[0]->moduleSlug);
     }
 
     public function testAMissingAreaIs404(): void

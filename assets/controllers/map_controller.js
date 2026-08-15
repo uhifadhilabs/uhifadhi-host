@@ -170,20 +170,21 @@ export default class extends Controller {
         }
         const [lo, hi] = this.yearRange();
         this.lossLayer = this.L.geoJSON(this.lossData, {
-            filter: (f) => f.properties.year >= lo && f.properties.year <= hi,
+            // The generic module layer labels each dissolved feature by its YEAR (a string).
+            filter: (f) => Number(f.properties.label) >= lo && Number(f.properties.label) <= hi,
             style: (f) => {
+                const year = Number(f.properties.label);
                 // Hovering a chart bar spotlights that year; the rest fade back.
-                const dimmed = this.hoveredYear != null && f.properties.year !== this.hoveredYear;
+                const dimmed = this.hoveredYear != null && year !== this.hoveredYear;
                 return {
                     color: '#7f0000',
                     weight: dimmed ? 0.3 : 0.5,
-                    fillColor: yearColor(f.properties.year),
+                    fillColor: yearColor(year),
                     fillOpacity: dimmed ? 0.15 : 0.85,
                 };
             },
             onEachFeature: (f, layer) => {
-                const ha = Math.round(Number(f.properties.areaHa) || 0).toLocaleString();
-                layer.bindPopup(`<strong>${f.properties.year}</strong><br>${ha} ha lost`);
+                layer.bindPopup(`<strong>${f.properties.label}</strong> — tree cover lost`);
             },
         }).addTo(this.map);
     }

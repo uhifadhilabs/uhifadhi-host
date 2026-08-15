@@ -12,7 +12,6 @@ use App\Composition\Service\AreaCompositionService;
 use App\Dashboard\Module\ModuleRegistry;
 use App\Dashboard\Service\AreaModuleService;
 use App\Dashboard\Service\ModuleGridService;
-use App\Forest\Factory\ForestLossYearFactory;
 use App\Ingestion\Enum\DatasetKind;
 use App\Ingestion\Factory\DatasetFactory;
 use App\Ingestion\Repository\DatasetRepository;
@@ -69,8 +68,6 @@ final class ModuleGridServiceTest extends KernelTestCase
         $area = AreaOfInterestFactory::createOne();
         $this->compose($area, 'forest', 'Forest loss', ModuleStatus::Live, ModuleCategory::Flux, 0);
         $this->compose($area, 'landcover', 'Land cover', ModuleStatus::Template, ModuleCategory::Flux, 1);
-        ForestLossYearFactory::createOne(['aoi' => $area, 'year' => 2013, 'areaHa' => 186.0]);
-        ForestLossYearFactory::createOne(['aoi' => $area, 'year' => 2014, 'areaHa' => 120.0]);
         DatasetFactory::createOne([
             'area' => $area, 'moduleSlug' => 'forest', 'key' => 'forest_loss_year',
             'kind' => DatasetKind::Series, 'columns' => ['year', 'ha', 'cumulative_ha'],

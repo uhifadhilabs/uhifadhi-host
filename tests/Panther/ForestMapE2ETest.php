@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\Tests\Panther;
 
-use App\Forest\Factory\ForestLossYearFactory;
+use App\Ingestion\Enum\DatasetKind;
+use App\Ingestion\Factory\DatasetFactory;
 use App\Spatial\Factory\AreaOfInterestFactory;
 use DAMA\DoctrineTestBundle\PHPUnit\SkipDatabaseRollback;
 
@@ -19,7 +20,11 @@ final class ForestMapE2ETest extends E2ETestCase
     public function testTheDashboardJourney(): void
     {
         $aoi = AreaOfInterestFactory::createOne(['name' => 'E2E area']);
-        ForestLossYearFactory::createOne(['aoi' => $aoi, 'year' => 2010, 'areaHa' => 185.0]);
+        DatasetFactory::createOne([
+            'area' => $aoi, 'moduleSlug' => 'forest', 'key' => 'forest_loss_year',
+            'kind' => DatasetKind::Series, 'columns' => ['year', 'ha', 'cumulative_ha'],
+            'rows' => [[2010, 185.0, 185.0]],
+        ]);
 
         $client = static::createPantherClient();
 

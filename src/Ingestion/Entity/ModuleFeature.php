@@ -9,8 +9,8 @@ use App\Spatial\Entity\AreaOfInterest;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * A module's dissolved spatial layer for the map: one MultiPolygon per label (e.g. one per land-cover
- * class), per area + module + dataset key. The generic, per-module analogue of {@see \App\Forest\Entity\ForestLossYear}
+ * A module's dissolved spatial layer for the map: one MultiPolygon per label (a land-cover
+ * class, a loss year, …), per area + module + dataset key
  * — written by the spatial ingest (PostGIS ST_Union/ST_SimplifyPreserveTopology per label) and served
  * as GeoJSON to the Leaflet map. `geom` is a MultiPolygon in WGS84, exchanged as GeoJSON.
  */
