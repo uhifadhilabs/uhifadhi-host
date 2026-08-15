@@ -2,6 +2,19 @@
 
 {% block title %}{{ module.label }} — {{ area.name }} — Uhifadhi{% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('leaflet/leaflet.css') }}">
+{% endblock %}
+
+{% block javascripts %}
+    <script src="{{ asset('leaflet/leaflet.js') }}"></script>
+    {{ parent() }}
+{% endblock %}
+
+{# ESA WorldCover class → colour, shared by the map layer and the Explore legend. #}
+{% set worldcover = {'Grassland':'#f5e07a','Shrubland':'#b8a600','Tree cover':'#1a6b34','Water':'#2b7fd6','Bare/sparse':'#b0aead','Bare / sparse vegetation':'#b0aead','Cropland':'#e59b3a','Built-up':'#c81e1e','Herb. wetland':'#5ad3c8','Herbaceous wetland':'#5ad3c8','Mangrove':'#0b6e5e','Mangroves':'#0b6e5e','Moss/lichen':'#f2f0d0','Snow/ice':'#ffffff'} %}
+
 {% block content %}
     <div class="page">
         <div class="crumb"><a href="{{ path('dashboard_index') }}">uhifadhi</a> / <a href="{{ path('dashboard_index') }}">areas</a> / <a href="{{ path('dashboard_area_show', {uuid: area.uuid}) }}">{{ area.name|lower }}</a> / modules / {{ module.label|lower }}</div>
@@ -70,6 +83,12 @@
                         <p class="fog" style="font-size:12px">No annual series yet — run the Hansen ingestion from the <a href="{{ path('dashboard_area_show', {uuid: area.uuid}) }}#ingest" class="acc">Overview</a>.</p>
                     </div>
                 {% endif %}
+            {% elseif cockpit %}
+                {# A live data module: the cockpit — KPIs + the map + a class chart + status. #}
+                {{ include('dashboard/_module_overview.html.twig', {
+                    area: area, module: module, cockpit: cockpit, table: table, lastRun: lastRun,
+                    boundary: boundary, mapLayerUrl: mapLayerUrl, palette: worldcover,
+                }) }}
             {% else %}
                 {# Template modules: the scaffold, honest about awaiting its ingestion. #}
                 <div class="c" style="padding:48px 32px;text-align:center">
@@ -86,8 +105,8 @@
                 {{ include('dashboard/_module_tab_pending.html.twig', {tab: activeTab, module: module}) }}
             {% endif %}
         {% elseif activeTab == 'explore' %}
-            {% if table or spatial %}
-                {{ include('dashboard/_module_explore.html.twig', {area: area, module: module, table: table, numeric: tableNumeric, describe: describe, distribution: distribution, spatial: spatial}) }}
+            {% if table or mapLayerUrl %}
+                {{ include('dashboard/_module_explore.html.twig', {area: area, module: module, table: table, numeric: tableNumeric, describe: describe, distribution: distribution, boundary: boundary, mapLayerUrl: mapLayerUrl, palette: worldcover}) }}
             {% else %}
                 {{ include('dashboard/_module_tab_pending.html.twig', {tab: activeTab, module: module}) }}
             {% endif %}

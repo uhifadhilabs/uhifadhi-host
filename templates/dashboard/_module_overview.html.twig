@@ -1,0 +1,49 @@
+{# A live data module's Overview cockpit: a KPI strip of headline figures, the map (boundary + the
+   dissolved class layer) and a class-area chart as the main column, and a glanceable status rail.
+   `cockpit` = {dominantClass, dominantPct, classCount, fragmentation, chart}; `table` the dataframe. #}
+<div class="grid g4" style="margin-bottom:20px">
+    <div class="c kpi"><span class="tab"><span class="idx">LC·01</span>{{ cockpit.dominantClass }}</span>
+        <b class="disp">{{ cockpit.dominantPct|round }}<em>%</em></b><span class="sub">dominant cover</span></div>
+    <div class="c kpi"><span class="tab"><span class="idx">LC·02</span>Classes</span>
+        <b class="disp">{{ cockpit.classCount }}</b><span class="sub">{{ table.source }}</span></div>
+    <div class="c kpi"><span class="tab"><span class="idx">LC·03</span>Fragmentation</span>
+        <b class="disp">{% if cockpit.fragmentation is not null %}{{ cockpit.fragmentation }}<em>pd</em>{% else %}—{% endif %}</b><span class="sub">patches / 100 ha</span></div>
+    <div class="c kpi"><span class="tab"><span class="idx">LC·04</span>Last run</span>
+        <b class="disp">{% if lastRun %}{{ lastRun.status }}{% else %}—{% endif %}</b>
+        <span class="sub">{% if lastRun and lastRun.finishedAt %}{{ lastRun.finishedAt|date('M j, H:i') }}{% else %}not ingested{% endif %}</span></div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 296px;gap:20px;align-items:start">
+    <div>
+        <div class="c" style="padding-top:26px">
+            <span class="tab"><span class="idx">LC·05</span>Land-cover map<span class="src">· {{ table.source }}</span></span>
+            <span class="lib">leaflet in-app</span>
+            <div style="margin-top:12px">
+                {% if mapLayerUrl %}
+                    {{ include('dashboard/_module_map.html.twig', {boundary: boundary, mapId: 'overview-map', height: '340px', classLayerUrl: mapLayerUrl, classPalette: palette}) }}
+                {% else %}
+                    {{ include('dashboard/_module_map.html.twig', {boundary: boundary, mapId: 'overview-map', height: '340px'}) }}
+                {% endif %}
+            </div>
+            <div class="use">The classified layer clipped to the AOI — full view on the <b>Explore</b> tab.</div>
+        </div>
+
+        <div class="c" style="padding-top:26px;margin-top:20px">
+            <span class="tab"><span class="idx">LC·06</span>Class areas<span class="src">· km²</span></span>
+            <span class="lib">bar</span>
+            {{ cockpit.chart|raw }}
+            <div class="use">Area per land-cover class — grassland dominates the composition.</div>
+        </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="c">
+            <span class="tab"><span class="idx">LC·07</span>Live status<span class="src">· glance</span></span>
+            <div class="rln"><span>Last ingestion</span>
+                <span class="chip {{ lastRun and lastRun.status == 'succeeded' ? 'ok' : 'idle' }}">{{ lastRun ? lastRun.status : 'none' }}</span></div>
+            <div class="rln"><span>Classes</span><span class="mono d">{{ cockpit.classCount }}</span></div>
+            <div class="rln"><span>Source</span><span class="mono d">{{ table.source }}</span></div>
+            <a href="{{ path('dashboard_area_module', {uuid: area.uuid, module: module.slug, tab: 'explore'}) }}" class="mono" style="font-size:11px;color:rgb(var(--c-acc));display:inline-block;margin-top:9px;text-decoration:none">Explore the data →</a>
+        </div>
+    </div>
+</div>

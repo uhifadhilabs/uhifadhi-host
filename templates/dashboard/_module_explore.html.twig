@@ -4,14 +4,19 @@
    `spatial` = Dataset|null (the map layer), `describe` = per-column summary, `distribution` = the
    first numeric column's values, sorted high→low. #}
 <div style="display:grid;grid-template-columns:1fr 262px;gap:20px;align-items:start">
-    {% set palette = {'Grassland':'#f5e07a','Shrubland':'#b8a600','Tree cover':'#1a6b34','Water':'#2b7fd6','Bare/sparse':'#b0aead','Bare / sparse vegetation':'#b0aead','Cropland':'#e59b3a','Built-up':'#c81e1e','Herb. wetland':'#5ad3c8','Herbaceous wetland':'#5ad3c8','Mangroves':'#0b6e5e','Moss and lichen':'#f2f0d0','Snow and ice':'#ffffff'} %}
     <div class="c" style="padding-top:26px">
         <span class="tab"><span class="idx">MAP</span>Land-cover map<span class="src">· {{ table ? table.source : 'engine' }}</span></span>
         <span class="lib">leaflet in-app</span>
-        <div style="height:360px;border-radius:10px;margin-top:12px;display:flex;align-items:center;justify-content:center;text-align:center;background:rgb(var(--c-raised))">
-            <p class="fog" style="font-size:12px;max-width:300px">The classified layer appears here once the map dataset is ingested for this area.</p>
+        <div style="margin-top:12px">
+            {% if mapLayerUrl %}
+                {{ include('dashboard/_module_map.html.twig', {boundary: boundary, mapId: 'explore-map', height: '360px', classLayerUrl: mapLayerUrl, classPalette: palette}) }}
+            {% else %}
+                <div style="height:360px;border-radius:10px;display:flex;align-items:center;justify-content:center;text-align:center;background:rgb(var(--c-raised))">
+                    <p class="fog" style="font-size:12px;max-width:300px">The classified layer appears here once the map dataset is ingested for this area.</p>
+                </div>
+            {% endif %}
         </div>
-        <div class="use">The classified raster clipped to the AOI. Grassland dominates; cropland presses in at the south-eastern edge.</div>
+        <div class="use">The classified layer clipped to the AOI. Grassland dominates; cropland presses in at the south-eastern edge.</div>
     </div>
     <div class="c">
         <span class="tab"><span class="idx">LG</span>Legend<span class="src">· classes</span></span>

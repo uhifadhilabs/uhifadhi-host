@@ -10,6 +10,7 @@ use App\Ingestion\Message\RunModuleIngestion;
 use App\Ingestion\MessageHandler\RunModuleIngestionHandler;
 use App\Ingestion\Repository\DatasetRepository;
 use App\Ingestion\Repository\DatasetRunRepository;
+use App\Ingestion\Service\SpatialFeatureIngestor;
 use App\Spatial\Factory\AreaOfInterestFactory;
 use App\Spatial\Repository\AreaOfInterestRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -140,11 +141,13 @@ final class RunModuleIngestionHandlerTest extends KernelTestCase
         $em = $c->get(EntityManagerInterface::class);
         $areas = $c->get(AreaOfInterestRepository::class);
         $datasets = $c->get(DatasetRepository::class);
+        $spatial = $c->get(SpatialFeatureIngestor::class);
         \assert($em instanceof EntityManagerInterface);
         \assert($areas instanceof AreaOfInterestRepository);
         \assert($datasets instanceof DatasetRepository);
+        \assert($spatial instanceof SpatialFeatureIngestor);
 
-        return new RunModuleIngestionHandler($em, $engine, $areas, $datasets, $token);
+        return new RunModuleIngestionHandler($em, $engine, $areas, $datasets, $spatial, $token);
     }
 
     /** @return list<DatasetRun> */

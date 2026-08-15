@@ -39,7 +39,7 @@ function yearColor(year) {
 const rgb = (c) => `rgb(${c[0]},${c[1]},${c[2]})`;
 
 export default class extends Controller {
-    static values = { boundary: Object, forestLossUrl: String };
+    static values = { boundary: Object, forestLossUrl: String, classLayerUrl: String, classPalette: Object };
     static targets = ['canvas', 'frame', 'fromYear', 'toYear', 'bar', 'rangeFill', 'rangeSummary', 'dimBtn'];
 
     static YEAR_MIN = 2001;
@@ -72,7 +72,39 @@ export default class extends Controller {
         this.bases.satellite.addTo(this.map); // satellite is the default base
 
         this.drawBoundary();
-        this.loadForestLoss();
+        // Both overlays are optional — a module map may carry a class layer, the area map forest loss.
+        if (this.hasForestLossUrlValue && this.forestLossUrlValue) this.loadForestLoss();
+        if (this.hasClassLayerUrlValue && this.classLayerUrlValue) this.loadClassLayer();
+    }
+
+    // Tear the Leaflet map down when Stimulus disconnects (Turbo/soft-nav navigation, cached previews).
+    // Without this, revisiting the page runs L.map() on an already-initialized container — Leaflet
+    // throws, the map never builds, and its zoom/controls flash in then vanish.
+    disconnect() {
+        if (this.map) {
+            this.map.remove();
+            this.map = null;
+        }
+    }
+
+    // A dissolved per-class layer (e.g. land cover), coloured by the label→colour palette. Read-only:
+    // fetched from the module's .geojson endpoint (PostGIS-dissolved), rendered like forest loss.
+    async loadClassLayer() {
+        const res = await fetch(this.classLayerUrlValue);
+        if (!res.ok) {
+            console.error('[map] class-layer fetch failed:', res.status);
+            return;
+        }
+        const data = await res.json();
+        const palette = this.hasClassPaletteValue ? this.classPaletteValue : {};
+        this.classLayer = this.L.geoJSON(data, {
+            style: (f) => ({
+                color: '#0b0f0d', weight: 0.25,
+                fillColor: palette[f.properties.label] || '#888888', fillOpacity: 0.62,
+            }),
+            onEachFeature: (f, layer) => layer.bindPopup(`<strong>${f.properties.label}</strong>`),
+        }).addTo(this.map);
+        this.classLayer.bringToBack(); // sit under the boundary casing/line
     }
 
     drawBoundary() {

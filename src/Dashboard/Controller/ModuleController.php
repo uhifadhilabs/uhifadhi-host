@@ -7,11 +7,13 @@ namespace App\Dashboard\Controller;
 use App\Dashboard\Service\AreaModuleService;
 use App\Dashboard\Service\DatasetPresenter;
 use App\Dashboard\Service\ModuleMethodService;
+use App\Dashboard\Service\ModuleOverviewService;
 use App\Forest\Service\ForestChartService;
 use App\Forest\Service\ForestLossSummaryService;
 use App\Ingestion\Entity\Dataset;
 use App\Ingestion\Repository\DatasetRepository;
 use App\Ingestion\Repository\DatasetRunRepository;
+use App\Ingestion\Repository\ModuleFeatureRepository;
 use App\Spatial\Entity\AreaOfInterest;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -52,14 +54,15 @@ final class ModuleController extends AbstractController
         DatasetRepository $datasets,
         DatasetPresenter $presenter,
         ModuleMethodService $methods,
+        ModuleOverviewService $overview,
+        ModuleFeatureRepository $features,
     ): Response {
         $descriptor = $modules->page($area, $module);
         if (null === $descriptor) {
             throw $this->createNotFoundException(\sprintf('Unknown module "%s".', $module));
         }
 
-        // Only the Overview tab needs the module's headline data; the other view tabs render their
-        // own body (Dataframe / Explore / Method) off the Dataset pipeline, wired per module.
+        // The one bespoke live module renders its real Hansen series across all six plots on Overview.
         $forest = null;
         $forestCharts = null;
         if ('overview' === $tab && 'forest' === $module) {
@@ -77,24 +80,38 @@ final class ModuleController extends AbstractController
             ];
         }
 
-        // Dataframe & Explore read the module's stored datasets: the first tabular one (the rows the
-        // viewer and describe() work on) and the first spatial one (the Explore map layer).
+        // Overview / Dataframe / Explore read the module's stored tabular dataset (the rows the cockpit,
+        // viewer and describe() work on).
         $table = null;
-        $spatial = null;
+        $cockpit = null;
         $describe = [];
         $distribution = [];
-        if (\in_array($tab, ['dataframe', 'explore'], true)) {
+        if (\in_array($tab, ['overview', 'dataframe', 'explore'], true)) {
             foreach ($datasets->forModule($area, $module) as $dataset) {
-                if (null === $table && $dataset->getKind()->isTabular()) {
+                if ($dataset->getKind()->isTabular()) {
                     $table = $dataset;
-                }
-                if (null === $spatial && $dataset->getKind()->isSpatial()) {
-                    $spatial = $dataset;
+                    break;
                 }
             }
             if (null !== $table) {
-                $describe = $presenter->describe($table);
-                $distribution = $this->distribution($table, $presenter);
+                $cockpit = 'overview' === $tab ? $overview->cockpit($table) : null;
+                if (\in_array($tab, ['dataframe', 'explore'], true)) {
+                    $describe = $presenter->describe($table);
+                    $distribution = $this->distribution($table, $presenter);
+                }
+            }
+        }
+
+        // The map (Overview + Explore) reuses the area boundary + the module's dissolved layer, if any.
+        $boundary = null;
+        $mapLayerUrl = null;
+        if (\in_array($tab, ['overview', 'explore'], true)) {
+            $boundary = $this->boundary($area);
+            $layer = $features->forLayer($area, $module, $module.'_map');
+            if ([] !== $layer) {
+                $mapLayerUrl = $this->generateUrl('module_layer_geojson', [
+                    'uuid' => $area->getUuidString(), 'module' => $module, 'key' => $module.'_map',
+                ]);
             }
         }
 
@@ -105,13 +122,35 @@ final class ModuleController extends AbstractController
             'table' => $table,
             'tableTypes' => null !== $table ? $presenter->types($table) : [],
             'tableNumeric' => null !== $table ? $presenter->numericColumns($table) : [],
+            'cockpit' => $cockpit,
+            'lastRun' => 'overview' === $tab ? $runs->findOneBy(['aoi' => $area, 'dataset' => $module], ['id' => 'DESC']) : null,
             'describe' => $describe,
             'distribution' => $distribution,
-            'spatial' => $spatial,
+            'boundary' => $boundary,
+            'mapLayerUrl' => $mapLayerUrl,
             'method' => 'method' === $tab ? $methods->forModule($module) : null,
             'forest' => $forest,
             'forestCharts' => $forestCharts,
         ]);
+    }
+
+    /**
+     * The area boundary as a GeoJSON FeatureCollection for the Leaflet map (as the area Overview builds it).
+     *
+     * @return array<string, mixed>
+     */
+    private function boundary(AreaOfInterest $area): array
+    {
+        $geom = $area->getGeom();
+
+        return [
+            'type' => 'FeatureCollection',
+            'features' => null === $geom ? [] : [[
+                'type' => 'Feature',
+                'properties' => ['name' => $area->getName()],
+                'geometry' => json_decode($geom, true, 512, \JSON_THROW_ON_ERROR),
+            ]],
+        ];
     }
 
     /**
