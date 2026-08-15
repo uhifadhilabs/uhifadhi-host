@@ -8,7 +8,9 @@ use App\Forest\Entity\ForestLossYear;
 use App\Forest\Repository\ForestLossYearRepository;
 use App\Ingestion\Entity\DatasetRun;
 use App\Ingestion\Entity\HansenLossPolygon;
+use App\Ingestion\Enum\DatasetKind;
 use App\Ingestion\Message\IngestHansenLoss;
+use App\Ingestion\Repository\DatasetRepository;
 use App\Ingestion\Repository\HansenLossPolygonRepository;
 use App\Ingestion\Service\TileSourceInterface;
 use App\Spatial\Entity\AreaOfInterest;
@@ -44,6 +46,7 @@ final class IngestHansenLossHandler
         private readonly AreaOfInterestRepository $areas,
         private readonly ForestLossYearRepository $lossYears,
         private readonly HansenLossPolygonRepository $staging,
+        private readonly DatasetRepository $datasets,
     ) {
     }
 
@@ -243,6 +246,23 @@ final class IngestHansenLossHandler
             }
             $this->em->flush();
         });
+
+        // Publish the same series into the generic per-module Dataset store: the data-driven chart
+        // engine (and the dataframe/statistics tabs) read a module's data THERE, so Forest's charts
+        // render like any other module's — no bespoke drawer. One row per year, plus the running total.
+        ksort($byYear, \SORT_NUMERIC);
+        $cumulative = 0.0;
+        $seriesRows = [];
+        foreach ($byYear as $year => $areaHa) {
+            $cumulative += $areaHa;
+            $seriesRows[] = [(int) $year, (float) $areaHa, round($cumulative)];
+        }
+        $this->datasets->upsert($aoi, 'forest', 'forest_loss_year')
+            ->setKind(DatasetKind::Series)
+            ->setColumns(['year', 'ha', 'cumulative_ha'])
+            ->setRows($seriesRows)
+            ->setSource($message->source);
+        $this->em->flush();
 
         return ['years' => \count($rows), 'totalHa' => $total, 'byYearHa' => $byYear];
     }

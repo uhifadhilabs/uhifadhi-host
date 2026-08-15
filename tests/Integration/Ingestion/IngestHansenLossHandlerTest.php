@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Tests\Integration\Ingestion;
 
 use App\Ingestion\Entity\DatasetRun;
+use App\Ingestion\Enum\DatasetKind;
 use App\Ingestion\Message\IngestHansenLoss;
 use App\Ingestion\MessageHandler\IngestHansenLossHandler;
+use App\Ingestion\Repository\DatasetRepository;
 use App\Ingestion\Repository\DatasetRunRepository;
 use App\Ingestion\Repository\HansenLossPolygonRepository;
 use App\Ingestion\Service\TileSourceInterface;
@@ -106,6 +108,7 @@ final class IngestHansenLossHandlerTest extends KernelTestCase
             $container->get(AreaOfInterestRepository::class),
             $container->get(ForestLossYearRepository::class),
             $container->get(HansenLossPolygonRepository::class),
+            $container->get(DatasetRepository::class),
         );
         $handler(new IngestHansenLoss(aoiId: (int) $aoi->getId(), version: 'TEST', source: 'hansen_test'));
 
@@ -127,6 +130,19 @@ final class IngestHansenLossHandlerTest extends KernelTestCase
             ['aoi' => $other->getId()],
         );
         self::assertSame(1, (int) $neighbour, 'ingesting one area must not delete another area\'s rows');
+
+        // The series is ALSO published into the generic per-module store — the data-driven chart
+        // engine reads it there, so Forest needs no bespoke drawer.
+        $series = $container->get(DatasetRepository::class)->findOneFor($aoi, 'forest', 'forest_loss_year');
+        self::assertNotNull($series, 'expected the forest_loss_year series in the generic Dataset store');
+        self::assertSame(DatasetKind::Series, $series->getKind());
+        self::assertSame(['year', 'ha', 'cumulative_ha'], $series->getColumns());
+        $seriesRows = $series->getRows();
+        self::assertNotNull($seriesRows);
+        self::assertCount(1, $seriesRows);
+        self::assertSame(2013, $seriesRows[0][0]);
+        self::assertEqualsWithDelta((float) $row['area_ha'], (float) $seriesRows[0][1], 1.0);
+        self::assertEqualsWithDelta((float) $row['area_ha'], (float) $seriesRows[0][2], 1.0); // cumulative == first year
 
         // Provenance: a succeeded run linked to the area, carrying the report.
         $run = $container->get(DatasetRunRepository::class)
@@ -160,6 +176,7 @@ final class IngestHansenLossHandlerTest extends KernelTestCase
             $container->get(AreaOfInterestRepository::class),
             $container->get(ForestLossYearRepository::class),
             $container->get(HansenLossPolygonRepository::class),
+            $container->get(DatasetRepository::class),
         );
 
         try {
