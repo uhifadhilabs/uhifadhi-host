@@ -9,7 +9,7 @@ use App\Forest\Repository\ForestLossYearRepository;
 use App\Ingestion\Entity\DatasetRun;
 use App\Ingestion\Entity\HansenLossPolygon;
 use App\Ingestion\Enum\DatasetKind;
-use App\Ingestion\Message\IngestHansenLoss;
+use App\Ingestion\Message\IngestForestLoss;
 use App\Ingestion\Repository\DatasetRepository;
 use App\Ingestion\Repository\HansenLossPolygonRepository;
 use App\Ingestion\Service\TileSourceInterface;
@@ -21,9 +21,11 @@ use FundiStadi\GDALBundle\Tool\Gdalwarp;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
- * The Hansen ETL. GDAL tools touch FILES ONLY; every database write goes
- * through the ORM (entities) or DQL with the PostGIS bundle's functions —
- * nothing writes SQL by hand:
+ * The FOREST module's loss ingestion. Hansen GFC is its (first) data SOURCE — the source-specific
+ * pieces are the adapters ({@see TileSourceInterface} → HansenTileService, the dn-coded
+ * {@see HansenLossPolygon} staging); the module owns the pipeline and its outputs. GDAL tools touch
+ * FILES ONLY; every database write goes through the ORM (entities) or DQL with the PostGIS bundle's
+ * functions — nothing writes SQL by hand:
  *
  *   gdalwarp (clip granule to AOI, nodata 255)      — file → file
  *   gdal raster polygonize → GeoJSON                — file → file (C++, no Python)
@@ -35,7 +37,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  * bug: -dstnodata 0 silently turns no-loss pixels into "year 2001".
  */
 #[AsMessageHandler]
-final class IngestHansenLossHandler
+final class IngestForestLossHandler
 {
     private const int BATCH_SIZE = 500;
 
@@ -50,7 +52,7 @@ final class IngestHansenLossHandler
     ) {
     }
 
-    public function __invoke(IngestHansenLoss $message): void
+    public function __invoke(IngestForestLoss $message): void
     {
         $run = (new DatasetRun())
             ->setDataset('hansen_gfc_lossyear')
@@ -106,7 +108,7 @@ final class IngestHansenLossHandler
     /**
      * @return array<string, mixed> the per-year report stored on the DatasetRun
      */
-    private function pipeline(IngestHansenLoss $message, string $workdir): array
+    private function pipeline(IngestForestLoss $message, string $workdir): array
     {
         $aoi = $this->areas->find($message->aoiId)
             ?? throw new \RuntimeException(\sprintf('AreaOfInterest %d not found.', $message->aoiId));
@@ -204,7 +206,7 @@ final class IngestHansenLossHandler
      *
      * @return array<string, mixed>
      */
-    private function dissolve(IngestHansenLoss $message): array
+    private function dissolve(IngestForestLoss $message): array
     {
         /** @var list<array{dn: int, geojson: string, m2: string|float}> $rows */
         $rows = $this->em->createQuery(\sprintf(

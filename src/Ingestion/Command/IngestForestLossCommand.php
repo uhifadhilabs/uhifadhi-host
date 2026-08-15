@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Ingestion\Command;
 
-use App\Ingestion\Message\IngestHansenLoss;
+use App\Ingestion\Message\IngestForestLoss;
 use App\Ingestion\Repository\DatasetRunRepository;
 use App\Spatial\Repository\AreaOfInterestRepository;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -23,10 +23,10 @@ use Symfony\Component\Messenger\Stamp\TransportNamesStamp;
  * to an async transport later needs no change to this command.
  */
 #[AsCommand(
-    name: 'app:ingest:hansen',
-    description: 'Ingest Hansen GFC forest loss for an area of interest into forest_loss_year.',
+    name: 'app:forest:ingest',
+    description: 'Run the Forest module's loss ingestion for an area (source: Hansen GFC) into forest_loss_year.',
 )]
-final class IngestHansenCommand extends Command
+final class IngestForestLossCommand extends Command
 {
     public function __construct(
         private readonly MessageBusInterface $bus,
@@ -72,7 +72,7 @@ final class IngestHansenCommand extends Command
 
         // The message is routed async for the web UI; the CLI overrides to the
         // sync transport so the operator sees the run (and its report) inline.
-        $this->bus->dispatch(new IngestHansenLoss(
+        $this->bus->dispatch(new IngestForestLoss(
             aoiId: $aoi->getId(),
             version: $version,
             source: $source,

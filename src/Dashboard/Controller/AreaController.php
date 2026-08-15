@@ -8,7 +8,7 @@ use App\Dashboard\Form\AreaUploadType;
 use App\Dashboard\Service\AreaCardService;
 use App\Forest\Repository\ForestLossYearRepository;
 use App\Forest\Service\ForestLossSummaryService;
-use App\Ingestion\Message\IngestHansenLoss;
+use App\Ingestion\Message\IngestForestLoss;
 use App\Ingestion\Repository\DatasetRunRepository;
 use App\Spatial\Entity\AreaOfInterest;
 use App\Spatial\Exception\BoundaryImportException;
@@ -196,7 +196,7 @@ final class AreaController extends AbstractController
         }
 
         // Routed async — the worker runs the minutes-long ETL; this returns now.
-        $bus->dispatch(new IngestHansenLoss(aoiId: (int) $area->getId()));
+        $bus->dispatch(new IngestForestLoss(aoiId: (int) $area->getId()));
         $this->addFlash('success', \sprintf(
             'Hansen ingestion started for "%s" — the run appears below and the map updates when it finishes.',
             (string) $area->getName(),

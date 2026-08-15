@@ -9,7 +9,7 @@ namespace App\Ingestion\Message;
  * lossyear granules to the AOI, polygonize, dissolve per year, and replace the
  * rows carrying `source` in forest_loss_year.
  */
-final readonly class IngestHansenLoss
+final readonly class IngestForestLoss
 {
     public function __construct(
         public int $aoiId,

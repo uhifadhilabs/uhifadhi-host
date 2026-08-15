@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Functional\Dashboard;
 
 use App\Forest\Factory\ForestLossYearFactory;
-use App\Ingestion\Message\IngestHansenLoss;
+use App\Ingestion\Message\IngestForestLoss;
 use App\Spatial\Factory\AreaOfInterestFactory;
 use App\Tests\Functional\AuthenticatedWebTestCase;
 use Symfony\Component\Messenger\Transport\InMemory\InMemoryTransport;
@@ -70,7 +70,7 @@ final class AreaDetailTest extends AuthenticatedWebTestCase
         $transport = static::getContainer()->get('messenger.transport.async');
         $messages = array_map(static fn ($envelope) => $envelope->getMessage(), $transport->getSent());
         self::assertCount(1, $messages);
-        self::assertInstanceOf(IngestHansenLoss::class, $messages[0]);
+        self::assertInstanceOf(IngestForestLoss::class, $messages[0]);
         // The message still carries the internal id — only URLs use the UUID.
         self::assertSame($aoi->getId(), $messages[0]->aoiId);
     }

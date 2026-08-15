@@ -6,8 +6,8 @@ namespace App\Tests\Integration\Ingestion;
 
 use App\Ingestion\Entity\DatasetRun;
 use App\Ingestion\Enum\DatasetKind;
-use App\Ingestion\Message\IngestHansenLoss;
-use App\Ingestion\MessageHandler\IngestHansenLossHandler;
+use App\Ingestion\Message\IngestForestLoss;
+use App\Ingestion\MessageHandler\IngestForestLossHandler;
 use App\Ingestion\Repository\DatasetRepository;
 use App\Ingestion\Repository\DatasetRunRepository;
 use App\Ingestion\Repository\HansenLossPolygonRepository;
@@ -31,7 +31,7 @@ use Zenstruck\Foundry\Test\Factories;
  *
  * Fully DAMA-covered: every write (staging included) rides the test transaction.
  */
-final class IngestHansenLossHandlerTest extends KernelTestCase
+final class IngestForestLossHandlerTest extends KernelTestCase
 {
     use Factories;
 
@@ -101,7 +101,7 @@ final class IngestHansenLossHandlerTest extends KernelTestCase
             }
         };
 
-        $handler = new IngestHansenLossHandler(
+        $handler = new IngestForestLossHandler(
             $em,
             $this->runner,
             $stub,
@@ -110,7 +110,7 @@ final class IngestHansenLossHandlerTest extends KernelTestCase
             $container->get(HansenLossPolygonRepository::class),
             $container->get(DatasetRepository::class),
         );
-        $handler(new IngestHansenLoss(aoiId: (int) $aoi->getId(), version: 'TEST', source: 'hansen_test'));
+        $handler(new IngestForestLoss(aoiId: (int) $aoi->getId(), version: 'TEST', source: 'hansen_test'));
 
         // One dissolved MultiPolygon for 2013, owned by $aoi.
         /** @var array{year: int, area_ha: float, t: string, aoi_id: int}|false $row */
@@ -169,7 +169,7 @@ final class IngestHansenLossHandlerTest extends KernelTestCase
                 return [];
             }
         };
-        $handler = new IngestHansenLossHandler(
+        $handler = new IngestForestLossHandler(
             $em,
             $this->runner,
             $stub,
@@ -180,7 +180,7 @@ final class IngestHansenLossHandlerTest extends KernelTestCase
         );
 
         try {
-            $handler(new IngestHansenLoss(aoiId: 999999, source: 'hansen_test'));
+            $handler(new IngestForestLoss(aoiId: 999999, source: 'hansen_test'));
             self::fail('expected the handler to throw for a missing AOI');
         } catch (\RuntimeException $e) {
             self::assertStringContainsString('not found', $e->getMessage());
