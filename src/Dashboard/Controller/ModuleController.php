@@ -8,15 +8,14 @@ use App\Composition\Entity\AreaModule;
 use App\Composition\Enum\VizType;
 use App\Composition\Repository\VisualizationRepository;
 use App\Composition\Service\AreaCompositionService;
+use App\Dashboard\Module\DatasetChartRenderer;
+use App\Dashboard\Module\ModuleRegistry;
 use App\Dashboard\Service\AreaModuleService;
 use App\Dashboard\Service\DatasetPresenter;
-use App\Dashboard\Module\DatasetChartRenderer;
-use App\Dashboard\Service\ModuleMethodService;
 use App\Dashboard\Service\ModuleOverviewService;
 use App\Dashboard\Service\ModuleVizDefaults;
-use App\Forest\Service\ForestChartService;
-use App\Forest\Service\ForestLossSummaryService;
 use App\Ingestion\Entity\Dataset;
+use App\Ingestion\Entity\DatasetRun;
 use App\Ingestion\Message\RunModuleIngestion;
 use App\Ingestion\Repository\DatasetRepository;
 use App\Ingestion\Repository\DatasetRunRepository;
@@ -34,12 +33,11 @@ use Symfony\Component\Uid\Uuid;
 
 /**
  * A per-area analytical module page (a self-contained sub-app): its own within-module tabs
- * (Overview / Dataframe / Explore / Method / Settings), an "All modules" way back to the area,
- * and per-tab bodies. Overview renders the module's headline view — real data for a live module,
- * a scaffold for a template one. Dataframe / Explore / Method render the module's data once it is
- * wired (see the Dataset pipeline). Settings is the module's Data page — run ingestion (map detail /
- * coarseness), current resolution, recent runs and datasets. The area Overview is the area show page,
- * not routed here.
+ * (Overview / Dataframe / Explore / Method / Settings), an "All modules" way back to the area, and
+ * per-tab bodies. Everything renders GENERICALLY, driven by the module's {@see \App\Spatial\Module\ModuleDefinition}
+ * (KPIs, default charts, method caption, palette — resolved by slug through {@see ModuleRegistry})
+ * plus the module's stored datasets. No module is ever named here: adding a module means adding a
+ * tagged definition + an engine module + a catalogue row — never editing this controller.
  */
 final class ModuleController extends AbstractController
 {
@@ -62,12 +60,10 @@ final class ModuleController extends AbstractController
         string $module,
         string $tab,
         AreaModuleService $modules,
-        ForestLossSummaryService $forestLoss,
-        ForestChartService $charts,
+        ModuleRegistry $registry,
         DatasetRunRepository $runs,
         DatasetRepository $datasets,
         DatasetPresenter $presenter,
-        ModuleMethodService $methods,
         ModuleOverviewService $overview,
         ModuleFeatureRepository $features,
         AreaCompositionService $composition,
@@ -80,30 +76,11 @@ final class ModuleController extends AbstractController
         if (null === $descriptor) {
             throw $this->createNotFoundException(\sprintf('Unknown module "%s".', $module));
         }
+        $definition = $registry->definitionFor($module);
 
-        // The one bespoke live module renders its real Hansen series across all six plots on Overview.
-        $forest = null;
-        $forestCharts = null;
-        if ('overview' === $tab && 'forest' === $module) {
-            $forest = $forestLoss->forArea($area);
-            $statuses = array_map(
-                static fn ($run) => (string) $run->getStatus(),
-                $runs->findBy(['aoi' => $area], ['id' => 'DESC']),
-            );
-            $forestCharts = [
-                'cumulative' => $charts->cumulative($forest['lossByYear']),
-                'waterfall' => $charts->waterfall($forest['lossByYear']),
-                'trend' => $charts->trend($forest['lossByYear']),
-                'coverage' => $charts->coverage($forest['lossByYear']),
-                'shelf' => $charts->shelf($statuses),
-            ];
-        }
-
-        // Overview & Settings work with the module's configured visualizations — seeded once with the
-        // module's defaults, so the Overview renders the SAME charts you edit in Settings (never a
-        // hardcoded one). Resolve the composed module and materialise its defaults on first view.
+        // The module's configured visualizations — seeded once from its definition's defaults, so the
+        // Overview renders the SAME charts edited in Settings.
         $areaModule = null;
-        $overviewCharts = [];
         if (\in_array($tab, ['overview', 'settings'], true)) {
             $areaModule = $this->areaModuleFor($composition, $area, $module);
             if (null !== $areaModule) {
@@ -111,10 +88,8 @@ final class ModuleController extends AbstractController
             }
         }
 
-        // Overview / Dataframe / Explore read the module's stored tabular dataset (the rows the cockpit,
-        // viewer and describe() work on).
+        // The module's first tabular dataset — the rows the KPIs, viewer and describe() work on.
         $table = null;
-        $cockpit = null;
         $describe = [];
         $distribution = [];
         if (\in_array($tab, ['overview', 'dataframe', 'explore'], true)) {
@@ -124,46 +99,46 @@ final class ModuleController extends AbstractController
                     break;
                 }
             }
-            if (null !== $table) {
-                $cockpit = 'overview' === $tab ? $overview->cockpit($table) : null;
-                if (\in_array($tab, ['dataframe', 'explore'], true)) {
-                    $describe = $presenter->describe($table);
-                    $distribution = $this->distribution($table, $presenter);
-                }
+            if (null !== $table && \in_array($tab, ['dataframe', 'explore'], true)) {
+                $describe = $presenter->describe($table);
+                $distribution = $this->distribution($table, $presenter);
             }
         }
 
-        // The Overview's charts ARE the module's configured visualizations, drawn through the generic
-        // renderer (an unbound/not-yet-drawable one is skipped, not faked).
-        if ('overview' === $tab && 'forest' !== $module && null !== $areaModule) {
-            foreach ($areaModule->getVisualizations() as $viz) {
-                $svg = $chartRenderer->render($area, $viz);
-                if (null !== $svg) {
-                    $overviewCharts[] = ['title' => (string) $viz->getTitle(), 'type' => $viz->getType()->label(), 'svg' => $svg];
-                }
-            }
-        }
-
-        // The map (Overview + Explore) reuses the area boundary + the module's dissolved layer, if any.
-        $boundary = null;
-        $mapLayerUrl = null;
-        if (\in_array($tab, ['overview', 'explore'], true)) {
-            $boundary = $this->boundary($area);
-            $layer = $features->forLayer($area, $module, $module.'_map');
-            if ([] !== $layer) {
-                $mapLayerUrl = $this->generateUrl('module_layer_geojson', [
-                    'uuid' => $area->getUuidString(), 'module' => $module, 'key' => $module.'_map',
-                ]);
-            }
-        }
-
-        // The current map detail/resolution comes from the run that produced the layer.
         $lastRun = \in_array($tab, ['overview', 'settings'], true)
             ? $runs->findOneBy(['aoi' => $area, 'dataset' => $module], ['id' => 'DESC'])
             : null;
 
-        // Settings is the module's one Data + Visualizations page: recent runs, the datasets on the
-        // shelf, and this module's visualizations (with the configure modal on ?configure).
+        // Overview: KPIs from the module's definition (its own bounded context computes them), or
+        // derived generically from the dataframe when the definition supplies none. Charts are the
+        // configured visualizations drawn by the generic renderer.
+        $kpis = [];
+        $overviewCharts = [];
+        if ('overview' === $tab) {
+            $kpis = $definition->kpis($area) ?: $overview->deriveKpis($table, $lastRun);
+            if (null !== $areaModule) {
+                foreach ($areaModule->getVisualizations() as $viz) {
+                    $svg = $chartRenderer->render($area, $viz);
+                    if (null !== $svg) {
+                        $overviewCharts[] = ['title' => (string) $viz->getTitle(), 'type' => $viz->getType()->label(), 'svg' => $svg];
+                    }
+                }
+            }
+        }
+
+        // The map (Overview + Explore): area boundary + the module's dissolved layer, if ingested.
+        $boundary = null;
+        $mapLayerUrl = null;
+        if (\in_array($tab, ['overview', 'explore'], true)) {
+            $boundary = $this->boundary($area);
+            if ([] !== $features->forLayer($area, $module, $definition->mapDatasetKey())) {
+                $mapLayerUrl = $this->generateUrl('module_layer_geojson', [
+                    'uuid' => $area->getUuidString(), 'module' => $module, 'key' => $definition->mapDatasetKey(),
+                ]);
+            }
+        }
+
+        // Settings: the module's one Data + Visualizations page.
         $moduleRuns = [];
         $moduleDatasets = [];
         $visualizations = [];
@@ -185,11 +160,17 @@ final class ModuleController extends AbstractController
             'area' => $area,
             'module' => $descriptor,
             'activeTab' => $tab,
+            'kpis' => $kpis,
+            'overviewCharts' => $overviewCharts,
+            'palette' => $definition->palette(),
+            'method' => 'method' === $tab ? $definition->methodCaption() : null,
             'table' => $table,
             'tableTypes' => null !== $table ? $presenter->types($table) : [],
             'tableNumeric' => null !== $table ? $presenter->numericColumns($table) : [],
-            'cockpit' => $cockpit,
-            'overviewCharts' => $overviewCharts,
+            'describe' => $describe,
+            'distribution' => $distribution,
+            'boundary' => $boundary,
+            'mapLayerUrl' => $mapLayerUrl,
             'lastRun' => $lastRun,
             'mapDetail' => $this->mapDetail($lastRun),
             'moduleRuns' => $moduleRuns,
@@ -198,20 +179,13 @@ final class ModuleController extends AbstractController
             'configureViz' => $configureViz,
             'vizColumns' => $this->vizColumns($moduleDatasets),
             'vizTypes' => VizType::editable(),
-            'hasMapLayer' => [] !== $features->forLayer($area, $module, $module.'_map'),
-            'describe' => $describe,
-            'distribution' => $distribution,
-            'boundary' => $boundary,
-            'mapLayerUrl' => $mapLayerUrl,
-            'method' => 'method' === $tab ? $methods->forModule($module) : null,
-            'forest' => $forest,
-            'forestCharts' => $forestCharts,
+            'hasMapLayer' => [] !== $features->forLayer($area, $module, $definition->mapDatasetKey()),
         ]);
     }
 
     /**
-     * Run (or re-run) a module's ingestion from the UI — async, like the Hansen trigger. The map-detail
-     * factor (coarseness) comes from the form; the worker hands it to the engine.
+     * Run (or re-run) a module's ingestion from the UI — async. The map-detail factor (coarseness)
+     * comes from the form; the worker hands it to the engine.
      */
     #[Route('/areas/{uuid}/{module}/run', name: 'dashboard_area_module_run', requirements: ['uuid' => Requirement::UUID, 'module' => '[a-z]+'], methods: ['POST'])]
     #[IsGranted('ingestion.run')]
@@ -249,48 +223,7 @@ final class ModuleController extends AbstractController
     }
 
     /**
-     * The column names a visualization can bind to — the first tabular dataset's columns.
-     *
-     * @param list<Dataset> $datasets
-     *
-     * @return list<string>
-     */
-    private function vizColumns(array $datasets): array
-    {
-        foreach ($datasets as $dataset) {
-            if ($dataset->getKind()->isTabular() && null !== $dataset->getColumns()) {
-                return array_values($dataset->getColumns());
-            }
-        }
-
-        return [];
-    }
-
-    /**
-     * The current map detail from a run's params: the display factor and the metres it resolves to.
-     *
-     * @return array{factor: int, metres: int}|null
-     */
-    private function mapDetail(?object $run): ?array
-    {
-        if (!$run instanceof \App\Ingestion\Entity\DatasetRun) {
-            return null;
-        }
-        $params = $run->getParams()['params'] ?? null;
-        $factor = \is_array($params) && is_numeric($params['display_factor'] ?? null) ? (int) $params['display_factor'] : 4;
-
-        return ['factor' => $factor, 'metres' => $factor * self::STATS_RES_M];
-    }
-
-    private function assertCsrf(Request $request, string $id): void
-    {
-        if (!$this->isCsrfTokenValid($id, (string) $request->request->get('_token'))) {
-            throw $this->createAccessDeniedException('Invalid CSRF token.');
-        }
-    }
-
-    /**
-     * The area boundary as a GeoJSON FeatureCollection for the Leaflet map (as the area Overview builds it).
+     * The area boundary as a GeoJSON FeatureCollection for the Leaflet map.
      *
      * @return array<string, mixed>
      */
@@ -306,6 +239,24 @@ final class ModuleController extends AbstractController
                 'geometry' => json_decode($geom, true, 512, \JSON_THROW_ON_ERROR),
             ]],
         ];
+    }
+
+    /**
+     * The column names a visualization can bind to — the first tabular dataset's columns.
+     *
+     * @param list<Dataset> $datasets
+     *
+     * @return list<string>
+     */
+    private function vizColumns(array $datasets): array
+    {
+        foreach ($datasets as $dataset) {
+            if ($dataset->getKind()->isTabular() && null !== $dataset->getColumns()) {
+                return array_values($dataset->getColumns());
+            }
+        }
+
+        return [];
     }
 
     /**
@@ -331,5 +282,28 @@ final class ModuleController extends AbstractController
         rsort($values);
 
         return $values;
+    }
+
+    /**
+     * The current map detail from a run's params: the display factor and the metres it resolves to.
+     *
+     * @return array{factor: int, metres: int}|null
+     */
+    private function mapDetail(?DatasetRun $run): ?array
+    {
+        if (null === $run) {
+            return null;
+        }
+        $params = $run->getParams()['params'] ?? null;
+        $factor = \is_array($params) && is_numeric($params['display_factor'] ?? null) ? (int) $params['display_factor'] : 4;
+
+        return ['factor' => $factor, 'metres' => $factor * self::STATS_RES_M];
+    }
+
+    private function assertCsrf(Request $request, string $id): void
+    {
+        if (!$this->isCsrfTokenValid($id, (string) $request->request->get('_token'))) {
+            throw $this->createAccessDeniedException('Invalid CSRF token.');
+        }
     }
 }

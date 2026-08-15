@@ -46,8 +46,9 @@ final class ModuleEditTest extends AuthenticatedWebTestCase
 
         self::assertResponseStatusCodeSame(302); // back to Settings with the configure modal open
         $vizzes = $this->em()->getRepository(Visualization::class)->findBy(['areaModule' => $forest->getId()]);
-        self::assertCount(1, $vizzes);
-        self::assertSame('New visualization', $vizzes[0]->getTitle());
+        // Visiting Settings seeded the module's 3 default charts; the add lands beside them.
+        self::assertCount(4, $vizzes);
+        self::assertContains('New visualization', array_map(static fn ($v) => $v->getTitle(), $vizzes));
     }
 
     public function testRemovingAVisualizationDeletesIt(): void

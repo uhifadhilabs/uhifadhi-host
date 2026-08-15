@@ -4,7 +4,12 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Dashboard;
 
+use App\Composition\Enum\ModuleStatus;
+use App\Composition\Factory\AreaModuleFactory;
+use App\Composition\Factory\ModuleFactory;
 use App\Forest\Factory\ForestLossYearFactory;
+use App\Ingestion\Enum\DatasetKind;
+use App\Ingestion\Factory\DatasetFactory;
 use App\Spatial\Factory\AreaOfInterestFactory;
 use App\Tests\Functional\AuthenticatedWebTestCase;
 
@@ -73,13 +78,26 @@ final class AreaModuleTest extends AuthenticatedWebTestCase
         $client = static::createClient();
         $this->loginAs($client);
         $area = AreaOfInterestFactory::createOne(['name' => 'Forest area']);
+        // Composed on the area (default charts seed per area-module), with the published series the
+        // generic Overview draws the seeded charts from.
+        AreaModuleFactory::createOne([
+            'area' => $area, 'active' => true, 'position' => 1,
+            'module' => ModuleFactory::new(['slug' => 'forest', 'name' => 'Forest loss', 'status' => ModuleStatus::Live]),
+        ]);
         ForestLossYearFactory::createOne(['aoi' => $area, 'year' => 2013, 'areaHa' => 186.0]);
+        DatasetFactory::createOne([
+            'area' => $area, 'moduleSlug' => 'forest', 'key' => 'forest_loss_year',
+            'kind' => DatasetKind::Series, 'columns' => ['year', 'ha', 'cumulative_ha'],
+            'rows' => [[2013, 186.0, 186.0]],
+        ]);
 
         $client->request('GET', '/areas/'.$area->getUuidString().'/forest');
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('.atabs a.on', 'Overview');
         self::assertSelectorTextContains('.pg', 'Forest loss');
+        // KPIs come from ForestModule (App\Forest), charts from the seeded default visualizations —
+        // the SAME generic path every module uses; no forest-specific branch exists.
         self::assertSelectorTextContains('body', 'Annual loss');
         self::assertSelectorTextContains('body', '186');
     }

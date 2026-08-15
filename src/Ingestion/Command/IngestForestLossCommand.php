@@ -24,7 +24,7 @@ use Symfony\Component\Messenger\Stamp\TransportNamesStamp;
  */
 #[AsCommand(
     name: 'app:forest:ingest',
-    description: 'Run the Forest module's loss ingestion for an area (source: Hansen GFC) into forest_loss_year.',
+    description: 'Run the Forest module loss ingestion for an area (source: Hansen GFC) into forest_loss_year.',
 )]
 final class IngestForestLossCommand extends Command
 {

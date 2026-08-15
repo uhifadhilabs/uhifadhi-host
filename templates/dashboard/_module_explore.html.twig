@@ -1,22 +1,21 @@
-{# Explore tab (map + statistics): the module's spatial layer on the map, then the per-column summary
-   statistics — describe() + a distribution — over the same tabular dataset. The map renders once a
-   spatial dataset is ingested; the statistics render as soon as the tabular dataset exists.
-   `spatial` = Dataset|null (the map layer), `describe` = per-column summary, `distribution` = the
-   first numeric column's values, sorted high→low. #}
+{# Explore tab (map + statistics), fully generic: the module's dissolved layer on the shared Leaflet
+   base (coloured by the definition's palette), a data-driven legend, then describe() + a distribution
+   over the module's dataframe. Context: table, tableNumeric, describe, distribution, boundary,
+   mapLayerUrl, palette, mapDetail, area, module. #}
 <div style="display:grid;grid-template-columns:1fr 262px;gap:20px;align-items:start">
     <div class="c" style="padding-top:26px">
-        <span class="tab"><span class="idx">MAP</span>Land-cover map<span class="src">· {{ table ? table.source : 'engine' }}{% if mapDetail %} · ~{{ mapDetail.metres }} m{% endif %}</span></span>
+        <span class="tab"><span class="idx">MAP</span>{{ module.label }} map<span class="src">· {{ table ? table.source : 'engine' }}{% if mapDetail %} · ~{{ mapDetail.metres }} m{% endif %}</span></span>
         <span class="lib">leaflet in-app</span>
         <div style="margin-top:12px">
             {% if mapLayerUrl %}
                 {{ include('dashboard/_module_map.html.twig', {boundary: boundary, mapId: 'explore-map', height: '360px', classLayerUrl: mapLayerUrl, classPalette: palette}) }}
             {% else %}
                 <div style="height:360px;border-radius:10px;display:flex;align-items:center;justify-content:center;text-align:center;background:rgb(var(--c-raised))">
-                    <p class="fog" style="font-size:12px;max-width:300px">The classified layer appears here once the map dataset is ingested for this area.</p>
+                    <p class="fog" style="font-size:12px;max-width:300px">The module's layer appears here once its map dataset is fetched for this area.</p>
                 </div>
             {% endif %}
         </div>
-        <div class="use">The classified layer clipped to the AOI. Grassland dominates; cropland presses in at the south-eastern edge.</div>
+        <div class="use">The module's layer clipped to the AOI.</div>
     </div>
     <div class="c">
         <span class="tab"><span class="idx">LG</span>Legend<span class="src">· classes</span></span>
@@ -31,7 +30,7 @@
                 {% endfor %}
             </div>
         {% endif %}
-        <div class="use">Colours match the ESA WorldCover legend.</div>
+        <div class="use">Colours come from the module's palette.</div>
     </div>
 </div>
 
@@ -61,7 +60,7 @@
         <div class="use">Per-column summary statistics for the module's dataframe.</div>
     </div>
     <div class="c">
-        <span class="tab"><span class="idx">DT</span>Distribution<span class="src">· {{ numeric|first|default('value') }}</span></span>
+        <span class="tab"><span class="idx">DT</span>Distribution<span class="src">· {{ tableNumeric|first|default('value') }}</span></span>
         {% if distribution is not empty %}
             {% set maxv = distribution|reduce((m, v) => max(m, v), 0) %}
             <svg viewBox="0 0 300 90" width="100%" height="90" preserveAspectRatio="none" style="display:block;margin-top:12px">
@@ -72,6 +71,6 @@
                 {% endfor %}
             </svg>
         {% endif %}
-        <div class="use">The spread of a numeric column — the long tail is where the dominant class sits.</div>
+        <div class="use">The spread of the first numeric column, sorted high → low.</div>
     </div>
 </div>

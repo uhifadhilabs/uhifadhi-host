@@ -1,54 +1,58 @@
-{# A live data module's Overview cockpit: a KPI strip of headline figures, the map (boundary + the
-   dissolved class layer) and a class-area chart as the main column, and a glanceable status rail.
-   `cockpit` = {dominantClass, dominantPct, classCount, fragmentation, chart}; `table` the dataframe. #}
-<div class="grid g4" style="margin-bottom:20px">
-    <div class="c kpi"><span class="tab"><span class="idx">LC·01</span>{{ cockpit.dominantClass }}</span>
-        <b class="disp">{{ cockpit.dominantPct|round }}<em>%</em></b><span class="sub">dominant cover</span></div>
-    <div class="c kpi"><span class="tab"><span class="idx">LC·02</span>Classes</span>
-        <b class="disp">{{ cockpit.classCount }}</b><span class="sub">{{ table.source }}</span></div>
-    <div class="c kpi"><span class="tab"><span class="idx">LC·03</span>Fragmentation</span>
-        <b class="disp">{% if cockpit.fragmentation is not null %}{{ cockpit.fragmentation }}<em>pd</em>{% else %}—{% endif %}</b><span class="sub">patches / 100 ha</span></div>
-    <div class="c kpi"><span class="tab"><span class="idx">LC·04</span>Last run</span>
-        <b class="disp">{% if lastRun %}{{ lastRun.status }}{% else %}—{% endif %}</b>
-        <span class="sub">{% if lastRun and lastRun.finishedAt %}{{ lastRun.finishedAt|date('M j, H:i') }}{% else %}not ingested{% endif %}</span></div>
-</div>
+{# The GENERIC module Overview cockpit: a KPI strip (from the module's definition, or derived from
+   its dataframe), the map (boundary + the module's dissolved layer, coloured by its palette), the
+   module's configured charts, and a glanceable status rail. No module is named here. #}
+{% if kpis is not empty %}
+    <div class="grid g4" style="margin-bottom:20px">
+        {% for kpi in kpis %}
+            <div class="c kpi{{ kpi.hot ? ' hot' : '' }}">
+                <span class="tab"><span class="idx">{{ kpi.idx }}</span>{{ kpi.label }}</span>
+                <b class="disp">{{ kpi.value }}{% if kpi.unit %}<em>{{ kpi.unit }}</em>{% endif %}</b>
+                <span class="sub">{{ kpi.sub }}</span>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
 
 <div style="display:grid;grid-template-columns:1fr 296px;gap:20px;align-items:start">
     <div>
-        <div class="c" style="padding-top:26px">
-            <span class="tab"><span class="idx">LC·05</span>Land-cover map<span class="src">· {{ table.source }}{% if mapDetail %} · ~{{ mapDetail.metres }} m{% endif %}</span></span>
-            <span class="lib">leaflet in-app</span>
-            <div style="margin-top:12px">
-                {% if mapLayerUrl %}
-                    {{ include('dashboard/_module_map.html.twig', {boundary: boundary, mapId: 'overview-map', height: '340px', classLayerUrl: mapLayerUrl, classPalette: palette}) }}
-                {% else %}
-                    {{ include('dashboard/_module_map.html.twig', {boundary: boundary, mapId: 'overview-map', height: '340px'}) }}
-                {% endif %}
+        {% if boundary %}
+            <div class="c" style="padding-top:26px">
+                <span class="tab"><span class="idx">MAP</span>{{ module.label }} map{% if table %}<span class="src">· {{ table.source }}{% if mapDetail %} · ~{{ mapDetail.metres }} m{% endif %}</span>{% endif %}</span>
+                <span class="lib">leaflet in-app</span>
+                <div style="margin-top:12px">
+                    {% if mapLayerUrl %}
+                        {{ include('dashboard/_module_map.html.twig', {boundary: boundary, mapId: 'overview-map', height: '340px', classLayerUrl: mapLayerUrl, classPalette: palette}) }}
+                    {% else %}
+                        {{ include('dashboard/_module_map.html.twig', {boundary: boundary, mapId: 'overview-map', height: '340px'}) }}
+                    {% endif %}
+                </div>
+                <div class="use">{% if mapLayerUrl %}The module's layer clipped to the AOI — full view on the <b>Explore</b> tab.{% else %}The area boundary — the module's layer appears once its data is fetched.{% endif %}</div>
             </div>
-            <div class="use">The classified layer clipped to the AOI — full view on the <b>Explore</b> tab.</div>
-        </div>
+        {% endif %}
 
         {% for chart in overviewCharts %}
             <div class="c" style="padding-top:26px;margin-top:20px">
-                <span class="tab"><span class="idx">LC·{{ 6 + loop.index0 }}</span>{{ chart.title }}<span class="src">· chart</span></span>
+                <span class="tab"><span class="idx">CH·{{ loop.index }}</span>{{ chart.title }}<span class="src">· chart</span></span>
                 <span class="lib">{{ chart.type|lower }}</span>
                 {{ chart.svg|raw }}
                 <div class="use">Configured in <a href="{{ path('dashboard_area_module', {uuid: area.uuid, module: module.slug, tab: 'settings'}) }}" class="acc">Settings → Visualizations</a>.</div>
             </div>
         {% else %}
             <div class="c" style="padding:30px 20px;text-align:center;margin-top:20px">
-                <p class="fog" style="font-size:12.5px;max-width:360px;margin:0 auto">No charts configured yet. Add one under <a href="{{ path('dashboard_area_module', {uuid: area.uuid, module: module.slug, tab: 'settings'}) }}" class="acc">Settings → Visualizations</a>.</p>
+                <p class="fog" style="font-size:12.5px;max-width:360px;margin:0 auto">No charts configured yet — or none drawable before the data lands. Manage them under <a href="{{ path('dashboard_area_module', {uuid: area.uuid, module: module.slug, tab: 'settings'}) }}" class="acc">Settings → Visualizations</a>.</p>
             </div>
         {% endfor %}
     </div>
 
     <div style="display:flex;flex-direction:column;gap:16px">
         <div class="c">
-            <span class="tab"><span class="idx">LC·07</span>Live status<span class="src">· glance</span></span>
+            <span class="tab"><span class="idx">ST</span>Live status<span class="src">· glance</span></span>
             <div class="rln"><span>Last ingestion</span>
-                <span class="chip {{ lastRun and lastRun.status == 'succeeded' ? 'ok' : 'idle' }}">{{ lastRun ? lastRun.status : 'none' }}</span></div>
-            <div class="rln"><span>Classes</span><span class="mono d">{{ cockpit.classCount }}</span></div>
-            <div class="rln"><span>Source</span><span class="mono d">{{ table.source }}</span></div>
+                <span class="chip {{ lastRun and lastRun.status == 'succeeded' ? 'ok' : (lastRun and lastRun.status == 'running' ? 'warn' : 'idle') }}">{{ lastRun ? lastRun.status : 'none' }}</span></div>
+            {% if table %}
+                <div class="rln"><span>Rows</span><span class="mono d">{{ table.rows|length }}</span></div>
+                <div class="rln"><span>Source</span><span class="mono d">{{ table.source }}</span></div>
+            {% endif %}
             <a href="{{ path('dashboard_area_module', {uuid: area.uuid, module: module.slug, tab: 'explore'}) }}" class="mono" style="font-size:11px;color:rgb(var(--c-acc));display:inline-block;margin-top:9px;text-decoration:none">Explore the data →</a>
         </div>
     </div>

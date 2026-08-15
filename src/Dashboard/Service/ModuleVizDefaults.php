@@ -7,57 +7,46 @@ namespace App\Dashboard\Service;
 use App\Composition\Entity\AreaModule;
 use App\Composition\Entity\Visualization;
 use App\Composition\Enum\VizType;
+use App\Dashboard\Module\ModuleRegistry;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
- * A module ships with a set of default visualizations bound to its dataset — the charts its Overview
- * shows out of the box and that appear (editable) in its Settings. They are seeded ONCE per area-module
- * (guarded by {@see AreaModule::isVizSeeded()}) so a user who deletes them isn't fighting a resurrection
- * on the next view. The Overview renders whatever visualizations are configured — never a hardcoded chart.
+ * Materialises a module's default visualizations — declared by its {@see \App\Spatial\Module\ModuleDefinition}
+ * — as editable Visualization rows, ONCE per area-module (guarded by {@see AreaModule::isVizSeeded()})
+ * so a user who deletes them isn't fighting a resurrection. No module is named here: the definition
+ * registry supplies whatever the module ships.
  */
 final readonly class ModuleVizDefaults
 {
-    /** @var array<string, list<array{title: string, type: VizType, key: string, x: string, y: string}>> */
-    private const DEFAULTS = [
-        'landcover' => [
-            ['title' => 'Class areas', 'type' => VizType::Bar, 'key' => 'landcover_class', 'x' => 'class', 'y' => 'area_km2'],
-            ['title' => 'Fragmentation', 'type' => VizType::Bar, 'key' => 'landcover_class', 'x' => 'class', 'y' => 'patch_density'],
-        ],
-    ];
-
     public function __construct(
         private EntityManagerInterface $em,
+        private ModuleRegistry $registry,
     ) {
     }
 
-    /**
-     * Seed this module's default visualizations if it has never been seeded and defines any. Idempotent:
-     * once seeded, never again — so deleting the defaults sticks.
-     */
     public function ensure(AreaModule $areaModule): void
     {
         if ($areaModule->isVizSeeded()) {
             return;
         }
         $slug = $areaModule->getModule()?->getSlug();
-        $defaults = self::DEFAULTS[$slug] ?? null;
+        if (null === $slug) {
+            return;
+        }
 
         $areaModule->setVizSeeded(true);
-        if (null !== $defaults) {
-            foreach ($defaults as $position => $spec) {
-                $this->em->persist(
-                    (new Visualization())
-                        ->setAreaModule($areaModule)
-                        ->setTitle($spec['title'])
-                        ->setType($spec['type'])
-                        ->setDatasetKey($spec['key'])
-                        ->setXAxis($spec['x'])
-                        ->setYAxis($spec['y'])
-                        ->setColourBy(null)
-                        ->setAggregation('None')
-                        ->setPosition($position),
-                );
-            }
+        foreach ($this->registry->definitionFor($slug)->defaultVisualizations() as $position => $spec) {
+            $viz = (new Visualization())
+                    ->setTitle($spec->title)
+                    ->setType(VizType::tryFrom($spec->type) ?? VizType::Bar)
+                    ->setDatasetKey($spec->datasetKey)
+                    ->setXAxis($spec->x)
+                    ->setYAxis($spec->y)
+                    ->setColourBy(null)
+                    ->setAggregation('None')
+                    ->setPosition($position);
+            $areaModule->addVisualization($viz); // both sides in sync — this request sees it too
+            $this->em->persist($viz);
         }
         $this->em->flush();
     }

@@ -76,6 +76,17 @@ class AreaModule
         return $this->visualizations;
     }
 
+    /** Keeps both sides of the association in sync — same-request reads see the new viz immediately. */
+    public function addVisualization(Visualization $visualization): static
+    {
+        if (!$this->visualizations->contains($visualization)) {
+            $this->visualizations->add($visualization);
+            $visualization->setAreaModule($this);
+        }
+
+        return $this;
+    }
+
     public function getArea(): ?AreaOfInterest
     {
         return $this->area;

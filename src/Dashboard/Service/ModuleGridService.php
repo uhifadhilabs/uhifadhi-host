@@ -7,15 +7,15 @@ namespace App\Dashboard\Service;
 use App\Composition\Entity\Module;
 use App\Composition\Enum\ModuleCategory;
 use App\Composition\Service\AreaCompositionService;
-use App\Forest\Service\ForestLossSummaryService;
+use App\Dashboard\Module\ModuleRegistry;
+use App\Ingestion\Repository\DatasetRepository;
 use App\Spatial\Entity\AreaOfInterest;
 
 /**
  * Builds the area's Modules-tab card grid: one content-ful card per active module, grouped by the
- * flux / pressure / biodiversity taxonomy. A live module (today, only Forest loss) carries a real
- * headline stat and a mini series to preview; a template module carries only its summary and source
- * — no fabricated numbers, honest about awaiting its ingestion. The pinned Overview hub is the area's
- * Overview tab, so it never appears as a card here.
+ * flux / pressure / biodiversity taxonomy. A module's headline stat is its definition's FIRST KPI
+ * (computed in the module's own context); its mini-preview series comes from its first series-kind
+ * dataset. Modules without data stay honest — no fabricated numbers. No module is named here.
  */
 final readonly class ModuleGridService
 {
@@ -29,7 +29,8 @@ final readonly class ModuleGridService
     public function __construct(
         private AreaCompositionService $composition,
         private AreaModuleService $areaModules,
-        private ForestLossSummaryService $forestLoss,
+        private ModuleRegistry $registry,
+        private DatasetRepository $datasets,
     ) {
     }
 
@@ -38,7 +39,7 @@ final readonly class ModuleGridService
      *
      * @return list<array{label: string, cards: list<array{
      *     slug: string, title: string, status: string, source: string, summary: string,
-     *     stat: int|null, statSub: string|null, series: list<float>}>}>
+     *     stat: string|null, statSub: string|null, series: list<float>}>}>
      */
     public function grouped(AreaOfInterest $area): array
     {
@@ -63,36 +64,47 @@ final readonly class ModuleGridService
 
     /**
      * @return array{slug: string, title: string, status: string, source: string, summary: string,
-     *     stat: int|null, statSub: string|null, series: list<float>}
+     *     stat: string|null, statSub: string|null, series: list<float>}
      */
     private function card(AreaOfInterest $area, Module $module): array
     {
         $slug = (string) $module->getSlug();
-        $card = [
+
+        // Headline stat: the module definition's first KPI, if the module computes any.
+        $stat = null;
+        $statSub = null;
+        $kpis = $this->registry->definitionFor($slug)->kpis($area);
+        if ([] !== $kpis) {
+            $first = $kpis[0];
+            $stat = $first->value.('' !== $first->unit ? ' '.$first->unit : '');
+            $statSub = $first->sub;
+        }
+
+        // Mini preview: column 1 of the module's first tabular dataset — the (label, value, …)
+        // convention every emitted dataframe follows (year→ha, class→area_km2, …).
+        $series = [];
+        foreach ($this->datasets->forModule($area, $slug) as $dataset) {
+            if (!$dataset->getKind()->isTabular()) {
+                continue;
+            }
+            foreach ($dataset->getRows() ?? [] as $row) {
+                $value = $row[1] ?? null;
+                if (\is_int($value) || \is_float($value)) {
+                    $series[] = (float) $value;
+                }
+            }
+            break;
+        }
+
+        return [
             'slug' => $slug,
             'title' => (string) $module->getName(),
             'status' => $module->getStatus()->value,
             'source' => (string) $module->getDataSource(),
             'summary' => $this->areaModules->blurb($slug),
-            'stat' => null,
-            'statSub' => null,
-            'series' => [],
+            'stat' => $stat,
+            'statSub' => $statSub,
+            'series' => $series,
         ];
-
-        // The one live module previews its real Hansen series; templates stay honest (no numbers).
-        if ('forest' === $slug) {
-            $forest = $this->forestLoss->forArea($area);
-            if ($forest['totalHa'] > 0) {
-                $card['stat'] = (int) round($forest['totalHa']);
-                $card['statSub'] = \sprintf(
-                    'ha lost · %02d–%02d',
-                    ((int) $forest['yearFrom']) % 100,
-                    ((int) $forest['yearTo']) % 100,
-                );
-                $card['series'] = array_map(static fn (array $row): float => (float) $row['ha'], $forest['lossByYear']);
-            }
-        }
-
-        return $card;
     }
 }

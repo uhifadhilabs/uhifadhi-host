@@ -16,8 +16,8 @@ use App\Spatial\Entity\AreaOfInterest;
  * resolving its module's {@see Dataset} (by key), mapping the viz's xAxis/yAxis column names onto that
  * dataset's columns, and drawing SVG via the generic {@see ChartSvgService}. Returns null — so the card
  * shows a scaffold — when the viz is unbound, its dataset is absent, its type isn't chartable yet, or a
- * bound column doesn't exist. Unlike the per-module {@see ModuleChartProvider}s, this needs no knowledge
- * of any specific module; it is the generic plot engine those hardcoded drawers defer to.
+ * bound column doesn't exist. It needs no knowledge of any specific module — it IS the plot engine,
+ * for every module.
  */
 final class DatasetChartRenderer
 {

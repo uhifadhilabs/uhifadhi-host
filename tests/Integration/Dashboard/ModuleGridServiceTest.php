@@ -9,19 +9,22 @@ use App\Composition\Enum\ModuleStatus;
 use App\Composition\Factory\AreaModuleFactory;
 use App\Composition\Factory\ModuleFactory;
 use App\Composition\Service\AreaCompositionService;
+use App\Dashboard\Module\ModuleRegistry;
 use App\Dashboard\Service\AreaModuleService;
 use App\Dashboard\Service\ModuleGridService;
 use App\Forest\Factory\ForestLossYearFactory;
-use App\Forest\Service\ForestLossSummaryService;
+use App\Ingestion\Enum\DatasetKind;
+use App\Ingestion\Factory\DatasetFactory;
+use App\Ingestion\Repository\DatasetRepository;
 use App\Spatial\Entity\AreaOfInterest;
 use App\Spatial\Factory\AreaOfInterestFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Zenstruck\Foundry\Test\Factories;
 
 /**
- * The Modules-tab grid: active modules become cards grouped by the flux/pressure/biodiversity zones;
- * the pinned Overview hub is never a card; the live Forest module carries a real stat + series, while
- * template modules carry none.
+ * The Modules-tab grid, module-blind: cards group by zone; the pinned hub is never a card; a module's
+ * headline stat is its DEFINITION's first KPI (computed in its own context) and its spark comes from
+ * its first tabular dataset — modules without either stay honest (no fabricated numbers).
  */
 final class ModuleGridServiceTest extends KernelTestCase
 {
@@ -29,15 +32,17 @@ final class ModuleGridServiceTest extends KernelTestCase
 
     private function service(): ModuleGridService
     {
-        $container = self::getContainer();
-        $composition = $container->get(AreaCompositionService::class);
-        $areaModules = $container->get(AreaModuleService::class);
-        $forestLoss = $container->get(ForestLossSummaryService::class);
+        $c = self::getContainer();
+        $composition = $c->get(AreaCompositionService::class);
+        $areaModules = $c->get(AreaModuleService::class);
+        $registry = $c->get(ModuleRegistry::class);
+        $datasets = $c->get(DatasetRepository::class);
         \assert($composition instanceof AreaCompositionService);
         \assert($areaModules instanceof AreaModuleService);
-        \assert($forestLoss instanceof ForestLossSummaryService);
+        \assert($registry instanceof ModuleRegistry);
+        \assert($datasets instanceof DatasetRepository);
 
-        return new ModuleGridService($composition, $areaModules, $forestLoss);
+        return new ModuleGridService($composition, $areaModules, $registry, $datasets);
     }
 
     public function testGroupsActiveModulesByZoneAndDropsThePinnedHub(): void
@@ -50,7 +55,6 @@ final class ModuleGridServiceTest extends KernelTestCase
 
         $groups = $this->service()->grouped($area);
 
-        // Two zones (Flux, Pressure), in order; the pinned Overview produced no card.
         self::assertSame(
             ['Flux — what the ecosystem is doing', 'Pressure — what people are doing'],
             array_column($groups, 'label'),
@@ -59,7 +63,7 @@ final class ModuleGridServiceTest extends KernelTestCase
         self::assertSame(['roads'], array_column($groups[1]['cards'], 'slug'));
     }
 
-    public function testTheLiveForestCardCarriesRealStatAndSeriesWhileTemplatesDoNot(): void
+    public function testStatComesFromTheModulesDefinitionAndSparkFromItsDataset(): void
     {
         self::bootKernel();
         $area = AreaOfInterestFactory::createOne();
@@ -67,17 +71,23 @@ final class ModuleGridServiceTest extends KernelTestCase
         $this->compose($area, 'landcover', 'Land cover', ModuleStatus::Template, ModuleCategory::Flux, 1);
         ForestLossYearFactory::createOne(['aoi' => $area, 'year' => 2013, 'areaHa' => 186.0]);
         ForestLossYearFactory::createOne(['aoi' => $area, 'year' => 2014, 'areaHa' => 120.0]);
+        DatasetFactory::createOne([
+            'area' => $area, 'moduleSlug' => 'forest', 'key' => 'forest_loss_year',
+            'kind' => DatasetKind::Series, 'columns' => ['year', 'ha', 'cumulative_ha'],
+            'rows' => [[2013, 186.0, 186.0], [2014, 120.0, 306.0]],
+        ]);
 
         $cards = $this->service()->grouped($area)[0]['cards'];
         $forest = $cards[array_search('forest', array_column($cards, 'slug'), true)];
         $landcover = $cards[array_search('landcover', array_column($cards, 'slug'), true)];
 
-        self::assertSame(306, $forest['stat']); // 186 + 120
-        self::assertSame('ha lost · 13–14', $forest['statSub']);
+        // ForestModule's first KPI (computed in App\Forest) becomes the card stat.
+        self::assertSame('306 ha', $forest['stat']);
+        self::assertSame('2013–2014 · real', $forest['statSub']);
+        // The spark is column 1 (the value column) of its first tabular dataset.
         self::assertSame([186.0, 120.0], $forest['series']);
-        self::assertSame('live', $forest['status']);
 
-        // A template module: honest — a summary and source, but no fabricated numbers.
+        // Landcover ships no KPIs and has no dataset here: honest — no numbers.
         self::assertNull($landcover['stat']);
         self::assertSame([], $landcover['series']);
         self::assertNotSame('', $landcover['summary']);

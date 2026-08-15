@@ -12,9 +12,6 @@
     {{ parent() }}
 {% endblock %}
 
-{# ESA WorldCover class → colour, shared by the map layer and the Explore legend. #}
-{% set worldcover = {'Grassland':'#f5e07a','Shrubland':'#b8a600','Tree cover':'#1a6b34','Water':'#2b7fd6','Bare/sparse':'#b0aead','Bare / sparse vegetation':'#b0aead','Cropland':'#e59b3a','Built-up':'#c81e1e','Herb. wetland':'#5ad3c8','Herbaceous wetland':'#5ad3c8','Mangrove':'#0b6e5e','Mangroves':'#0b6e5e','Moss/lichen':'#f2f0d0','Snow/ice':'#ffffff'} %}
-
 {% block content %}
     <div class="page">
         <div class="crumb"><a href="{{ path('dashboard_index') }}">uhifadhi</a> / <a href="{{ path('dashboard_index') }}">areas</a> / <a href="{{ path('dashboard_area_show', {uuid: area.uuid}) }}">{{ area.name|lower }}</a> / modules / {{ module.label|lower }}</div>
@@ -34,75 +31,17 @@
         {% endfor %}
 
         {% if activeTab == 'overview' %}
-            {% if module.slug == 'forest' %}
-                {# The one live module: the real Hansen series and its headline figures. #}
-                <div class="grid g4">
-                    <div class="c kpi"><span class="tab"><span class="idx">FL·01</span>Forest lost</span>
-                        <b class="disp">{% if forest.totalHa > 0 %}{{ (forest.totalHa|round)|number_format }}<em>ha</em>{% else %}—{% endif %}</b>
-                        <span class="sub">{% if forest.yearFrom %}{{ forest.yearFrom }}–{{ forest.yearTo }} · real{% else %}not ingested{% endif %}</span></div>
-                    <div class="c kpi hot"><span class="tab"><span class="idx">FL·02</span>Worst year</span>
-                        <b class="disp">{% if forest.worstYear %}{{ forest.worstYear }}{% else %}—{% endif %}</b>
-                        <span class="sub">{% if forest.worstYear %}{{ (forest.worstHa|round)|number_format }} ha · ex-2001{% else %}awaiting ingestion{% endif %}</span></div>
-                    <div class="c kpi"><span class="tab"><span class="idx">FL·03</span>Years in series</span>
-                        <b class="disp">{{ forest.lossByYear|length }}</b><span class="sub">forest_loss_year rows</span></div>
-                    <div class="c kpi"><span class="tab"><span class="idx">FL·04</span>Peak year</span>
-                        <b class="disp">{% if forest.maxHa > 0 %}{{ (forest.maxHa|round)|number_format }}<em>ha</em>{% else %}—{% endif %}</b>
-                        <span class="sub">single-year maximum</span></div>
-                </div>
-
-                {% if forest.lossByYear is not empty %}
-                    {# The full Forest-loss module — all six plots on the real Hansen series. #}
-                    <div class="grid g2" style="margin-top:20px">
-                        <div class="c" id="annual" style="padding-top:26px">
-                            <span class="tab"><span class="idx">FL·05</span>Annual loss<span class="src">· forest_loss_year</span></span><span class="lib">bar + annotate</span>
-                            {{ include('forest/_annual_loss_chart.html.twig', {series: forest.lossByYear}) }}
-                            <div class="use">Hectares per year; the mean (dashed) excludes 2001, whose bar is clipped — the known Hansen baseline artifact.</div>
-                        </div>
-                        <div class="c" style="padding-top:26px">
-                            <span class="tab"><span class="idx">FL·06</span>Cumulative loss<span class="src">· running total</span></span><span class="lib">area</span>
-                            {{ forestCharts.cumulative|raw }}
-                            <div class="use">The running total — a flattening curve means the loss rate is slowing.</div>
-                        </div>
-                        <div class="c" style="padding-top:26px">
-                            <span class="tab"><span class="idx">FL·07</span>Decomposition<span class="src">· by period</span></span><span class="lib">waterfall</span>
-                            {{ forestCharts.waterfall|raw }}
-                            <div class="use">Additive waterfall — the 2001 artifact (grey) vs genuine periods, building to the total.</div>
-                        </div>
-                        <div class="c" style="padding-top:26px">
-                            <span class="tab"><span class="idx">FL·08</span>Loss trend<span class="src">· 2002–, smoothed</span></span><span class="lib">points + smoother</span>
-                            {{ forestCharts.trend|raw }}
-                            <div class="use">Yearly points with a smoother (2001 excluded) — the drift a straight line would deny.</div>
-                        </div>
-                        <div class="c" style="padding-top:26px">
-                            <span class="tab"><span class="idx">FL·09</span>Dataset coverage<span class="src">· dataset_run</span></span><span class="lib">gantt</span>
-                            {{ forestCharts.coverage|raw }}
-                            <div class="use">What data exists for this park, over what span.</div>
-                        </div>
-                        <div class="c" style="padding-top:26px">
-                            <span class="tab"><span class="idx">FL·10</span>Shelf growth<span class="src">· dataset_run</span></span><span class="lib">step</span>
-                            {{ forestCharts.shelf|raw }}
-                            <div class="use">Datasets on the shelf — the count changes only at ingestion events.</div>
-                        </div>
-                    </div>
-                {% else %}
-                    <div class="c" id="annual" style="padding:24px 0;margin-top:20px;text-align:center">
-                        <p class="fog" style="font-size:12px">No annual series yet — run the Hansen ingestion from the <a href="{{ path('dashboard_area_show', {uuid: area.uuid}) }}#ingest" class="acc">Overview</a>.</p>
-                    </div>
-                {% endif %}
-            {% elseif cockpit %}
-                {# A live data module: the cockpit — KPIs + the map + a class chart + status. #}
-                {{ include('dashboard/_module_overview.html.twig', {
-                    area: area, module: module, cockpit: cockpit, table: table, lastRun: lastRun,
-                    boundary: boundary, mapLayerUrl: mapLayerUrl, palette: worldcover, mapDetail: mapDetail,
-                    overviewCharts: overviewCharts,
-                }) }}
+            {% if kpis is not empty or overviewCharts is not empty or mapLayerUrl %}
+                {# The generic cockpit — KPIs from the module's definition (or derived), the map, the
+                   configured charts, and a status rail. No module-specific branch exists. #}
+                {{ include('dashboard/_module_overview.html.twig') }}
             {% else %}
-                {# Template modules: the scaffold, honest about awaiting its ingestion. #}
+                {# Scaffold: honest about awaiting the module's ingestion. #}
                 <div class="c" style="padding:48px 32px;text-align:center">
                     <span class="chip warn" style="margin:0 auto 16px">template</span>
                     <h2 style="font-size:19px;font-weight:600;margin:0 0 8px">{{ module.label }} — scaffolded</h2>
                     <p class="fog" style="font-size:13px;max-width:520px;margin:0 auto 4px">{{ module.blurb }}</p>
-                    <p class="fog" style="font-size:12px;max-width:520px;margin:10px auto 0">This module's analytics light up when its ingestion lands. The layout and data model are settled in the design; the live view activates once the dataset is wired for this area.</p>
+                    <p class="fog" style="font-size:12px;max-width:520px;margin:10px auto 0">This module's analytics light up when its ingestion lands. Fetch its data from the <a class="acc" href="{{ path('dashboard_area_module', {uuid: area.uuid, module: module.slug, tab: 'settings'}) }}">Settings</a> tab.</p>
                 </div>
             {% endif %}
         {% elseif activeTab == 'dataframe' %}
@@ -113,7 +52,7 @@
             {% endif %}
         {% elseif activeTab == 'explore' %}
             {% if table or mapLayerUrl %}
-                {{ include('dashboard/_module_explore.html.twig', {area: area, module: module, table: table, numeric: tableNumeric, describe: describe, distribution: distribution, boundary: boundary, mapLayerUrl: mapLayerUrl, palette: worldcover, mapDetail: mapDetail}) }}
+                {{ include('dashboard/_module_explore.html.twig') }}
             {% else %}
                 {{ include('dashboard/_module_tab_pending.html.twig', {tab: activeTab, module: module}) }}
             {% endif %}
@@ -124,7 +63,7 @@
                 {{ include('dashboard/_module_tab_pending.html.twig', {tab: activeTab, module: module}) }}
             {% endif %}
         {% elseif activeTab == 'settings' %}
-            {{ include('dashboard/_module_settings.html.twig', {area: area, module: module, mapDetail: mapDetail, lastRun: lastRun, moduleRuns: moduleRuns, moduleDatasets: moduleDatasets, hasMapLayer: hasMapLayer, visualizations: visualizations, configureViz: configureViz, vizColumns: vizColumns, vizTypes: vizTypes}) }}
+            {{ include('dashboard/_module_settings.html.twig') }}
         {% endif %}
     </div>
 {% endblock %}
