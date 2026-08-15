@@ -28,12 +28,18 @@
             <div class="use">The classified layer clipped to the AOI — full view on the <b>Explore</b> tab.</div>
         </div>
 
-        <div class="c" style="padding-top:26px;margin-top:20px">
-            <span class="tab"><span class="idx">LC·06</span>Class areas<span class="src">· km²</span></span>
-            <span class="lib">bar</span>
-            {{ cockpit.chart|raw }}
-            <div class="use">Area per land-cover class — grassland dominates the composition.</div>
-        </div>
+        {% for chart in overviewCharts %}
+            <div class="c" style="padding-top:26px;margin-top:20px">
+                <span class="tab"><span class="idx">LC·{{ 6 + loop.index0 }}</span>{{ chart.title }}<span class="src">· chart</span></span>
+                <span class="lib">{{ chart.type|lower }}</span>
+                {{ chart.svg|raw }}
+                <div class="use">Configured in <a href="{{ path('dashboard_area_module', {uuid: area.uuid, module: module.slug, tab: 'settings'}) }}" class="acc">Settings → Visualizations</a>.</div>
+            </div>
+        {% else %}
+            <div class="c" style="padding:30px 20px;text-align:center;margin-top:20px">
+                <p class="fog" style="font-size:12.5px;max-width:360px;margin:0 auto">No charts configured yet. Add one under <a href="{{ path('dashboard_area_module', {uuid: area.uuid, module: module.slug, tab: 'settings'}) }}" class="acc">Settings → Visualizations</a>.</p>
+            </div>
+        {% endfor %}
     </div>
 
     <div style="display:flex;flex-direction:column;gap:16px">

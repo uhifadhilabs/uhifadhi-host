@@ -48,6 +48,11 @@ class AreaModule
     #[ORM\Column]
     private int $position = 0;
 
+    /** Whether this module's default visualizations have been seeded once — so deleting them all
+     *  doesn't resurrect them on the next view. */
+    #[ORM\Column]
+    private bool $vizSeeded = false;
+
     /** @var Collection<int, Visualization> */
     #[ORM\OneToMany(mappedBy: 'areaModule', targetEntity: Visualization::class, cascade: ['remove'], orphanRemoval: true)]
     #[ORM\OrderBy(['position' => 'ASC'])]
@@ -91,6 +96,18 @@ class AreaModule
     public function setModule(Module $module): static
     {
         $this->module = $module;
+
+        return $this;
+    }
+
+    public function isVizSeeded(): bool
+    {
+        return $this->vizSeeded;
+    }
+
+    public function setVizSeeded(bool $vizSeeded): static
+    {
+        $this->vizSeeded = $vizSeeded;
 
         return $this;
     }

@@ -4,23 +4,18 @@ declare(strict_types=1);
 
 namespace App\Dashboard\Service;
 
-use App\Dashboard\Chart\ChartSvgService;
 use App\Ingestion\Entity\Dataset;
 
 /**
- * The headline cockpit for a class-composition module (today, land cover): its KPI figures and a
- * class-area bar chart, derived from the module's `*_class` dataframe. Returns null for a table that
- * isn't class-shaped (no class/area_km2/pct columns), so the caller falls back to the scaffold.
+ * The headline KPI figures for a class-composition module (today, land cover), derived from the
+ * module's `*_class` dataframe. The Overview's CHARTS are the module's configured visualizations
+ * (rendered separately) — not this service. Returns null for a table that isn't class-shaped
+ * (no class/area_km2/pct columns), so the caller falls back to the scaffold.
  */
 final readonly class ModuleOverviewService
 {
-    public function __construct(
-        private ChartSvgService $svg,
-    ) {
-    }
-
     /**
-     * @return array{dominantClass: string, dominantPct: float, classCount: int, fragmentation: float|null, chart: string}|null
+     * @return array{dominantClass: string, dominantPct: float, classCount: int, fragmentation: float|null}|null
      */
     public function cockpit(Dataset $table): ?array
     {
@@ -35,7 +30,6 @@ final readonly class ModuleOverviewService
         $maxArea = -\INF;
         $patchDensitySum = 0.0;
         $patchDensityN = 0;
-        $areas = [];
         foreach ($rows as $row) {
             $area = (float) ($row[$at['area_km2']] ?? 0);
             if ($area > $maxArea) {
@@ -46,7 +40,6 @@ final readonly class ModuleOverviewService
                 $patchDensitySum += (float) $row[$at['patch_density']];
                 ++$patchDensityN;
             }
-            $areas[] = ['label' => (string) ($row[$at['class']] ?? ''), 'value' => $area];
         }
 
         return [
@@ -54,7 +47,6 @@ final readonly class ModuleOverviewService
             'dominantPct' => (float) ($dominant[$at['pct']] ?? 0),
             'classCount' => \count($rows),
             'fragmentation' => $patchDensityN > 0 ? round($patchDensitySum / $patchDensityN, 1) : null,
-            'chart' => $this->svg->bar($areas, 'km²'),
         ];
     }
 }

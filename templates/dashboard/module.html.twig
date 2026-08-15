@@ -94,6 +94,7 @@
                 {{ include('dashboard/_module_overview.html.twig', {
                     area: area, module: module, cockpit: cockpit, table: table, lastRun: lastRun,
                     boundary: boundary, mapLayerUrl: mapLayerUrl, palette: worldcover, mapDetail: mapDetail,
+                    overviewCharts: overviewCharts,
                 }) }}
             {% else %}
                 {# Template modules: the scaffold, honest about awaiting its ingestion. #}

@@ -10,8 +10,10 @@ use App\Composition\Repository\VisualizationRepository;
 use App\Composition\Service\AreaCompositionService;
 use App\Dashboard\Service\AreaModuleService;
 use App\Dashboard\Service\DatasetPresenter;
+use App\Dashboard\Module\DatasetChartRenderer;
 use App\Dashboard\Service\ModuleMethodService;
 use App\Dashboard\Service\ModuleOverviewService;
+use App\Dashboard\Service\ModuleVizDefaults;
 use App\Forest\Service\ForestChartService;
 use App\Forest\Service\ForestLossSummaryService;
 use App\Ingestion\Entity\Dataset;
@@ -70,6 +72,8 @@ final class ModuleController extends AbstractController
         ModuleFeatureRepository $features,
         AreaCompositionService $composition,
         VisualizationRepository $vizRepo,
+        ModuleVizDefaults $vizDefaults,
+        DatasetChartRenderer $chartRenderer,
         Request $request,
     ): Response {
         $descriptor = $modules->page($area, $module);
@@ -95,6 +99,18 @@ final class ModuleController extends AbstractController
             ];
         }
 
+        // Overview & Settings work with the module's configured visualizations — seeded once with the
+        // module's defaults, so the Overview renders the SAME charts you edit in Settings (never a
+        // hardcoded one). Resolve the composed module and materialise its defaults on first view.
+        $areaModule = null;
+        $overviewCharts = [];
+        if (\in_array($tab, ['overview', 'settings'], true)) {
+            $areaModule = $this->areaModuleFor($composition, $area, $module);
+            if (null !== $areaModule) {
+                $vizDefaults->ensure($areaModule);
+            }
+        }
+
         // Overview / Dataframe / Explore read the module's stored tabular dataset (the rows the cockpit,
         // viewer and describe() work on).
         $table = null;
@@ -113,6 +129,17 @@ final class ModuleController extends AbstractController
                 if (\in_array($tab, ['dataframe', 'explore'], true)) {
                     $describe = $presenter->describe($table);
                     $distribution = $this->distribution($table, $presenter);
+                }
+            }
+        }
+
+        // The Overview's charts ARE the module's configured visualizations, drawn through the generic
+        // renderer (an unbound/not-yet-drawable one is skipped, not faked).
+        if ('overview' === $tab && 'forest' !== $module && null !== $areaModule) {
+            foreach ($areaModule->getVisualizations() as $viz) {
+                $svg = $chartRenderer->render($area, $viz);
+                if (null !== $svg) {
+                    $overviewCharts[] = ['title' => (string) $viz->getTitle(), 'type' => $viz->getType()->label(), 'svg' => $svg];
                 }
             }
         }
@@ -144,7 +171,6 @@ final class ModuleController extends AbstractController
         if ('settings' === $tab) {
             $moduleRuns = $runs->findBy(['aoi' => $area, 'dataset' => $module], ['id' => 'DESC'], 8);
             $moduleDatasets = $datasets->forModule($area, $module);
-            $areaModule = $this->areaModuleFor($composition, $area, $module);
             if (null !== $areaModule) {
                 $visualizations = $areaModule->getVisualizations();
                 $configure = $request->query->get('configure');
@@ -163,6 +189,7 @@ final class ModuleController extends AbstractController
             'tableTypes' => null !== $table ? $presenter->types($table) : [],
             'tableNumeric' => null !== $table ? $presenter->numericColumns($table) : [],
             'cockpit' => $cockpit,
+            'overviewCharts' => $overviewCharts,
             'lastRun' => $lastRun,
             'mapDetail' => $this->mapDetail($lastRun),
             'moduleRuns' => $moduleRuns,
