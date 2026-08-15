@@ -22,7 +22,9 @@ final readonly class SpatialFeatureIngestor
 {
     private const int BATCH_SIZE = 500;
 
-    /** Douglas–Peucker tolerance in degrees (~110 m) — enough to shrink pixel staircases for the map. */
+    /** Fallback Douglas–Peucker tolerance in degrees (~110 m) when the engine sends no hint. A layer's
+     *  RIGHT tolerance depends on its grid resolution — too coarse eats sparse patches — so the engine,
+     *  which knows the grid, sends `simplify` per dataset and this is only the safety default. */
     private const float SIMPLIFY_DEGREES = 0.001;
 
     public function __construct(
@@ -35,7 +37,7 @@ final readonly class SpatialFeatureIngestor
     /**
      * @param list<array{label: string, geometry: array<string, mixed>}> $features raw polygons (WGS84)
      */
-    public function ingest(AreaOfInterest $area, string $moduleSlug, string $key, array $features): void
+    public function ingest(AreaOfInterest $area, string $moduleSlug, string $key, array $features, ?float $simplifyDegrees = null): void
     {
         $areaId = (int) $area->getId();
 
@@ -66,7 +68,7 @@ final readonly class SpatialFeatureIngestor
         $this->em->clear();
 
         try {
-            $this->dissolve($areaId, $moduleSlug, $key);
+            $this->dissolve($areaId, $moduleSlug, $key, $simplifyDegrees ?? self::SIMPLIFY_DEGREES);
         } finally {
             $this->staging->truncate();
         }
@@ -76,7 +78,7 @@ final readonly class SpatialFeatureIngestor
      * Dissolve staging into one MultiPolygon per label — entirely in DQL via the PostGIS bundle's
      * functions — and replace this layer's rows as {@see ModuleFeature} entities, in one transaction.
      */
-    private function dissolve(int $areaId, string $moduleSlug, string $key): void
+    private function dissolve(int $areaId, string $moduleSlug, string $key, float $tolerance): void
     {
         /** @var list<array{label: string, geojson: string|null}> $rows */
         $rows = $this->em->createQuery(\sprintf(
@@ -87,7 +89,7 @@ final readonly class SpatialFeatureIngestor
              GROUP BY s.label
              ORDER BY s.label',
             ModuleFeatureStaging::class,
-        ))->setParameter('tolerance', self::SIMPLIFY_DEGREES)->getArrayResult();
+        ))->setParameter('tolerance', $tolerance)->getArrayResult();
 
         $area = $this->em->find(AreaOfInterest::class, $areaId)
             ?? throw new \RuntimeException(\sprintf('AreaOfInterest %d disappeared mid-run.', $areaId));

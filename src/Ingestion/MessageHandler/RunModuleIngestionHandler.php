@@ -158,6 +158,7 @@ final class RunModuleIngestionHandler
                     $moduleSlug,
                     $key,
                     $this->features($geojson, \is_string($dataset['attribute'] ?? null) ? $dataset['attribute'] : 'label'),
+                    is_numeric($dataset['simplify'] ?? null) ? (float) $dataset['simplify'] : null,
                 );
                 continue;
             }
