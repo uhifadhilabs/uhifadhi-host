@@ -4,29 +4,28 @@
 <h2 class="zone">Data</h2>
 <div class="grid g2">
     <div class="c">
-        <span class="tab"><span class="idx">SET·01</span>Run ingestion<span class="src">· engine</span></span>
-        <div class="rln"><span>Map detail (current)</span>
-            <span class="mono d">{% if mapDetail %}~{{ mapDetail.metres }} m · ×{{ mapDetail.factor }}{% else %}not ingested{% endif %}</span></div>
-        <div class="rln"><span>Stats resolution</span><span class="mono d">30 m</span></div>
-        <div class="rln"><span>Last run</span>
-            <span class="chip {{ lastRun and lastRun.status == 'succeeded' ? 'ok' : (lastRun and lastRun.status == 'running' ? 'warn' : 'idle') }}">{{ lastRun ? lastRun.status : 'none' }}</span></div>
+        <span class="tab"><span class="idx">SET·01</span>Fetch the data<span class="src">· engine</span></span>
+        <div class="rln"><span>Map is drawn at</span>
+            <span class="mono d">{% if mapDetail %}~{{ mapDetail.metres }} m{% else %}not fetched yet{% endif %}</span></div>
+        <div class="rln"><span>Last updated</span>
+            <span class="chip {{ lastRun and lastRun.status == 'succeeded' ? 'ok' : (lastRun and lastRun.status == 'running' ? 'warn' : 'idle') }}">{{ lastRun ? (lastRun.status == 'succeeded' ? 'up to date' : lastRun.status) : 'never' }}</span></div>
         {% if is_granted('ingestion.run') %}
             <form method="post" action="{{ path('dashboard_area_module_run', {uuid: area.uuid, module: module.slug}) }}" style="margin-top:15px">
                 <input type="hidden" name="_token" value="{{ csrf_token('module_run_' ~ module.slug) }}">
-                <label class="mono" style="font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:rgb(var(--c-fog));display:block;margin-bottom:6px">Map detail / coarseness</label>
+                <label class="mono" style="font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:rgb(var(--c-fog));display:block;margin-bottom:6px">How finely to draw the map</label>
                 <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
                     <select name="detail" class="rdf-cf" style="width:auto;margin:0;padding:7px 10px;font-size:12px">
                         {% set cur = mapDetail ? mapDetail.factor : 4 %}
-                        <option value="2"{{ cur == 2 ? ' selected' }}>Fine — ~60 m (heavier)</option>
-                        <option value="4"{{ cur == 4 ? ' selected' }}>Balanced — ~120 m</option>
-                        <option value="8"{{ cur == 8 ? ' selected' }}>Coarse — ~240 m (lighter)</option>
+                        <option value="2"{{ cur == 2 ? ' selected' }}>Sharp (~60 m) — slower to load</option>
+                        <option value="4"{{ cur == 4 ? ' selected' }}>Balanced (~120 m)</option>
+                        <option value="8"{{ cur == 8 ? ' selected' }}>Simple (~240 m) — faster</option>
                     </select>
-                    <button type="submit" class="cta" style="border:0;cursor:pointer;padding:9px 18px">Run ingestion</button>
+                    <button type="submit" class="cta" style="border:0;cursor:pointer;padding:9px 18px">Fetch &amp; update</button>
                 </div>
-                <div class="use">Streams the source, clips to this area, computes the datasets. Detail sets the map-layer polygon coarseness — the stats stay at 30 m.</div>
+                <div class="use">Downloads the source imagery and computes this area's data. The setting only affects how sharp the coloured map looks — the areas and statistics are exact either way.</div>
             </form>
         {% else %}
-            <div class="use">Running ingestion needs the Ingestion capability.</div>
+            <div class="use">Updating the data needs the Ingestion permission.</div>
         {% endif %}
     </div>
 
