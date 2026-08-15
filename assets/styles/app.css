@@ -959,6 +959,16 @@ table.tbl tr:hover .open-btn.danger { background: rgb(var(--c-fail)); color: rgb
 .viz-card.dragging { opacity: .45; border: 1px dashed rgb(var(--c-acc)); }
 .viz-scaffold { text-align: center; padding: 26px 16px; }
 
+/* Compact visualization row (the Settings-tab list): grip · title · type · binding · configure · remove. */
+.viz-row { display: flex; align-items: center; gap: 12px; padding: 11px 15px; border-top: 1px solid var(--c-ln); }
+.viz-row:first-child { border-top: 0; }
+.viz-row.dragging { opacity: .45; }
+.viz-row-title { font-weight: 600; font-size: 13px; min-width: 150px; }
+.viz-row-bind { font-size: 10px; flex: 1; min-width: 0; color: rgb(var(--c-fog)); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.viz-row-cfg { font-size: 10.5px; color: rgb(var(--c-acc)); text-decoration: none; }
+.viz-add-row button { display: flex; align-items: center; gap: 8px; width: 100%; padding: 12px 15px; border: 0; border-top: 1px solid var(--c-ln); background: none; color: rgb(var(--c-acc)); font: inherit; font-weight: 600; font-size: 12.5px; cursor: pointer; text-align: left; }
+.viz-add-row button:hover { background: color-mix(in srgb, rgb(var(--c-acc)) 8%, transparent); }
+
 /* Builder fields + preset buttons. */
 .viz-field { display: flex; flex-direction: column; gap: 5px; font-family: var(--font-mono); font-size: 9px; letter-spacing: .12em; text-transform: uppercase; color: rgb(var(--c-fog)); }
 .viz-field select, .viz-field input { text-transform: none; letter-spacing: 0; font-size: 12px; }

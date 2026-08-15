@@ -1,6 +1,7 @@
-{# Settings tab — the module's Data page: run its ingestion (with the map-detail / coarseness control),
-   the current resolution, recent runs, the datasets on the shelf, and a way into the visualization
-   editor. `mapDetail` = {factor, metres} of the layer currently rendered (null before any run). #}
+{# Settings tab — the module's ONE Data + Visualizations page (matches the design's Settings page):
+   how the module is fed (run ingestion, map detail, runs, datasets, bindings) AND how it is drawn
+   (the visualization list + configure modal), together. `visualizations` = this module's charts,
+   `configureViz` = the viz being configured via ?configure, `vizColumns` = bindable dataset columns. #}
 <h2 class="zone">Data</h2>
 <div class="grid g2">
     <div class="c">
@@ -49,7 +50,7 @@
     <div class="c">
         <span class="tab"><span class="idx">SET·03</span>Datasets<span class="src">· module_dataset</span></span>
         {% if moduleDatasets is empty and not hasMapLayer %}
-            <p class="fog" style="font-size:12px;margin-top:8px">No datasets yet — run the ingestion.</p>
+            <p class="fog" style="font-size:12px;margin-top:8px">No datasets yet — fetch the data above.</p>
         {% else %}
             <div style="margin-top:6px">
                 {% for d in moduleDatasets %}
@@ -60,13 +61,95 @@
                 {% endif %}
             </div>
         {% endif %}
+        <div class="use">The data this module owns on this area. Re-running replaces it in place.</div>
     </div>
 
     <div class="c">
-        <span class="tab"><span class="idx">SET·04</span>Visualizations<span class="src">· charts</span></span>
-        <div class="use" style="margin-top:8px">Configure this module's charts — types, axes and dataset bindings — in the visualization editor.</div>
-        {% if is_granted('module.create') %}
-            <div style="margin-top:12px"><a class="cta" href="{{ path('dashboard_area_module_edit', {uuid: area.uuid, module: module.slug}) }}" style="display:inline-flex">{{ ux_icon('lucide:pencil') }} Edit visualizations</a></div>
+        <span class="tab"><span class="idx">SET·04</span>Chart bindings<span class="src">· visualization</span></span>
+        {% if visualizations is empty %}
+            <p class="fog" style="font-size:12px;margin-top:8px">No charts yet — add one in Visualizations below.</p>
+        {% else %}
+            <div style="margin-top:6px">
+                {% for v in visualizations %}
+                    <div class="rln"><span><b>{{ v.title }}</b><span class="chip idle" style="margin-left:6px">{{ v.type.label }}</span></span>
+                        <span class="mono d" style="font-size:10px">{{ v.datasetKey ?: 'unbound' }}{% if v.datasetKey %} · x={{ v.xAxis }} y={{ v.yAxis }}{% endif %}</span></div>
+                {% endfor %}
+            </div>
         {% endif %}
+        <div class="use">Which chart plots which dataset column. Configure each one in Visualizations below.</div>
     </div>
 </div>
+
+<h2 class="zone" style="margin-top:30px">Visualizations</h2>
+<div class="fog" style="font-size:12px;margin:-8px 0 16px">Each row is a chart — its type, the dataset &amp; columns it plots, and its order. Configure opens the editor; drag the handle to reorder.</div>
+<div class="c" style="padding:0;overflow:hidden"
+     {{ stimulus_controller('module_order') }}
+     data-module-order-url-value="{{ path('dashboard_area_viz_reorder', {uuid: area.uuid, module: module.slug}) }}"
+     data-module-order-token-value="{{ csrf_token('viz_reorder_' ~ module.slug) }}">
+    {% for v in visualizations %}
+        <div class="viz-row" data-module-order-target="row" data-uuid="{{ v.uuidString }}">
+            {% if is_granted('module.create') %}<span class="grip" data-module-order-target="handle" title="drag to reorder">{{ ux_icon('lucide:grip-vertical', {width: 15, height: 15}) }}</span>{% endif %}
+            <span class="viz-row-title">{{ v.title }}</span>
+            <span class="chip idle">{{ v.type.label }}</span>
+            <span class="mono d viz-row-bind">{{ v.datasetKey ?: 'unbound' }}{% if v.datasetKey %} · x={{ v.xAxis }} y={{ v.yAxis }}{% endif %}</span>
+            {% if is_granted('module.create') %}
+                <a href="{{ path('dashboard_area_module', {uuid: area.uuid, module: module.slug, tab: 'settings', configure: v.uuidString}) }}" class="mono viz-row-cfg">Configure</a>
+                <form method="post" action="{{ path('dashboard_area_viz_delete', {uuid: area.uuid, module: module.slug, vizUuid: v.uuidString}) }}" style="display:inline" data-turbo-confirm="Remove “{{ v.title }}”?">
+                    <input type="hidden" name="_token" value="{{ csrf_token('viz_delete_' ~ v.uuidString) }}">
+                    <button type="submit" class="viz-rm" title="remove">×</button>
+                </form>
+            {% endif %}
+        </div>
+    {% else %}
+        <div style="padding:22px 15px;text-align:center"><span class="fog" style="font-size:12.5px">No visualizations yet.</span></div>
+    {% endfor %}
+    {% if is_granted('module.create') %}
+        <form method="post" action="{{ path('dashboard_area_viz_add', {uuid: area.uuid, module: module.slug}) }}" class="viz-add-row">
+            <input type="hidden" name="_token" value="{{ csrf_token('viz_add_' ~ module.slug) }}">
+            <button type="submit">{{ ux_icon('lucide:plus', {width: 14, height: 14}) }} Add visualization</button>
+        </form>
+    {% endif %}
+</div>
+
+{# Configure-visualization modal — overlays THIS Settings page (?configure=<uuid>), one page throughout. #}
+{% if configureViz %}
+    {% set v = configureViz %}
+    {% set closeUrl = path('dashboard_area_module', {uuid: area.uuid, module: module.slug, tab: 'settings'}) %}
+    <div class="modal-scrim">
+        <div class="modal">
+            <div class="modal-head">
+                <div>
+                    <div class="modal-title">Configure visualization</div>
+                    <div class="fog" style="font-size:11.5px">{{ v.title }} · {{ module.label }} module</div>
+                </div>
+                <a class="modal-x" href="{{ closeUrl }}" title="Close">×</a>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="{{ path('dashboard_area_viz_update', {uuid: area.uuid, module: module.slug, vizUuid: v.uuidString}) }}" style="display:flex;flex-direction:column;gap:12px">
+                    <input type="hidden" name="_token" value="{{ csrf_token('viz_update_' ~ v.uuidString) }}">
+                    <label class="viz-field">Title<input class="fld" name="title" value="{{ v.title }}"></label>
+                    <label class="viz-field">Type<select class="fld" name="type">
+                        {% for t in vizTypes %}<option value="{{ t.value }}" {{ v.type == t ? 'selected' }}>{{ t.label }}</option>{% endfor %}
+                    </select></label>
+                    <label class="viz-field">X axis<select class="fld" name="xAxis">
+                        {% for a in vizColumns %}<option {{ v.xAxis == a ? 'selected' }}>{{ a }}</option>{% endfor %}
+                    </select></label>
+                    <label class="viz-field">Y axis<select class="fld" name="yAxis">
+                        {% for a in vizColumns %}<option {{ v.yAxis == a ? 'selected' }}>{{ a }}</option>{% endfor %}
+                    </select></label>
+                    <label class="viz-field">Colour by<select class="fld" name="colourBy">
+                        <option {{ (v.colourBy ?? '') == '' ? 'selected' }}>— none —</option>
+                        {% for a in vizColumns %}<option {{ v.colourBy == a ? 'selected' }}>{{ a }}</option>{% endfor %}
+                    </select></label>
+                    <label class="viz-field">Aggregation<select class="fld" name="aggregation">
+                        {% for g in ['None', 'Sum', 'Mean', 'Max'] %}<option {{ v.aggregation == g ? 'selected' }}>{{ g }}</option>{% endfor %}
+                    </select></label>
+                    <div style="display:flex;align-items:center;gap:12px;margin-top:6px">
+                        <a href="{{ closeUrl }}" class="fog" style="font-size:12px;text-decoration:none">Cancel</a>
+                        <button type="submit" class="cta" style="margin-left:auto">Apply</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endif %}

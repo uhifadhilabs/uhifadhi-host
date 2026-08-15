@@ -123,7 +123,7 @@
                 {{ include('dashboard/_module_tab_pending.html.twig', {tab: activeTab, module: module}) }}
             {% endif %}
         {% elseif activeTab == 'settings' %}
-            {{ include('dashboard/_module_settings.html.twig', {area: area, module: module, mapDetail: mapDetail, lastRun: lastRun, moduleRuns: moduleRuns, moduleDatasets: moduleDatasets, hasMapLayer: hasMapLayer}) }}
+            {{ include('dashboard/_module_settings.html.twig', {area: area, module: module, mapDetail: mapDetail, lastRun: lastRun, moduleRuns: moduleRuns, moduleDatasets: moduleDatasets, hasMapLayer: hasMapLayer, visualizations: visualizations, configureViz: configureViz, vizColumns: vizColumns, vizTypes: vizTypes}) }}
         {% endif %}
     </div>
 {% endblock %}

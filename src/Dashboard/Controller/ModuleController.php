@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace App\Dashboard\Controller;
 
+use App\Composition\Entity\AreaModule;
+use App\Composition\Enum\VizType;
+use App\Composition\Repository\VisualizationRepository;
+use App\Composition\Service\AreaCompositionService;
 use App\Dashboard\Service\AreaModuleService;
 use App\Dashboard\Service\DatasetPresenter;
 use App\Dashboard\Service\ModuleMethodService;
@@ -24,6 +28,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Requirement\Requirement;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Uid\Uuid;
 
 /**
  * A per-area analytical module page (a self-contained sub-app): its own within-module tabs
@@ -63,6 +68,9 @@ final class ModuleController extends AbstractController
         ModuleMethodService $methods,
         ModuleOverviewService $overview,
         ModuleFeatureRepository $features,
+        AreaCompositionService $composition,
+        VisualizationRepository $vizRepo,
+        Request $request,
     ): Response {
         $descriptor = $modules->page($area, $module);
         if (null === $descriptor) {
@@ -127,12 +135,24 @@ final class ModuleController extends AbstractController
             ? $runs->findOneBy(['aoi' => $area, 'dataset' => $module], ['id' => 'DESC'])
             : null;
 
-        // Settings is the module's Data page: recent runs + the datasets on the shelf.
+        // Settings is the module's one Data + Visualizations page: recent runs, the datasets on the
+        // shelf, and this module's visualizations (with the configure modal on ?configure).
         $moduleRuns = [];
         $moduleDatasets = [];
+        $visualizations = [];
+        $configureViz = null;
         if ('settings' === $tab) {
             $moduleRuns = $runs->findBy(['aoi' => $area, 'dataset' => $module], ['id' => 'DESC'], 8);
             $moduleDatasets = $datasets->forModule($area, $module);
+            $areaModule = $this->areaModuleFor($composition, $area, $module);
+            if (null !== $areaModule) {
+                $visualizations = $areaModule->getVisualizations();
+                $configure = $request->query->get('configure');
+                if (\is_string($configure) && Uuid::isValid($configure)) {
+                    $candidate = $vizRepo->findOneBy(['uuid' => Uuid::fromString($configure)]);
+                    $configureViz = $candidate?->getAreaModule()?->getId() === $areaModule->getId() ? $candidate : null;
+                }
+            }
         }
 
         return $this->render('dashboard/module.html.twig', [
@@ -147,6 +167,10 @@ final class ModuleController extends AbstractController
             'mapDetail' => $this->mapDetail($lastRun),
             'moduleRuns' => $moduleRuns,
             'moduleDatasets' => $moduleDatasets,
+            'visualizations' => $visualizations,
+            'configureViz' => $configureViz,
+            'vizColumns' => $this->vizColumns($moduleDatasets),
+            'vizTypes' => VizType::editable(),
             'hasMapLayer' => [] !== $features->forLayer($area, $module, $module.'_map'),
             'describe' => $describe,
             'distribution' => $distribution,
@@ -183,6 +207,36 @@ final class ModuleController extends AbstractController
         return $this->redirectToRoute('dashboard_area_module', [
             'uuid' => $area->getUuidString(), 'module' => $module, 'tab' => 'settings',
         ]);
+    }
+
+    /** The active AreaModule for (area, slug), or null if the module isn't composed on the area. */
+    private function areaModuleFor(AreaCompositionService $composition, AreaOfInterest $area, string $module): ?AreaModule
+    {
+        foreach ($composition->activeFor($area) as $areaModule) {
+            if ($areaModule->getModule()?->getSlug() === $module) {
+                return $areaModule;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * The column names a visualization can bind to — the first tabular dataset's columns.
+     *
+     * @param list<Dataset> $datasets
+     *
+     * @return list<string>
+     */
+    private function vizColumns(array $datasets): array
+    {
+        foreach ($datasets as $dataset) {
+            if ($dataset->getKind()->isTabular() && null !== $dataset->getColumns()) {
+                return array_values($dataset->getColumns());
+            }
+        }
+
+        return [];
     }
 
     /**
