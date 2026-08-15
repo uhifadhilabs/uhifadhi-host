@@ -101,6 +101,143 @@ final class ChartSvgService
         return $out.'</svg>';
     }
 
+    /**
+     * A dot per point (evenly spaced on x, value on y) — the data-driven scatter/dot plot.
+     *
+     * @param list<array{label: string, value: float}> $points
+     */
+    public function scatter(array $points, string $unit = ''): string
+    {
+        if ([] === $points) {
+            return '';
+        }
+        $ymax = $this->niceMax($this->peak($points));
+        [$x, $y] = $this->scales($points, $ymax);
+
+        $out = $this->open('Scatter chart').$this->yGrid($ymax, $unit).$this->xAxis();
+        foreach ($points as $i => $point) {
+            $out .= \sprintf('<circle cx="%s" cy="%s" r="3" fill="%s"/>', round($x($i), 1), round($y($point['value']), 1), self::ACCENT);
+            $out .= $this->xLabel($x($i), $point['label']);
+        }
+
+        return $out.'</svg>';
+    }
+
+    /**
+     * A stepped line (value held until the next point) — for counts/levels that change at events.
+     *
+     * @param list<array{label: string, value: float}> $points
+     */
+    public function step(array $points, string $unit = ''): string
+    {
+        if ([] === $points) {
+            return '';
+        }
+        $ymax = $this->niceMax($this->peak($points));
+        [$x, $y] = $this->scales($points, $ymax);
+
+        $out = $this->open('Step chart').$this->yGrid($ymax, $unit).$this->xAxis();
+        $d = '';
+        foreach ($points as $i => $point) {
+            $px = round($x($i), 1);
+            $py = round($y($point['value']), 1);
+            $d .= 0 === $i ? "M{$px} {$py}" : \sprintf(' L%s %s L%s %s', $px, round($y($points[$i - 1]['value']), 1), $px, $py);
+            $out .= $this->xLabel($x($i), $point['label']);
+        }
+
+        return $out.\sprintf('<path d="%s" fill="none" stroke="%s" stroke-width="2"/>', $d, self::ACCENT).'</svg>';
+    }
+
+    /**
+     * Points plus a moving-average smoother — the trend a straight line would deny (a light LOESS).
+     *
+     * @param list<array{label: string, value: float}> $points
+     */
+    public function lowess(array $points, string $unit = ''): string
+    {
+        if ([] === $points) {
+            return '';
+        }
+        $ymax = $this->niceMax($this->peak($points));
+        [$x, $y] = $this->scales($points, $ymax);
+        $count = \count($points);
+
+        $smoothed = [];
+        foreach ($points as $i => $point) {
+            $lo = max(0, $i - 1);
+            $hi = min($count - 1, $i + 1);
+            $sum = 0.0;
+            for ($j = $lo; $j <= $hi; ++$j) {
+                $sum += $points[$j]['value'];
+            }
+            $smoothed[$i] = round($x($i), 1).' '.round($y($sum / ($hi - $lo + 1)), 1);
+        }
+
+        $out = $this->open('Trend chart').$this->yGrid($ymax, $unit).$this->xAxis();
+        $out .= \sprintf('<path d="M%s" fill="none" stroke="%s" stroke-width="2"/>', implode(' L', $smoothed), self::ACCENT);
+        foreach ($points as $i => $point) {
+            $out .= \sprintf('<circle cx="%s" cy="%s" r="2.5" fill="%s" fill-opacity="0.5"/>', round($x($i), 1), round($y($point['value']), 1), self::ACCENT);
+            $out .= $this->xLabel($x($i), $point['label']);
+        }
+
+        return $out.'</svg>';
+    }
+
+    /**
+     * Cumulative bars — each starts where the previous ended, building to the running total.
+     *
+     * @param list<array{label: string, value: float}> $points
+     */
+    public function waterfall(array $points, string $unit = ''): string
+    {
+        if ([] === $points) {
+            return '';
+        }
+        $running = 0.0;
+        $peak = 0.0;
+        foreach ($points as $point) {
+            $running += $point['value'];
+            $peak = max($peak, $running);
+        }
+        $ymax = $this->niceMax($peak);
+        $slot = $this->pw() / \count($points);
+        $barWidth = min($slot * 0.62, 34.0);
+        $y = fn (float $value): float => self::T + $this->ph() - ($value / $ymax) * $this->ph();
+
+        $out = $this->open('Waterfall chart').$this->yGrid($ymax, $unit).$this->xAxis();
+        $running = 0.0;
+        foreach ($points as $i => $point) {
+            $start = $running;
+            $running += $point['value'];
+            $centre = self::L + $slot * ($i + 0.5);
+            $top = min($y($start), $y($running));
+            $out .= \sprintf(
+                '<rect x="%s" y="%s" width="%s" height="%s" rx="1.5" fill="%s"/>',
+                round($centre - $barWidth / 2, 1), round($top, 1), round($barWidth, 1), round(max(abs($y($start) - $y($running)), 1), 1), self::ACCENT,
+            );
+            $out .= $this->xLabel($centre, $point['label']);
+        }
+
+        return $out.'</svg>';
+    }
+
+    /**
+     * The shared x (by index) / y (by value) scale closures for the line-family charts.
+     *
+     * @param list<array{label: string, value: float}> $points
+     *
+     * @return array{0: \Closure(int): float, 1: \Closure(float): float}
+     */
+    private function scales(array $points, float $ymax): array
+    {
+        $count = \count($points);
+
+        return [
+            fn (int $i): float => self::L + ($count > 1 ? $i / ($count - 1) : 0.5) * $this->pw(),
+            fn (float $value): float => self::T + $this->ph() - ($value / $ymax) * $this->ph(),
+        ];
+    }
+
     private function pw(): float
     {
         return self::W - self::L - self::R;

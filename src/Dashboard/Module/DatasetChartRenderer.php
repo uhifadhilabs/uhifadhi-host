@@ -49,7 +49,13 @@ final class DatasetChartRenderer
             VizType::Bar => $this->charts->bar($points),
             VizType::Line => $this->charts->line($points),
             VizType::Area => $this->charts->area($points),
-            default => null, // box/scatter/… not chartable through the generic engine yet
+            VizType::Scatter => $this->charts->scatter($points),
+            VizType::Waterfall => $this->charts->waterfall($points),
+            VizType::Step => $this->charts->step($points),
+            VizType::Lowess => $this->charts->lowess($points),
+            // Gantt (date ranges) and Box (distributions) need a data shape that isn't (x, y) points —
+            // not drawable from a plain column pair yet, so the card scaffolds.
+            VizType::Gantt, VizType::Box => null,
         };
     }
 

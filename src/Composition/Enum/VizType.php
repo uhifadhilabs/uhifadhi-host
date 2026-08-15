@@ -41,8 +41,15 @@ enum VizType: string
      *
      * @return list<self>
      */
+    /**
+     * The chart types the generic engine can draw from a bound (x, y) column pair — the ones offered
+     * in the configure form. Gantt (date ranges) and Box (distributions) need a different data shape,
+     * so they are excluded until the engine grows to draw them.
+     *
+     * @return list<self>
+     */
     public static function editable(): array
     {
-        return [self::Bar, self::Line, self::Area, self::Scatter];
+        return [self::Bar, self::Line, self::Area, self::Scatter, self::Waterfall, self::Step, self::Lowess];
     }
 }
