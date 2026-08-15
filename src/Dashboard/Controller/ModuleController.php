@@ -11,13 +11,16 @@ use App\Dashboard\Service\ModuleOverviewService;
 use App\Forest\Service\ForestChartService;
 use App\Forest\Service\ForestLossSummaryService;
 use App\Ingestion\Entity\Dataset;
+use App\Ingestion\Message\RunModuleIngestion;
 use App\Ingestion\Repository\DatasetRepository;
 use App\Ingestion\Repository\DatasetRunRepository;
 use App\Ingestion\Repository\ModuleFeatureRepository;
 use App\Spatial\Entity\AreaOfInterest;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Requirement\Requirement;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -27,13 +30,17 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
  * (Overview / Dataframe / Explore / Method / Settings), an "All modules" way back to the area,
  * and per-tab bodies. Overview renders the module's headline view — real data for a live module,
  * a scaffold for a template one. Dataframe / Explore / Method render the module's data once it is
- * wired (see the Dataset pipeline). The area Overview is the area show page, not routed here; the
- * Settings tab links to the module edit surface ({@see ModuleEditController}, guarded module.create).
+ * wired (see the Dataset pipeline). Settings is the module's Data page — run ingestion (map detail /
+ * coarseness), current resolution, recent runs and datasets. The area Overview is the area show page,
+ * not routed here.
  */
 final class ModuleController extends AbstractController
 {
-    /** The view tabs served by this controller. Settings lives on the edit surface, so it is not here. */
-    private const VIEW_TABS = 'overview|dataframe|explore|method';
+    /** The tabs served by this controller (the whole within-module IA). */
+    private const VIEW_TABS = 'overview|dataframe|explore|method|settings';
+
+    /** The stats resolution the engine runs at, in metres — the map detail factor multiplies it. */
+    private const STATS_RES_M = 30;
 
     #[Route(
         '/areas/{uuid}/{module}/{tab}',
@@ -115,6 +122,19 @@ final class ModuleController extends AbstractController
             }
         }
 
+        // The current map detail/resolution comes from the run that produced the layer.
+        $lastRun = \in_array($tab, ['overview', 'settings'], true)
+            ? $runs->findOneBy(['aoi' => $area, 'dataset' => $module], ['id' => 'DESC'])
+            : null;
+
+        // Settings is the module's Data page: recent runs + the datasets on the shelf.
+        $moduleRuns = [];
+        $moduleDatasets = [];
+        if ('settings' === $tab) {
+            $moduleRuns = $runs->findBy(['aoi' => $area, 'dataset' => $module], ['id' => 'DESC'], 8);
+            $moduleDatasets = $datasets->forModule($area, $module);
+        }
+
         return $this->render('dashboard/module.html.twig', [
             'area' => $area,
             'module' => $descriptor,
@@ -123,7 +143,11 @@ final class ModuleController extends AbstractController
             'tableTypes' => null !== $table ? $presenter->types($table) : [],
             'tableNumeric' => null !== $table ? $presenter->numericColumns($table) : [],
             'cockpit' => $cockpit,
-            'lastRun' => 'overview' === $tab ? $runs->findOneBy(['aoi' => $area, 'dataset' => $module], ['id' => 'DESC']) : null,
+            'lastRun' => $lastRun,
+            'mapDetail' => $this->mapDetail($lastRun),
+            'moduleRuns' => $moduleRuns,
+            'moduleDatasets' => $moduleDatasets,
+            'hasMapLayer' => [] !== $features->forLayer($area, $module, $module.'_map'),
             'describe' => $describe,
             'distribution' => $distribution,
             'boundary' => $boundary,
@@ -132,6 +156,56 @@ final class ModuleController extends AbstractController
             'forest' => $forest,
             'forestCharts' => $forestCharts,
         ]);
+    }
+
+    /**
+     * Run (or re-run) a module's ingestion from the UI — async, like the Hansen trigger. The map-detail
+     * factor (coarseness) comes from the form; the worker hands it to the engine.
+     */
+    #[Route('/areas/{uuid}/{module}/run', name: 'dashboard_area_module_run', requirements: ['uuid' => Requirement::UUID, 'module' => '[a-z]+'], methods: ['POST'])]
+    #[IsGranted('ingestion.run')]
+    public function run(
+        #[MapEntity(mapping: ['uuid' => 'uuid'])] AreaOfInterest $area,
+        string $module,
+        Request $request,
+        MessageBusInterface $bus,
+    ): Response {
+        $this->assertCsrf($request, 'module_run_'.$module);
+        $detail = (int) $request->request->get('detail', 4);
+        $detail = max(1, min(16, $detail)); // clamp to a sane range
+
+        $bus->dispatch(new RunModuleIngestion((int) $area->getId(), $module, [
+            'res_m' => (float) self::STATS_RES_M,
+            'display_factor' => $detail,
+        ]));
+        $this->addFlash('success', \sprintf('Ingestion queued for %s (map detail ×%d).', $module, $detail));
+
+        return $this->redirectToRoute('dashboard_area_module', [
+            'uuid' => $area->getUuidString(), 'module' => $module, 'tab' => 'settings',
+        ]);
+    }
+
+    /**
+     * The current map detail from a run's params: the display factor and the metres it resolves to.
+     *
+     * @return array{factor: int, metres: int}|null
+     */
+    private function mapDetail(?object $run): ?array
+    {
+        if (!$run instanceof \App\Ingestion\Entity\DatasetRun) {
+            return null;
+        }
+        $params = $run->getParams()['params'] ?? null;
+        $factor = \is_array($params) && is_numeric($params['display_factor'] ?? null) ? (int) $params['display_factor'] : 4;
+
+        return ['factor' => $factor, 'metres' => $factor * self::STATS_RES_M];
+    }
+
+    private function assertCsrf(Request $request, string $id): void
+    {
+        if (!$this->isCsrfTokenValid($id, (string) $request->request->get('_token'))) {
+            throw $this->createAccessDeniedException('Invalid CSRF token.');
+        }
     }
 
     /**

@@ -1,0 +1,73 @@
+{# Settings tab — the module's Data page: run its ingestion (with the map-detail / coarseness control),
+   the current resolution, recent runs, the datasets on the shelf, and a way into the visualization
+   editor. `mapDetail` = {factor, metres} of the layer currently rendered (null before any run). #}
+<h2 class="zone">Data</h2>
+<div class="grid g2">
+    <div class="c">
+        <span class="tab"><span class="idx">SET·01</span>Run ingestion<span class="src">· engine</span></span>
+        <div class="rln"><span>Map detail (current)</span>
+            <span class="mono d">{% if mapDetail %}~{{ mapDetail.metres }} m · ×{{ mapDetail.factor }}{% else %}not ingested{% endif %}</span></div>
+        <div class="rln"><span>Stats resolution</span><span class="mono d">30 m</span></div>
+        <div class="rln"><span>Last run</span>
+            <span class="chip {{ lastRun and lastRun.status == 'succeeded' ? 'ok' : (lastRun and lastRun.status == 'running' ? 'warn' : 'idle') }}">{{ lastRun ? lastRun.status : 'none' }}</span></div>
+        {% if is_granted('ingestion.run') %}
+            <form method="post" action="{{ path('dashboard_area_module_run', {uuid: area.uuid, module: module.slug}) }}" style="margin-top:15px">
+                <input type="hidden" name="_token" value="{{ csrf_token('module_run_' ~ module.slug) }}">
+                <label class="mono" style="font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:rgb(var(--c-fog));display:block;margin-bottom:6px">Map detail / coarseness</label>
+                <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+                    <select name="detail" class="rdf-cf" style="width:auto;margin:0;padding:7px 10px;font-size:12px">
+                        {% set cur = mapDetail ? mapDetail.factor : 4 %}
+                        <option value="2"{{ cur == 2 ? ' selected' }}>Fine — ~60 m (heavier)</option>
+                        <option value="4"{{ cur == 4 ? ' selected' }}>Balanced — ~120 m</option>
+                        <option value="8"{{ cur == 8 ? ' selected' }}>Coarse — ~240 m (lighter)</option>
+                    </select>
+                    <button type="submit" class="cta" style="border:0;cursor:pointer;padding:9px 18px">Run ingestion</button>
+                </div>
+                <div class="use">Streams the source, clips to this area, computes the datasets. Detail sets the map-layer polygon coarseness — the stats stay at 30 m.</div>
+            </form>
+        {% else %}
+            <div class="use">Running ingestion needs the Ingestion capability.</div>
+        {% endif %}
+    </div>
+
+    <div class="c">
+        <span class="tab"><span class="idx">SET·02</span>Recent runs<span class="src">· dataset_run</span></span>
+        {% if moduleRuns is empty %}
+            <p class="fog" style="font-size:12px;margin-top:8px">No runs yet.</p>
+        {% else %}
+            <div style="margin-top:6px">
+                {% for run in moduleRuns %}
+                    <div class="rln"><span>#{{ run.id }}
+                        {% if run.finishedAt %}<span class="mono d" style="font-size:9px">{{ run.finishedAt|date('M j, H:i') }}</span>{% endif %}</span>
+                        <span class="chip {{ run.status == 'succeeded' ? 'ok' : (run.status == 'running' ? 'warn' : 'fail') }}">{{ run.status }}</span></div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="grid g2" style="margin-top:20px">
+    <div class="c">
+        <span class="tab"><span class="idx">SET·03</span>Datasets<span class="src">· module_dataset</span></span>
+        {% if moduleDatasets is empty and not hasMapLayer %}
+            <p class="fog" style="font-size:12px;margin-top:8px">No datasets yet — run the ingestion.</p>
+        {% else %}
+            <div style="margin-top:6px">
+                {% for d in moduleDatasets %}
+                    <div class="rln"><span>{{ d.key }}</span><span class="mono d">{{ d.kind.value }} · {{ d.rows|length }} rows</span></div>
+                {% endfor %}
+                {% if hasMapLayer %}
+                    <div class="rln"><span>{{ module.slug }}_map</span><span class="mono d">vector · PostGIS layer</span></div>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="c">
+        <span class="tab"><span class="idx">SET·04</span>Visualizations<span class="src">· charts</span></span>
+        <div class="use" style="margin-top:8px">Configure this module's charts — types, axes and dataset bindings — in the visualization editor.</div>
+        {% if is_granted('module.create') %}
+            <div style="margin-top:12px"><a class="cta" href="{{ path('dashboard_area_module_edit', {uuid: area.uuid, module: module.slug}) }}" style="display:inline-flex">{{ ux_icon('lucide:pencil') }} Edit visualizations</a></div>
+        {% endif %}
+    </div>
+</div>

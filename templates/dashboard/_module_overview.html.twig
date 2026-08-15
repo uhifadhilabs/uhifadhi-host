@@ -16,7 +16,7 @@
 <div style="display:grid;grid-template-columns:1fr 296px;gap:20px;align-items:start">
     <div>
         <div class="c" style="padding-top:26px">
-            <span class="tab"><span class="idx">LC·05</span>Land-cover map<span class="src">· {{ table.source }}</span></span>
+            <span class="tab"><span class="idx">LC·05</span>Land-cover map<span class="src">· {{ table.source }}{% if mapDetail %} · ~{{ mapDetail.metres }} m{% endif %}</span></span>
             <span class="lib">leaflet in-app</span>
             <div style="margin-top:12px">
                 {% if mapLayerUrl %}

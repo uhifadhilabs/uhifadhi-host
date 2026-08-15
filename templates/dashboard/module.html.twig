@@ -27,6 +27,12 @@
 
         {{ include('dashboard/_module_tabs.html.twig', {area: area, module: module, active: activeTab}) }}
 
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="c" style="padding:12px 16px;margin-bottom:16px"><span class="acc">✓</span> {{ message }}</div>
+            {% endfor %}
+        {% endfor %}
+
         {% if activeTab == 'overview' %}
             {% if module.slug == 'forest' %}
                 {# The one live module: the real Hansen series and its headline figures. #}
@@ -87,7 +93,7 @@
                 {# A live data module: the cockpit — KPIs + the map + a class chart + status. #}
                 {{ include('dashboard/_module_overview.html.twig', {
                     area: area, module: module, cockpit: cockpit, table: table, lastRun: lastRun,
-                    boundary: boundary, mapLayerUrl: mapLayerUrl, palette: worldcover,
+                    boundary: boundary, mapLayerUrl: mapLayerUrl, palette: worldcover, mapDetail: mapDetail,
                 }) }}
             {% else %}
                 {# Template modules: the scaffold, honest about awaiting its ingestion. #}
@@ -106,7 +112,7 @@
             {% endif %}
         {% elseif activeTab == 'explore' %}
             {% if table or mapLayerUrl %}
-                {{ include('dashboard/_module_explore.html.twig', {area: area, module: module, table: table, numeric: tableNumeric, describe: describe, distribution: distribution, boundary: boundary, mapLayerUrl: mapLayerUrl, palette: worldcover}) }}
+                {{ include('dashboard/_module_explore.html.twig', {area: area, module: module, table: table, numeric: tableNumeric, describe: describe, distribution: distribution, boundary: boundary, mapLayerUrl: mapLayerUrl, palette: worldcover, mapDetail: mapDetail}) }}
             {% else %}
                 {{ include('dashboard/_module_tab_pending.html.twig', {tab: activeTab, module: module}) }}
             {% endif %}
@@ -116,6 +122,8 @@
             {% else %}
                 {{ include('dashboard/_module_tab_pending.html.twig', {tab: activeTab, module: module}) }}
             {% endif %}
+        {% elseif activeTab == 'settings' %}
+            {{ include('dashboard/_module_settings.html.twig', {area: area, module: module, mapDetail: mapDetail, lastRun: lastRun, moduleRuns: moduleRuns, moduleDatasets: moduleDatasets, hasMapLayer: hasMapLayer}) }}
         {% endif %}
     </div>
 {% endblock %}

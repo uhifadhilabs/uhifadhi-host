@@ -47,7 +47,8 @@ final class RunModuleIngestionCommand extends Command
         $this
             ->addArgument('aoi', InputArgument::REQUIRED, 'AreaOfInterest uuid, id or name')
             ->addArgument('module', InputArgument::REQUIRED, 'module slug, e.g. landcover')
-            ->addOption('res', null, InputOption::VALUE_REQUIRED, 'target resolution in metres', '30');
+            ->addOption('res', null, InputOption::VALUE_REQUIRED, 'stats resolution in metres', '30')
+            ->addOption('detail', null, InputOption::VALUE_REQUIRED, 'map-layer coarseness factor (×res): lower = finer, heavier', '4');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -57,8 +58,9 @@ final class RunModuleIngestionCommand extends Command
         $aoiArg = $input->getArgument('aoi');
         $module = $input->getArgument('module');
         $res = $input->getOption('res');
-        if (!\is_string($aoiArg) || !\is_string($module) || !is_numeric($res)) {
-            $io->error('aoi and module must be strings, --res numeric.');
+        $detail = $input->getOption('detail');
+        if (!\is_string($aoiArg) || !\is_string($module) || !is_numeric($res) || !is_numeric($detail)) {
+            $io->error('aoi and module must be strings, --res and --detail numeric.');
 
             return Command::FAILURE;
         }
@@ -75,7 +77,7 @@ final class RunModuleIngestionCommand extends Command
         // Sync transport so the run happens inline and the operator sees its datasets; the web UI
         // routes the same message to the async worker unchanged.
         $this->bus->dispatch(
-            new RunModuleIngestion($area->getId(), $module, ['res_m' => (float) $res]),
+            new RunModuleIngestion($area->getId(), $module, ['res_m' => (float) $res, 'display_factor' => (int) $detail]),
             [new TransportNamesStamp(['sync'])],
         );
 

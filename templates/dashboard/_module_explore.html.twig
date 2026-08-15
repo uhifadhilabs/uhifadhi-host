@@ -5,7 +5,7 @@
    first numeric column's values, sorted high→low. #}
 <div style="display:grid;grid-template-columns:1fr 262px;gap:20px;align-items:start">
     <div class="c" style="padding-top:26px">
-        <span class="tab"><span class="idx">MAP</span>Land-cover map<span class="src">· {{ table ? table.source : 'engine' }}</span></span>
+        <span class="tab"><span class="idx">MAP</span>Land-cover map<span class="src">· {{ table ? table.source : 'engine' }}{% if mapDetail %} · ~{{ mapDetail.metres }} m{% endif %}</span></span>
         <span class="lib">leaflet in-app</span>
         <div style="margin-top:12px">
             {% if mapLayerUrl %}

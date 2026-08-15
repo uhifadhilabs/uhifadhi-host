@@ -7,13 +7,11 @@
     {slug: 'dataframe', label: 'Dataframe', href: path('dashboard_area_module', {uuid: area.uuid, module: module.slug, tab: 'dataframe'})},
     {slug: 'explore',   label: 'Explore',   href: path('dashboard_area_module', {uuid: area.uuid, module: module.slug, tab: 'explore'})},
     {slug: 'method',    label: 'Method',    href: path('dashboard_area_module', {uuid: area.uuid, module: module.slug, tab: 'method'})},
+    {slug: 'settings',  label: 'Settings',  href: path('dashboard_area_module', {uuid: area.uuid, module: module.slug, tab: 'settings'})},
 ] %}
 <a href="{{ path('dashboard_area_modules_grid', {uuid: area.uuid}) }}" class="backbtn">{{ ux_icon('lucide:chevron-left') }}All modules</a>
 <div class="atabs">
     {%- for t in tabs -%}
         <a href="{{ t.href }}"{{ active == t.slug ? ' class="on"' : '' }}>{{ t.label }}</a>
     {%- endfor -%}
-    {%- if is_granted('module.create') -%}
-        <a href="{{ path('dashboard_area_module_edit', {uuid: area.uuid, module: module.slug}) }}"{{ active == 'settings' ? ' class="on"' : '' }}>Settings</a>
-    {%- endif -%}
 </div>

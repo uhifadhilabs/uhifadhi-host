@@ -45,24 +45,26 @@ final class AreaModuleTest extends AuthenticatedWebTestCase
         $area = AreaOfInterestFactory::createOne(['name' => 'Tabbed area']);
         $base = '/areas/'.$area->getUuidString().'/landcover';
 
-        foreach (['dataframe' => 'Dataframe', 'explore' => 'Explore', 'method' => 'Method'] as $tab => $label) {
+        foreach (['dataframe' => 'Dataframe', 'explore' => 'Explore', 'method' => 'Method', 'settings' => 'Settings'] as $tab => $label) {
             $client->request('GET', $base.'/'.$tab);
             self::assertResponseIsSuccessful();
             self::assertSelectorTextContains('.atabs a.on', $label);
         }
     }
 
-    public function testTheSettingsTabLinksToTheModuleEditSurface(): void
+    public function testTheSettingsTabIsTheModulesDataPageWithARunControl(): void
     {
         $client = static::createClient();
         $this->loginAs($client);
         $area = AreaOfInterestFactory::createOne(['name' => 'Tabbed area']);
 
-        $client->request('GET', '/areas/'.$area->getUuidString().'/landcover');
+        $client->request('GET', '/areas/'.$area->getUuidString().'/landcover/settings');
 
         self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('.atabs a.on', 'Settings');
+        // The Data page carries the map-detail / coarseness run control, addressed to the run route.
         self::assertSelectorExists(
-            \sprintf('.atabs a[href$="/%s/modules/landcover/edit"]', $area->getUuidString()),
+            \sprintf('form[action$="/%s/landcover/run"] select[name="detail"]', $area->getUuidString()),
         );
     }
 
