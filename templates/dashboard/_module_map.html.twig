@@ -21,5 +21,30 @@
                 <button type="button" data-base="osm" data-action="map#showBase">Map</button>
             </div>
         </div>
+        {# The legend rides INSIDE the frame so fullscreen carries it; `legendVisible` also shows
+           it in the normal view (Overview — Explore's rail card covers the normal view instead). #}
+        {% set legendClass = 'map-legend' ~ (legendVisible|default(false) ? ' show' : '') %}
+        {% if legend is defined and legend is not empty %}
+            <div class="{{ legendClass }}">
+                {% for item in legend %}
+                    <div class="row">
+                        <span class="sw" style="background:{{ item.color }}"></span>
+                        <span class="lb">{{ item.label }}</span>
+                        {% if item.value %}<span class="vl">{{ item.value }}</span>{% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% elseif rasterLegend is defined and rasterLegend %}
+            <div class="{{ legendClass }}">
+                <p class="ttl">{{ rasterLegend.label }}</p>
+                {% set stops = [] %}
+                {% for stop in rasterLegend.ramp %}{% set stops = stops|merge(['%s %d%%'|format(stop[1], stop[0] * 100)]) %}{% endfor %}
+                <div class="bar" style="background:linear-gradient(90deg, {{ stops|join(', ') }})"></div>
+                <div class="ends">
+                    <span>{{ rasterLegend.min }}{{ rasterLegend.unit is defined ? ' ' ~ rasterLegend.unit }}{% if rasterLegend.low is defined %}<br>{{ rasterLegend.low }}{% endif %}</span>
+                    <span>{{ rasterLegend.max }}{{ rasterLegend.unit is defined ? ' ' ~ rasterLegend.unit }}{% if rasterLegend.high is defined %}<br>{{ rasterLegend.high }}{% endif %}</span>
+                </div>
+            </div>
+        {% endif %}
     </div>
 </div>

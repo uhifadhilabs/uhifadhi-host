@@ -21,9 +21,9 @@
                 <span class="lib">leaflet in-app</span>
                 <div style="margin-top:12px">
                     {% if mapLayerUrl %}
-                        {{ include('dashboard/_module_map.html.twig', {boundary: boundary, mapId: 'overview-map', height: '340px', classLayerUrl: mapLayerUrl, classPalette: palette, rasterUrl: rasterUrl, rasterBounds: rasterBounds}) }}
+                        {{ include('dashboard/_module_map.html.twig', {boundary: boundary, mapId: 'overview-map', height: '340px', classLayerUrl: mapLayerUrl, classPalette: palette, rasterUrl: rasterUrl, rasterBounds: rasterBounds, legend: legend, rasterLegend: rasterLegend, legendVisible: true}) }}
                     {% else %}
-                        {{ include('dashboard/_module_map.html.twig', {boundary: boundary, mapId: 'overview-map', height: '340px', rasterUrl: rasterUrl, rasterBounds: rasterBounds}) }}
+                        {{ include('dashboard/_module_map.html.twig', {boundary: boundary, mapId: 'overview-map', height: '340px', rasterUrl: rasterUrl, rasterBounds: rasterBounds, legend: legend, rasterLegend: rasterLegend, legendVisible: true}) }}
                     {% endif %}
                 </div>
                 <div class="use">{% if mapLayerUrl %}The module's layer clipped to the AOI — full view on the <b>Explore</b> tab.{% else %}The area boundary — the module's layer appears once its data is fetched.{% endif %}</div>

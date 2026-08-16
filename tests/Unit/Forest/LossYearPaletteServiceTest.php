@@ -23,26 +23,26 @@ final class LossYearPaletteServiceTest extends TestCase
 
     public function testTheRampEndpointsMatchTheStops(): void
     {
-        self::assertSame('rgb(255,255,178)', $this->palette->colorFor(2001));
-        self::assertSame('rgb(189,0,38)', $this->palette->colorFor(2023));
+        self::assertSame('rgb(13,8,135)', $this->palette->colorFor(2001));
+        self::assertSame('rgb(240,249,33)', $this->palette->colorFor(2023));
     }
 
     public function testAStopYearReturnsItsExactColor(): void
     {
-        self::assertSame('rgb(254,204,92)', $this->palette->colorFor(2008));
-        self::assertSame('rgb(253,141,60)', $this->palette->colorFor(2014));
-        self::assertSame('rgb(240,59,32)', $this->palette->colorFor(2019));
+        self::assertSame('rgb(126,3,168)', $this->palette->colorFor(2008));
+        self::assertSame('rgb(204,68,120)', $this->palette->colorFor(2014));
+        self::assertSame('rgb(248,149,64)', $this->palette->colorFor(2019));
     }
 
     public function testYearsBetweenStopsInterpolateLinearly(): void
     {
         // 2011 is halfway between the 2008 and 2014 stops.
-        self::assertSame('rgb(254,173,76)', $this->palette->colorFor(2011));
+        self::assertSame('rgb(165,36,144)', $this->palette->colorFor(2011));
     }
 
     public function testYearsOutsideTheDomainClampToTheNearestStop(): void
     {
-        self::assertSame('rgb(255,255,178)', $this->palette->colorFor(1999));
-        self::assertSame('rgb(189,0,38)', $this->palette->colorFor(2030));
+        self::assertSame('rgb(13,8,135)', $this->palette->colorFor(1999));
+        self::assertSame('rgb(240,249,33)', $this->palette->colorFor(2030));
     }
 }

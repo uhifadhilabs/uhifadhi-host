@@ -8,7 +8,7 @@
         <span class="lib">leaflet in-app</span>
         <div style="margin-top:12px">
             {% if mapLayerUrl or rasterUrl %}
-                {{ include('dashboard/_module_map.html.twig', {boundary: boundary, mapId: 'explore-map', height: '360px', classLayerUrl: mapLayerUrl, classPalette: palette, rasterUrl: rasterUrl, rasterBounds: rasterBounds}) }}
+                {{ include('dashboard/_module_map.html.twig', {boundary: boundary, mapId: 'explore-map', height: '360px', classLayerUrl: mapLayerUrl, classPalette: palette, rasterUrl: rasterUrl, rasterBounds: rasterBounds, legend: legend, rasterLegend: rasterLegend}) }}
             {% else %}
                 <div style="height:360px;border-radius:10px;display:flex;align-items:center;justify-content:center;text-align:center;background:rgb(var(--c-raised))">
                     <p class="fog" style="font-size:12px;max-width:300px">The module's layer appears here once its map dataset is fetched for this area.</p>
@@ -38,9 +38,15 @@
         {% set stops = [] %}
         {% for stop in rasterLegend.ramp %}{% set stops = stops|merge(['%s %d%%'|format(stop[1], stop[0] * 100)]) %}{% endfor %}
         <div style="height:12px;border-radius:6px;background:linear-gradient(90deg, {{ stops|join(', ') }})"></div>
-        <div style="display:flex;justify-content:space-between;margin-top:5px">
-            <span class="mono d" style="font-size:10px">{{ rasterLegend.min }}{{ rasterLegend.unit is defined ? ' ' ~ rasterLegend.unit }}</span>
-            <span class="mono d" style="font-size:10px">{{ rasterLegend.max }}{{ rasterLegend.unit is defined ? ' ' ~ rasterLegend.unit }}</span>
+        <div style="display:flex;justify-content:space-between;gap:12px;margin-top:5px">
+            <span style="font-size:11px;max-width:46%">
+                <span class="mono d" style="font-size:10px">{{ rasterLegend.min }}{{ rasterLegend.unit is defined ? ' ' ~ rasterLegend.unit }}</span>
+                {% if rasterLegend.low is defined %}<br>{{ rasterLegend.low }}{% endif %}
+            </span>
+            <span style="font-size:11px;max-width:46%;text-align:right">
+                <span class="mono d" style="font-size:10px">{{ rasterLegend.max }}{{ rasterLegend.unit is defined ? ' ' ~ rasterLegend.unit }}</span>
+                {% if rasterLegend.high is defined %}<br>{{ rasterLegend.high }}{% endif %}
+            </span>
         </div>
         <div class="use">The surface's colour ramp, from the engine run.</div>
     </div>

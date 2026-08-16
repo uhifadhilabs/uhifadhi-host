@@ -14,13 +14,13 @@ import { Controller } from '@hotwired/stimulus';
  * ever serve vector tiles.
  */
 
-// Hansen GFC year ramp (YlOrRd), 2001 → 2023.
+// Hansen GFC year ramp (plasma), 2001 → 2023 — MUST match LossYearPaletteService::STOPS.
 const RAMP = [
-    [2001, [0xff, 0xff, 0xb2]],
-    [2008, [0xfe, 0xcc, 0x5c]],
-    [2014, [0xfd, 0x8d, 0x3c]],
-    [2019, [0xf0, 0x3b, 0x20]],
-    [2023, [0xbd, 0x00, 0x26]],
+    [2001, [0x0d, 0x08, 0x87]],
+    [2008, [0x7e, 0x03, 0xa8]],
+    [2014, [0xcc, 0x44, 0x78]],
+    [2019, [0xf8, 0x95, 0x40]],
+    [2023, [0xf0, 0xf9, 0x21]],
 ];
 
 function yearColor(year) {
