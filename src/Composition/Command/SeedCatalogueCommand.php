@@ -63,7 +63,7 @@ final class SeedCatalogueCommand extends Command
         ['slug' => 'settlement', 'name' => 'Settlement', 'category' => ModuleCategory::Pressure, 'status' => ModuleStatus::Template, 'source' => 'GHSL GHS-BUILT-S', 'pinned' => false, 'active' => true],
         ['slug' => 'livestock', 'name' => 'Livestock', 'category' => ModuleCategory::Pressure, 'status' => ModuleStatus::Template, 'source' => 'FAO GLW · census', 'pinned' => false, 'active' => true],
         ['slug' => 'tourism', 'name' => 'Tourism', 'category' => ModuleCategory::Pressure, 'status' => ModuleStatus::Template, 'source' => 'OSM · imagery', 'pinned' => false, 'active' => true],
-        ['slug' => 'roads', 'name' => 'Roads', 'category' => ModuleCategory::Pressure, 'status' => ModuleStatus::Template, 'source' => 'OSM · GRIP', 'pinned' => false, 'active' => false],
+        ['slug' => 'roads', 'name' => 'Roads', 'category' => ModuleCategory::Pressure, 'status' => ModuleStatus::Template, 'source' => 'OSM · GRIP', 'pinned' => false, 'active' => true],
         ['slug' => 'fires', 'name' => 'Fires', 'category' => ModuleCategory::Pressure, 'status' => ModuleStatus::Template, 'source' => 'FIRMS / VIIRS', 'pinned' => false, 'active' => false],
         ['slug' => 'wildlife', 'name' => 'Wildlife', 'category' => ModuleCategory::Biodiversity, 'status' => ModuleStatus::Template, 'source' => 'GBIF + covariates', 'pinned' => false, 'active' => true],
         ['slug' => 'stations', 'name' => 'Stations', 'category' => ModuleCategory::Biodiversity, 'status' => ModuleStatus::Template, 'source' => 'station feeds', 'pinned' => false, 'active' => true],

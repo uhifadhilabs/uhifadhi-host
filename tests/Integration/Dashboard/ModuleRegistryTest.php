@@ -8,6 +8,7 @@ use App\Dashboard\Module\GenericModule;
 use App\Dashboard\Module\ModuleRegistry;
 use App\Forest\Module\ForestModule;
 use App\LandCover\Module\LandCoverModule;
+use App\Roads\Module\RoadsModule;
 use App\Settlement\Module\SettlementModule;
 use App\Vegetation\Module\VegetationModule;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -29,13 +30,14 @@ final class ModuleRegistryTest extends KernelTestCase
         self::assertInstanceOf(LandCoverModule::class, $registry->definitionFor('landcover'));
         self::assertInstanceOf(VegetationModule::class, $registry->definitionFor('vegetation'));
         self::assertInstanceOf(SettlementModule::class, $registry->definitionFor('settlement'));
+        self::assertInstanceOf(RoadsModule::class, $registry->definitionFor('roads'));
 
-        $generic = $registry->definitionFor('roads');
+        $generic = $registry->definitionFor('fires');
         self::assertInstanceOf(GenericModule::class, $generic);
-        self::assertSame('roads', $generic->slug());
+        self::assertSame('fires', $generic->slug());
         self::assertSame([], $generic->defaultVisualizations());
         self::assertNull($generic->methodCaption());
-        self::assertSame('roads_map', $generic->mapDatasetKey());
+        self::assertSame('fires_map', $generic->mapDatasetKey());
     }
 
     public function testDefinitionsCarryTheirModulesDefaults(): void

@@ -160,6 +160,10 @@ final class RunModuleIngestionHandler
                     $this->features($geojson, \is_string($dataset['attribute'] ?? null) ? $dataset['attribute'] : 'label'),
                     is_numeric($dataset['simplify'] ?? null) ? (float) $dataset['simplify'] : null,
                 );
+                // The spatial ingest clears the EntityManager, detaching $area and $run — re-acquire
+                // managed copies so any dataset AFTER the vector one doesn't link stale entities.
+                $area = $this->em->find(AreaOfInterest::class, (int) $area->getId()) ?? $area;
+                $run = $this->em->find(DatasetRun::class, (int) $run->getId()) ?? $run;
                 continue;
             }
 

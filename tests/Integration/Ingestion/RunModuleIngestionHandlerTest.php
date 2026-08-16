@@ -160,6 +160,37 @@ final class RunModuleIngestionHandlerTest extends KernelTestCase
         self::assertSame([[-3.61, 34.88], [-2.50, 35.97]], $raster->getMeta()['bounds'] ?? null);
     }
 
+    public function testADatasetAfterAVectorLayerSurvivesTheSpatialIngestsEntityManagerClear(): void
+    {
+        self::bootKernel();
+        $area = AreaOfInterestFactory::createOne();
+        $png = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+        // The vector layer's staged ingest clears the EntityManager mid-store; the raster AFTER it
+        // must still land, linked to managed copies of the area and the run (roads regression).
+        $engine = new MockHttpClient(new MockResponse((string) json_encode([
+            'run' => ['module' => 'roads', 'status' => 'succeeded', 'source' => 'OpenStreetMap · Overpass'],
+            'datasets' => [
+                ['key' => 'roads_map', 'kind' => 'vector', 'attribute' => 'label', 'simplify' => 0.00005,
+                 'geojson' => ['type' => 'FeatureCollection', 'features' => [[
+                     'type' => 'Feature', 'properties' => ['label' => 'trunk'],
+                     'geometry' => ['type' => 'Polygon', 'coordinates' => [[[35.0, -3.1], [35.1, -3.1], [35.1, -3.0], [35.0, -3.1]]]],
+                 ]]]],
+                ['key' => 'remoteness', 'kind' => 'raster', 'format' => 'png',
+                 'bounds' => [[-3.61, 34.88], [-2.50, 35.97]], 'data' => $png],
+            ],
+        ]), ['http_code' => 200, 'response_headers' => ['content-type' => 'application/json']]), 'http://engine.test');
+
+        ($this->handler($engine, 'secret-token'))(new RunModuleIngestion((int) $area->getId(), 'roads'));
+
+        $repo = self::getContainer()->get(DatasetRepository::class);
+        \assert($repo instanceof DatasetRepository);
+        $raster = $repo->findOneFor($area, 'roads', 'remoteness');
+        self::assertNotNull($raster, 'the raster after the vector layer must still be stored');
+        self::assertSame($png, $raster->getPayload());
+        self::assertNotNull($raster->getRun()?->getId());
+        self::assertSame(DatasetRun::STATUS_SUCCEEDED, $this->runs()[0]->getStatus());
+    }
+
     private function handler(HttpClientInterface $engine, string $token): RunModuleIngestionHandler
     {
         $c = self::getContainer();
