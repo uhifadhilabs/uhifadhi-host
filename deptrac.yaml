@@ -37,6 +37,9 @@ deptrac:
     - name: Roads
       collectors:
         - { type: classLike, value: 'App\\Roads\\.*' }
+    - name: Wildlife
+      collectors:
+        - { type: classLike, value: 'App\\Wildlife\\.*' }
     - name: Ingestion
       collectors:
         - { type: classLike, value: 'App\\Ingestion\\.*' }
@@ -69,6 +72,9 @@ deptrac:
     # Topic: roads (OSM network, class lengths, remoteness) — a thin context holding its
     # ModuleDefinition; data rides the generic Ingestion store (tables + vector + raster).
     Roads: [Roads, Spatial, Foundation]
+    # Topic: wildlife (GBIF SDM — suitability, drivers, AUC) — a thin context holding its
+    # ModuleDefinition; data rides the generic Ingestion store (tables + rasters).
+    Wildlife: [Wildlife, Spatial, Foundation]
     # Data ingestion — the generic per-module store + engine pipeline. Reads AOIs (Spatial);
     # knows NO topic (topics read from it, never the other way around).
     Ingestion: [Ingestion, Spatial, Foundation]
@@ -77,4 +83,4 @@ deptrac:
     Composition: [Composition, Spatial, Foundation]
     # UI composition layer — the only place allowed to see everything; nothing
     # depends on it.
-    Dashboard: [Dashboard, Spatial, Forest, LandCover, Vegetation, Settlement, Roads, Ingestion, Composition, Access, Foundation]
+    Dashboard: [Dashboard, Spatial, Forest, LandCover, Vegetation, Settlement, Roads, Wildlife, Ingestion, Composition, Access, Foundation]
