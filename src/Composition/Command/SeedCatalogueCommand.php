@@ -60,7 +60,7 @@ final class SeedCatalogueCommand extends Command
         ['slug' => 'climate', 'name' => 'Climate', 'category' => ModuleCategory::Flux, 'status' => ModuleStatus::Template, 'source' => 'CHIRPS · WorldClim', 'pinned' => false, 'active' => true],
         ['slug' => 'drought', 'name' => 'Drought', 'category' => ModuleCategory::Flux, 'status' => ModuleStatus::Template, 'source' => 'SPEI · soil moisture', 'pinned' => false, 'active' => true],
         ['slug' => 'water', 'name' => 'Water', 'category' => ModuleCategory::Flux, 'status' => ModuleStatus::Template, 'source' => 'JRC surface water', 'pinned' => false, 'active' => true],
-        ['slug' => 'anthropogenic', 'name' => 'Anthropogenic', 'category' => ModuleCategory::Pressure, 'status' => ModuleStatus::Template, 'source' => 'GHSL · WSF', 'pinned' => false, 'active' => true],
+        ['slug' => 'settlement', 'name' => 'Settlement', 'category' => ModuleCategory::Pressure, 'status' => ModuleStatus::Template, 'source' => 'GHSL GHS-BUILT-S', 'pinned' => false, 'active' => true],
         ['slug' => 'livestock', 'name' => 'Livestock', 'category' => ModuleCategory::Pressure, 'status' => ModuleStatus::Template, 'source' => 'FAO GLW · census', 'pinned' => false, 'active' => true],
         ['slug' => 'tourism', 'name' => 'Tourism', 'category' => ModuleCategory::Pressure, 'status' => ModuleStatus::Template, 'source' => 'OSM · imagery', 'pinned' => false, 'active' => true],
         ['slug' => 'roads', 'name' => 'Roads', 'category' => ModuleCategory::Pressure, 'status' => ModuleStatus::Template, 'source' => 'OSM · GRIP', 'pinned' => false, 'active' => false],
