@@ -15,7 +15,7 @@ import { Controller } from '@hotwired/stimulus';
  */
 export default class extends Controller {
     static targets = ['type', 'x', 'y', 'preview', 'note', 'datasetKey'];
-    static values = { previewUrl: String };
+    static values = { previewUrl: String, columns: Object }; // columns: datasetKey → [{name, type}]
 
     /** Chart types whose x-axis must be ordered (numeric) rather than categorical. */
     static SERIES_TYPES = ['line', 'area', 'step', 'lowess', 'scatter'];
@@ -30,12 +30,32 @@ export default class extends Controller {
         this.refresh();
     }
 
+    /** Rebinding to another dataset (Q4): swap the X/Y column options to that dataset's, keeping the
+     *  current selections if the new dataset has same-named columns. */
+    datasetChanged() {
+        const columns = this.columnsValue[this.datasetKeyTarget.value] ?? [];
+        for (const select of [this.xTarget, this.yTarget]) {
+            const previous = select.value;
+            select.innerHTML = '';
+            for (const c of columns) {
+                const opt = document.createElement('option');
+                opt.value = c.name;
+                opt.dataset.type = c.type;
+                opt.textContent = `${c.name} <${c.type}>`;
+                select.appendChild(opt);
+            }
+            if (columns.some((c) => c.name === previous)) select.value = previous;
+        }
+        this.applyRules();
+        this.refresh();
+    }
+
     applyRules() {
         const type = this.typeTarget.value;
         const seriesX = this.constructor.SERIES_TYPES.includes(type);
-        const histogram = type === 'histogram';
+        const histogram = type === 'histogram' || type === 'box'; // single-numeric-column types
 
-        // A histogram bins one numeric column — the x axis plays no part.
+        // Histogram/box read one numeric column — the x axis plays no part.
         this.xTarget.disabled = histogram;
         this.xTarget.closest('.viz-field')?.classList.toggle('viz-field-off', histogram);
 

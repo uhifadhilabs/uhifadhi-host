@@ -324,6 +324,67 @@ final class ChartSvgService
     }
 
     /**
+     * A horizontal box plot of the y-values — median, IQR box, 1.5·IQR whiskers, outlier dots (R-style).
+     *
+     * @param list<array{label: string, value: float}> $points
+     */
+    public function box(array $points, string $unit = ''): string
+    {
+        $values = array_map(static fn (array $p): float => $p['value'], $points);
+        if ([] === $values) {
+            return '';
+        }
+        sort($values);
+        $n = \count($values);
+        $q = static function (float $p) use ($values, $n): float {
+            $idx = $p * ($n - 1);
+            $lo = (int) floor($idx);
+            $hi = (int) ceil($idx);
+            return $values[$lo] + ($idx - $lo) * ($values[$hi] - $values[$lo]);
+        };
+        $q1 = $q(0.25);
+        $median = $q(0.5);
+        $q3 = $q(0.75);
+        $iqr = $q3 - $q1;
+        $inliers = array_values(array_filter($values, static fn (float $v): bool => $v >= $q1 - 1.5 * $iqr && $v <= $q3 + 1.5 * $iqr));
+        $lo = $inliers[0] ?? $values[0];
+        $hi = $inliers[\count($inliers) - 1] ?? $values[$n - 1];
+
+        $min = $values[0];
+        $max = $this->niceMax($values[$n - 1]);
+        $span = max($max - min(0.0, $min), 1e-9);
+        $x = fn (float $v): float => self::L + (($v - min(0.0, $min)) / $span) * $this->pw();
+        $cy = self::H / 2;
+        $half = 34.0;
+
+        $out = $this->open('Box plot');
+        // Axis ticks along the bottom.
+        for ($k = 0; $k <= 4; ++$k) {
+            $value = min(0.0, $min) + ($span / 4) * $k;
+            $gx = round($x($value), 1);
+            $out .= \sprintf('<line class="grid" x1="%s" y1="%d" x2="%s" y2="%s"/>', $gx, self::T, $gx, self::T + $this->ph());
+            $out .= $this->xLabel($gx, $this->fmt($value));
+        }
+        // Whiskers, box, median.
+        $out .= \sprintf('<line x1="%s" y1="%s" x2="%s" y2="%s" stroke="%s" stroke-width="1.5"/>', round($x($lo), 1), $cy, round($x($q1), 1), $cy, self::ACCENT);
+        $out .= \sprintf('<line x1="%s" y1="%s" x2="%s" y2="%s" stroke="%s" stroke-width="1.5"/>', round($x($q3), 1), $cy, round($x($hi), 1), $cy, self::ACCENT);
+        foreach ([$lo, $hi] as $cap) {
+            $out .= \sprintf('<line x1="%s" y1="%s" x2="%s" y2="%s" stroke="%s" stroke-width="1.5"/>', round($x($cap), 1), $cy - 12, round($x($cap), 1), $cy + 12, self::ACCENT);
+        }
+        $out .= \sprintf('<rect x="%s" y="%s" width="%s" height="%s" fill="%s" fill-opacity="0.25" stroke="%s" stroke-width="1.5"/>',
+            round($x($q1), 1), $cy - $half / 2, round(max($x($q3) - $x($q1), 1), 1), $half, self::ACCENT, self::ACCENT);
+        $out .= \sprintf('<line x1="%s" y1="%s" x2="%s" y2="%s" stroke="%s" stroke-width="2.5"/>', round($x($median), 1), $cy - $half / 2, round($x($median), 1), $cy + $half / 2, self::ACCENT);
+        // Outliers beyond the whiskers.
+        foreach ($values as $v) {
+            if ($v < $lo || $v > $hi) {
+                $out .= \sprintf('<circle cx="%s" cy="%s" r="2.5" fill="%s" fill-opacity="0.6"/>', round($x($v), 1), $cy, self::ACCENT);
+            }
+        }
+
+        return $out.'</svg>';
+    }
+
+    /**
      * The shared x (by index) / y (by value) scale closures for the line-family charts.
      *
      * @param list<array{label: string, value: float}> $points

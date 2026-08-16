@@ -105,6 +105,9 @@ final class ModuleEditTest extends AuthenticatedWebTestCase
         $client->request('GET', $this->settingsUrl($forest).'/viz/preview?type=histogram&yAxis=ha&datasetKey=forest_loss_year');
         self::assertResponseIsSuccessful();
         self::assertStringContainsString('Histogram', (string) $client->getResponse()->getContent());
+        $client->request('GET', $this->settingsUrl($forest).'/viz/preview?type=box&yAxis=ha&datasetKey=forest_loss_year');
+        self::assertResponseIsSuccessful();
+        self::assertStringContainsString('Box plot', (string) $client->getResponse()->getContent());
 
         // Not drawable (unknown dataset) → 204, the client shows its "no preview" note.
         $client->request('GET', $this->settingsUrl($forest).'/viz/preview?type=bar&xAxis=year&yAxis=ha&datasetKey=bogus');

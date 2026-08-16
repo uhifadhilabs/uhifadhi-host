@@ -1,0 +1,10 @@
+{# The dataset switcher (Q4): one chip per tabular dataset the module owns; the active one is jade.
+   Rendered only when there is a choice to make. Context: datasetKeys, table, area, module, activeTab. #}
+{% if datasetKeys|length > 1 %}
+    <span class="rdf-sel">
+        {%- for key in datasetKeys -%}
+            <a class="chip {{ table and table.key == key ? 'acc' : 'idle' }}" style="text-decoration:none"
+               href="{{ path('dashboard_area_module', {uuid: area.uuid, module: module.slug, tab: activeTab, dataset: key}) }}">{{ key }}</a>
+        {%- endfor -%}
+    </span>
+{% endif %}

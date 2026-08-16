@@ -164,11 +164,22 @@ final class RunModuleIngestionHandler
             }
 
             $path = $dataset['path'] ?? null;
+            $data = $dataset['data'] ?? null;
+            $meta = null;
+            if ('raster' === $kind && \is_string($data)) {
+                // A raster arrives inline as base64 (e.g. a PNG) with its overlay metadata.
+                $meta = [
+                    'format' => \is_string($dataset['format'] ?? null) ? $dataset['format'] : 'png',
+                    'bounds' => \is_array($dataset['bounds'] ?? null) ? $dataset['bounds'] : null,
+                ];
+            }
             $this->datasets->upsert($area, $moduleSlug, $key)
                 ->setKind(DatasetKind::from($kind))
                 ->setColumns($this->stringList($dataset['columns'] ?? null))
                 ->setRows($this->rowList($dataset['rows'] ?? null))
                 ->setPath(\is_string($path) ? $path : null)
+                ->setPayload(\is_string($data) ? $data : null)
+                ->setMeta($meta)
                 ->setSource($source)
                 ->setRun($run);
             $written[$key] = true;

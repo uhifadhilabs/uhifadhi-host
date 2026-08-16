@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace App\Dashboard\Controller;
 
+use App\Ingestion\Enum\DatasetKind;
+use App\Ingestion\Repository\DatasetRepository;
 use App\Ingestion\Repository\ModuleFeatureRepository;
 use App\Spatial\Entity\AreaOfInterest;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Requirement\Requirement;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -47,5 +50,35 @@ final class ModuleLayerController extends AbstractController
         }
 
         return new JsonResponse(['type' => 'FeatureCollection', 'features' => $collection]);
+    }
+
+    /**
+     * A module's raster layer (e.g. an NDVI or suitability surface) as a PNG for the Leaflet
+     * ImageOverlay — decoded from the dataset's inline base64 payload. 404 when absent.
+     */
+    #[Route(
+        '/api/areas/{uuid}/{module}/{key}.png',
+        name: 'module_layer_raster',
+        requirements: ['uuid' => Requirement::UUID, 'module' => '[a-z]+', 'key' => '[a-z0-9_]+'],
+        methods: ['GET'],
+    )]
+    #[IsGranted('module.view')]
+    public function raster(
+        #[MapEntity(mapping: ['uuid' => 'uuid'])] AreaOfInterest $area,
+        string $module,
+        string $key,
+        DatasetRepository $datasets,
+    ): Response {
+        $dataset = $datasets->findOneFor($area, $module, $key);
+        $payload = $dataset?->getPayload();
+        if (null === $dataset || DatasetKind::Raster !== $dataset->getKind() || null === $payload) {
+            throw $this->createNotFoundException('No raster layer.');
+        }
+        $binary = base64_decode($payload, true);
+        if (false === $binary) {
+            throw $this->createNotFoundException('Undecodable raster payload.');
+        }
+
+        return new Response($binary, headers: ['Content-Type' => 'image/png']);
     }
 }

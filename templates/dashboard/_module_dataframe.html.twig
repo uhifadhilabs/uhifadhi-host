@@ -7,6 +7,7 @@
 <div class="rdf" {{ stimulus_controller('dataframe', {pageSize: 25}) }}>
     <div class="rdf-bar">
         <span class="tab"><span class="idx">DF</span>Dataframe · {{ table.key }}</span>
+        {{ include('dashboard/_dataset_chips.html.twig') }}
         <span class="rdf-search" style="margin-left:auto">
             {{ ux_icon('lucide:search', {width: 13, height: 13}) }}
             <input placeholder="Search…" {{ stimulus_target('dataframe', 'search') }} {{ stimulus_action('dataframe', 'search', 'input') }}>

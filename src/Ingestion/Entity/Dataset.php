@@ -56,6 +56,18 @@ class Dataset
     #[ORM\Column(length: 512, nullable: true)]
     private ?string $path = null;
 
+    /** Inline binary payload, base64 (e.g. a raster PNG) — served by the module layer routes. */
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $payload = null;
+
+    /**
+     * Payload metadata (e.g. {format: png, bounds: [[s,w],[n,e]]} for a raster overlay).
+     *
+     * @var array<string, mixed>|null
+     */
+    #[ORM\Column(nullable: true)]
+    private ?array $meta = null;
+
     #[ORM\Column(length: 128)]
     private string $source = '';
 
@@ -152,6 +164,32 @@ class Dataset
     public function setPath(?string $path): static
     {
         $this->path = $path;
+
+        return $this;
+    }
+
+    public function getPayload(): ?string
+    {
+        return $this->payload;
+    }
+
+    public function setPayload(?string $payload): static
+    {
+        $this->payload = $payload;
+
+        return $this;
+    }
+
+    /** @return array<string, mixed>|null */
+    public function getMeta(): ?array
+    {
+        return $this->meta;
+    }
+
+    /** @param array<string, mixed>|null $meta */
+    public function setMeta(?array $meta): static
+    {
+        $this->meta = $meta;
 
         return $this;
     }

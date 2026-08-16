@@ -16,6 +16,7 @@ use App\Dashboard\Service\ModuleOverviewService;
 use App\Dashboard\Service\ModuleVizDefaults;
 use App\Ingestion\Entity\Dataset;
 use App\Ingestion\Entity\DatasetRun;
+use App\Ingestion\Enum\DatasetKind;
 use App\Ingestion\Message\RunModuleIngestion;
 use App\Ingestion\Repository\DatasetRepository;
 use App\Ingestion\Repository\DatasetRunRepository;
@@ -88,17 +89,25 @@ final class ModuleController extends AbstractController
             }
         }
 
-        // The module's first tabular dataset — the rows the KPIs, viewer and describe() work on.
+        // The module's tabular datasets — a module may own several (Q4); `?dataset=<key>` selects
+        // which one the viewer / describe() / KPIs work on (default: the first).
+        $tables = [];
         $table = null;
         $describe = [];
         $distribution = [];
         if (\in_array($tab, ['overview', 'dataframe', 'explore'], true)) {
             foreach ($datasets->forModule($area, $module) as $dataset) {
                 if ($dataset->getKind()->isTabular()) {
-                    $table = $dataset;
-                    break;
+                    $tables[] = $dataset;
                 }
             }
+            $wanted = $request->query->get('dataset');
+            foreach ($tables as $candidate) {
+                if ($candidate->getKey() === $wanted) {
+                    $table = $candidate;
+                }
+            }
+            $table ??= $tables[0] ?? null;
             if (null !== $table && \in_array($tab, ['dataframe', 'explore'], true)) {
                 $describe = $presenter->describe($table);
                 $distribution = $this->distribution($table, $presenter);
@@ -126,15 +135,28 @@ final class ModuleController extends AbstractController
             }
         }
 
-        // The map (Overview + Explore): area boundary + the module's dissolved layer, if ingested.
+        // The map (Overview + Explore): area boundary + the module's dissolved vector layer and/or
+        // its raster surface, whichever the engine produced.
         $boundary = null;
         $mapLayerUrl = null;
+        $rasterUrl = null;
+        $rasterBounds = null;
         if (\in_array($tab, ['overview', 'explore'], true)) {
             $boundary = $this->boundary($area);
             if ([] !== $features->forLayer($area, $module, $definition->mapDatasetKey())) {
                 $mapLayerUrl = $this->generateUrl('module_layer_geojson', [
                     'uuid' => $area->getUuidString(), 'module' => $module, 'key' => $definition->mapDatasetKey(),
                 ]);
+            }
+            foreach ($datasets->forModule($area, $module) as $dataset) {
+                $bounds = $dataset->getMeta()['bounds'] ?? null;
+                if (DatasetKind::Raster === $dataset->getKind() && null !== $dataset->getPayload() && \is_array($bounds)) {
+                    $rasterUrl = $this->generateUrl('module_layer_raster', [
+                        'uuid' => $area->getUuidString(), 'module' => $module, 'key' => (string) $dataset->getKey(),
+                    ]);
+                    $rasterBounds = $bounds;
+                    break;
+                }
             }
         }
 
@@ -165,12 +187,15 @@ final class ModuleController extends AbstractController
             'palette' => $definition->palette(),
             'method' => 'method' === $tab ? $definition->methodCaption() : null,
             'table' => $table,
+            'datasetKeys' => array_map(static fn (Dataset $d): ?string => $d->getKey(), $tables),
             'tableTypes' => null !== $table ? $presenter->types($table) : [],
             'tableNumeric' => null !== $table ? $presenter->numericColumns($table) : [],
             'describe' => $describe,
             'distribution' => $distribution,
             'boundary' => $boundary,
             'mapLayerUrl' => $mapLayerUrl,
+            'rasterUrl' => $rasterUrl,
+            'rasterBounds' => $rasterBounds,
             'lastRun' => $lastRun,
             'mapDetail' => $this->mapDetail($lastRun),
             'moduleRuns' => $moduleRuns,
@@ -242,29 +267,33 @@ final class ModuleController extends AbstractController
     }
 
     /**
-     * The columns a visualization can bind to — name + inferred type from the first tabular dataset,
-     * plus that dataset's key. The configure form uses the types to constrain what each chart type
-     * may plot (Y must be numeric; a chr X only suits bar/waterfall).
+     * The columns a visualization can bind to, PER tabular dataset — name + inferred type. The
+     * configure form offers the dataset select from `keys` and swaps the column options from `byKey`
+     * when it changes; types constrain what each chart type may plot.
      *
      * @param list<Dataset> $datasets
      *
-     * @return array{key: string|null, columns: list<array{name: string, type: string}>}
+     * @return array{keys: list<string>, byKey: array<string, list<array{name: string, type: string}>>}
      */
     private function vizColumnMeta(array $datasets, DatasetPresenter $presenter): array
     {
+        $keys = [];
+        $byKey = [];
         foreach ($datasets as $dataset) {
-            if ($dataset->getKind()->isTabular() && null !== $dataset->getColumns()) {
-                $types = $presenter->types($dataset);
-                $columns = [];
-                foreach (array_values($dataset->getColumns()) as $i => $name) {
-                    $columns[] = ['name' => (string) $name, 'type' => $types[$i] ?? 'chr'];
-                }
-
-                return ['key' => $dataset->getKey(), 'columns' => $columns];
+            $key = $dataset->getKey();
+            if (null === $key || !$dataset->getKind()->isTabular() || null === $dataset->getColumns()) {
+                continue;
             }
+            $types = $presenter->types($dataset);
+            $columns = [];
+            foreach (array_values($dataset->getColumns()) as $i => $name) {
+                $columns[] = ['name' => (string) $name, 'type' => $types[$i] ?? 'chr'];
+            }
+            $keys[] = $key;
+            $byKey[$key] = $columns;
         }
 
-        return ['key' => null, 'columns' => []];
+        return ['keys' => $keys, 'byKey' => $byKey];
     }
 
     /**

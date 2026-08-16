@@ -122,6 +122,7 @@
         <div class="modal" style="max-width:880px"
              {{ stimulus_controller('viz_config', {
                  previewUrl: path('dashboard_area_viz_preview', {uuid: area.uuid, module: module.slug}),
+                 columns: vizColumns.byKey,
              }) }}>
             <div class="modal-head">
                 <div>
@@ -133,20 +134,23 @@
             <div class="modal-body" style="display:grid;grid-template-columns:290px 1fr;gap:22px;align-items:start">
                 <form method="post" action="{{ path('dashboard_area_viz_update', {uuid: area.uuid, module: module.slug, vizUuid: v.uuidString}) }}" style="display:flex;flex-direction:column;gap:12px">
                     <input type="hidden" name="_token" value="{{ csrf_token('viz_update_' ~ v.uuidString) }}">
-                    <input type="hidden" name="datasetKey" value="{{ v.datasetKey ?: vizColumns.key }}" {{ stimulus_target('viz_config', 'datasetKey') }}>
                     <label class="viz-field">Title<input class="fld" name="title" value="{{ v.title }}"></label>
+                    {% set boundKey = v.datasetKey ?: vizColumns.keys|first %}
+                    <label class="viz-field">Dataset<select class="fld" name="datasetKey" {{ stimulus_target('viz_config', 'datasetKey') }} {{ stimulus_action('viz_config', 'datasetChanged', 'change') }}>
+                        {% for key in vizColumns.keys %}<option value="{{ key }}" {{ boundKey == key ? 'selected' }}>{{ key }}</option>{% endfor %}
+                    </select></label>
                     <label class="viz-field">Type<select class="fld" name="type" {{ stimulus_target('viz_config', 'type') }} {{ stimulus_action('viz_config', 'changed', 'change') }}>
                         {% for t in vizTypes %}<option value="{{ t.value }}" {{ v.type == t ? 'selected' }}>{{ t.label }}</option>{% endfor %}
                     </select></label>
                     <label class="viz-field">X axis<select class="fld" name="xAxis" {{ stimulus_target('viz_config', 'x') }} {{ stimulus_action('viz_config', 'changed', 'change') }}>
-                        {% for c in vizColumns.columns %}<option value="{{ c.name }}" data-type="{{ c.type }}" {{ v.xAxis == c.name ? 'selected' }}>{{ c.name }} &lt;{{ c.type }}&gt;</option>{% endfor %}
+                        {% for c in vizColumns.byKey[boundKey]|default([]) %}<option value="{{ c.name }}" data-type="{{ c.type }}" {{ v.xAxis == c.name ? 'selected' }}>{{ c.name }} &lt;{{ c.type }}&gt;</option>{% endfor %}
                     </select></label>
                     <label class="viz-field">Y axis<select class="fld" name="yAxis" {{ stimulus_target('viz_config', 'y') }} {{ stimulus_action('viz_config', 'changed', 'change') }}>
-                        {% for c in vizColumns.columns %}<option value="{{ c.name }}" data-type="{{ c.type }}" {{ v.yAxis == c.name ? 'selected' }}>{{ c.name }} &lt;{{ c.type }}&gt;</option>{% endfor %}
+                        {% for c in vizColumns.byKey[boundKey]|default([]) %}<option value="{{ c.name }}" data-type="{{ c.type }}" {{ v.yAxis == c.name ? 'selected' }}>{{ c.name }} &lt;{{ c.type }}&gt;</option>{% endfor %}
                     </select></label>
                     <label class="viz-field">Colour by<select class="fld" name="colourBy">
                         <option {{ (v.colourBy ?? '') == '' ? 'selected' }}>— none —</option>
-                        {% for c in vizColumns.columns %}<option value="{{ c.name }}" {{ v.colourBy == c.name ? 'selected' }}>{{ c.name }}</option>{% endfor %}
+                        {% for c in vizColumns.byKey[boundKey]|default([]) %}<option value="{{ c.name }}" {{ v.colourBy == c.name ? 'selected' }}>{{ c.name }}</option>{% endfor %}
                     </select></label>
                     <label class="viz-field">Aggregation<select class="fld" name="aggregation">
                         {% for g in ['None', 'Sum', 'Mean', 'Max'] %}<option {{ v.aggregation == g ? 'selected' }}>{{ g }}</option>{% endfor %}

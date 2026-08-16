@@ -135,6 +135,31 @@ final class RunModuleIngestionHandlerTest extends KernelTestCase
         self::assertSame(['landcover_class', 'landcover_map'], $keys, 'the stale split tables are gone');
     }
 
+    public function testARasterDatasetIsStoredInlineWithItsOverlayMeta(): void
+    {
+        self::bootKernel();
+        $area = AreaOfInterestFactory::createOne();
+        $png = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+        $engine = new MockHttpClient(new MockResponse((string) json_encode([
+            'run' => ['module' => 'vegetation', 'status' => 'succeeded', 'source' => 'MODIS MOD13Q1'],
+            'datasets' => [
+                ['key' => 'ndvi_peak', 'kind' => 'raster', 'format' => 'png',
+                 'bounds' => [[-3.61, 34.88], [-2.50, 35.97]], 'data' => $png],
+            ],
+        ]), ['http_code' => 200, 'response_headers' => ['content-type' => 'application/json']]), 'http://engine.test');
+
+        ($this->handler($engine, 'secret-token'))(new RunModuleIngestion((int) $area->getId(), 'vegetation'));
+
+        $repo = self::getContainer()->get(DatasetRepository::class);
+        \assert($repo instanceof DatasetRepository);
+        $raster = $repo->findOneFor($area, 'vegetation', 'ndvi_peak');
+        self::assertNotNull($raster);
+        self::assertSame(DatasetKind::Raster, $raster->getKind());
+        self::assertSame($png, $raster->getPayload());
+        self::assertSame('png', $raster->getMeta()['format'] ?? null);
+        self::assertSame([[-3.61, 34.88], [-2.50, 35.97]], $raster->getMeta()['bounds'] ?? null);
+    }
+
     private function handler(HttpClientInterface $engine, string $token): RunModuleIngestionHandler
     {
         $c = self::getContainer();

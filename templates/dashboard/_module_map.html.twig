@@ -8,7 +8,8 @@
      data-controller="map"
      data-map-boundary-value="{{ boundary|json_encode|e('html_attr') }}"
      {% if classLayerUrl is defined and classLayerUrl %}data-map-class-layer-url-value="{{ classLayerUrl }}"{% endif %}
-     {% if classPalette is defined and classPalette %}data-map-class-palette-value="{{ classPalette|json_encode|e('html_attr') }}"{% endif %}>
+     {% if classPalette is defined and classPalette %}data-map-class-palette-value="{{ classPalette|json_encode|e('html_attr') }}"{% endif %}
+     {% if rasterUrl is defined and rasterUrl %}data-map-raster-url-value="{{ rasterUrl }}" data-map-raster-bounds-value="{{ rasterBounds|json_encode|e('html_attr') }}"{% endif %}>
     <div class="map-view" style="position:relative;height:{{ height }};border-radius:10px;overflow:hidden">
         {# isolation:isolate contains Leaflet's high-z panes so the top-right controls (z-index:10) stay on top. #}
         <div id="{{ mapId }}" data-map-target="canvas" style="position:absolute;inset:0;isolation:isolate"></div>

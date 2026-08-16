@@ -31,8 +31,8 @@ enum VizType: string
     /**
      * The chart types the generic engine can draw from a bound dataset — the ones offered in the
      * configure form. Bar/pie/waterfall take any x + numeric y; the series types want an ordered x;
-     * histogram bins a single numeric column (x is ignored). Gantt (date ranges) and Box
-     * (quartile distributions) need shapes the engine doesn't draw yet, so they stay excluded.
+     * histogram and box read a single numeric column (x is ignored). Gantt needs (label, start, end)
+     * — three columns the two-axis form can't bind yet, so it stays excluded.
      *
      * @return list<self>
      */
@@ -40,7 +40,7 @@ enum VizType: string
     {
         return [
             self::Bar, self::Line, self::Area, self::Scatter,
-            self::Pie, self::Histogram,
+            self::Pie, self::Histogram, self::Box,
             self::Waterfall, self::Step, self::Lowess,
         ];
     }

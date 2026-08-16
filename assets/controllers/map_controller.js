@@ -39,7 +39,7 @@ function yearColor(year) {
 const rgb = (c) => `rgb(${c[0]},${c[1]},${c[2]})`;
 
 export default class extends Controller {
-    static values = { boundary: Object, forestLossUrl: String, classLayerUrl: String, classPalette: Object };
+    static values = { boundary: Object, forestLossUrl: String, classLayerUrl: String, classPalette: Object, rasterUrl: String, rasterBounds: Array };
     static targets = ['canvas', 'frame', 'fromYear', 'toYear', 'bar', 'rangeFill', 'rangeSummary', 'dimBtn'];
 
     static YEAR_MIN = 2001;
@@ -75,6 +75,11 @@ export default class extends Controller {
         // Both overlays are optional — a module map may carry a class layer, the area map forest loss.
         if (this.hasForestLossUrlValue && this.forestLossUrlValue) this.loadForestLoss();
         if (this.hasClassLayerUrlValue && this.classLayerUrlValue) this.loadClassLayer();
+        // A continuous raster surface (NDVI, biomass, suitability …) as an ImageOverlay, under vectors.
+        if (this.hasRasterUrlValue && this.rasterUrlValue && this.hasRasterBoundsValue && this.rasterBoundsValue.length === 2) {
+            this.rasterLayer = this.L.imageOverlay(this.rasterUrlValue, this.rasterBoundsValue, { opacity: 0.8 }).addTo(this.map);
+            this.rasterLayer.bringToBack();
+        }
     }
 
     // Tear the Leaflet map down when Stimulus disconnects (Turbo/soft-nav navigation, cached previews).

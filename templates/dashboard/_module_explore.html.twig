@@ -8,7 +8,7 @@
         <span class="lib">leaflet in-app</span>
         <div style="margin-top:12px">
             {% if mapLayerUrl %}
-                {{ include('dashboard/_module_map.html.twig', {boundary: boundary, mapId: 'explore-map', height: '360px', classLayerUrl: mapLayerUrl, classPalette: palette}) }}
+                {{ include('dashboard/_module_map.html.twig', {boundary: boundary, mapId: 'explore-map', height: '360px', classLayerUrl: mapLayerUrl, classPalette: palette, rasterUrl: rasterUrl, rasterBounds: rasterBounds}) }}
             {% else %}
                 <div style="height:360px;border-radius:10px;display:flex;align-items:center;justify-content:center;text-align:center;background:rgb(var(--c-raised))">
                     <p class="fog" style="font-size:12px;max-width:300px">The module's layer appears here once its map dataset is fetched for this area.</p>
@@ -36,7 +36,7 @@
 
 <div class="grid g2" style="margin-top:22px">
     <div class="c">
-        <span class="tab"><span class="idx">DS</span>Summary<span class="src">· describe()</span></span>
+        <span class="tab"><span class="idx">DS</span>Summary<span class="src">· describe()</span>{{ include('dashboard/_dataset_chips.html.twig') }}</span>
         <div style="overflow-x:auto;margin-top:2px">
             <table class="dtable">
                 <thead>

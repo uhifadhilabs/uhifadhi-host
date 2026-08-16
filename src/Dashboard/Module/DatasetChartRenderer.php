@@ -49,8 +49,8 @@ final class DatasetChartRenderer
             return null;
         }
 
-        // A histogram bins ONE numeric column: the y column doubles as the (unused) label source.
-        $points = $this->points($dataset, VizType::Histogram === $type ? $y : $x, $y);
+        // Histogram and box read ONE numeric column: the y column doubles as the (unused) label source.
+        $points = $this->points($dataset, \in_array($type, [VizType::Histogram, VizType::Box], true) ? $y : $x, $y);
         if (null === $points || [] === $points) {
             return null;
         }
@@ -62,12 +62,12 @@ final class DatasetChartRenderer
             VizType::Scatter => $this->charts->scatter($points),
             VizType::Pie => $this->charts->pie($points),
             VizType::Histogram => $this->charts->histogram($points),
+            VizType::Box => $this->charts->box($points),
             VizType::Waterfall => $this->charts->waterfall($points),
             VizType::Step => $this->charts->step($points),
             VizType::Lowess => $this->charts->lowess($points),
-            // Gantt (date ranges) and Box (quartile distributions) need a data shape that isn't
-            // (x, y) points — not drawable yet, so the card scaffolds (phase E).
-            VizType::Gantt, VizType::Box => null,
+            // Gantt needs (label, start, end) — three columns the two-axis form can't bind yet.
+            VizType::Gantt => null,
         };
     }
 
