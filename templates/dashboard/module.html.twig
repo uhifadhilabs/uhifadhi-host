@@ -51,7 +51,7 @@
                 {{ include('dashboard/_module_tab_pending.html.twig', {tab: activeTab, module: module}) }}
             {% endif %}
         {% elseif activeTab == 'explore' %}
-            {% if table or mapLayerUrl %}
+            {% if table or mapLayerUrl or rasterUrl %}
                 {{ include('dashboard/_module_explore.html.twig') }}
             {% else %}
                 {{ include('dashboard/_module_tab_pending.html.twig', {tab: activeTab, module: module}) }}

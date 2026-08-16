@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Forest\Module;
 
 use App\Forest\Service\ForestLossSummaryService;
+use App\Forest\Service\LossYearPaletteService;
 use App\Spatial\Entity\AreaOfInterest;
 use App\Spatial\Module\Kpi;
 use App\Spatial\Module\MethodCaption;
@@ -20,12 +21,30 @@ final class ForestModule extends ModuleDefinition
 {
     public function __construct(
         private readonly ForestLossSummaryService $loss,
+        private readonly LossYearPaletteService $lossPalette,
     ) {
     }
 
     public function slug(): string
     {
         return 'forest';
+    }
+
+    public function mapDatasetKey(): string
+    {
+        return 'forest_loss_map';
+    }
+
+    public function palette(): array
+    {
+        // Year label → the Hansen YlOrRd ramp — the SAME stops the map's loss layer uses,
+        // so the legend swatches match the polygons.
+        $palette = [];
+        foreach (range(2001, (int) date('Y')) as $year) {
+            $palette[(string) $year] = $this->lossPalette->colorFor($year);
+        }
+
+        return $palette;
     }
 
     public function kpis(AreaOfInterest $area): array

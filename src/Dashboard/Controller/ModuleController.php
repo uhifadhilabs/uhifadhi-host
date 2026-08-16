@@ -141,12 +141,15 @@ final class ModuleController extends AbstractController
         $mapLayerUrl = null;
         $rasterUrl = null;
         $rasterBounds = null;
+        $legend = [];
         if (\in_array($tab, ['overview', 'explore'], true)) {
             $boundary = $this->boundary($area);
-            if ([] !== $features->forLayer($area, $module, $definition->mapDatasetKey())) {
+            $layerFeatures = $features->forLayer($area, $module, $definition->mapDatasetKey());
+            if ([] !== $layerFeatures) {
                 $mapLayerUrl = $this->generateUrl('module_layer_geojson', [
                     'uuid' => $area->getUuidString(), 'module' => $module, 'key' => $definition->mapDatasetKey(),
                 ]);
+                $legend = $this->legend($layerFeatures, $definition->palette(), $table);
             }
             foreach ($datasets->forModule($area, $module) as $dataset) {
                 $bounds = $dataset->getMeta()['bounds'] ?? null;
@@ -193,6 +196,7 @@ final class ModuleController extends AbstractController
             'describe' => $describe,
             'distribution' => $distribution,
             'boundary' => $boundary,
+            'legend' => $legend,
             'mapLayerUrl' => $mapLayerUrl,
             'rasterUrl' => $rasterUrl,
             'rasterBounds' => $rasterBounds,
@@ -252,6 +256,54 @@ final class ModuleController extends AbstractController
      *
      * @return array<string, mixed>
      */
+    /**
+     * The map legend, driven by the layer's actual dissolved labels (not the dataframe): each label
+     * coloured by the definition's palette, with a value attached only when the module's first table
+     * is genuinely class-shaped (its first column contains that label).
+     *
+     * @param list<\App\Ingestion\Entity\ModuleFeature> $layerFeatures
+     * @param array<string, string>                     $palette
+     *
+     * @return list<array{label: string, color: string, value: string|null}>
+     */
+    private function legend(array $layerFeatures, array $palette, ?Dataset $table): array
+    {
+        $units = ['area_km2' => ' km²', 'ha' => ' ha', 'length_km' => ' km', 'km2' => ' km²'];
+        $values = [];
+        $valueSuffix = '';
+        if (null !== $table) {
+            $columns = $table->getColumns() ?? [];
+            $valueSuffix = $units[$columns[1] ?? ''] ?? '';
+            foreach ($table->getRows() ?? [] as $row) {
+                // Keys are stringified so integer labels (forest's years) match the layer's labels.
+                if (\is_array($row) && \is_scalar($row[0] ?? null) && !\is_bool($row[0]) && is_numeric($row[1] ?? null)) {
+                    $values[(string) $row[0]] = (float) $row[1];
+                }
+            }
+        }
+
+        $labels = array_values(array_unique(array_map(
+            static fn ($feature) => (string) $feature->getLabel(),
+            $layerFeatures,
+        )));
+        // All-numeric labels (years) read chronologically; class labels read largest-first.
+        if ([] !== $labels && array_all($labels, static fn (string $label): bool => is_numeric($label))) {
+            usort($labels, static fn (string $a, string $b): int => (float) $a <=> (float) $b);
+        } else {
+            usort($labels, static function (string $a, string $b) use ($values): int {
+                return ($values[$b] ?? -\INF) <=> ($values[$a] ?? -\INF) ?: strcmp($a, $b);
+            });
+        }
+
+        return array_map(static fn (string $label): array => [
+            'label' => $label,
+            'color' => $palette[$label] ?? '#888888',
+            'value' => isset($values[$label])
+                ? number_format($values[$label], $values[$label] < 10 ? 2 : 0).$valueSuffix
+                : null,
+        ], $labels);
+    }
+
     private function boundary(AreaOfInterest $area): array
     {
         $geom = $area->getGeom();

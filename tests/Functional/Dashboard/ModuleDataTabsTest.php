@@ -57,10 +57,25 @@ final class ModuleDataTabsTest extends AuthenticatedWebTestCase
         $this->loginAs($client);
         $area = AreaOfInterestFactory::createOne(['name' => 'Explore area']);
         $this->seedLandcover($area);
+        // A dissolved layer feature → the legend derives from the layer's labels + the palette,
+        // with the class-shaped table contributing the km² value.
+        $em = static::getContainer()->get(\Doctrine\ORM\EntityManagerInterface::class);
+        \assert($em instanceof \Doctrine\ORM\EntityManagerInterface);
+        $em->persist((new \App\Ingestion\Entity\ModuleFeature())
+            ->setAoi($area)
+            ->setModuleSlug('landcover')
+            ->setDatasetKey('landcover_map')
+            ->setLabel('Grassland')
+            ->setGeom('{"type":"MultiPolygon","coordinates":[[[[35.0,-3.1],[35.1,-3.1],[35.1,-3.0],[35.0,-3.1]]]]}'));
+        $em->flush();
 
         $client->request('GET', '/areas/'.$area->getUuidString().'/landcover/explore');
 
         self::assertResponseIsSuccessful();
+        // The legend: the layer's Grassland label, its palette colour, and the table's area.
+        self::assertSelectorTextContains('body', 'Grassland');
+        self::assertSelectorExists('[style*="#f5e07a"]');
+        self::assertSelectorTextContains('body', '2,590 km²');
         self::assertSelectorTextContains('.dtable', 'area_km2');
         // describe(): the class column is non-numeric, so it is not a describe row.
         self::assertSelectorTextNotContains('.dtable tbody', 'Grassland');
@@ -128,6 +143,25 @@ final class ModuleDataTabsTest extends AuthenticatedWebTestCase
         self::assertResponseIsSuccessful();
         self::assertResponseHeaderSame('Content-Type', 'image/png');
         self::assertSame(base64_decode($png, true), $client->getResponse()->getContent());
+    }
+
+    public function testARasterOnlyModuleStillGetsTheExploreMap(): void
+    {
+        $client = static::createClient();
+        $this->loginAs($client);
+        $area = AreaOfInterestFactory::createOne(['name' => 'Raster-only area']);
+        $png = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+        DatasetFactory::createOne([
+            'area' => $area, 'moduleSlug' => 'wildlife', 'key' => 'elephant_suitability',
+            'kind' => DatasetKind::Raster, 'columns' => null, 'rows' => null,
+            'payload' => $png, 'meta' => ['format' => 'png', 'bounds' => [[-3.61, 34.88], [-2.50, 35.97]]],
+        ]);
+
+        $client->request('GET', '/areas/'.$area->getUuidString().'/wildlife/explore');
+
+        self::assertResponseIsSuccessful();
+        // No vector layer exists, but the raster overlay alone must bring up the Leaflet map.
+        self::assertSelectorExists('[data-controller~="map"][data-map-raster-url-value]');
     }
 
     public function testAModuleWithoutADatasetKeepsThePendingShell(): void

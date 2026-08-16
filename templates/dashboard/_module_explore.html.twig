@@ -7,7 +7,7 @@
         <span class="tab"><span class="idx">MAP</span>{{ module.label }} map<span class="src">· {{ table ? table.source : 'engine' }}{% if mapDetail %} · ~{{ mapDetail.metres }} m{% endif %}</span></span>
         <span class="lib">leaflet in-app</span>
         <div style="margin-top:12px">
-            {% if mapLayerUrl %}
+            {% if mapLayerUrl or rasterUrl %}
                 {{ include('dashboard/_module_map.html.twig', {boundary: boundary, mapId: 'explore-map', height: '360px', classLayerUrl: mapLayerUrl, classPalette: palette, rasterUrl: rasterUrl, rasterBounds: rasterBounds}) }}
             {% else %}
                 <div style="height:360px;border-radius:10px;display:flex;align-items:center;justify-content:center;text-align:center;background:rgb(var(--c-raised))">
@@ -17,21 +17,26 @@
         </div>
         <div class="use">The module's layer clipped to the AOI.</div>
     </div>
+    {% if legend is not empty %}
     <div class="c">
-        <span class="tab"><span class="idx">LG</span>Legend<span class="src">· classes</span></span>
-        {% if table %}
-            <div style="margin-top:8px">
-                {% for row in table.rows %}
-                    <div style="display:flex;align-items:center;gap:9px;padding:5px 0">
-                        <span style="width:14px;height:14px;border-radius:3px;flex:none;background:{{ palette[row[0]] ?? '#888888' }}"></span>
-                        <span style="font-size:12px;flex:1">{{ row[0] }}</span>
-                        <span class="mono d" style="font-size:10px">{{ table.columns[1] is defined ? (row[1]|number_format(row[1] < 10 ? 2 : 0)) ~ (table.columns[1] == 'area_km2' ? ' km²' : '') : '' }}</span>
-                    </div>
-                {% endfor %}
-            </div>
-        {% endif %}
-        <div class="use">Colours come from the module's palette.</div>
+        <span class="tab"><span class="idx">LG</span>Legend<span class="src">· {{ legend|length }} classes</span></span>
+        <div style="margin-top:8px;max-height:340px;overflow-y:auto">
+            {% for item in legend %}
+                <div style="display:flex;align-items:center;gap:9px;padding:5px 0">
+                    <span style="width:14px;height:14px;border-radius:3px;flex:none;background:{{ item.color }}"></span>
+                    <span style="font-size:12px;flex:1">{{ item.label }}</span>
+                    {% if item.value %}<span class="mono d" style="font-size:10px">{{ item.value }}</span>{% endif %}
+                </div>
+            {% endfor %}
+        </div>
+        <div class="use">The map layer's classes, coloured by the module's palette.</div>
     </div>
+    {% else %}
+    <div class="c">
+        <span class="tab"><span class="idx">LG</span>Legend<span class="src">· surface</span></span>
+        <p class="fog" style="font-size:12px;margin-top:10px">This module's map is a continuous surface (engine-coloured raster) — no class legend.</p>
+    </div>
+    {% endif %}
 </div>
 
 <div class="grid g2" style="margin-top:22px">
