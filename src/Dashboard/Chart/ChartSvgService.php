@@ -33,6 +33,7 @@ final class ChartSvgService
         $slot = $this->pw() / \count($points);
         $barWidth = min($slot * 0.62, 34.0);
 
+        $stride = $this->xStride(\count($points));
         $out = $this->open('Bar chart').$this->yGrid($ymax, $unit).$this->xAxis();
         foreach ($points as $i => $point) {
             $centre = self::L + $slot * ($i + 0.5);
@@ -46,7 +47,9 @@ final class ChartSvgService
                 round($height, 1),
                 self::ACCENT,
             );
-            $out .= $this->xLabel($centre, $point['label']);
+            if (0 === $i % $stride) {
+                $out .= $this->xLabel($centre, $point['label']);
+            }
         }
 
         return $out.'</svg>';
@@ -88,6 +91,7 @@ final class ChartSvgService
         }
         $line = 'M'.implode(' L', $coords);
 
+        $stride = $this->xStride(\count($points));
         $out = $this->open($label).$this->yGrid($ymax, $unit).$this->xAxis();
         if ($fill) {
             $areaPath = \sprintf('M%s %s L%s L%s %s Z', round($x(0), 1), $baseline, implode(' L', $coords), round($x($count - 1), 1), $baseline);
@@ -95,7 +99,9 @@ final class ChartSvgService
         }
         $out .= \sprintf('<path d="%s" fill="none" stroke="%s" stroke-width="2"/>', $line, self::ACCENT);
         foreach ($points as $i => $point) {
-            $out .= $this->xLabel($x($i), $point['label']);
+            if (0 === $i % $stride) {
+                $out .= $this->xLabel($x($i), $point['label']);
+            }
         }
 
         return $out.'</svg>';
@@ -114,10 +120,13 @@ final class ChartSvgService
         $ymax = $this->niceMax($this->peak($points));
         [$x, $y] = $this->scales($points, $ymax);
 
+        $stride = $this->xStride(\count($points));
         $out = $this->open('Scatter chart').$this->yGrid($ymax, $unit).$this->xAxis();
         foreach ($points as $i => $point) {
             $out .= \sprintf('<circle cx="%s" cy="%s" r="3" fill="%s"/>', round($x($i), 1), round($y($point['value']), 1), self::ACCENT);
-            $out .= $this->xLabel($x($i), $point['label']);
+            if (0 === $i % $stride) {
+                $out .= $this->xLabel($x($i), $point['label']);
+            }
         }
 
         return $out.'</svg>';
@@ -136,13 +145,16 @@ final class ChartSvgService
         $ymax = $this->niceMax($this->peak($points));
         [$x, $y] = $this->scales($points, $ymax);
 
+        $stride = $this->xStride(\count($points));
         $out = $this->open('Step chart').$this->yGrid($ymax, $unit).$this->xAxis();
         $d = '';
         foreach ($points as $i => $point) {
             $px = round($x($i), 1);
             $py = round($y($point['value']), 1);
             $d .= 0 === $i ? "M{$px} {$py}" : \sprintf(' L%s %s L%s %s', $px, round($y($points[$i - 1]['value']), 1), $px, $py);
-            $out .= $this->xLabel($x($i), $point['label']);
+            if (0 === $i % $stride) {
+                $out .= $this->xLabel($x($i), $point['label']);
+            }
         }
 
         return $out.\sprintf('<path d="%s" fill="none" stroke="%s" stroke-width="2"/>', $d, self::ACCENT).'</svg>';
@@ -173,11 +185,14 @@ final class ChartSvgService
             $smoothed[$i] = round($x($i), 1).' '.round($y($sum / ($hi - $lo + 1)), 1);
         }
 
+        $stride = $this->xStride(\count($points));
         $out = $this->open('Trend chart').$this->yGrid($ymax, $unit).$this->xAxis();
         $out .= \sprintf('<path d="M%s" fill="none" stroke="%s" stroke-width="2"/>', implode(' L', $smoothed), self::ACCENT);
         foreach ($points as $i => $point) {
             $out .= \sprintf('<circle cx="%s" cy="%s" r="2.5" fill="%s" fill-opacity="0.5"/>', round($x($i), 1), round($y($point['value']), 1), self::ACCENT);
-            $out .= $this->xLabel($x($i), $point['label']);
+            if (0 === $i % $stride) {
+                $out .= $this->xLabel($x($i), $point['label']);
+            }
         }
 
         return $out.'</svg>';
@@ -204,6 +219,7 @@ final class ChartSvgService
         $barWidth = min($slot * 0.62, 34.0);
         $y = fn (float $value): float => self::T + $this->ph() - ($value / $ymax) * $this->ph();
 
+        $stride = $this->xStride(\count($points));
         $out = $this->open('Waterfall chart').$this->yGrid($ymax, $unit).$this->xAxis();
         $running = 0.0;
         foreach ($points as $i => $point) {
@@ -215,7 +231,9 @@ final class ChartSvgService
                 '<rect x="%s" y="%s" width="%s" height="%s" rx="1.5" fill="%s"/>',
                 round($centre - $barWidth / 2, 1), round($top, 1), round($barWidth, 1), round(max(abs($y($start) - $y($running)), 1), 1), self::ACCENT,
             );
-            $out .= $this->xLabel($centre, $point['label']);
+            if (0 === $i % $stride) {
+                $out .= $this->xLabel($centre, $point['label']);
+            }
         }
 
         return $out.'</svg>';
@@ -439,6 +457,12 @@ final class ChartSvgService
         return \sprintf('<line class="ax" x1="%d" y1="%s" x2="%d" y2="%s"/>', self::L, $ay, self::W - self::R, $ay);
     }
 
+    /** Label every n-th point so dense series (46 MODIS composites) keep ≤ ~12 legible ticks. */
+    private function xStride(int $count): int
+    {
+        return max(1, (int) ceil($count / 12));
+    }
+
     private function xLabel(float $centre, string $label): string
     {
         $short = mb_strlen($label) > 9 ? mb_substr($label, 0, 8).'…' : $label;
@@ -453,6 +477,12 @@ final class ChartSvgService
 
     private function fmt(float $value): string
     {
+        // Tick precision follows the data's magnitude: sub-10 ranges (NDVI, ratios, pct-of-one)
+        // keep two decimals — rounding them to integers collapses every tick to 0/1.
+        if (abs($value) < 10.0 && round($value) !== $value) {
+            return rtrim(rtrim(number_format($value, 2), '0'), '.');
+        }
+
         return number_format(round($value));
     }
 
