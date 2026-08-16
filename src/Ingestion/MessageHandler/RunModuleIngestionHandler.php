@@ -176,6 +176,11 @@ final class RunModuleIngestionHandler
                     'format' => \is_string($dataset['format'] ?? null) ? $dataset['format'] : 'png',
                     'bounds' => \is_array($dataset['bounds'] ?? null) ? $dataset['bounds'] : null,
                 ];
+                if (\is_array($dataset['legend'] ?? null)) {
+                    // The surface's own legend (label, min/max, colour ramp) — the app renders
+                    // the gradient without knowing the module.
+                    $meta['legend'] = $dataset['legend'];
+                }
             }
             $this->datasets->upsert($area, $moduleSlug, $key)
                 ->setKind(DatasetKind::from($kind))

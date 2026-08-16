@@ -31,6 +31,19 @@
         </div>
         <div class="use">The map layer's classes, coloured by the module's palette.</div>
     </div>
+    {% elseif rasterLegend %}
+    <div class="c">
+        <span class="tab"><span class="idx">LG</span>Legend<span class="src">· surface</span></span>
+        <p style="font-size:12px;margin:10px 0 8px">{{ rasterLegend.label }}</p>
+        {% set stops = [] %}
+        {% for stop in rasterLegend.ramp %}{% set stops = stops|merge(['%s %d%%'|format(stop[1], stop[0] * 100)]) %}{% endfor %}
+        <div style="height:12px;border-radius:6px;background:linear-gradient(90deg, {{ stops|join(', ') }})"></div>
+        <div style="display:flex;justify-content:space-between;margin-top:5px">
+            <span class="mono d" style="font-size:10px">{{ rasterLegend.min }}{{ rasterLegend.unit is defined ? ' ' ~ rasterLegend.unit }}</span>
+            <span class="mono d" style="font-size:10px">{{ rasterLegend.max }}{{ rasterLegend.unit is defined ? ' ' ~ rasterLegend.unit }}</span>
+        </div>
+        <div class="use">The surface's colour ramp, from the engine run.</div>
+    </div>
     {% else %}
     <div class="c">
         <span class="tab"><span class="idx">LG</span>Legend<span class="src">· surface</span></span>

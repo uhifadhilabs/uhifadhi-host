@@ -141,6 +141,7 @@ final class ModuleController extends AbstractController
         $mapLayerUrl = null;
         $rasterUrl = null;
         $rasterBounds = null;
+        $rasterLegend = null;
         $legend = [];
         if (\in_array($tab, ['overview', 'explore'], true)) {
             $boundary = $this->boundary($area);
@@ -158,6 +159,7 @@ final class ModuleController extends AbstractController
                         'uuid' => $area->getUuidString(), 'module' => $module, 'key' => (string) $dataset->getKey(),
                     ]);
                     $rasterBounds = $bounds;
+                    $rasterLegend = \is_array($dataset->getMeta()['legend'] ?? null) ? $dataset->getMeta()['legend'] : null;
                     break;
                 }
             }
@@ -197,6 +199,7 @@ final class ModuleController extends AbstractController
             'distribution' => $distribution,
             'boundary' => $boundary,
             'legend' => $legend,
+            'rasterLegend' => $rasterLegend,
             'mapLayerUrl' => $mapLayerUrl,
             'rasterUrl' => $rasterUrl,
             'rasterBounds' => $rasterBounds,

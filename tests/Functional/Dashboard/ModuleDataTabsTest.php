@@ -154,7 +154,11 @@ final class ModuleDataTabsTest extends AuthenticatedWebTestCase
         DatasetFactory::createOne([
             'area' => $area, 'moduleSlug' => 'wildlife', 'key' => 'elephant_suitability',
             'kind' => DatasetKind::Raster, 'columns' => null, 'rows' => null,
-            'payload' => $png, 'meta' => ['format' => 'png', 'bounds' => [[-3.61, 34.88], [-2.50, 35.97]]],
+            'payload' => $png, 'meta' => [
+                'format' => 'png', 'bounds' => [[-3.61, 34.88], [-2.50, 35.97]],
+                'legend' => ['label' => 'Habitat suitability', 'min' => 0, 'max' => 1,
+                    'ramp' => [[0, '#440154'], [1, '#fde725']]],
+            ],
         ]);
 
         $client->request('GET', '/areas/'.$area->getUuidString().'/wildlife/explore');
@@ -162,6 +166,9 @@ final class ModuleDataTabsTest extends AuthenticatedWebTestCase
         self::assertResponseIsSuccessful();
         // No vector layer exists, but the raster overlay alone must bring up the Leaflet map.
         self::assertSelectorExists('[data-controller~="map"][data-map-raster-url-value]');
+        // The surface's own legend renders as a gradient with its label and range.
+        self::assertSelectorTextContains('body', 'Habitat suitability');
+        self::assertSelectorExists('[style*="linear-gradient"][style*="#440154"]');
     }
 
     public function testAModuleWithoutADatasetKeepsThePendingShell(): void
