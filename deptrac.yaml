@@ -28,6 +28,9 @@ deptrac:
     - name: LandCover
       collectors:
         - { type: classLike, value: 'App\\LandCover\\.*' }
+    - name: Vegetation
+      collectors:
+        - { type: classLike, value: 'App\\Vegetation\\.*' }
     - name: Ingestion
       collectors:
         - { type: classLike, value: 'App\\Ingestion\\.*' }
@@ -51,6 +54,9 @@ deptrac:
     # Topic: land cover (WorldCover composition/fragmentation) — a thin context holding its
     # ModuleDefinition; data rides the generic Ingestion store.
     LandCover: [LandCover, Spatial, Foundation]
+    # Topic: vegetation (MODIS NDVI phenology + peak greenness) — a thin context holding its
+    # ModuleDefinition; data rides the generic Ingestion store (series + raster).
+    Vegetation: [Vegetation, Spatial, Foundation]
     # Data ingestion — the generic per-module store + engine pipeline. Reads AOIs (Spatial);
     # knows NO topic (topics read from it, never the other way around).
     Ingestion: [Ingestion, Spatial, Foundation]
@@ -59,4 +65,4 @@ deptrac:
     Composition: [Composition, Spatial, Foundation]
     # UI composition layer — the only place allowed to see everything; nothing
     # depends on it.
-    Dashboard: [Dashboard, Spatial, Forest, LandCover, Ingestion, Composition, Access, Foundation]
+    Dashboard: [Dashboard, Spatial, Forest, LandCover, Vegetation, Ingestion, Composition, Access, Foundation]
