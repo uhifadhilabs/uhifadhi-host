@@ -91,7 +91,7 @@ accessories:
   # Image built + pushed to ghcr by that repo's CI. Shares uhifadhi_engine_out so the app can read the
   # spatial datasets it writes.
   engine:
-    image: uhifadhilabs/uhifadhi-engine   # → ghcr.io/uhifadhilabs/uhifadhi-engine
+    image: ghcr.io/uhifadhilabs/uhifadhi-engine:latest
     host: 78.47.239.40
     env:
       clear:
