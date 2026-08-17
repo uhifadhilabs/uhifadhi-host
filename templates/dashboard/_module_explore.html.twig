@@ -7,15 +7,10 @@
         <span class="tab"><span class="idx">MAP</span>{{ module.label }} map<span class="src">· {{ table ? table.source : 'engine' }}{% if mapDetail %} · ~{{ mapDetail.metres }} m{% endif %}</span></span>
         <span class="lib">leaflet in-app</span>
         <div style="margin-top:12px">
-            {% if mapLayerUrl or rasterUrl %}
-                {{ include('dashboard/_module_map.html.twig', {boundary: boundary, mapId: 'explore-map', height: '360px', classLayerUrl: mapLayerUrl, classPalette: palette, rasterUrl: rasterUrl, rasterBounds: rasterBounds, legend: legend, rasterLegend: rasterLegend}) }}
-            {% else %}
-                <div style="height:360px;border-radius:10px;display:flex;align-items:center;justify-content:center;text-align:center;background:rgb(var(--c-raised))">
-                    <p class="fog" style="font-size:12px;max-width:300px">The module's layer appears here once its map dataset is fetched for this area.</p>
-                </div>
-            {% endif %}
+            {# No layer yet (or a data-only module): the boundary map still orients the reader. #}
+            {{ include('dashboard/_module_map.html.twig', {boundary: boundary, mapId: 'explore-map', height: '360px', classLayerUrl: mapLayerUrl, classPalette: palette, rasterUrl: rasterUrl, rasterBounds: rasterBounds, legend: legend, rasterLegend: rasterLegend}) }}
         </div>
-        <div class="use">The module's layer clipped to the AOI.</div>
+        <div class="use">{% if mapLayerUrl or rasterUrl %}The module's layer clipped to the AOI.{% else %}The area boundary — this module has no spatial layer of its own.{% endif %}</div>
     </div>
     <div style="display:flex;flex-direction:column;gap:16px">
         {{ include('dashboard/_module_legend_card.html.twig') }}

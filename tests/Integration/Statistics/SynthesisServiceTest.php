@@ -79,4 +79,30 @@ final class SynthesisServiceTest extends KernelTestCase
         $byModule = array_column($provenance->getRows() ?? [], null, 0);
         self::assertSame('MODIS MOD13Q1 v6.1', $byModule['vegetation'][1]);
     }
+
+    public function testChartReadyFramesAreProjectedFromTheSourceModules(): void
+    {
+        self::bootKernel();
+        $area = AreaOfInterestFactory::createOne();
+        DatasetFactory::createOne([
+            'area' => $area, 'moduleSlug' => 'settlement', 'key' => 'builtup_epoch',
+            'kind' => DatasetKind::Series,
+            'columns' => ['year', 'built_km2_in', 'built_km2_ring', 'pct_of_area', 'growth_x'],
+            'rows' => [[1975, 1.18, 2.48, 0.014, 1.0], [2020, 4.23, 10.37, 0.051, 3.58]],
+            'source' => 'GHSL GHS-BUILT-S R2023A · 1 km',
+        ]);
+
+        $service = self::getContainer()->get(SynthesisService::class);
+        \assert($service instanceof SynthesisService);
+        $service->refresh($area);
+
+        $repo = self::getContainer()->get(DatasetRepository::class);
+        \assert($repo instanceof DatasetRepository);
+        $trend = $repo->findOneFor($area, 'statistics', 'builtup_trend');
+        self::assertNotNull($trend, 'the settlement source materializes its chart frame');
+        self::assertSame(['year', 'built_km2'], $trend->getColumns());
+        self::assertSame([[1975, 1.18], [2020, 4.23]], $trend->getRows());
+        // A source that does not exist contributes no frame.
+        self::assertNull($repo->findOneFor($area, 'statistics', 'greenness_curve'));
+    }
 }

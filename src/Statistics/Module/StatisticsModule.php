@@ -8,6 +8,7 @@ use App\Spatial\Entity\AreaOfInterest;
 use App\Spatial\Module\Kpi;
 use App\Spatial\Module\MethodCaption;
 use App\Spatial\Module\ModuleDefinition;
+use App\Spatial\Module\VizSpec;
 use App\Statistics\Service\SynthesisService;
 
 /**
@@ -48,6 +49,20 @@ final class StatisticsModule extends ModuleDefinition
         }
 
         return $kpis;
+    }
+
+    public function defaultVisualizations(): array
+    {
+        // One chart per source module — the richest chart set in the catalogue, because
+        // this module's data IS everyone else's, projected into chart-ready frames.
+        return [
+            new VizSpec('Built-up expansion', 'line', 'builtup_trend', x: 'year', y: 'built_km2'),
+            new VizSpec('Forest loss by year', 'bar', 'forest_loss_trend', x: 'year', y: 'ha'),
+            new VizSpec('Greenness through the year', 'line', 'greenness_curve', x: 'doy', y: 'ndvi_median'),
+            new VizSpec('Land-cover mix', 'pie', 'landcover_mix', x: 'class', y: 'pct'),
+            new VizSpec('Road network by class', 'bar', 'road_classes', x: 'class', y: 'length_km'),
+            new VizSpec('Species model accuracy', 'bar', 'sdm_scores', x: 'species', y: 'auc'),
+        ];
     }
 
     public function methodCaption(): MethodCaption
