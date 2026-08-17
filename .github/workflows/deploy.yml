@@ -76,5 +76,5 @@ jobs:
             kamal deploy
             # (Re)boot the engine accessory so it picks up the latest uhifadhi-engine image.
             # reboot = stop + remove + boot, so it works whether or not it is already running.
-            kamal accessory reboot engine -y
+            kamal accessory reboot engine
           fi
