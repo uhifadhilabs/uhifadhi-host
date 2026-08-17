@@ -37,7 +37,7 @@ final readonly class AreaModuleService
         ['slug' => 'tourism', 'label' => 'Tourism', 'status' => 'template', 'blurb' => 'Camps & lodges monitor; visitor routing & safety (Q5).'],
         ['slug' => 'roads', 'label' => 'Roads', 'status' => 'template', 'blurb' => 'OSM/GRIP network, routing & access, fragmentation (Q5).'],
         ['slug' => 'wildlife', 'label' => 'Wildlife', 'status' => 'template', 'blurb' => 'Animal-distribution SDM & invasive-species risk from RS covariates + occurrences (Q3).'],
-        ['slug' => 'statistics', 'label' => 'Statistics', 'status' => 'template', 'blurb' => 'Fits, uncertainty, diagnostics, PCA — the inferential layer (Q6).'],
+        ['slug' => 'statistics', 'label' => 'Statistics', 'status' => 'template', 'blurb' => 'The integrated scorecard — one headline indicator per module, derived live from their datasets.'],
     ];
 
     /** One-line blurbs by slug — the module-page subtitle for a composed module. */
@@ -57,7 +57,7 @@ final readonly class AreaModuleService
         'fires' => 'Active-fire & burned-area history — FIRMS/VIIRS, the disturbance record.',
         'wildlife' => 'Animal-distribution SDM & invasive-species risk from RS covariates + occurrences (Q3).',
         'stations' => 'Field-station feeds & sensors — the ground-truth layer.',
-        'statistics' => 'Fits, uncertainty, diagnostics, PCA — the inferential layer (Q6).',
+        'statistics' => 'The integrated scorecard — one headline indicator per module, derived live from their datasets.',
     ];
 
     /**

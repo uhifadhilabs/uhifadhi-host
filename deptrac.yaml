@@ -40,6 +40,9 @@ deptrac:
     - name: Wildlife
       collectors:
         - { type: classLike, value: 'App\\Wildlife\\.*' }
+    - name: Statistics
+      collectors:
+        - { type: classLike, value: 'App\\Statistics\\.*' }
     - name: Ingestion
       collectors:
         - { type: classLike, value: 'App\\Ingestion\\.*' }
@@ -75,6 +78,9 @@ deptrac:
     # Topic: wildlife (GBIF SDM — suitability, drivers, AUC) — a thin context holding its
     # ModuleDefinition; data rides the generic Ingestion store (tables + rasters).
     Wildlife: [Wildlife, Spatial, Foundation]
+    # Topic: statistics (Q6 synthesis) — NO engine module: derives its dataframes from the
+    # generic Ingestion store (all modules' data) + the tagged definitions' captions.
+    Statistics: [Statistics, Spatial, Ingestion, Foundation]
     # Data ingestion — the generic per-module store + engine pipeline. Reads AOIs (Spatial);
     # knows NO topic (topics read from it, never the other way around).
     Ingestion: [Ingestion, Spatial, Foundation]
@@ -83,4 +89,4 @@ deptrac:
     Composition: [Composition, Spatial, Foundation]
     # UI composition layer — the only place allowed to see everything; nothing
     # depends on it.
-    Dashboard: [Dashboard, Spatial, Forest, LandCover, Vegetation, Settlement, Roads, Wildlife, Ingestion, Composition, Access, Foundation]
+    Dashboard: [Dashboard, Spatial, Forest, LandCover, Vegetation, Settlement, Roads, Wildlife, Statistics, Ingestion, Composition, Access, Foundation]
