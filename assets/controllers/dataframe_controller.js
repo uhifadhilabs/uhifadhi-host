@@ -8,7 +8,7 @@ import { Controller } from '@hotwired/stimulus';
  * shows/hides them, so cell formatting stays owned by Twig.
  */
 export default class extends Controller {
-    static targets = ['body', 'search', 'filter', 'caret', 'page', 'range', 'total', 'matchCount'];
+    static targets = ['body', 'search', 'filter', 'caret', 'page', 'pages', 'range', 'total', 'matchCount'];
     static values = { pageSize: { type: Number, default: 25 } };
 
     connect() {
@@ -39,6 +39,12 @@ export default class extends Controller {
 
     prev() { if (this.pageIndex > 0) { this.pageIndex -= 1; this.render(); } }
     next() { if ((this.pageIndex + 1) * this.pageSizeValue < this.matched.length) { this.pageIndex += 1; this.render(); } }
+    first() { if (this.pageIndex !== 0) { this.pageIndex = 0; this.render(); } }
+    last() { const l = this.pageCount() - 1; if (this.pageIndex !== l) { this.pageIndex = l; this.render(); } }
+    goto(event) { this.pageIndex = Number(event.currentTarget.dataset.page); this.render(); }
+
+    pageCount() { return Math.max(1, Math.ceil(this.matched.length / this.pageSizeValue)); }
+
 
     // ── pipeline: filter → sort → paginate ────────────────────────────
     apply() {
@@ -78,6 +84,39 @@ export default class extends Controller {
         if (this.hasTotalTarget) this.totalTarget.textContent = String(n);
         if (this.hasMatchCountTarget) this.matchCountTarget.textContent = String(n);
         if (this.hasPageTarget) this.pageTarget.textContent = String(this.pageIndex + 1);
+        this.renderPager();
+    }
+
+    // Numbered page window (1 … 4 [5] 6 … 40) — appears only when there are pages to jump.
+    renderPager() {
+        if (!this.hasPagesTarget) return;
+        const count = this.pageCount();
+        const current = this.pageIndex;
+        this.pagesTarget.innerHTML = '';
+        if (count <= 1) return;
+
+        const wanted = new Set([0, count - 1]);
+        for (let i = current - 2; i <= current + 2; i += 1) {
+            if (i >= 0 && i < count) wanted.add(i);
+        }
+        let previous = -1;
+        [...wanted].sort((a, b) => a - b).forEach((i) => {
+            if (previous !== -1 && i - previous > 1) {
+                const gap = document.createElement('span');
+                gap.className = 'gap';
+                gap.textContent = '…';
+                this.pagesTarget.appendChild(gap);
+            }
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.textContent = String(i + 1);
+            btn.dataset.page = String(i);
+            btn.setAttribute('aria-label', `page ${i + 1}`);
+            if (i === current) btn.classList.add('cur');
+            btn.addEventListener('click', (event) => this.goto(event));
+            this.pagesTarget.appendChild(btn);
+            previous = i;
+        });
     }
 
     // ── helpers ───────────────────────────────────────────────────────

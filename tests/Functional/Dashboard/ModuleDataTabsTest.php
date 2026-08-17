@@ -171,6 +171,23 @@ final class ModuleDataTabsTest extends AuthenticatedWebTestCase
         self::assertSelectorExists('[style*="linear-gradient"][style*="#440154"]');
     }
 
+    public function testATabularDatasetExportsAsCsv(): void
+    {
+        $client = static::createClient();
+        $this->loginAs($client);
+        $area = AreaOfInterestFactory::createOne(['name' => 'CSV area']);
+        $this->seedLandcover($area);
+
+        $client->request('GET', '/api/areas/'.$area->getUuidString().'/landcover/landcover_class.csv');
+
+        self::assertResponseIsSuccessful();
+        self::assertResponseHeaderSame('Content-Type', 'text/csv; charset=UTF-8');
+        self::assertStringContainsString('landcover_class.csv', (string) $client->getResponse()->headers->get('Content-Disposition'));
+        $body = (string) $client->getInternalResponse()->getContent();
+        self::assertStringStartsWith("class,area_km2,pct,n_patches\n", $body);
+        self::assertStringContainsString('Grassland,2589.78,77.16,142', $body);
+    }
+
     public function testAModuleWithoutADatasetKeepsThePendingShell(): void
     {
         $client = static::createClient();

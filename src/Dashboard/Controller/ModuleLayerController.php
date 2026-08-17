@@ -12,6 +12,7 @@ use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Requirement\Requirement;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -80,5 +81,44 @@ final class ModuleLayerController extends AbstractController
         }
 
         return new Response($binary, headers: ['Content-Type' => 'image/png']);
+    }
+
+    /**
+     * A module's tabular dataset as a CSV download — plain Symfony streaming + native fputcsv,
+     * no export library. A real link, so the browser downloads it without any JS involved.
+     */
+    #[Route(
+        '/api/areas/{uuid}/{module}/{key}.csv',
+        name: 'module_dataset_csv',
+        requirements: ['uuid' => Requirement::UUID, 'module' => '[a-z]+', 'key' => '[a-z0-9_]+'],
+        methods: ['GET'],
+    )]
+    #[IsGranted('module.view')]
+    public function csv(
+        #[MapEntity(mapping: ['uuid' => 'uuid'])] AreaOfInterest $area,
+        string $module,
+        string $key,
+        DatasetRepository $datasets,
+    ): Response {
+        $dataset = $datasets->findOneFor($area, $module, $key);
+        $rows = $dataset?->getRows();
+        if (null === $dataset || !\is_array($rows)) {
+            throw $this->createNotFoundException('No tabular dataset.');
+        }
+        $columns = $dataset->getColumns() ?? [];
+
+        $response = new StreamedResponse(static function () use ($columns, $rows): void {
+            $out = fopen('php://output', 'w');
+            \assert(false !== $out);
+            fputcsv($out, $columns, escape: '');
+            foreach ($rows as $row) {
+                fputcsv($out, \is_array($row) ? $row : [$row], escape: '');
+            }
+            fclose($out);
+        });
+        $response->headers->set('Content-Type', 'text/csv; charset=UTF-8');
+        $response->headers->set('Content-Disposition', \sprintf('attachment; filename="%s.csv"', $key));
+
+        return $response;
     }
 }

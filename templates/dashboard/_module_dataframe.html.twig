@@ -43,11 +43,11 @@
     <div class="rdf-foot">
         <span>dataframe: <span {{ stimulus_target('dataframe', 'matchCount') }}>{{ rows|length }}</span> × {{ cols|length }}</span>
         <span class="rdf-page">Showing <span {{ stimulus_target('dataframe', 'range') }}>1–{{ min(rows|length, 25) }}</span> of <span {{ stimulus_target('dataframe', 'total') }}>{{ rows|length }}</span>
-            <button type="button" aria-label="previous page" {{ stimulus_action('dataframe', 'prev', 'click') }}>‹</button><span class="pg" {{ stimulus_target('dataframe', 'page') }}>1</span><button type="button" aria-label="next page" {{ stimulus_action('dataframe', 'next', 'click') }}>›</button>
+            <button type="button" aria-label="first page" {{ stimulus_action('dataframe', 'first', 'click') }}>«</button><button type="button" aria-label="previous page" {{ stimulus_action('dataframe', 'prev', 'click') }}>‹</button><span class="rdf-pages" {{ stimulus_target('dataframe', 'pages') }}></span><span class="pg" {{ stimulus_target('dataframe', 'page') }} hidden>1</span><button type="button" aria-label="next page" {{ stimulus_action('dataframe', 'next', 'click') }}>›</button><button type="button" aria-label="last page" {{ stimulus_action('dataframe', 'last', 'click') }}>»</button>
         </span>
     </div>
 </div>
 <div style="display:flex;align-items:center;gap:10px;margin-top:14px">
-    <button type="button" class="cta" style="border:0;cursor:pointer;padding:7px 14px;font-size:11px" {{ stimulus_action('dataframe', 'exportCsv', 'click') }}>Export CSV</button>
+    <a class="cta" style="padding:7px 14px;font-size:11px;text-decoration:none" href="{{ path('module_dataset_csv', {uuid: area.uuid, module: module.slug, key: table.key}) }}" download>Export CSV</a>
     <span class="fog" style="font-size:11.5px;margin-left:auto">Columns are bound to charts in <b>Settings</b>.</span>
 </div>

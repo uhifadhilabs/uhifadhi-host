@@ -449,6 +449,11 @@ body::before {
 .rdf-page button { background: none; border: 1px solid var(--c-ln2); color: rgb(var(--c-fog)); border-radius: 6px; width: 22px; height: 22px; cursor: pointer; font-size: 12px; line-height: 1; display: inline-flex; align-items: center; justify-content: center; }
 .rdf-page button:hover { border-color: rgb(var(--c-fog)); color: rgb(var(--c-tx)); }
 .rdf-page .pg { color: rgb(var(--c-tx)); font-weight: 700; }
+/* The numbered page window (1 … 4 [5] 6 … 40): jump straight to a page; current is solid. */
+.rdf-pages { display: inline-flex; align-items: center; gap: 3px; }
+.rdf-pages button { width: auto; min-width: 22px; padding: 0 4px; font-variant-numeric: tabular-nums; }
+.rdf-pages button.cur { background: rgb(var(--c-acc)); border-color: rgb(var(--c-acc)); color: rgb(var(--c-accT)); font-weight: 700; cursor: default; }
+.rdf-pages .gap { color: rgb(var(--c-dim)); font-size: 11px; padding: 0 2px; }
 .rdf-search { display: inline-flex; align-items: center; gap: 6px; background: color-mix(in srgb, rgb(var(--c-fog)) 7%, transparent); border: 1px solid var(--c-ln2); border-radius: 7px; padding: 4px 10px; }
 .rdf-search svg { color: rgb(var(--c-fog)); display: block; }
 .rdf-search input { border: 0; background: none; font-family: inherit; font-size: 11px; color: rgb(var(--c-tx)); width: 170px; outline: none; }
