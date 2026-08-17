@@ -1,0 +1,28 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Statistics\MessageHandler;
+
+use App\Spatial\Repository\AreaOfInterestRepository;
+use App\Statistics\Message\RefreshSynthesis;
+use App\Statistics\Service\SynthesisService;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+
+#[AsMessageHandler]
+final readonly class RefreshSynthesisHandler
+{
+    public function __construct(
+        private AreaOfInterestRepository $areas,
+        private SynthesisService $synthesis,
+    ) {
+    }
+
+    public function __invoke(RefreshSynthesis $message): void
+    {
+        $area = $this->areas->find($message->areaId);
+        if (null !== $area) {
+            $this->synthesis->refresh($area);
+        }
+    }
+}

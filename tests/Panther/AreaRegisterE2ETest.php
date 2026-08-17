@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\Tests\Panther;
 
-use App\Forest\Factory\ForestLossYearFactory;
+use App\Ingestion\Enum\DatasetKind;
+use App\Ingestion\Factory\DatasetFactory;
 use App\Spatial\Factory\AreaOfInterestFactory;
 use DAMA\DoctrineTestBundle\PHPUnit\SkipDatabaseRollback;
 
@@ -19,7 +20,11 @@ final class AreaRegisterE2ETest extends E2ETestCase
     {
         // Alpha is ingested (a live module); Zulu is not (queued).
         $alpha = AreaOfInterestFactory::createOne(['name' => 'Alpha park']);
-        ForestLossYearFactory::createOne(['aoi' => $alpha, 'year' => 2010, 'areaHa' => 500.0]);
+        DatasetFactory::createOne([
+            'area' => $alpha, 'moduleSlug' => 'forest', 'key' => 'forest_loss_year',
+            'kind' => DatasetKind::Series, 'columns' => ['year', 'ha', 'cumulative_ha'],
+            'rows' => [[2010, 500.0, 500.0]],
+        ]);
         AreaOfInterestFactory::createOne(['name' => 'Zulu park']);
 
         $client = static::createPantherClient();

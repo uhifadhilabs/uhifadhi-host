@@ -33,11 +33,11 @@ final readonly class AreaModuleService
         ['slug' => 'vegetation', 'label' => 'Vegetation', 'status' => 'template', 'blurb' => 'NDVI/phenology & spectral composition → species richness (Q2).'],
         ['slug' => 'landcover', 'label' => 'Land cover', 'status' => 'template', 'blurb' => 'WorldCover composition, transitions, fragmentation (Q1).'],
         ['slug' => 'water', 'label' => 'Water', 'status' => 'template', 'blurb' => 'JRC surface water, seasonality, distance-to-water — the wildlife covariate (Q3).'],
-        ['slug' => 'anthropogenic', 'label' => 'Anthropogenic', 'status' => 'template', 'blurb' => 'Settlement expansion & boundary-buffer encroachment; edge pressure (Q1).'],
+        ['slug' => 'settlement', 'label' => 'Settlement', 'status' => 'template', 'blurb' => 'Settlement expansion & boundary-buffer encroachment; edge pressure (Q1).'],
         ['slug' => 'tourism', 'label' => 'Tourism', 'status' => 'template', 'blurb' => 'Camps & lodges monitor; visitor routing & safety (Q5).'],
         ['slug' => 'roads', 'label' => 'Roads', 'status' => 'template', 'blurb' => 'OSM/GRIP network, routing & access, fragmentation (Q5).'],
         ['slug' => 'wildlife', 'label' => 'Wildlife', 'status' => 'template', 'blurb' => 'Animal-distribution SDM & invasive-species risk from RS covariates + occurrences (Q3).'],
-        ['slug' => 'statistics', 'label' => 'Statistics', 'status' => 'template', 'blurb' => 'Fits, uncertainty, diagnostics, PCA — the inferential layer (Q6).'],
+        ['slug' => 'statistics', 'label' => 'Statistics', 'status' => 'template', 'blurb' => 'The integrated scorecard — one headline indicator per module, derived live from their datasets.'],
     ];
 
     /** One-line blurbs by slug — the module-page subtitle for a composed module. */
@@ -50,14 +50,14 @@ final readonly class AreaModuleService
         'climate' => 'Rainfall & climate normals — CHIRPS/WorldClim, the phenology driver.',
         'drought' => 'Drought & soil-moisture stress — SPEI, the vegetation-anomaly signal.',
         'water' => 'JRC surface water, seasonality, distance-to-water — the wildlife covariate (Q3).',
-        'anthropogenic' => 'Settlement expansion & boundary-buffer encroachment; edge pressure (Q1).',
+        'settlement' => 'Settlement expansion & boundary-buffer encroachment; edge pressure (Q1).',
         'livestock' => 'Grazing pressure & stocking — FAO GLW and census, the rangeland load.',
         'tourism' => 'Camps & lodges monitor; visitor routing & safety (Q5).',
         'roads' => 'OSM/GRIP network, routing & access, fragmentation (Q5).',
         'fires' => 'Active-fire & burned-area history — FIRMS/VIIRS, the disturbance record.',
         'wildlife' => 'Animal-distribution SDM & invasive-species risk from RS covariates + occurrences (Q3).',
         'stations' => 'Field-station feeds & sensors — the ground-truth layer.',
-        'statistics' => 'Fits, uncertainty, diagnostics, PCA — the inferential layer (Q6).',
+        'statistics' => 'The integrated scorecard — one headline indicator per module, derived live from their datasets.',
     ];
 
     /**
@@ -93,6 +93,12 @@ final readonly class AreaModuleService
     public function planned(): array
     {
         return [];
+    }
+
+    /** The one-line blurb for a module slug — its subtitle / card summary. Empty for an unknown slug. */
+    public function blurb(string $slug): string
+    {
+        return self::BLURBS[$slug] ?? '';
     }
 
     /**

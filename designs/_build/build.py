@@ -170,6 +170,75 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.5;z-
 .subnav span.off{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:11px;
      letter-spacing:.1em;text-transform:uppercase;color:var(--dim);border:1px dashed var(--ln2);
      border-radius:99px;padding:7px 15px 6px}
+/* Area-level tabs (Overview / Modules / Settings) — underlined, deliberately NOT pills so they read
+   as top-level sections of the area, visually distinct from module chips. */
+.atabs{display:flex;gap:24px;border-bottom:1px solid var(--ln);margin:0 0 26px}
+.atabs a{font-size:13.5px;font-weight:600;color:var(--fog);text-decoration:none;padding:9px 1px 12px;
+     border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .15s,border-color .15s}
+.atabs a:hover{color:var(--tx)}
+.atabs a.on{color:var(--tx);border-bottom-color:var(--acc)}
+/* Modern "back to modules" pill — chevron + label, subtle bordered chip that lifts on hover. */
+.backbtn{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--fog);
+     text-decoration:none;padding:6px 14px 6px 10px;border:1px solid var(--ln2);border-radius:99px;
+     margin-bottom:16px;transition:color .15s,border-color .15s,background .15s}
+.backbtn:hover{color:var(--tx);border-color:var(--fog);background:var(--card)}
+.backbtn svg{display:block}
+/* Dataframe viewer — a dataset's rows as a table. Numeric columns right-aligned + monospace. */
+.dtable{width:100%;border-collapse:collapse;font-size:12px}
+.dtable th{text-align:left;font-family:"JetBrains Mono",ui-monospace,monospace;font-size:9px;letter-spacing:.1em;
+     text-transform:uppercase;color:var(--fog);font-weight:600;padding:8px 12px;border-bottom:1px solid var(--ln2);white-space:nowrap}
+.dtable th.num,.dtable td.num{text-align:right;font-family:"JetBrains Mono",ui-monospace,monospace}
+.dtable td{padding:7px 12px;border-bottom:1px solid var(--ln);color:var(--tx)}
+.dtable tbody tr:hover td{background:var(--card)}
+.dtable tbody tr:last-child td{border-bottom:0}
+/* R-tibble / data-viewer dataframe: row index, <type> column badges, zebra striping, monospace. */
+.rdf{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:12px;border:1px solid var(--ln2);
+     border-radius:10px;overflow:hidden;background:var(--card)}
+.rdf-head{padding:8px 13px;background:color-mix(in srgb,var(--fog) 6%,transparent);border-bottom:1px solid var(--ln2);
+     color:var(--fog);font-size:10.5px;letter-spacing:.03em}
+.rdf-bar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:11px 14px;border-bottom:1px solid var(--ln2)}
+.rdf-bar .tab{margin:0;display:inline-flex;align-items:center;gap:8px}
+.rdf-sel{display:inline-flex;gap:6px;align-items:center}
+.rdf-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 14px;
+     border-top:1px solid var(--ln2);color:var(--fog);font-size:10.5px;font-family:"JetBrains Mono",ui-monospace,monospace}
+.rdf-page{display:inline-flex;align-items:center;gap:6px}
+.rdf-page button{background:none;border:1px solid var(--ln2);color:var(--fog);border-radius:6px;width:22px;height:22px;
+     cursor:pointer;font-size:12px;line-height:1;display:inline-flex;align-items:center;justify-content:center}
+.rdf-page button:hover{border-color:var(--fog);color:var(--tx)}
+.rdf-page .pg{color:var(--tx);font-weight:700}
+.rdf-search{display:inline-flex;align-items:center;gap:6px;background:color-mix(in srgb,var(--fog) 7%,transparent);
+     border:1px solid var(--ln2);border-radius:7px;padding:4px 10px}
+.rdf-search svg{color:var(--fog);display:block}
+.rdf-search input{border:0;background:none;font-family:inherit;font-size:11px;color:var(--tx);width:170px;outline:none}
+.rdf-fbtn{display:inline-flex;align-items:center;gap:6px;background:color-mix(in srgb,var(--fog) 7%,transparent);
+     border:1px solid var(--ln2);border-radius:7px;padding:5px 11px;font-family:inherit;font-size:11px;color:var(--fog);cursor:pointer}
+.rdf-fbtn:hover{color:var(--tx);border-color:var(--fog)}
+.rdf-fbtn svg{display:block}
+.rdf .sort{color:var(--dim);font-size:11px;margin-left:4px}
+.rdf .sort.on{color:var(--acc)}
+.rdf-sort{background:none;border:0;padding:2px 0;font:inherit;color:inherit;cursor:pointer;display:inline-flex;align-items:center;gap:4px;border-radius:4px}
+.rdf-sort:hover{color:var(--acc)}
+.rdf-sort:hover .sort{color:var(--acc)}
+.rdf-cf{display:block;width:100%;box-sizing:border-box;margin-top:7px;font-weight:400;
+     background:color-mix(in srgb,var(--fog) 7%,transparent);border:1px solid var(--ln);border-radius:6px;
+     padding:3px 8px;font-family:inherit;font-size:10px;color:var(--tx)}
+.rdf-cf:focus{border-color:var(--acc);outline:none}
+.rdf-cf::placeholder{color:var(--dim)}
+tr.rdf-filters th{padding:6px 13px;border-bottom:1px solid var(--ln2)}
+tr.rdf-filters input{width:100%;box-sizing:border-box;background:color-mix(in srgb,var(--fog) 7%,transparent);
+     border:1px solid var(--ln);border-radius:6px;padding:4px 8px;font-family:inherit;font-size:10px;color:var(--tx)}
+tr.rdf-filters input:focus,.rdf-search input:focus{outline:none}
+tr.rdf-filters input::placeholder{color:var(--dim)}
+.rdf table{width:100%;border-collapse:collapse}
+.rdf th{text-align:left;padding:8px 13px;color:var(--tx);font-weight:700;border-bottom:1px solid var(--ln2);
+     vertical-align:top;white-space:nowrap}
+.rdf th .ty{display:block;color:var(--acc);font-weight:400;font-size:9.5px;margin-top:3px;letter-spacing:.02em}
+.rdf td{padding:6px 13px;color:var(--tx);border-bottom:1px solid var(--ln);white-space:nowrap}
+.rdf th.num,.rdf td.num{text-align:right}
+.rdf td.idx,.rdf th.idx{color:var(--dim);text-align:right;width:36px;padding-right:10px;user-select:none;font-size:11px}
+.rdf tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--fog) 4%,transparent)}
+.rdf tbody tr:hover td{background:color-mix(in srgb,var(--acc) 9%,transparent)}
+.rdf tbody tr:last-child td{border-bottom:0}
 /* Edit-mode module chips: identical pill to .subnav a, just with a grip + ×. */
 .mchip{display:inline-flex;align-items:center;gap:8px;font-family:"JetBrains Mono",ui-monospace,monospace;
      font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--fog);
@@ -334,6 +403,30 @@ def subnav(items, active, planned=()):
     links = ''.join(f'<a href="{f}"{" class=on" if f == active else ""}>{t}</a>' for f, t in items)
     off = ''.join(f'<span class="off">{t}</span>' for t in planned)
     return f'<div class="subnav">{links}{off}</div>'
+
+
+def area_tabs(active):
+    """Top-level area tabs: Overview / Modules / Settings. Underlined (see .atabs) so they read as
+    sections of the area, not as module pills. Each is its own page, so each can be permission-gated."""
+    tabs = [("area-ngorongoro.html", "Overview"),
+            ("area-ngorongoro-modules.html", "Modules"),
+            ("area-ngorongoro-settings.html", "Settings")]
+    links = ''.join(f'<a href="{f}"{" class=\"on\"" if f == active else ""}>{t}</a>' for f, t in tabs)
+    return f'<div class="atabs">{links}</div>'
+
+
+def module_tabs(base, active):
+    """Within-module tabs (Overview / Visualizations / Data) — underlined (.atabs), and self-contained:
+    they link only between THIS module's own pages, never to other modules. Switching modules is done
+    by returning to the area's Modules grid."""
+    tabs = [(f"{base}.html", "Overview"),
+            (f"{base}-dataframe.html", "Dataframe"), (f"{base}-explore.html", "Explore"),
+            (f"{base}-method.html", "Method"), (f"{base}-settings.html", "Settings")]
+    links = ''.join(f'<a href="{f}"{" class=\"on\"" if t == active else ""}>{t}</a>' for f, t in tabs)
+    back = ('<a href="area-ngorongoro-modules.html" class="backbtn">'
+            '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" '
+            'stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>All modules</a>')
+    return back + f'<div class="atabs">{links}</div>'
 
 
 def page(fname, title, active, crumb, sub, body, sub_nav="", action=""):
@@ -515,6 +608,53 @@ def module_card(href, title, desc, status="live"):
     return f'<div class="c mod" style="padding:20px 16px 16px;opacity:.65">{inner}</div>'
 
 
+def _spark(vals, kind="bar", w=132, h=30, color="var(--acc)"):
+    """A tiny inline sparkline (bars or line) — a hint of what the module plots."""
+    if not vals:
+        return ""
+    mx = max(vals) or 1
+    n = len(vals)
+    if kind == "line":
+        pts = " ".join(f"{round(i * (w / (n - 1)), 1)},{round(h - (v / mx) * (h - 3) - 1.5, 1)}" for i, v in enumerate(vals))
+        inner = f'<polyline points="{pts}" fill="none" stroke="{color}" stroke-width="1.5"/>'
+    else:
+        bw = w / n
+        inner = ''.join(
+            f'<rect x="{round(i * bw + 0.7, 1)}" y="{round(h - (v / mx) * (h - 2), 1)}" '
+            f'width="{round(bw - 1.4, 1)}" height="{round((v / mx) * (h - 2), 1)}" rx="0.8" fill="{color}" opacity=".8"/>'
+            for i, v in enumerate(vals))
+    return f'<svg viewBox="0 0 {w} {h}" width="100%" height="{h}" preserveAspectRatio="none" style="display:block">{inner}</svg>'
+
+
+def _spark_stack(segments, w=132, h=9):
+    """A tiny 100%-stacked bar — for composition modules (land cover, etc.). segments = [(pct, color)]."""
+    x, out = 0.0, ''
+    for pct, col in segments:
+        sw = pct / 100 * w
+        out += f'<rect x="{round(x, 1)}" y="0" width="{round(sw, 1)}" height="{h}" fill="{col}"/>'
+        x += sw
+    return f'<svg viewBox="0 0 {w} {h}" width="100%" height="{h}" preserveAspectRatio="none" style="display:block;border-radius:2px;overflow:hidden">{out}</svg>'
+
+
+def module_tile(href, title, status, stat, stat_sub, spark, summary, source):
+    """A content-ful module card: headline metric + a mini preview of what it plots + source — so the
+    grid reads like a dashboard of the area's modules, not a list of settings."""
+    chip = {"live": '<span class="chip ok">live</span>',
+            "demo": '<span class="chip warn">template</span>',
+            "off": '<span class="chip idle">planned</span>'}[status]
+    return (
+        f'<a class="c" href="{href}" style="display:flex;flex-direction:column;gap:9px;padding:15px 16px;text-decoration:none">'
+        f'<div style="display:flex;align-items:center;justify-content:space-between;gap:8px">'
+        f'<span style="font-weight:700;font-size:14px;color:var(--tx)">{title}</span>{chip}</div>'
+        f'<div style="display:flex;align-items:baseline;gap:6px">'
+        f'<span class="mono" style="font-size:21px;font-weight:700;color:var(--tx);line-height:1">{stat}</span>'
+        f'<span class="fog" style="font-size:10.5px">{stat_sub}</span></div>'
+        f'<div style="margin:1px 0 2px">{spark}</div>'
+        f'<div class="fog" style="font-size:11.5px;line-height:1.35">{summary}</div>'
+        f'<div style="margin-top:auto;padding-top:5px">'
+        f'<span class="mono" style="font-size:9px;letter-spacing:.06em;color:var(--dim)">{source}</span></div></a>')
+
+
 # ═══════════════════════ NATIONAL LEVEL ═══════════════════════
 def build_index():
     PL[0] = 0
@@ -680,34 +820,116 @@ def build_nca_hub():
        use="The dry-season pulse; prescribed-burn analytics live in the Serengeti demo.")}
 </div>
 </div>
-<h2 class="zone">Flux — what the ecosystem is doing</h2>
-<div class="grid g4">
-{module_card("ngoro-forest.html", "Forest loss", "The real Hansen series: accounting, decomposition, trend.", "live")}
-{module_card("ngoro-structure.html", "Forest structure", "Canopy height &amp; above-ground biomass — GEDI/CCI proxy for the LiDAR objective.", "demo")}
-{module_card("ngoro-veg.html", "Vegetation", "NDVI envelopes, phenology, spectral composition → species richness.", "demo")}
-{module_card("ngoro-landcover.html", "Land cover", "WorldCover composition, sankey transitions, cropland creep.", "demo")}
-{module_card("ngoro-climate.html", "Climate", "WorldClim normals, CHIRPS anomalies, CMIP futures.", "demo")}
-{module_card("ngoro-drought.html", "Drought", "SPEI monitor, drought-class extent, soil-moisture percentiles.", "demo")}
-{module_card("ngoro-water.html", "Water", "JRC surface water, seasonality, distance-to-water — the wildlife covariate.", "demo")}
-</div>
-<h2 class="zone">Pressure — what people are doing</h2>
-<div class="grid g4">
-{module_card("ngoro-anthro.html", "Anthropogenic", "Settlement expansion &amp; boundary-buffer encroachment: built-up rings, edge pressure.", "demo")}
-{module_card("ngoro-livestock.html", "Livestock", "Herd census trends, grazing pressure map, stocking vs capacity.", "demo")}
-{module_card("ngoro-tourism.html", "Tourism", "Camps &amp; lodges monitor: expansion, concentration, wildlife displacement.", "demo")}
-{module_card("ngoro-roads.html", "Roads", "OSM/GRIP network, routing &amp; a location guide, fragmentation.", "demo")}
-{module_card("ngoro-fires.html", "Fires", "FIRMS/VIIRS detections, dry-season pulse, burn-scar extent.", "demo")}
-</div>
-<h2 class="zone">Biodiversity &amp; synthesis</h2>
-<div class="grid g4">
-{module_card("ngoro-wildlife.html", "Wildlife", "Animal-distribution SDM &amp; invasive-species risk from RS covariates + occurrences.", "demo")}
-{module_card("ngoro-stations.html", "Weather stations", "Meteograms, wind roses, soil profiles, warming stripes.", "demo")}
-{module_card("ngoro-stats.html", "Statistics", "Fits, uncertainty, diagnostics, PCA — the inferential layer.", "demo")}
-</div>"""
+"""
     page("area-ngorongoro.html", "Ngorongoro Conservation Area", "areas.html", NCA_CRUMB,
-         "The park hub — identity, the live map, and one door per analytical module.",
-         body, subnav(NCA_SUB, "area-ngorongoro.html"),
-         action=f'<a class="cta" href="ngoro-forest-edit.html" style="display:inline-flex;align-items:center;gap:7px">{IC_PENCIL}Edit</a>')
+         "The park hub — identity and the live map. Its analytical modules live on the Modules tab.",
+         body, area_tabs("area-ngorongoro.html"))
+
+
+def build_nca_modules():
+    """The Modules tab: every module on the area as a card grid, grouped by the flux/pressure/
+    biodiversity taxonomy. A card opens the module's own page (show → edit → data). Composition
+    (add / remove / reorder) is the 'Customize' action — you compose where you see the modules."""
+    PL[0] = 30
+    GRASS, SHRUB, TREE, OTHER = "#f5e07a", "#b8a600", "#1a6b34", "#b0aead"
+    WARM, BLUE = "#c8642d", "#2b7fd6"
+    flux = [
+        ("ngoro-forest.html", "Forest loss", "live", "3,214", "ha lost · 01–23",
+         _spark([40, 70, 55, 90, 60, 186, 120, 80, 150, 95, 70, 110], "bar", color=WARM),
+         "Annual loss accounting, decomposition &amp; trend.", "Hansen GFC · real"),
+        ("ngoro-structure.html", "Forest structure", "demo", "14.2 m", "mean canopy height",
+         _spark([8, 10, 9, 12, 14, 13, 15, 14], "bar"),
+         "Canopy height &amp; above-ground biomass (GEDI/CCI).", "GEDI · CCI"),
+        ("ngoro-veg.html", "Vegetation", "demo", "0.62", "peak NDVI",
+         _spark([.2, .3, .5, .62, .58, .4, .3, .25, .35, .5, .6, .45], "line"),
+         "NDVI phenology &amp; spectral composition.", "Sentinel-2"),
+        ("ngoro-landcover.html", "Land cover", "demo", "77%", "grassland · 8 classes",
+         _spark_stack([(77, GRASS), (15, SHRUB), (6, TREE), (2, OTHER)]),
+         "WorldCover composition &amp; fragmentation.", "ESA WorldCover"),
+        ("ngoro-climate.html", "Climate", "demo", "+1.3°C", "vs 1970–2000",
+         _spark([0, .2, .3, .5, .6, .8, .9, 1.1, 1.0, 1.3], "line", color=WARM),
+         "WorldClim normals &amp; CHIRPS anomalies.", "WorldClim · CHIRPS"),
+        ("ngoro-drought.html", "Drought", "demo", "−1.8", "SPEI · severe",
+         _spark([1.3, 1.0, .7, .2, .5, .3, .1, .05], "line", color=WARM),
+         "SPEI monitor &amp; soil-moisture percentiles.", "SPEI"),
+        ("ngoro-water.html", "Water", "demo", "42 km²", "seasonal water",
+         _spark([30, 42, 38, 20, 15, 25, 40, 42], "bar", color=BLUE),
+         "JRC surface water &amp; distance-to-water.", "JRC GSW"),
+    ]
+    pressure = [
+        ("ngoro-anthro.html", "Anthropogenic", "demo", "3.1×", "built-up since '75",
+         _spark([1, 1.2, 1.5, 1.9, 2.4, 3.1], "bar", color=WARM),
+         "Settlement expansion &amp; edge encroachment.", "GHSL"),
+        ("ngoro-livestock.html", "Livestock", "demo", "1.4M", "TLU · +12%",
+         _spark([1.0, 1.05, 1.1, 1.2, 1.25, 1.4], "line"),
+         "Herd trends &amp; grazing-pressure map.", "census"),
+        ("ngoro-tourism.html", "Tourism", "demo", "38", "camps &amp; lodges",
+         _spark([12, 18, 22, 28, 33, 38], "bar"),
+         "Lodge expansion &amp; wildlife displacement.", "OSM"),
+        ("ngoro-roads.html", "Roads", "demo", "1,240 km", "OSM + GRIP",
+         _spark([8, 6, 10, 7, 12, 9, 5], "bar"),
+         "Network, routing &amp; fragmentation.", "OSM · GRIP"),
+        ("ngoro-fires.html", "Fires", "demo", "12,404", "VIIRS detections",
+         _spark([2, 1, 0, 3, 8, 20, 35, 28, 10, 4, 1, 2], "bar", color=WARM),
+         "FIRMS/VIIRS detections &amp; burn scars.", "VIIRS"),
+    ]
+    bio = [
+        ("ngoro-wildlife.html", "Wildlife", "demo", "0.71", "AUC · SDM",
+         _spark([.4, .55, .6, .68, .71], "bar"),
+         "Species-distribution SDM &amp; invasive risk.", "GBIF"),
+        ("ngoro-stations.html", "Weather stations", "demo", "4/5", "online",
+         _spark([.6, .65, .7, .68, .72, .75, .7], "line"),
+         "Meteograms, wind roses, warming stripes.", "stations"),
+        ("ngoro-stats.html", "Statistics", "demo", "R²=.68", "OLS fit",
+         _spark([.3, .5, .45, .6, .68], "line"),
+         "Fits, uncertainty, PCA — the inferential layer.", "network"),
+    ]
+
+    def grid(tiles):
+        return '<div class="grid g4">' + ''.join(module_tile(*t) for t in tiles) + '</div>'
+
+    body = (f'<h2 class="zone">Flux — what the ecosystem is doing</h2>{grid(flux)}'
+            f'<h2 class="zone">Pressure — what people are doing</h2>{grid(pressure)}'
+            f'<h2 class="zone">Biodiversity &amp; synthesis</h2>{grid(bio)}')
+    page("area-ngorongoro-modules.html", "Ngorongoro — Modules", "areas.html", NCA_CRUMB + ' / modules',
+         "Every analytical module on this area — one card, one page. Open a card to view it; edit or run its data from there.",
+         body, area_tabs("area-ngorongoro-modules.html"),
+         action='<a class="cta" href="ngoro-modules.html" style="display:inline-flex;align-items:center;gap:7px">Customize</a>')
+
+
+def build_nca_area_settings():
+    """The Settings tab: area-level configuration — dashboard, identity, and access. Its own page so
+    it can be permission-gated (a manage-area capability) apart from Overview/Modules."""
+    PL[0] = 40
+
+    def setting_card(idx, title, src, rows):
+        rls = ''.join(f'<div class="rln"><span>{k}</span><span class="mono d">{v}</span></div>' for k, v in rows)
+        return (f'<div class="c"><span class="tab"><span class="idx">PL·{idx}</span>{title}'
+                f'<span class="src">· {src}</span></span>{rls}</div>')
+
+    dashboard = setting_card(40, "Dashboard", "area preference", [
+        ("Default tab on open", "Overview"),
+        ("Module order", "as arranged on Modules · Customize"),
+        ("Theme", "follow system"),
+    ])
+    identity = setting_card(41, "Area identity", "area_of_interest", [
+        ("Name", "Ngorongoro Conservation Area"),
+        ("Boundary source", "WDPA · #555512151"),
+        ("IUCN category", "VI"),
+        ("Area", "8,271 km²"),
+    ])
+    access = ('<div class="c"><span class="tab"><span class="idx">PL·42</span>Access<span class="src">· permissions</span></span>'
+              '<div class="rln"><span>Who can view this area</span><span class="mono d">Team · 6 members</span></div>'
+              '<div class="rln"><span>Who can edit modules</span><span class="mono d">Managers +</span></div>'
+              '<div class="rln"><span>Who can run ingestion</span><span class="mono d">Managers +</span></div>'
+              '<div class="use">Each area tab and each module page is its own route, so access is enforced per page — '
+              'lock a sensitive module down without hiding the rest.</div></div>')
+
+    body = (f'<div class="grid g2">{dashboard}{identity}</div>'
+            f'<div class="grid g2">{access}</div>')
+    page("area-ngorongoro-settings.html", "Ngorongoro — Settings", "areas.html", NCA_CRUMB + ' / settings',
+         "Area-level settings: the dashboard, the area's identity, and who can see or change what.",
+         body, area_tabs("area-ngorongoro-settings.html"))
 
 
 def build_nca_forest():
@@ -836,25 +1058,318 @@ def build_nca_stations():
          body, subnav(NCA_SUB, "ngoro-stations.html"))
 
 
+# ── Dataframe helpers (shared by the Dataframe + Statistics tabs) ────────────────────────────────
+# The land-cover dataframe is CLASS-level (one row per class) — area and fragmentation share the `class`
+# key, so they are ONE table, not two. (The pixel grid itself is the raster/map layer, not a table.)
+LC_COLS = ["class", "area_km2", "pct", "n_patches", "patch_density", "edge_density", "mean_patch_ha"]
+LC_TYPES = ["chr", "dbl", "dbl", "int", "dbl", "dbl", "dbl"]
+LC_NUM = {"area_km2", "pct", "n_patches", "patch_density", "edge_density", "mean_patch_ha"}
+LC_CLASS = [
+    ["Grassland", 2589.78, 77.16, 142, 0.5, 8.2, 1823.8],
+    ["Shrubland", 521.38, 15.53, 402, 7.7, 15.1, 129.7],
+    ["Tree cover", 199.15, 5.93, 210, 10.5, 12.3, 94.8],
+    ["Water", 19.85, 0.59, 45, 22.7, 3.1, 44.1],
+    ["Bare/sparse", 19.81, 0.59, 88, 44.4, 5.2, 22.5],
+    ["Cropland", 6.13, 0.18, 310, 505.0, 6.1, 2.0],
+    ["Built-up", 0.10, 0.00, 12, 120.0, 1.4, 0.8],
+    ["Herb. wetland", 0.01, 0.00, 2, 200.0, 0.3, 0.5],
+]
+
+
+def _dtable(cols, rows, numeric):
+    head = '<tr>' + ''.join((f'<th class="num">{c}</th>' if c in numeric else f'<th>{c}</th>') for c in cols) + '</tr>'
+    trs = ''
+    for r in rows:
+        cells = ''.join((f'<td class="num">{v}</td>' if cols[i] in numeric else f'<td>{v}</td>') for i, v in enumerate(r))
+        trs += f'<tr>{cells}</tr>'
+    return f'<div style="overflow-x:auto"><table class="dtable"><thead>{head}</thead><tbody>{trs}</tbody></table></div>'
+
+
+def _rdf(cols, types, rows, numeric, pid, title="Dataframe", datasets=None, active=None, page_size=25, sort=None):
+    """Data-viewer table, which IS its own card (single border): a .tab header, a dataset selector +
+    search bar, <type> column badges, sort carets, per-column filter inputs, and a pagination footer.
+    The interactive bits (search / filter / sort / paging) are visual here; wired client-side on port."""
+    n, m = len(rows), len(cols)
+    ths = '<th class="idx"></th>'
+    for c, t in zip(cols, types):
+        nc = ' class="num"' if c in numeric else ''
+        ph = 'min – max' if c in numeric else 'filter'
+        if sort and sort[0] == c:
+            srt = f'<span class="sort on">{"▼" if sort[1] == "desc" else "▲"}</span>'
+        else:
+            srt = '<span class="sort">↕</span>'
+        ths += (f'<th{nc}><button class="rdf-sort">{c} {srt}</button> <span class="ty" style="display:inline-block">&lt;{t}&gt;</span>'
+                f'<input class="rdf-cf" placeholder="{ph}"></th>')
+    trs = ''
+    for i, r in enumerate(rows, 1):
+        cells = f'<td class="idx">{i}</td>'
+        for j, v in enumerate(r):
+            cells += (f'<td class="num">{v}</td>' if cols[j] in numeric else f'<td>{v}</td>')
+        trs += f'<tr>{cells}</tr>'
+
+    tab = f'<span class="tab"><span class="idx">PL·{pid}</span>{title}</span>'
+    sel = ''
+    if datasets:
+        sel = '<span class="rdf-sel">' + ''.join(
+            f'<span class="chip {"acc" if k == active else "idle"}" style="cursor:pointer">{k}</span>' for k in datasets) + '</span>'
+    tools = ('<span class="rdf-search" style="margin-left:auto">'
+             '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" '
+             'stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg>'
+             '<input placeholder="Search…"></span>')
+    shown = min(n, page_size)
+    foot = (f'<div class="rdf-foot"><span>dataframe: {n} × {m}</span>'
+            f'<span class="rdf-page">Showing 1–{shown} of {n}'
+            '<button aria-label="previous">‹</button><span class="pg">1</span><button aria-label="next">›</button></span></div>')
+    return (f'<div class="rdf"><div class="rdf-bar">{tab}{sel}{tools}</div>'
+            f'<div style="overflow-x:auto"><table><thead><tr>{ths}</tr></thead><tbody>{trs}</tbody></table></div>{foot}</div>')
+
+
+def _ds_selector(active, keys=("landcover_class", "landcover_class")):
+    chips = ''.join(f'<span class="chip {"acc" if k == active else "idle"}" style="cursor:pointer;margin-right:6px">{k}</span>' for k in keys)
+    return f'<div style="margin-bottom:14px">{chips}</div>'
+
+
+def _describe(vals):
+    n = len(vals)
+    m = sum(vals) / n
+    sd = (sum((v - m) ** 2 for v in vals) / n) ** 0.5
+    s = sorted(vals)
+    mid = s[n // 2] if n % 2 else (s[n // 2 - 1] + s[n // 2]) / 2
+    return {"count": n, "mean": m, "std": sd, "min": s[0], "median": mid, "max": s[-1]}
+
+
 def build_nca_landcover():
+    """Dashboard tab (cockpit): a KPI strip of the module's headline metrics, its charts as the main
+    column, and a glanceable live-status rail (full controls live on the Settings tab)."""
     PL[0] = 85
-    body = f"""
-<div class="grid g2">
-{plate("Where land went, 2000 → 2020", C.sankey(), src="ESA WorldCover, NCA", lib="plotly sankey",
-       use="<b>Sankey</b> — transitions as ribbons; the thin crossing forest→cropland ribbon is the alarm.", pid="sankey")}
-{plate("Cover hierarchy", C.sunburst(), src="ESA WorldCover", lib="plotly sunburst",
-       use="<b>Sunburst</b> — biome → class as nested rings.", pid="sunburst")}
-</div>
-<div class="grid g2">
-{plate("Composition drift", C.stacked_area(), src="WorldCover epochs", lib="matplotlib stackplot",
-       use="<b>Stacked area</b> — the cropland wedge growing at grassland's expense is the plot.", pid="stacked-area")}
-{plate("Eight parks, one bar each", C.pct_stacked_bars(), src="ESA WorldCover", lib="100% stacked bars",
-       use="<b>100% stacked bars</b> — composition compared across areas; replaces eight pies.", pid="pct-stacked")}
-</div>"""
-    page("ngoro-landcover.html", "Ngorongoro — Land cover", "areas.html", NCA_CRUMB + ' / land cover',
-         "ESA WorldCover-style composition and change: flows, hierarchy and shares each in the idiom "
-         "that does that one job best.",
-         body, subnav(NCA_SUB, "ngoro-landcover.html"))
+    kstrip = ('<div class="grid g4" style="margin-bottom:20px">'
+              + kpi("Grassland", "77", "%", "dominant cover")
+              + kpi("Classes", "8", "", "WorldCover")
+              + kpi("Fragmentation", "2.3", "pd", "patches / 100 ha")
+              + kpi("Last run", "2h", "ago", "succeeded") + '</div>')
+    charts = (
+        '<div class="grid g2">'
+        + plate("Transitions, 2000 → 2020", C.sankey(), src="ESA WorldCover", lib="sankey",
+                use="<b>Sankey</b> — the thin crossing forest→cropland ribbon is the alarm.", pid="sankey")
+        + plate("Cover hierarchy", C.sunburst(), src="ESA WorldCover", lib="sunburst",
+                use="<b>Sunburst</b> — biome → class as nested rings.", pid="sunburst")
+        + '</div><div class="grid g2">'
+        + plate("Composition drift", C.stacked_area(), src="WorldCover epochs", lib="stackplot",
+                use="<b>Stacked area</b> — the cropland wedge growing at grassland's expense.", pid="stacked-area")
+        + plate("Class shares", C.pct_stacked_bars(), src="ESA WorldCover", lib="100% bars",
+                use="<b>100% stacked bars</b> — composition compared across areas.", pid="pct-stacked")
+        + '</div>')
+    rail = (
+        '<div style="display:flex;flex-direction:column;gap:16px">'
+        '<div class="c"><span class="tab"><span class="idx">PL·86</span>Live status<span class="src">· glance</span></span>'
+        '<div class="rln"><span>Last ingestion</span><span class="chip ok">2h ago · ok</span></div>'
+        '<div class="rln"><span>Running now</span><span class="chip acc">1 job · 48%</span></div>'
+        '<div class="rln"><span>Datasets</span><span class="mono d">2 · fresh</span></div>'
+        '<div class="rln"><span>Source</span><span class="mono d">WorldCover 2021</span></div>'
+        '<a href="ngoro-landcover-settings.html" class="mono" style="font-size:11px;color:var(--acc);display:inline-block;margin-top:9px;text-decoration:none">Manage data →</a></div>'
+        '<div class="c"><span class="tab"><span class="idx">PL·87</span>Charts<span class="src">· 4</span></span>'
+        '<div class="rln"><span>Class areas</span><span class="chip idle">bar</span></div>'
+        '<div class="rln"><span>Composition drift</span><span class="chip idle">area</span></div>'
+        '<div class="rln"><span>Transitions</span><span class="chip idle">sankey</span></div>'
+        '<a href="ngoro-landcover-settings.html" class="mono" style="font-size:11px;color:var(--acc);display:inline-block;margin-top:9px;text-decoration:none">Configure →</a></div>'
+        '</div>')
+    map_card = plate("Land-cover map", nca_map(), src="ESA WorldCover 2021", lib="leaflet in-app", pid="ovmap",
+                     use="The classified layer clipped to the AOI — full interactive view on the <b>Explore</b> tab.")
+    body = (kstrip
+            + '<div style="display:grid;grid-template-columns:1fr 296px;gap:20px;align-items:start">'
+            + '<div>' + map_card + '<div style="margin-top:20px">' + charts + '</div></div>' + rail + '</div>')
+    page("ngoro-landcover.html", "Land cover", "areas.html", NCA_CRUMB + ' / modules / land cover',
+         "WorldCover composition, transitions and fragmentation — the module's overview.",
+         body, module_tabs("ngoro-landcover", "Overview"))
+
+
+def build_nca_landcover_settings():
+    """Settings tab: Data (source, ingestion, datasets, runs) + Visualizations (chart config) — how the
+    module is fed and drawn, in one place; its own route so it can be permission-gated."""
+    PL[0] = 86
+
+    run_card = (
+        '<div class="c"><span class="tab"><span class="idx">PL·86</span>Run ingestion<span class="src">· engine</span></span>'
+        '<div class="rln"><span>Source</span><span class="mono d">ESA WorldCover 2021 v200 · 10 m</span></div>'
+        '<div class="rln"><span>Produces</span><span class="mono d">2 datasets · class table + map</span></div>'
+        '<div class="rln"><span>Last run</span><span class="chip ok">succeeded · 2h ago</span></div>'
+        '<div style="display:flex;gap:11px;align-items:center;margin:15px 2px 4px">'
+        '<button class="cta" style="border:0;cursor:pointer;padding:9px 18px">Run ingestion</button>'
+        '<span class="fog" style="font-size:11.5px">Streams WorldCover, clips to this area, computes the datasets below.</span></div>'
+        '<div class="use">Runs on the engine (a separate service). Watch it under <b>Runs</b>; the datasets land on '
+        'the shelf and any bound visualization lights up.</div></div>')
+
+    runs_card = (
+        '<div class="c"><span class="tab"><span class="idx">PL·88</span>Runs<span class="src">· dataset_run</span></span>'
+        '<div class="rln" style="flex-direction:column;align-items:stretch;padding:10px 2px">'
+        '<div style="display:flex;justify-content:space-between;align-items:center"><span><span class="mono d">#3</span> &nbsp;landcover</span>'
+        '<span class="chip ok">succeeded</span></div><div class="mono d" style="font-size:10px;margin-top:6px">8 classes · 3 datasets</div></div>'
+        '<div class="rln" style="flex-direction:column;align-items:stretch;padding:10px 2px">'
+        '<div style="display:flex;justify-content:space-between;align-items:center"><span><span class="mono d">#2</span> &nbsp;landcover</span>'
+        '<span class="chip acc">running</span></div><div class="prog" style="margin-top:8px"><i style="width:48%"></i></div>'
+        '<div class="mono d" style="font-size:9px;margin-top:4px">fragmentation · 48%</div></div>'
+        '<div class="rln" style="flex-direction:column;align-items:stretch;padding:10px 2px">'
+        '<div style="display:flex;justify-content:space-between;align-items:center"><span><span class="mono d">#1</span> &nbsp;landcover</span>'
+        '<span class="chip fail">failed</span></div><div class="mono r" style="font-size:10px;margin-top:6px">tile timeout — retried as #2</div></div>'
+        '<div class="use">Every ingestion is a run you can watch — progress for the long ones, provenance for the finished ones.</div></div>')
+
+    def ds_row(key, kind, kindcls, payload, uses):
+        return (f'<div class="rln"><span><span class="mono d">{key}</span>'
+                f'<span class="chip {kindcls}" style="margin-left:7px">{kind}</span></span>'
+                f'<span class="mono d" style="font-size:10px">{payload} · {uses}</span></div>')
+
+    datasets_card = (
+        '<div class="c"><span class="tab"><span class="idx">PL·87</span>Datasets<span class="src">· module_dataset</span></span>'
+        + ds_row("landcover_class", "table", "acc", "8 rows × 7", "3 viz")
+        + ds_row("landcover_map", "raster", "warn", "geotiff", "map layer")
+        + '<div class="use">The data this module owns on this area, keyed by dataset. Re-running replaces it in place; '
+          'bind one to a chart in the <b>Visualizations</b> section below.</div></div>')
+
+    bindings_card = (
+        '<div class="c"><span class="tab"><span class="idx">PL·89</span>Visualization bindings<span class="src">· visualization</span></span>'
+        '<div class="rln"><span><b>Class areas</b><span class="chip idle" style="margin-left:6px">bar</span></span>'
+        '<span class="mono d" style="font-size:10px">landcover_class · x=class y=area_km2</span></div>'
+        '<div class="rln"><span><b>Fragmentation</b><span class="chip idle" style="margin-left:6px">bar</span></span>'
+        '<span class="mono d" style="font-size:10px">landcover_class · x=class y=patch_density</span></div>'
+        '<div class="rln"><span><b>Land-cover map</b><span class="chip idle" style="margin-left:6px">map</span></span>'
+        '<span class="mono d" style="font-size:10px">landcover_map · geojson layer</span></div>'
+        '<div class="use">Which chart plots which dataset column. An unbound visualization shows a scaffold until wired '
+        '— configure in the <b>Visualizations</b> section below.</div></div>')
+
+    # ── Visualizations section (compact chart list) ─────────────────────────────────────────────
+    def viz_row(title, vtype, binding, first=False):
+        top = '' if first else 'border-top:1px solid var(--ln);'
+        return (f'<div style="display:flex;align-items:center;gap:12px;padding:11px 15px;{top}">'
+                f'<span class="grip" title="drag to reorder">{IC_GRIP_SM}</span>'
+                f'<span style="font-weight:600;font-size:13px;min-width:150px">{title}</span>'
+                f'<span class="chip idle">{vtype}</span>'
+                '<span class="mono d" style="font-size:10px;flex:1;min-width:0;color:var(--fog);overflow:hidden;'
+                f'text-overflow:ellipsis;white-space:nowrap">{binding}</span>'
+                '<a href="ngoro-configure-viz.html" class="mono" style="font-size:10.5px;color:var(--acc);text-decoration:none">Configure</a>'
+                '<a href="#" class="rm" style="color:var(--fail);text-decoration:none;font-size:16px;line-height:1">×</a></div>')
+
+    viz_rows = (viz_row("Class areas", "bar", "landcover_class · x=class y=area_km2", first=True)
+                + viz_row("Composition drift", "area", "landcover_class · epochs")
+                + viz_row("Cover hierarchy", "sunburst", "landcover_class · nested")
+                + viz_row("Transitions", "sankey", "landcover_transitions"))
+    add_row = ('<a href="ngoro-configure-viz.html" style="display:flex;align-items:center;gap:8px;padding:12px 15px;'
+               'border-top:1px solid var(--ln);color:var(--acc);text-decoration:none;font-weight:600;font-size:12.5px">'
+               '+ Add visualization</a>')
+    viz_list = f'<div class="c" style="padding:0;overflow:hidden">{viz_rows}{add_row}</div>'
+
+    body = ('<h2 class="zone">Data</h2>'
+            '<div class="grid g2">' + run_card + runs_card + '</div>'
+            '<div class="grid g2">' + datasets_card + bindings_card + '</div>'
+            '<h2 class="zone">Visualizations</h2>'
+            '<div class="fog" style="font-size:12px;margin:-8px 0 16px">Each row is a chart — its type, the dataset + '
+            'columns it plots, and its order. <b>Configure</b> opens the full editor; drag the handle to reorder.</div>'
+            + viz_list)
+    page("ngoro-landcover-settings.html", "Land cover", "areas.html",
+         NCA_CRUMB + ' / modules / land cover / settings',
+         "How this module is fed and drawn — its data source, ingestion, and chart configuration.",
+         body, module_tabs("ngoro-landcover", "Settings"))
+
+
+def build_nca_landcover_dataframe():
+    """Dataframe tab: the dataset's rows as a data-viewer card — the actual data behind the charts."""
+    PL[0] = 94
+    df = _rdf(LC_COLS, LC_TYPES, LC_CLASS, LC_NUM, pid=94, title="Dataframe · landcover by class",
+              sort=("area_km2", "desc"))
+    actions = ('<div style="display:flex;align-items:center;gap:10px;margin-top:14px">'
+               '<button class="cta" style="border:0;cursor:pointer;padding:7px 14px;font-size:11px">Export CSV</button>'
+               '<span class="chip idle" style="cursor:pointer">Copy</span>'
+               '<span class="fog" style="font-size:11.5px;margin-left:auto">Switch datasets to inspect each; columns are '
+               'bound to charts in <b>Settings</b>.</span></div>')
+    page("ngoro-landcover-dataframe.html", "Land cover", "areas.html",
+         NCA_CRUMB + ' / modules / land cover / dataframe',
+         "The module's datasets as tables — inspect the actual rows behind the charts.",
+         df + actions, module_tabs("ngoro-landcover", "Dataframe"))
+
+
+def build_nca_landcover_explore():
+    """Explore tab (map + statistics combined): the module's spatial layer on the interactive map
+    (clipped to the AOI, with a legend), followed by the per-column summary statistics —
+    describe() + a distribution — for the same data."""
+    PL[0] = 80
+    legend_items = [("Grassland", "#f5e07a", "77.2%"), ("Shrubland", "#b8a600", "15.5%"),
+                    ("Tree cover", "#1a6b34", "5.9%"), ("Bare/sparse", "#b0aead", "0.6%"),
+                    ("Water", "#2b7fd6", "0.6%"), ("Cropland", "#e59b3a", "0.2%"),
+                    ("Built-up", "#c81e1e", "0.0%"), ("Herb. wetland", "#5ad3c8", "0.0%")]
+    legend = ''.join(
+        f'<div style="display:flex;align-items:center;gap:9px;padding:5px 0">'
+        f'<span style="width:14px;height:14px;border-radius:3px;background:{col};flex:none"></span>'
+        f'<span style="font-size:12px;flex:1">{name}</span>'
+        f'<span class="mono d" style="font-size:10px">{pct}</span></div>' for name, col, pct in legend_items)
+    map_card = plate("Land-cover map · 2021", nca_map(), src="ESA WorldCover 2021 v200", lib="leaflet in-app", pid="lcmap",
+                     use="The classified raster clipped to the AOI. Grassland dominates; cropland presses in at the south-eastern edge.")
+    legend_card = ('<div class="c"><span class="tab"><span class="idx">PL·81</span>Legend<span class="src">· WorldCover classes</span></span>'
+                   f'<div style="margin-top:8px">{legend}</div>'
+                   '<div class="use">10 m classes, resampled to 30 m over the AOI. Colours match the ESA WorldCover legend.</div></div>')
+    map_row = f'<div style="display:grid;grid-template-columns:1fr 262px;gap:20px;align-items:start"><div>{map_card}</div>{legend_card}</div>'
+
+    # Summary statistics for the same land-cover-by-class data — describe() + a distribution.
+    def col(i):
+        return [r[i] for r in LC_CLASS]
+
+    def desc_row(name, vals):
+        d = _describe(vals)
+        cells = ''.join(f'<td class="num">{int(d[k]) if k == "count" else format(d[k], ",.2f")}</td>'
+                        for k in ["count", "mean", "std", "min", "median", "max"])
+        return f'<tr><td>{name}</td>{cells}</tr>'
+
+    head = ('<tr><th>column</th><th class="num">count</th><th class="num">mean</th><th class="num">std</th>'
+            '<th class="num">min</th><th class="num">median</th><th class="num">max</th></tr>')
+    describe = ('<div style="overflow-x:auto"><table class="dtable"><thead>' + head + '</thead><tbody>'
+                + desc_row("area_km2", col(1)) + desc_row("pct", col(2))
+                + desc_row("patch_density", col(4)) + desc_row("edge_density", col(5))
+                + '</tbody></table></div>')
+    dist = _spark(sorted(col(1), reverse=True), "bar", w=300, h=90)
+    stats_row = ('<div class="grid g2" style="margin-top:22px">'
+                 '<div class="c"><span class="tab"><span class="idx">PL·95</span>Summary<span class="src">· describe()</span></span>'
+                 '<div style="margin-top:2px">' + describe + '</div>'
+                 + '<div class="use">Per-column summary statistics for the landcover-by-class dataframe.</div></div>'
+                 '<div class="c"><span class="tab"><span class="idx">PL·96</span>Distribution<span class="src">· area_km2</span></span>'
+                 '<div style="margin-top:12px">' + dist + '</div>'
+                 '<div class="use">The spread of a numeric column — grassland dominates the long tail.</div></div>'
+                 '</div>')
+
+    body = map_row + stats_row
+    page("ngoro-landcover-explore.html", "Land cover", "areas.html", NCA_CRUMB + ' / modules / land cover / explore',
+         "Explore the module's data — the classified layer on the map, and the summary statistics for the same data.",
+         body, module_tabs("ngoro-landcover", "Explore"))
+
+
+def build_nca_landcover_method():
+    """Method tab: what the module measures, how it's computed, its data source and honest caveats —
+    the analysis caption (Answers · Takeaway · Limitations · Next · Data) surfaced as a page."""
+    PL[0] = 97
+
+    def item(label, text):
+        return ('<div class="rln" style="flex-direction:column;align-items:stretch;gap:4px;padding:12px 2px">'
+                f'<span class="mono" style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--acc)">{label}</span>'
+                f'<span style="font-size:13px;line-height:1.55;color:var(--tx)">{text}</span></div>')
+
+    summary = ('<div class="c"><span class="tab"><span class="idx">PL·97</span>What this module measures<span class="src">· land cover</span></span>'
+               + item("Answers", "What habitats make up this area, and where are they?")
+               + item("Takeaway", "Grassland dominates (77%) with forest confined to the Crater Highlands (6%); cropland (0.2%) presses in only along the south-eastern edge.")
+               + '</div>')
+    method = ('<div class="c"><span class="tab"><span class="idx">PL·98</span>How it is computed<span class="src">· pipeline</span></span>'
+              '<div class="rln"><span>1 · Clip</span><span class="mono d">WorldCover → AOI cutline (/vsicurl)</span></div>'
+              '<div class="rln"><span>2 · Reproject</span><span class="mono d">UTM 36S · 30 m · mode-resampled</span></div>'
+              '<div class="rln"><span>3 · Areas</span><span class="mono d">pixel counts × cell area → class km²</span></div>'
+              '<div class="rln"><span>4 · Fragmentation</span><span class="mono d">patch / edge density (scipy.ndimage)</span></div>'
+              '<div class="use">Runs in the engine; the outputs land as the <b>landcover_class</b> dataframe + the map layer.</div></div>')
+    source = ('<div class="c"><span class="tab"><span class="idx">PL·99</span>Data source<span class="src">· provenance</span></span>'
+              '<div class="rln"><span>Dataset</span><span class="mono d">ESA WorldCover 2021 v200</span></div>'
+              '<div class="rln"><span>Resolution</span><span class="mono d">10 m (→ 30 m for the AOI)</span></div>'
+              '<div class="rln"><span>Sensor</span><span class="mono d">Sentinel-1 + Sentinel-2</span></div>'
+              '<div class="rln"><span>Accuracy</span><span class="mono d">~76% overall</span></div>'
+              '<div class="rln"><span>Licence</span><span class="mono d">CC BY 4.0 · open</span></div>'
+              '<div class="use">Cite: Zanaga et al. (2022), ESA WorldCover 10 m 2021 v200. Open data — no credentials.</div></div>')
+    body = summary + '<div class="grid g2" style="margin-top:22px">' + method + source + '</div>'
+    page("ngoro-landcover-method.html", "Land cover", "areas.html", NCA_CRUMB + ' / modules / land cover / method',
+         "What this module measures, how it's computed, and the honest caveats.",
+         body, module_tabs("ngoro-landcover", "Method"))
 
 
 def build_nca_stats():
@@ -2010,10 +2525,16 @@ if __name__ == '__main__':
     build_index()
     build_areas()
     build_nca_hub()
+    build_nca_modules()
+    build_nca_area_settings()
     build_nca_forest()
     build_nca_climate()
     build_nca_stations()
     build_nca_landcover()
+    build_nca_landcover_dataframe()
+    build_nca_landcover_explore()
+    build_nca_landcover_method()
+    build_nca_landcover_settings()
     build_nca_anthro()
     build_nca_tourism()
     build_nca_veg()

@@ -10,8 +10,7 @@ namespace App\Forest;
  * Fully isolated: deptrac allows it to depend only on itself and the Geo kernel.
  * No other topic domain may reach into it, and it reaches into no other topic.
  * Planned layers (built in the confirmed build phase):
- *   - Entity/        ForestLossYear (year, geom MultiPolygon, areaHa, source)
- *   - Repository/    ForestLossYearRepository
+ *   - Module/        ForestModule — the tagged ModuleDefinition (KPIs, default charts, caption)
  *   - Domain/        value objects (year range, loss statistics)
  *   - Service/       ForestLossImporter (loads clipped Hansen GFC into PostGIS)
  *   - ApiResource/   API Platform resource — REST + filters + export formats

@@ -383,6 +383,94 @@ body::before {
 .subnav a.on { color: rgb(var(--c-accT)); background: rgb(var(--c-acc)); border-color: rgb(var(--c-acc)); }
 .subnav span.off { color: rgb(var(--c-dim)); border-style: dashed; cursor: default; }
 
+/* Within-module tabs — underlined and left-aligned; the active tab carries the accent underline.
+   Used on a module's own pages (Overview / Dataframe / Explore / Method / Settings). */
+.atabs { display: flex; gap: 24px; border-bottom: 1px solid var(--c-ln); margin: 0 0 26px; }
+.atabs a {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: rgb(var(--c-fog));
+    text-decoration: none;
+    padding: 9px 1px 12px;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;        /* sit the underline on the container's hairline */
+    transition: color .15s, border-color .15s;
+}
+.atabs a:hover { color: rgb(var(--c-tx)); }
+.atabs a.on { color: rgb(var(--c-tx)); border-bottom-color: rgb(var(--c-acc)); }
+
+/* "All modules" back pill — chevron + label, a subtle bordered chip that lifts on hover. */
+.backbtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: rgb(var(--c-fog));
+    text-decoration: none;
+    padding: 6px 14px 6px 10px;
+    border: 1px solid var(--c-ln2);
+    border-radius: 99px;
+    margin-bottom: 16px;
+    transition: color .15s, border-color .15s, background .15s;
+}
+.backbtn:hover { color: rgb(var(--c-tx)); border-color: rgb(var(--c-fog)); background: rgb(var(--c-raised)); }
+.backbtn svg { display: block; width: 15px; height: 15px; }
+
+/* Module card (Modules-tab grid) — a content-ful tile: headline metric + mini preview + source.
+   Built on .c (the card), clickable as a whole, lifting on hover. */
+.mtile { display: flex; flex-direction: column; gap: 9px; padding: 15px 16px; text-decoration: none; transition: border-color .15s, transform .12s; }
+.mtile:hover { border-color: color-mix(in srgb, rgb(var(--c-acc)) 45%, transparent); transform: translateY(-1px); }
+.mtile-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.mtile-title { font-weight: 700; font-size: 14px; color: rgb(var(--c-tx)); }
+.mtile-stat { display: flex; align-items: baseline; gap: 6px; }
+.mtile-stat .val { font-size: 21px; font-weight: 700; color: rgb(var(--c-tx)); line-height: 1; }
+.mtile-stat .sub { font-size: 10.5px; }
+.mtile-spark { margin: 1px 0 2px; min-height: 22px; }
+.mtile-summary { font-size: 11.5px; line-height: 1.35; }
+.mtile-source { margin-top: auto; padding-top: 5px; }
+.mtile-source .mono { font-size: 9px; letter-spacing: .06em; color: rgb(var(--c-dim)); }
+
+/* ── describe() / summary table ─────────────────────────────────────── */
+.dtable { width: 100%; border-collapse: collapse; font-size: 12px; }
+.dtable th { text-align: left; font-family: var(--font-mono); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: rgb(var(--c-fog)); font-weight: 600; padding: 8px 12px; border-bottom: 1px solid var(--c-ln2); white-space: nowrap; }
+.dtable th.num, .dtable td.num { text-align: right; font-family: var(--font-mono); }
+.dtable td { padding: 7px 12px; border-bottom: 1px solid var(--c-ln); color: rgb(var(--c-tx)); }
+.dtable tbody tr:hover td { background: rgb(var(--c-raised)); }
+.dtable tbody tr:last-child td { border-bottom: 0; }
+
+/* ── R-style dataframe viewer (IS its own card): typed columns, sort, per-column filter, paging ── */
+.rdf { font-family: var(--font-mono); font-size: 12px; border: 1px solid var(--c-ln2); border-radius: 10px; overflow: hidden; background: rgb(var(--c-p1)); }
+.rdf-bar { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding: 11px 14px; border-bottom: 1px solid var(--c-ln2); }
+.rdf-bar .tab { margin: 0; display: inline-flex; align-items: center; gap: 8px; }
+.rdf-sel { display: inline-flex; gap: 6px; align-items: center; }
+.rdf-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 14px; border-top: 1px solid var(--c-ln2); color: rgb(var(--c-fog)); font-size: 10.5px; font-family: var(--font-mono); }
+.rdf-page { display: inline-flex; align-items: center; gap: 6px; }
+.rdf-page button { background: none; border: 1px solid var(--c-ln2); color: rgb(var(--c-fog)); border-radius: 6px; width: 22px; height: 22px; cursor: pointer; font-size: 12px; line-height: 1; display: inline-flex; align-items: center; justify-content: center; }
+.rdf-page button:hover { border-color: rgb(var(--c-fog)); color: rgb(var(--c-tx)); }
+.rdf-page .pg { color: rgb(var(--c-tx)); font-weight: 700; }
+/* The numbered page window (1 … 4 [5] 6 … 40): jump straight to a page; current is solid. */
+.rdf-pages { display: inline-flex; align-items: center; gap: 3px; }
+.rdf-pages button { width: auto; min-width: 22px; padding: 0 4px; font-variant-numeric: tabular-nums; }
+.rdf-pages button.cur { background: rgb(var(--c-acc)); border-color: rgb(var(--c-acc)); color: rgb(var(--c-accT)); font-weight: 700; cursor: default; }
+.rdf-pages .gap { color: rgb(var(--c-dim)); font-size: 11px; padding: 0 2px; }
+.rdf-search { display: inline-flex; align-items: center; gap: 6px; background: color-mix(in srgb, rgb(var(--c-fog)) 7%, transparent); border: 1px solid var(--c-ln2); border-radius: 7px; padding: 4px 10px; }
+.rdf-search svg { color: rgb(var(--c-fog)); display: block; }
+.rdf-search input { border: 0; background: none; font-family: inherit; font-size: 11px; color: rgb(var(--c-tx)); width: 170px; outline: none; }
+.rdf .sort { color: rgb(var(--c-dim)); font-size: 11px; margin-left: 4px; }
+.rdf .sort.on { color: rgb(var(--c-acc)); }
+.rdf-sort { background: none; border: 0; padding: 2px 0; font: inherit; color: inherit; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; border-radius: 4px; }
+.rdf-sort:hover, .rdf-sort:hover .sort { color: rgb(var(--c-acc)); }
+.rdf-cf { display: block; width: 100%; box-sizing: border-box; margin-top: 7px; font-weight: 400; background: color-mix(in srgb, rgb(var(--c-fog)) 7%, transparent); border: 1px solid var(--c-ln); border-radius: 6px; padding: 3px 8px; font-family: inherit; font-size: 10px; color: rgb(var(--c-tx)); }
+.rdf-cf:focus { border-color: rgb(var(--c-acc)); outline: none; }
+.rdf-cf::placeholder { color: rgb(var(--c-dim)); }
+.rdf table { width: 100%; border-collapse: collapse; }
+.rdf th { text-align: left; padding: 8px 13px; color: rgb(var(--c-tx)); font-weight: 700; border-bottom: 1px solid var(--c-ln2); vertical-align: top; white-space: nowrap; }
+.rdf th .ty { display: block; color: rgb(var(--c-acc)); font-weight: 400; font-size: 9.5px; margin-top: 3px; letter-spacing: .02em; }
+.rdf td { padding: 6px 13px; color: rgb(var(--c-tx)); border-bottom: 1px solid var(--c-ln); white-space: nowrap; }
+.rdf th.num, .rdf td.num { text-align: right; }
+.rdf td.idx, .rdf th.idx { color: rgb(var(--c-dim)); text-align: right; width: 36px; padding-right: 10px; user-select: none; font-size: 11px; }
+
 /* ==================== PAGE SCAFFOLD ==================== */
 .page { position: relative; z-index: 1; max-width: 1280px; margin: 0 auto; padding: 26px 22px 90px; }
 .crumb {
@@ -630,9 +718,30 @@ table.tbl tr:hover .open-btn { background: rgb(var(--c-acc)); color: rgb(var(--c
 }
 .map-pill.on { background: rgb(var(--c-acc)); color: rgb(var(--c-accT)); }
 
+/* The on-map legend (bottom-right). Hidden by default in the normal view — Explore's rail card
+   carries the legend there — but `.show` (the Overview map) displays it always, and fullscreen
+   displays it everywhere, since the rail is out of sight. */
+.map-legend {
+    display: none;
+    position: absolute; right: 10px; bottom: 10px; z-index: 10;
+    max-width: 230px; max-height: 46%; overflow-y: auto;
+    padding: 9px 11px; border-radius: 10px;
+    background: rgba(8, 13, 10, .78); color: #F5F7F3; border: 1px solid rgba(245, 247, 243, .22);
+    font-size: 11px; backdrop-filter: blur(2px);
+}
+.map-legend .row { display: flex; align-items: center; gap: 8px; padding: 2.5px 0; }
+.map-legend .sw { width: 12px; height: 12px; border-radius: 3px; flex: none; }
+.map-legend .lb { flex: 1; min-width: 0; }
+.map-legend .vl { font-family: var(--font-mono); font-size: 9px; opacity: .75; }
+.map-legend .ttl { margin: 0 0 7px; font-size: 11px; }
+.map-legend .bar { height: 10px; border-radius: 5px; }
+.map-legend .ends { display: flex; justify-content: space-between; gap: 12px; margin-top: 5px; font-size: 10px; opacity: .85; }
+.map-legend .ends span:last-child { text-align: right; }
+
 /* Full-screen frame: the map fills, the loss-year strip + controls ride along. */
 .map-frame:fullscreen { background: var(--color-bg, #0A0F0C); padding: 16px; display: flex; flex-direction: column; }
 .map-frame:fullscreen .map-view { flex: 1; height: auto; }
+.map-legend.show, .map-frame:fullscreen .map-legend { display: block; }
 /* Keep the loss-year strip a compact control row, not a full-width sprawl. */
 .map-frame:fullscreen .loss-strip { margin: 16px auto 0; max-width: 640px; width: 100%; }
 /* Leaflet's own zoom control, restyled to the survey-plate dark chrome (top-left). */
@@ -641,10 +750,11 @@ table.tbl tr:hover .open-btn { background: rgb(var(--c-acc)); color: rgb(var(--c
 }
 .leaflet-control-zoom a:hover { background: rgba(8, 13, 10, .9); }
 
-/* ==================== DATA-ONLY: Hansen fire ramp ==================== */
-/* The yellow→red loss ramp, reused by the map legend. Data-only — never chrome. */
+/* ==================== DATA-ONLY: Hansen year ramp ==================== */
+/* The plasma loss-year ramp, reused by the map legend — MUST match
+   LossYearPaletteService::STOPS and map_controller's RAMP. Data-only — never chrome. */
 @utility loss-ramp {
-    background-image: linear-gradient(90deg, #ffffb2, #fecc5c, #fd8d3c, #f03b20, #bd0026);
+    background-image: linear-gradient(90deg, #0d0887, #7e03a8, #cc4478, #f89540, #f0f921);
 }
 
 /* One of the two stacked <input type="range"> that form the dual-handle year
@@ -876,6 +986,16 @@ table.tbl tr:hover .open-btn.danger { background: rgb(var(--c-fail)); color: rgb
 .viz-card.dragging { opacity: .45; border: 1px dashed rgb(var(--c-acc)); }
 .viz-scaffold { text-align: center; padding: 26px 16px; }
 
+/* Compact visualization row (the Settings-tab list): grip · title · type · binding · configure · remove. */
+.viz-row { display: flex; align-items: center; gap: 12px; padding: 11px 15px; border-top: 1px solid var(--c-ln); }
+.viz-row:first-child { border-top: 0; }
+.viz-row.dragging { opacity: .45; }
+.viz-row-title { font-weight: 600; font-size: 13px; min-width: 150px; }
+.viz-row-bind { font-size: 10px; flex: 1; min-width: 0; color: rgb(var(--c-fog)); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.viz-row-cfg { font-size: 10.5px; color: rgb(var(--c-acc)); text-decoration: none; }
+.viz-add-row button { display: flex; align-items: center; gap: 8px; width: 100%; padding: 12px 15px; border: 0; border-top: 1px solid var(--c-ln); background: none; color: rgb(var(--c-acc)); font: inherit; font-weight: 600; font-size: 12.5px; cursor: pointer; text-align: left; }
+.viz-add-row button:hover { background: color-mix(in srgb, rgb(var(--c-acc)) 8%, transparent); }
+
 /* Builder fields + preset buttons. */
 .viz-field { display: flex; flex-direction: column; gap: 5px; font-family: var(--font-mono); font-size: 9px; letter-spacing: .12em; text-transform: uppercase; color: rgb(var(--c-fog)); }
 .viz-field select, .viz-field input { text-transform: none; letter-spacing: 0; font-size: 12px; }
@@ -908,3 +1028,5 @@ table.tbl tr:hover .open-btn.danger { background: rgb(var(--c-fail)); color: rgb
 .cat-card.on { opacity: .5; }
 .cat-name { font-weight: 600; font-size: 12.5px; }
 .cat-on { font-family: var(--font-mono); font-size: 9.5px; color: rgb(var(--c-dim)); }
+/* A form field the current chart type doesn't use (e.g. X for a histogram). */
+.viz-field-off { opacity: .45; }

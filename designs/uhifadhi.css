@@ -61,6 +61,75 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.5;z-
 .subnav span.off{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:11px;
      letter-spacing:.1em;text-transform:uppercase;color:var(--dim);border:1px dashed var(--ln2);
      border-radius:99px;padding:7px 15px 6px}
+/* Area-level tabs (Overview / Modules / Settings) — underlined, deliberately NOT pills so they read
+   as top-level sections of the area, visually distinct from module chips. */
+.atabs{display:flex;gap:24px;border-bottom:1px solid var(--ln);margin:0 0 26px}
+.atabs a{font-size:13.5px;font-weight:600;color:var(--fog);text-decoration:none;padding:9px 1px 12px;
+     border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .15s,border-color .15s}
+.atabs a:hover{color:var(--tx)}
+.atabs a.on{color:var(--tx);border-bottom-color:var(--acc)}
+/* Modern "back to modules" pill — chevron + label, subtle bordered chip that lifts on hover. */
+.backbtn{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--fog);
+     text-decoration:none;padding:6px 14px 6px 10px;border:1px solid var(--ln2);border-radius:99px;
+     margin-bottom:16px;transition:color .15s,border-color .15s,background .15s}
+.backbtn:hover{color:var(--tx);border-color:var(--fog);background:var(--card)}
+.backbtn svg{display:block}
+/* Dataframe viewer — a dataset's rows as a table. Numeric columns right-aligned + monospace. */
+.dtable{width:100%;border-collapse:collapse;font-size:12px}
+.dtable th{text-align:left;font-family:"JetBrains Mono",ui-monospace,monospace;font-size:9px;letter-spacing:.1em;
+     text-transform:uppercase;color:var(--fog);font-weight:600;padding:8px 12px;border-bottom:1px solid var(--ln2);white-space:nowrap}
+.dtable th.num,.dtable td.num{text-align:right;font-family:"JetBrains Mono",ui-monospace,monospace}
+.dtable td{padding:7px 12px;border-bottom:1px solid var(--ln);color:var(--tx)}
+.dtable tbody tr:hover td{background:var(--card)}
+.dtable tbody tr:last-child td{border-bottom:0}
+/* R-tibble / data-viewer dataframe: row index, <type> column badges, zebra striping, monospace. */
+.rdf{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:12px;border:1px solid var(--ln2);
+     border-radius:10px;overflow:hidden;background:var(--card)}
+.rdf-head{padding:8px 13px;background:color-mix(in srgb,var(--fog) 6%,transparent);border-bottom:1px solid var(--ln2);
+     color:var(--fog);font-size:10.5px;letter-spacing:.03em}
+.rdf-bar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:11px 14px;border-bottom:1px solid var(--ln2)}
+.rdf-bar .tab{margin:0;display:inline-flex;align-items:center;gap:8px}
+.rdf-sel{display:inline-flex;gap:6px;align-items:center}
+.rdf-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 14px;
+     border-top:1px solid var(--ln2);color:var(--fog);font-size:10.5px;font-family:"JetBrains Mono",ui-monospace,monospace}
+.rdf-page{display:inline-flex;align-items:center;gap:6px}
+.rdf-page button{background:none;border:1px solid var(--ln2);color:var(--fog);border-radius:6px;width:22px;height:22px;
+     cursor:pointer;font-size:12px;line-height:1;display:inline-flex;align-items:center;justify-content:center}
+.rdf-page button:hover{border-color:var(--fog);color:var(--tx)}
+.rdf-page .pg{color:var(--tx);font-weight:700}
+.rdf-search{display:inline-flex;align-items:center;gap:6px;background:color-mix(in srgb,var(--fog) 7%,transparent);
+     border:1px solid var(--ln2);border-radius:7px;padding:4px 10px}
+.rdf-search svg{color:var(--fog);display:block}
+.rdf-search input{border:0;background:none;font-family:inherit;font-size:11px;color:var(--tx);width:170px;outline:none}
+.rdf-fbtn{display:inline-flex;align-items:center;gap:6px;background:color-mix(in srgb,var(--fog) 7%,transparent);
+     border:1px solid var(--ln2);border-radius:7px;padding:5px 11px;font-family:inherit;font-size:11px;color:var(--fog);cursor:pointer}
+.rdf-fbtn:hover{color:var(--tx);border-color:var(--fog)}
+.rdf-fbtn svg{display:block}
+.rdf .sort{color:var(--dim);font-size:11px;margin-left:4px}
+.rdf .sort.on{color:var(--acc)}
+.rdf-sort{background:none;border:0;padding:2px 0;font:inherit;color:inherit;cursor:pointer;display:inline-flex;align-items:center;gap:4px;border-radius:4px}
+.rdf-sort:hover{color:var(--acc)}
+.rdf-sort:hover .sort{color:var(--acc)}
+.rdf-cf{display:block;width:100%;box-sizing:border-box;margin-top:7px;font-weight:400;
+     background:color-mix(in srgb,var(--fog) 7%,transparent);border:1px solid var(--ln);border-radius:6px;
+     padding:3px 8px;font-family:inherit;font-size:10px;color:var(--tx)}
+.rdf-cf:focus{border-color:var(--acc);outline:none}
+.rdf-cf::placeholder{color:var(--dim)}
+tr.rdf-filters th{padding:6px 13px;border-bottom:1px solid var(--ln2)}
+tr.rdf-filters input{width:100%;box-sizing:border-box;background:color-mix(in srgb,var(--fog) 7%,transparent);
+     border:1px solid var(--ln);border-radius:6px;padding:4px 8px;font-family:inherit;font-size:10px;color:var(--tx)}
+tr.rdf-filters input:focus,.rdf-search input:focus{outline:none}
+tr.rdf-filters input::placeholder{color:var(--dim)}
+.rdf table{width:100%;border-collapse:collapse}
+.rdf th{text-align:left;padding:8px 13px;color:var(--tx);font-weight:700;border-bottom:1px solid var(--ln2);
+     vertical-align:top;white-space:nowrap}
+.rdf th .ty{display:block;color:var(--acc);font-weight:400;font-size:9.5px;margin-top:3px;letter-spacing:.02em}
+.rdf td{padding:6px 13px;color:var(--tx);border-bottom:1px solid var(--ln);white-space:nowrap}
+.rdf th.num,.rdf td.num{text-align:right}
+.rdf td.idx,.rdf th.idx{color:var(--dim);text-align:right;width:36px;padding-right:10px;user-select:none;font-size:11px}
+.rdf tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--fog) 4%,transparent)}
+.rdf tbody tr:hover td{background:color-mix(in srgb,var(--acc) 9%,transparent)}
+.rdf tbody tr:last-child td{border-bottom:0}
 /* Edit-mode module chips: identical pill to .subnav a, just with a grip + ×. */
 .mchip{display:inline-flex;align-items:center;gap:8px;font-family:"JetBrains Mono",ui-monospace,monospace;
      font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--fog);

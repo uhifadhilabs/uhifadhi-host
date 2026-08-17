@@ -138,10 +138,13 @@ export default class extends Controller {
             r.style.transition = 'none';
             r.style.transform = `translate(${dx}px, ${dy}px)`;
             void r.offsetWidth; // reflow so the invert applies before the play
-            requestAnimationFrame(() => {
+            // NB: keep this as a named callback, not an inline `() => {}` inside requestAnimationFrame() —
+            // the auto-formatter wraps a long inline arrow onto its own line, which is invalid JS.
+            const play = () => {
                 r.style.transition = `transform ${duration}ms ease`;
                 r.style.transform = '';
-            });
+            };
+            requestAnimationFrame(play);
         });
     }
 

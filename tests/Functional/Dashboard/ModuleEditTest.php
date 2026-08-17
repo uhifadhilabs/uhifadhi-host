@@ -9,30 +9,31 @@ use App\Composition\Entity\Visualization;
 use App\Composition\Factory\AreaModuleFactory;
 use App\Composition\Factory\ModuleFactory;
 use App\Composition\Factory\VisualizationFactory;
+use App\Ingestion\Enum\DatasetKind;
+use App\Ingestion\Factory\DatasetFactory;
 use App\Spatial\Factory\AreaOfInterestFactory;
 use App\Tests\Functional\AuthenticatedWebTestCase;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
- * Module edit mode (module.create): the page shows the module chip bar and the module's
- * visualization grid; a visualization can be added, removed, and configured. Charts a provider
- * can't draw yet fall back to a scaffold (no forest data seeded here), so the page still renders.
+ * Visualization editing on the module's Settings tab (module.create): the Settings page lists the
+ * module's visualizations, and a viz can be added, removed and configured — all on one Settings page,
+ * with the mutations posting to /settings/viz/* and returning to Settings.
  */
 final class ModuleEditTest extends AuthenticatedWebTestCase
 {
-    public function testTheEditPageShowsTheModuleAndItsVisualizations(): void
+    public function testTheSettingsTabListsTheModulesVisualizations(): void
     {
         $client = static::createClient();
         $this->loginAs($client);
         $forest = $this->forestModuleOn(AreaOfInterestFactory::createOne(['name' => 'Katavi']));
         VisualizationFactory::createOne(['areaModule' => $forest, 'title' => 'Annual loss', 'position' => 0]);
 
-        $client->request('GET', $this->editUrl($forest));
+        $client->request('GET', $this->settingsUrl($forest));
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('.mchip.on', 'Forest loss');
-        self::assertSelectorTextContains('.viz-title', 'Annual loss');
-        self::assertSelectorExists('.mchip.add'); // + Add module
+        self::assertSelectorTextContains('.atabs a.on', 'Settings');
+        self::assertSelectorTextContains('.viz-row-title', 'Annual loss');
     }
 
     public function testAddingAVisualizationCreatesOne(): void
@@ -41,16 +42,15 @@ final class ModuleEditTest extends AuthenticatedWebTestCase
         $this->loginAs($client);
         $forest = $this->forestModuleOn(AreaOfInterestFactory::createOne());
 
-        $crawler = $client->request('GET', $this->editUrl($forest));
+        $crawler = $client->request('GET', $this->settingsUrl($forest));
         $token = $crawler->filter('form[action$="/viz/add"] input[name="_token"]')->attr('value');
-        $client->request('POST', $this->editUrl($forest).'/viz/add', [
-            '_token' => $token, 'type' => 'scatter', 'xAxis' => 'Rainfall (mm)', 'yAxis' => 'Loss (ha)',
-        ]);
+        $client->request('POST', $this->settingsUrl($forest).'/viz/add', ['_token' => $token]);
 
-        self::assertResponseRedirects($this->editUrl($forest));
+        self::assertResponseStatusCodeSame(302); // back to Settings with the configure modal open
         $vizzes = $this->em()->getRepository(Visualization::class)->findBy(['areaModule' => $forest->getId()]);
-        self::assertCount(1, $vizzes);
-        self::assertSame('Loss (ha) vs Rainfall (mm)', $vizzes[0]->getTitle());
+        // Visiting Settings seeded the module's 3 default charts; the add lands beside them.
+        self::assertCount(4, $vizzes);
+        self::assertContains('New visualization', array_map(static fn ($v) => $v->getTitle(), $vizzes));
     }
 
     public function testRemovingAVisualizationDeletesIt(): void
@@ -60,59 +60,81 @@ final class ModuleEditTest extends AuthenticatedWebTestCase
         $forest = $this->forestModuleOn(AreaOfInterestFactory::createOne());
         $viz = VisualizationFactory::createOne(['areaModule' => $forest, 'title' => 'Scrap', 'position' => 0]);
 
-        $crawler = $client->request('GET', $this->editUrl($forest));
+        $crawler = $client->request('GET', $this->settingsUrl($forest));
         $token = $crawler->filter('form[action$="/'.$viz->getUuidString().'/delete"] input[name="_token"]')->attr('value');
-        $client->request('POST', $this->editUrl($forest).'/viz/'.$viz->getUuidString().'/delete', ['_token' => $token]);
+        $client->request('POST', $this->settingsUrl($forest).'/viz/'.$viz->getUuidString().'/delete', ['_token' => $token]);
 
-        self::assertResponseRedirects($this->editUrl($forest));
+        self::assertResponseStatusCodeSame(302);
         self::assertNull($this->em()->getRepository(Visualization::class)->find($viz->getId()));
     }
 
-    public function testConfigureParamOpensTheModal(): void
+    public function testConfigureParamOpensTheModalOnTheSettingsPage(): void
     {
         $client = static::createClient();
         $this->loginAs($client);
         $forest = $this->forestModuleOn(AreaOfInterestFactory::createOne());
         $viz = VisualizationFactory::createOne(['areaModule' => $forest, 'title' => 'Tune me', 'position' => 0]);
 
-        $client->request('GET', $this->editUrl($forest).'?configure='.$viz->getUuidString());
+        $client->request('GET', $this->settingsUrl($forest).'?configure='.$viz->getUuidString());
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('.modal-title', 'Configure visualization');
         self::assertSelectorExists('.modal form input[name="title"]');
     }
 
-    public function testAddModuleModalActivatesACataloguedModule(): void
+    public function testThePreviewEndpointRendersTheLiveConfig(): void
     {
         $client = static::createClient();
         $this->loginAs($client);
         $forest = $this->forestModuleOn(AreaOfInterestFactory::createOne());
-        // A catalogue module not yet on this area → appears in the modal with "+ Add".
-        ModuleFactory::createOne(['slug' => 'roads', 'name' => 'Roads', 'category' => \App\Composition\Enum\ModuleCategory::Pressure]);
+        DatasetFactory::createOne([
+            'area' => $forest->getArea(), 'moduleSlug' => 'forest', 'key' => 'forest_loss_year',
+            'kind' => DatasetKind::Series, 'columns' => ['year', 'ha', 'cumulative_ha'],
+            'rows' => [[2013, 186.0, 186.0], [2014, 120.0, 306.0]],
+        ]);
 
-        $crawler = $client->request('GET', $this->editUrl($forest).'?addmodule=1');
-        self::assertSelectorTextContains('.modal-title', 'Add a module');
-        self::assertSelectorTextContains('.modal-body', 'Roads'); // order-independent: the modal lists Roads
+        // A drawable (unsaved) config → the SVG, straight from the generic chart engine.
+        $client->request('GET', $this->settingsUrl($forest).'/viz/preview?type=bar&xAxis=year&yAxis=ha&datasetKey=forest_loss_year');
+        self::assertResponseIsSuccessful();
+        self::assertStringContainsString('<svg', (string) $client->getResponse()->getContent());
 
-        $token = $crawler->filter('.cat-card form input[name="_token"]')->attr('value');
-        $client->request('POST', $this->editUrl($forest).'/add-module', ['_token' => $token, 'module' => 'roads']);
+        // Pie and histogram render through the same engine.
+        $client->request('GET', $this->settingsUrl($forest).'/viz/preview?type=pie&xAxis=year&yAxis=ha&datasetKey=forest_loss_year');
+        self::assertResponseIsSuccessful();
+        self::assertStringContainsString('Pie chart', (string) $client->getResponse()->getContent());
+        $client->request('GET', $this->settingsUrl($forest).'/viz/preview?type=histogram&yAxis=ha&datasetKey=forest_loss_year');
+        self::assertResponseIsSuccessful();
+        self::assertStringContainsString('Histogram', (string) $client->getResponse()->getContent());
+        $client->request('GET', $this->settingsUrl($forest).'/viz/preview?type=box&yAxis=ha&datasetKey=forest_loss_year');
+        self::assertResponseIsSuccessful();
+        self::assertStringContainsString('Box plot', (string) $client->getResponse()->getContent());
 
-        self::assertResponseRedirects();
-        $area = $forest->getArea();
-        \assert($area !== null);
-        $slugs = array_map(static fn (AreaModule $am): ?string => $am->getModule()?->getSlug(), $this->compositionActive($area));
-        self::assertContains('roads', $slugs, 'the catalogued module is now active on the area');
+        // Not drawable (unknown dataset) → 204, the client shows its "no preview" note.
+        $client->request('GET', $this->settingsUrl($forest).'/viz/preview?type=bar&xAxis=year&yAxis=ha&datasetKey=bogus');
+        self::assertResponseStatusCodeSame(204);
     }
 
-    /**
-     * @return list<AreaModule>
-     */
-    private function compositionActive(\App\Spatial\Entity\AreaOfInterest $area): array
+    public function testTheConfigureModalIsDataAwareWithTypedColumnsAndAPreviewPane(): void
     {
-        $repo = static::getContainer()->get(\App\Composition\Repository\AreaModuleRepository::class);
-        \assert($repo instanceof \App\Composition\Repository\AreaModuleRepository);
+        $client = static::createClient();
+        $this->loginAs($client);
+        $forest = $this->forestModuleOn(AreaOfInterestFactory::createOne());
+        DatasetFactory::createOne([
+            'area' => $forest->getArea(), 'moduleSlug' => 'forest', 'key' => 'forest_loss_year',
+            'kind' => DatasetKind::Series, 'columns' => ['year', 'ha', 'cumulative_ha'],
+            'rows' => [[2013, 186.5, 186.5]],
+        ]);
+        $viz = VisualizationFactory::createOne(['areaModule' => $forest, 'title' => 'Tune me', 'position' => 9]);
 
-        return $repo->activeForArea($area);
+        $client->request('GET', $this->settingsUrl($forest).'?configure='.$viz->getUuidString());
+
+        self::assertResponseIsSuccessful();
+        // Column options carry their inferred type — the viz_config controller constrains on it.
+        self::assertSelectorExists('.modal select[name="xAxis"] option[data-type="int"]');
+        self::assertSelectorExists('.modal select[name="yAxis"] option[data-type="dbl"]');
+        // The live-preview pane + the controller wiring are present.
+        self::assertSelectorExists('.modal [data-controller~="viz-config"], .modal[data-controller~="viz-config"]');
+        self::assertSelectorExists('.modal [data-viz-config-target="preview"]');
     }
 
     private function forestModuleOn(object $area): AreaModule
@@ -123,9 +145,9 @@ final class ModuleEditTest extends AuthenticatedWebTestCase
         ]);
     }
 
-    private function editUrl(AreaModule $areaModule): string
+    private function settingsUrl(AreaModule $areaModule): string
     {
-        return '/areas/'.$areaModule->getArea()?->getUuidString().'/modules/forest/edit';
+        return '/areas/'.$areaModule->getArea()?->getUuidString().'/forest/settings';
     }
 
     private function em(): EntityManagerInterface

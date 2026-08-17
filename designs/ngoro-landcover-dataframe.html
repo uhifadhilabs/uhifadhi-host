@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Land cover — Uhifadhi</title>
+<link rel="stylesheet" href="uhifadhi.css">
+<link rel="stylesheet" href="nav.css">
+</head><body>
+<div class="shell">
+<aside class="side" id="side">
+  <div class="side-top">
+    <a class="brand" href="index.html"><i>U</i><b>Uhifadhi</b></a>
+    <button class="collapse-btn" onclick="uhiNav()" title="Collapse sidebar" aria-label="Collapse sidebar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m11 17-5-5 5-5"/><path d="m18 17-5-5 5-5"/></svg></button>
+  </div>
+  <nav class="nav"><a class="nav-item" href="index.html" title="Overview"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg><span>Overview</span></a><a class="nav-item on" href="areas.html" title="Areas"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"/><path d="M15 5.764v15"/><path d="M9 3.236v15"/></svg><span>Areas</span></a><a class="nav-item" href="alerts.html" title="Alerts"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/></svg><span>Alerts</span></a><a class="nav-item" href="compare.html" title="Compare"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M12 3v18"/></svg><span>Compare</span></a><a class="nav-item" href="ingestion.html" title="Runs"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/></svg><span>Runs</span></a><a class="nav-item" href="gallery.html" title="Gallery"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg><span>Gallery</span></a></nav>
+  <div class="side-foot">
+    <a class="row" href="#" title="Settings"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg><span>Settings</span></a>
+  </div>
+</aside>
+<main class="main">
+<header class="topbar">
+  <span class="tb-right">
+    <span class="live"><i></i>worker</span>
+    <button class="tb-icon" title="Alerts"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/></svg><span class="badge">6</span></button>
+    <button class="tb-icon" onclick="toggleTheme()" title="Toggle theme"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg></button>
+    <span class="user"><span class="avatar">NK</span><span class="uinfo"><b>N. Kileo</b><em>NCAA · operator</em></span></span>
+  </span>
+</header>
+<div class="page">
+<div class="crumb"><a href="index.html">uhifadhi</a> / <a href="areas.html">areas</a> / ngorongoro / modules / land cover / dataframe</div>
+<div class="pghead"><div><h1 class="pg">Land cover</h1><p class="pgsub">The module's datasets as tables — inspect the actual rows behind the charts.</p></div></div>
+<a href="area-ngorongoro-modules.html" class="backbtn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>All modules</a><div class="atabs"><a href="ngoro-landcover.html">Overview</a><a href="ngoro-landcover-dataframe.html" class="on">Dataframe</a><a href="ngoro-landcover-explore.html">Explore</a><a href="ngoro-landcover-method.html">Method</a><a href="ngoro-landcover-settings.html">Settings</a></div>
+<div class="rdf"><div class="rdf-bar"><span class="tab"><span class="idx">PL·94</span>Dataframe · landcover by class</span><span class="rdf-search" style="margin-left:auto"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg><input placeholder="Search…"></span></div><div style="overflow-x:auto"><table><thead><tr><th class="idx"></th><th><button class="rdf-sort">class <span class="sort">↕</span></button> <span class="ty" style="display:inline-block">&lt;chr&gt;</span><input class="rdf-cf" placeholder="filter"></th><th class="num"><button class="rdf-sort">area_km2 <span class="sort on">▼</span></button> <span class="ty" style="display:inline-block">&lt;dbl&gt;</span><input class="rdf-cf" placeholder="min – max"></th><th class="num"><button class="rdf-sort">pct <span class="sort">↕</span></button> <span class="ty" style="display:inline-block">&lt;dbl&gt;</span><input class="rdf-cf" placeholder="min – max"></th><th class="num"><button class="rdf-sort">n_patches <span class="sort">↕</span></button> <span class="ty" style="display:inline-block">&lt;int&gt;</span><input class="rdf-cf" placeholder="min – max"></th><th class="num"><button class="rdf-sort">patch_density <span class="sort">↕</span></button> <span class="ty" style="display:inline-block">&lt;dbl&gt;</span><input class="rdf-cf" placeholder="min – max"></th><th class="num"><button class="rdf-sort">edge_density <span class="sort">↕</span></button> <span class="ty" style="display:inline-block">&lt;dbl&gt;</span><input class="rdf-cf" placeholder="min – max"></th><th class="num"><button class="rdf-sort">mean_patch_ha <span class="sort">↕</span></button> <span class="ty" style="display:inline-block">&lt;dbl&gt;</span><input class="rdf-cf" placeholder="min – max"></th></tr></thead><tbody><tr><td class="idx">1</td><td>Grassland</td><td class="num">2589.78</td><td class="num">77.16</td><td class="num">142</td><td class="num">0.5</td><td class="num">8.2</td><td class="num">1823.8</td></tr><tr><td class="idx">2</td><td>Shrubland</td><td class="num">521.38</td><td class="num">15.53</td><td class="num">402</td><td class="num">7.7</td><td class="num">15.1</td><td class="num">129.7</td></tr><tr><td class="idx">3</td><td>Tree cover</td><td class="num">199.15</td><td class="num">5.93</td><td class="num">210</td><td class="num">10.5</td><td class="num">12.3</td><td class="num">94.8</td></tr><tr><td class="idx">4</td><td>Water</td><td class="num">19.85</td><td class="num">0.59</td><td class="num">45</td><td class="num">22.7</td><td class="num">3.1</td><td class="num">44.1</td></tr><tr><td class="idx">5</td><td>Bare/sparse</td><td class="num">19.81</td><td class="num">0.59</td><td class="num">88</td><td class="num">44.4</td><td class="num">5.2</td><td class="num">22.5</td></tr><tr><td class="idx">6</td><td>Cropland</td><td class="num">6.13</td><td class="num">0.18</td><td class="num">310</td><td class="num">505.0</td><td class="num">6.1</td><td class="num">2.0</td></tr><tr><td class="idx">7</td><td>Built-up</td><td class="num">0.1</td><td class="num">0.0</td><td class="num">12</td><td class="num">120.0</td><td class="num">1.4</td><td class="num">0.8</td></tr><tr><td class="idx">8</td><td>Herb. wetland</td><td class="num">0.01</td><td class="num">0.0</td><td class="num">2</td><td class="num">200.0</td><td class="num">0.3</td><td class="num">0.5</td></tr></tbody></table></div><div class="rdf-foot"><span>dataframe: 8 × 7</span><span class="rdf-page">Showing 1–8 of 8<button aria-label="previous">‹</button><span class="pg">1</span><button aria-label="next">›</button></span></div></div><div style="display:flex;align-items:center;gap:10px;margin-top:14px"><button class="cta" style="border:0;cursor:pointer;padding:7px 14px;font-size:11px">Export CSV</button><span class="chip idle" style="cursor:pointer">Copy</span><span class="fog" style="font-size:11.5px;margin-left:auto">Switch datasets to inspect each; columns are bound to charts in <b>Settings</b>.</span></div>
+<div class="footer">Design template — static HTML generated from the case-study dataset (Ngorongoro forest
+loss is <b>real</b> app data; Serengeti/other series are plausibility-tuned placeholders). Regenerate:
+<span class="mono">python3 designs/_build/build.py</span>.</div>
+</div>
+</main>
+</div>
+
+<script>
+(function(){
+  const d=document.documentElement;
+  if(localStorage.getItem('uhifadhi-theme')==='light')d.classList.add('light');
+  window.toggleTheme=function(){
+    const l=d.classList.toggle('light');
+    localStorage.setItem('uhifadhi-theme',l?'light':'dark');
+  };
+  window.uhiNav=function(){
+    const s=document.getElementById('side');
+    const rail=s.classList.toggle('rail');
+    localStorage.setItem('uhifadhi-nav',rail?'rail':'full');
+  };
+  if(localStorage.getItem('uhifadhi-nav')==='rail'){
+    const s=document.getElementById('side'); if(s)s.classList.add('rail');
+  }
+})();
+</script>
+</body></html>

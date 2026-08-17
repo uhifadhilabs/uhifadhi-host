@@ -15,6 +15,8 @@ enum VizType: string
     case Line = 'line';
     case Area = 'area';
     case Scatter = 'scatter';
+    case Pie = 'pie';
+    case Histogram = 'histogram';
     case Box = 'box';
     case Waterfall = 'waterfall';
     case Lowess = 'lowess';
@@ -23,26 +25,23 @@ enum VizType: string
 
     public function label(): string
     {
-        return match ($this) {
-            self::Bar => 'bar',
-            self::Line => 'line',
-            self::Area => 'area',
-            self::Scatter => 'scatter',
-            self::Box => 'box',
-            self::Waterfall => 'waterfall',
-            self::Lowess => 'lowess',
-            self::Gantt => 'gantt',
-            self::Step => 'step',
-        };
+        return $this->value;
     }
 
     /**
-     * The types offered in the "configure visualization" editor's Type select (Bar/Line/Area/Scatter).
+     * The chart types the generic engine can draw from a bound dataset — the ones offered in the
+     * configure form. Bar/pie/waterfall take any x + numeric y; the series types want an ordered x;
+     * histogram and box read a single numeric column (x is ignored). Gantt needs (label, start, end)
+     * — three columns the two-axis form can't bind yet, so it stays excluded.
      *
      * @return list<self>
      */
     public static function editable(): array
     {
-        return [self::Bar, self::Line, self::Area, self::Scatter];
+        return [
+            self::Bar, self::Line, self::Area, self::Scatter,
+            self::Pie, self::Histogram, self::Box,
+            self::Waterfall, self::Step, self::Lowess,
+        ];
     }
 }

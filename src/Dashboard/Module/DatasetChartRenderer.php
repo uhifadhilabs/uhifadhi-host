@@ -16,8 +16,8 @@ use App\Spatial\Entity\AreaOfInterest;
  * resolving its module's {@see Dataset} (by key), mapping the viz's xAxis/yAxis column names onto that
  * dataset's columns, and drawing SVG via the generic {@see ChartSvgService}. Returns null — so the card
  * shows a scaffold — when the viz is unbound, its dataset is absent, its type isn't chartable yet, or a
- * bound column doesn't exist. Unlike the per-module {@see ModuleChartProvider}s, this needs no knowledge
- * of any specific module; it is the generic plot engine those hardcoded drawers defer to.
+ * bound column doesn't exist. It needs no knowledge of any specific module — it IS the plot engine,
+ * for every module.
  */
 final class DatasetChartRenderer
 {
@@ -35,21 +35,39 @@ final class DatasetChartRenderer
             return null;
         }
 
+        return $this->renderConfig($area, $moduleSlug, $viz->getType(), $key, $viz->getXAxis(), $viz->getYAxis());
+    }
+
+    /**
+     * Draw an arbitrary (possibly unsaved) chart config — the configure modal's LIVE PREVIEW path:
+     * same resolution and drawing as a stored visualization, minus the entity.
+     */
+    public function renderConfig(AreaOfInterest $area, string $moduleSlug, VizType $type, string $key, ?string $x, ?string $y): ?string
+    {
         $dataset = $this->datasets->findOneFor($area, $moduleSlug, $key);
         if (null === $dataset) {
             return null;
         }
 
-        $points = $this->points($dataset, $viz->getXAxis(), $viz->getYAxis());
+        // Histogram and box read ONE numeric column: the y column doubles as the (unused) label source.
+        $points = $this->points($dataset, \in_array($type, [VizType::Histogram, VizType::Box], true) ? $y : $x, $y);
         if (null === $points || [] === $points) {
             return null;
         }
 
-        return match ($viz->getType()) {
+        return match ($type) {
             VizType::Bar => $this->charts->bar($points),
             VizType::Line => $this->charts->line($points),
             VizType::Area => $this->charts->area($points),
-            default => null, // box/scatter/… not chartable through the generic engine yet
+            VizType::Scatter => $this->charts->scatter($points),
+            VizType::Pie => $this->charts->pie($points),
+            VizType::Histogram => $this->charts->histogram($points),
+            VizType::Box => $this->charts->box($points),
+            VizType::Waterfall => $this->charts->waterfall($points),
+            VizType::Step => $this->charts->step($points),
+            VizType::Lowess => $this->charts->lowess($points),
+            // Gantt needs (label, start, end) — three columns the two-axis form can't bind yet.
+            VizType::Gantt => null,
         };
     }
 

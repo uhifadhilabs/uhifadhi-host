@@ -29,7 +29,7 @@ final class CustomizeModulesTest extends AuthenticatedWebTestCase
         $this->assign($area, 'forest', 'Forest loss', active: true, position: 1, status: ModuleStatus::Live);
         $this->assign($area, 'fires', 'Fires', active: false, position: 2, category: ModuleCategory::Pressure);
 
-        $client->request('GET', '/areas/'.$area->getUuidString().'/modules');
+        $client->request('GET', '/areas/'.$area->getUuidString().'/modules/customize');
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('#settings-active', 'Forest loss');
@@ -44,11 +44,11 @@ final class CustomizeModulesTest extends AuthenticatedWebTestCase
         $area = AreaOfInterestFactory::createOne();
         $forest = $this->assign($area, 'forest', 'Forest loss', active: true, position: 1);
 
-        $crawler = $client->request('GET', '/areas/'.$area->getUuidString().'/modules');
+        $crawler = $client->request('GET', '/areas/'.$area->getUuidString().'/modules/customize');
         $token = $crawler->filter('form[action$="/'.$forest->getUuidString().'/toggle"] input[name="_token"]')->attr('value');
-        $client->request('POST', '/areas/'.$area->getUuidString().'/modules/'.$forest->getUuidString().'/toggle', ['_token' => $token]);
+        $client->request('POST', '/areas/'.$area->getUuidString().'/modules/customize/'.$forest->getUuidString().'/toggle', ['_token' => $token]);
 
-        self::assertResponseRedirects('/areas/'.$area->getUuidString().'/modules');
+        self::assertResponseRedirects('/areas/'.$area->getUuidString().'/modules/customize');
         self::assertFalse($this->reload($forest)->isActive(), 'the module is now parked');
     }
 
@@ -59,11 +59,11 @@ final class CustomizeModulesTest extends AuthenticatedWebTestCase
         $area = AreaOfInterestFactory::createOne();
         $roads = $this->assign($area, 'roads', 'Roads', active: false, position: 5, category: ModuleCategory::Pressure);
 
-        $crawler = $client->request('GET', '/areas/'.$area->getUuidString().'/modules');
+        $crawler = $client->request('GET', '/areas/'.$area->getUuidString().'/modules/customize');
         $token = $crawler->filter('#settings-shop form input[name="_token"]')->attr('value');
-        $client->request('POST', '/areas/'.$area->getUuidString().'/modules/add', ['_token' => $token, 'module' => 'roads']);
+        $client->request('POST', '/areas/'.$area->getUuidString().'/modules/customize/add', ['_token' => $token, 'module' => 'roads']);
 
-        self::assertResponseRedirects('/areas/'.$area->getUuidString().'/modules');
+        self::assertResponseRedirects('/areas/'.$area->getUuidString().'/modules/customize');
         self::assertTrue($this->reload($roads)->isActive(), 'the parked module is now active');
     }
 

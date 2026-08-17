@@ -4,18 +4,19 @@ declare(strict_types=1);
 
 namespace App\Forest\Service;
 
-use App\Forest\Repository\ForestLossYearRepository;
+use App\Ingestion\Repository\DatasetRepository;
 use App\Spatial\Entity\AreaOfInterest;
 
 /**
- * The per-area annual forest-loss summary: the year series (each coloured by the
- * Hansen year ramp) plus the headline figures (total, span, worst year). Shared
- * by the area Overview and the Forest-loss module page so both read one source.
+ * The per-area annual forest-loss summary: the year series (each coloured by the Hansen year ramp)
+ * plus the headline figures (total, span, worst year). Reads the module's `forest_loss_year` series
+ * from the GENERIC dataset store — the engine writes it there — so the area Overview, the module
+ * KPIs and the register all read one source.
  */
 final readonly class ForestLossSummaryService
 {
     public function __construct(
-        private ForestLossYearRepository $loss,
+        private DatasetRepository $datasets,
         private LossYearPaletteService $palette,
     ) {
     }
@@ -29,14 +30,16 @@ final readonly class ForestLossSummaryService
      */
     public function forArea(AreaOfInterest $area): array
     {
-        return $this->summarize($this->loss->findBy(['aoi' => $area], ['year' => 'ASC']));
+        $rows = $this->datasets->findOneFor($area, 'forest', 'forest_loss_year')?->getRows() ?? [];
+
+        return $this->summarize($rows);
     }
 
     /**
-     * The pure summary over an ascending-by-year row set (separated so it is
+     * The pure summary over (year, ha, …) rows sorted ascending by year (separated so it is
      * unit-testable without a repository).
      *
-     * @param list<\App\Forest\Entity\ForestLossYear> $rows
+     * @param list<list<scalar|null>> $rows
      *
      * @return array{
      *     lossByYear: list<array{year: int, ha: float, color: string}>,
@@ -52,8 +55,8 @@ final readonly class ForestLossSummaryService
         $worstYear = null;
         $worstHa = 0.0;
         foreach ($rows as $row) {
-            $year = (int) $row->getYear();
-            $ha = $row->getAreaHa() ?? 0.0;
+            $year = (int) ($row[0] ?? 0);
+            $ha = is_numeric($row[1] ?? null) ? (float) $row[1] : 0.0;
             $totalHa += $ha;
             $maxHa = max($maxHa, $ha);
             // "Worst year" ignores 2001 — that bar is the known Hansen baseline artifact.
@@ -68,8 +71,8 @@ final readonly class ForestLossSummaryService
             'lossByYear' => $lossByYear,
             'maxHa' => $maxHa,
             'totalHa' => $totalHa,
-            'yearFrom' => [] !== $rows ? (int) $rows[array_key_first($rows)]->getYear() : null,
-            'yearTo' => [] !== $rows ? (int) $rows[array_key_last($rows)]->getYear() : null,
+            'yearFrom' => [] !== $lossByYear ? $lossByYear[array_key_first($lossByYear)]['year'] : null,
+            'yearTo' => [] !== $lossByYear ? $lossByYear[array_key_last($lossByYear)]['year'] : null,
             'worstYear' => $worstYear,
             'worstHa' => $worstHa,
         ];

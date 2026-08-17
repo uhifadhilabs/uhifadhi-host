@@ -25,6 +25,27 @@ deptrac:
     - name: Forest
       collectors:
         - { type: classLike, value: 'App\\Forest\\.*' }
+    - name: LandCover
+      collectors:
+        - { type: classLike, value: 'App\\LandCover\\.*' }
+    - name: Vegetation
+      collectors:
+        - { type: classLike, value: 'App\\Vegetation\\.*' }
+    - name: Settlement
+      collectors:
+        - { type: classLike, value: 'App\\Settlement\\.*' }
+    - name: Roads
+      collectors:
+        - { type: classLike, value: 'App\\Roads\\.*' }
+    - name: Wildlife
+      collectors:
+        - { type: classLike, value: 'App\\Wildlife\\.*' }
+    - name: Structure
+      collectors:
+        - { type: classLike, value: 'App\\Structure\\.*' }
+    - name: Statistics
+      collectors:
+        - { type: classLike, value: 'App\\Statistics\\.*' }
     - name: Ingestion
       collectors:
         - { type: classLike, value: 'App\\Ingestion\\.*' }
@@ -42,14 +63,36 @@ deptrac:
     Access: [Access, Foundation]
     # Shared spatial kernel — depends only on itself + Foundation.
     Spatial: [Spatial, Foundation]
-    # Topic 6 (Deforestation) — isolated; may use the Spatial kernel only.
-    Forest: [Forest, Spatial, Foundation]
-    # Data ingestion — reads AOIs (Spatial) and fills topic tables (Forest);
-    # topics never depend back on Ingestion.
-    Ingestion: [Ingestion, Spatial, Forest, Foundation]
+    # Topic 6 (Deforestation) — uses the Spatial kernel + the generic Ingestion store (its
+    # forest_loss_year series lives there; the engine writes it).
+    Forest: [Forest, Spatial, Ingestion, Foundation]
+    # Topic: land cover (WorldCover composition/fragmentation) — a thin context holding its
+    # ModuleDefinition; data rides the generic Ingestion store.
+    LandCover: [LandCover, Spatial, Foundation]
+    # Topic: vegetation (MODIS NDVI phenology + peak greenness) — a thin context holding its
+    # ModuleDefinition; data rides the generic Ingestion store (series + raster).
+    Vegetation: [Vegetation, Spatial, Foundation]
+    # Topic: settlement (GHSL built-up expansion, in vs ring) — a thin context holding its
+    # ModuleDefinition; data rides the generic Ingestion store (series + vector growth map).
+    Settlement: [Settlement, Spatial, Foundation]
+    # Topic: roads (OSM network, class lengths, remoteness) — a thin context holding its
+    # ModuleDefinition; data rides the generic Ingestion store (tables + vector + raster).
+    Roads: [Roads, Spatial, Foundation]
+    # Topic: wildlife (GBIF SDM — suitability, drivers, AUC) — a thin context holding its
+    # ModuleDefinition; data rides the generic Ingestion store (tables + rasters).
+    Wildlife: [Wildlife, Spatial, Foundation]
+    # Topic: statistics (Q6 synthesis) — NO engine module: derives its dataframes from the
+    # generic Ingestion store (all modules' data) + the tagged definitions' captions.
+    # Topic: structure (CCI biomass x GLAD height agreement) — a thin context holding its
+    # ModuleDefinition; data rides the generic Ingestion store (tables + rasters).
+    Structure: [Structure, Spatial, Foundation]
+    Statistics: [Statistics, Spatial, Ingestion, Foundation]
+    # Data ingestion — the generic per-module store + engine pipeline. Reads AOIs (Spatial);
+    # knows NO topic (topics read from it, never the other way around).
+    Ingestion: [Ingestion, Spatial, Foundation]
     # How an area's sub-app is composed — module catalogue, per-area activation, and
     # visualization config. Uses the Spatial kernel (areas) + Foundation.
     Composition: [Composition, Spatial, Foundation]
     # UI composition layer — the only place allowed to see everything; nothing
     # depends on it.
-    Dashboard: [Dashboard, Spatial, Forest, Ingestion, Composition, Access, Foundation]
+    Dashboard: [Dashboard, Spatial, Forest, LandCover, Vegetation, Settlement, Roads, Wildlife, Structure, Statistics, Ingestion, Composition, Access, Foundation]

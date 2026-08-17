@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Dashboard;
 
-use App\Forest\Factory\ForestLossYearFactory;
+use App\Ingestion\Enum\DatasetKind;
+use App\Ingestion\Factory\DatasetFactory;
 use App\Spatial\Factory\AreaOfInterestFactory;
 use App\Tests\Functional\AuthenticatedWebTestCase;
 
@@ -34,8 +35,11 @@ final class AreaIndexTest extends AuthenticatedWebTestCase
         $client = static::createClient();
         $this->loginAs($client);
         $aoi = AreaOfInterestFactory::createOne(['name' => 'Listed area']);
-        ForestLossYearFactory::createOne(['aoi' => $aoi, 'year' => 2010, 'areaHa' => 185.0]);
-        ForestLossYearFactory::createOne(['aoi' => $aoi, 'year' => 2013, 'areaHa' => 186.0]);
+        DatasetFactory::createOne([
+            'area' => $aoi, 'moduleSlug' => 'forest', 'key' => 'forest_loss_year',
+            'kind' => DatasetKind::Series, 'columns' => ['year', 'ha', 'cumulative_ha'],
+            'rows' => [[2010, 185.0, 185.0], [2013, 186.0, 371.0]],
+        ]);
         AreaOfInterestFactory::createOne(['name' => 'Bare area']);
 
         $client->request('GET', '/');

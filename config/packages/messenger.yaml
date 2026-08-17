@@ -25,6 +25,8 @@ framework:
 
             # Ingestion jobs are minutes-long (network + raster work) — never in a
             # web request. The worker consuming `async` runs them.
-            'App\Ingestion\Message\IngestHansenLoss': async
             # Generic per-module ingestion: calls the geoprocessing engine, lands datasets.
             'App\Ingestion\Message\RunModuleIngestion': async
+            # Q6 synthesis refresh — dispatched from a Doctrine listener mid-flush, so it MUST
+            # be async (a sync handler would nest a flush inside the running one).
+            'App\Statistics\Message\RefreshSynthesis': async

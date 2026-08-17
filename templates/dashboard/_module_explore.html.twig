@@ -1,0 +1,59 @@
+{# Explore tab (map + statistics), fully generic: the module's dissolved layer on the shared Leaflet
+   base (coloured by the definition's palette), a data-driven legend, then describe() + a distribution
+   over the module's dataframe. Context: table, tableNumeric, describe, distribution, boundary,
+   mapLayerUrl, palette, mapDetail, area, module. #}
+<div style="display:grid;grid-template-columns:1fr 262px;gap:20px;align-items:start">
+    <div class="c" style="padding-top:26px">
+        <span class="tab"><span class="idx">MAP</span>{{ module.label }} map<span class="src">· {{ table ? table.source : 'engine' }}{% if mapDetail %} · ~{{ mapDetail.metres }} m{% endif %}</span></span>
+        <span class="lib">leaflet in-app</span>
+        <div style="margin-top:12px">
+            {# No layer yet (or a data-only module): the boundary map still orients the reader. #}
+            {{ include('dashboard/_module_map.html.twig', {boundary: boundary, mapId: 'explore-map', height: '360px', classLayerUrl: mapLayerUrl, classPalette: palette, rasterUrl: rasterUrl, rasterBounds: rasterBounds, legend: legend, rasterLegend: rasterLegend}) }}
+        </div>
+        <div class="use">{% if mapLayerUrl or rasterUrl %}The module's layer clipped to the AOI.{% else %}The area boundary — this module has no spatial layer of its own.{% endif %}</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:16px">
+        {{ include('dashboard/_module_legend_card.html.twig') }}
+    </div>
+</div>
+
+<div class="grid g2" style="margin-top:22px">
+    <div class="c">
+        <span class="tab"><span class="idx">DS</span>Summary<span class="src">· describe()</span>{{ include('dashboard/_dataset_chips.html.twig') }}</span>
+        <div style="overflow-x:auto;margin-top:2px">
+            <table class="dtable">
+                <thead>
+                    <tr><th>column</th><th class="num">count</th><th class="num">mean</th><th class="num">std</th><th class="num">min</th><th class="num">median</th><th class="num">max</th></tr>
+                </thead>
+                <tbody>
+                    {% for d in describe %}
+                        <tr>
+                            <td>{{ d.column }}</td>
+                            <td class="num">{{ d.count }}</td>
+                            <td class="num">{{ d.mean|number_format(2) }}</td>
+                            <td class="num">{{ d.std|number_format(2) }}</td>
+                            <td class="num">{{ d.min|number_format(2) }}</td>
+                            <td class="num">{{ d.median|number_format(2) }}</td>
+                            <td class="num">{{ d.max|number_format(2) }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="use">Per-column summary statistics for the module's dataframe.</div>
+    </div>
+    <div class="c">
+        <span class="tab"><span class="idx">DT</span>Distribution<span class="src">· {{ tableNumeric|first|default('value') }}</span></span>
+        {% if distribution is not empty %}
+            {% set maxv = distribution|reduce((m, v) => max(m, v), 0) %}
+            <svg viewBox="0 0 300 90" width="100%" height="90" preserveAspectRatio="none" style="display:block;margin-top:12px">
+                {% set bw = 300 / distribution|length %}
+                {% for v in distribution %}
+                    {% set h = maxv > 0 ? (v / maxv) * 84 : 0 %}
+                    <rect x="{{ (loop.index0 * bw + 1)|round(2) }}" y="{{ (86 - h)|round(2) }}" width="{{ (bw - 2)|round(2) }}" height="{{ h|round(2) }}" rx="1" fill="rgb(var(--c-acc))"></rect>
+                {% endfor %}
+            </svg>
+        {% endif %}
+        <div class="use">The spread of the first numeric column, sorted high → low.</div>
+    </div>
+</div>

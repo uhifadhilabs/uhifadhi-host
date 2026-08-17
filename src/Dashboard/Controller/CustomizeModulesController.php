@@ -21,7 +21,7 @@ use Symfony\Component\Uid\Uuid;
  * "Customize modules" — the per-area module shop: choose which modules appear on an area, reorder
  * them, and add catalogue modules. Composing an area's sub-app is the `module.create` capability.
  */
-#[Route('/areas/{uuid}/modules', requirements: ['uuid' => Requirement::UUID])]
+#[Route('/areas/{uuid}/modules/customize', requirements: ['uuid' => Requirement::UUID])]
 #[IsGranted('module.create')]
 final class CustomizeModulesController extends AbstractController
 {

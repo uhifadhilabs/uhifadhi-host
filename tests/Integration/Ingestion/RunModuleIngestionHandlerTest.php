@@ -10,6 +10,7 @@ use App\Ingestion\Message\RunModuleIngestion;
 use App\Ingestion\MessageHandler\RunModuleIngestionHandler;
 use App\Ingestion\Repository\DatasetRepository;
 use App\Ingestion\Repository\DatasetRunRepository;
+use App\Ingestion\Service\SpatialFeatureIngestor;
 use App\Spatial\Factory\AreaOfInterestFactory;
 use App\Spatial\Repository\AreaOfInterestRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -107,17 +108,102 @@ final class RunModuleIngestionHandlerTest extends KernelTestCase
         self::assertCount(0, $repo->findAll(), 'a failed run must not leave partial datasets');
     }
 
+    public function testARerunReplacesTheModulesDataDroppingStaleKeys(): void
+    {
+        self::bootKernel();
+        $area = AreaOfInterestFactory::createOne();
+        $repo = self::getContainer()->get(DatasetRepository::class);
+        \assert($repo instanceof DatasetRepository);
+
+        // A prior run left two split tables on the module.
+        $repo->upsert($area, 'landcover', 'landcover_area')->setKind(DatasetKind::Series)->setSource('old');
+        $repo->upsert($area, 'landcover', 'fragmentation_class')->setKind(DatasetKind::Table)->setSource('old');
+        self::getContainer()->get(EntityManagerInterface::class)->flush();
+
+        // The new run produces a single merged table (+ the map) instead.
+        $engine = new MockHttpClient(new MockResponse((string) json_encode([
+            'run' => ['module' => 'landcover', 'status' => 'succeeded', 'source' => 'ESA WorldCover 2021 v200'],
+            'datasets' => [
+                ['key' => 'landcover_class', 'kind' => 'table', 'columns' => ['class', 'area_km2'], 'rows' => [['Grassland', 2589.78]]],
+                ['key' => 'landcover_map', 'kind' => 'vector', 'path' => '/data/out/landcover.geojson'],
+            ],
+        ]), ['http_code' => 200, 'response_headers' => ['content-type' => 'application/json']]), 'http://engine.test');
+
+        ($this->handler($engine, 'secret-token'))(new RunModuleIngestion((int) $area->getId(), 'landcover'));
+
+        $keys = array_map(static fn ($d) => $d->getKey(), $repo->forModule($area, 'landcover'));
+        self::assertSame(['landcover_class', 'landcover_map'], $keys, 'the stale split tables are gone');
+    }
+
+    public function testARasterDatasetIsStoredInlineWithItsOverlayMeta(): void
+    {
+        self::bootKernel();
+        $area = AreaOfInterestFactory::createOne();
+        $png = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+        $engine = new MockHttpClient(new MockResponse((string) json_encode([
+            'run' => ['module' => 'vegetation', 'status' => 'succeeded', 'source' => 'MODIS MOD13Q1'],
+            'datasets' => [
+                ['key' => 'ndvi_peak', 'kind' => 'raster', 'format' => 'png',
+                 'bounds' => [[-3.61, 34.88], [-2.50, 35.97]], 'data' => $png],
+            ],
+        ]), ['http_code' => 200, 'response_headers' => ['content-type' => 'application/json']]), 'http://engine.test');
+
+        ($this->handler($engine, 'secret-token'))(new RunModuleIngestion((int) $area->getId(), 'vegetation'));
+
+        $repo = self::getContainer()->get(DatasetRepository::class);
+        \assert($repo instanceof DatasetRepository);
+        $raster = $repo->findOneFor($area, 'vegetation', 'ndvi_peak');
+        self::assertNotNull($raster);
+        self::assertSame(DatasetKind::Raster, $raster->getKind());
+        self::assertSame($png, $raster->getPayload());
+        self::assertSame('png', $raster->getMeta()['format'] ?? null);
+        self::assertSame([[-3.61, 34.88], [-2.50, 35.97]], $raster->getMeta()['bounds'] ?? null);
+    }
+
+    public function testADatasetAfterAVectorLayerSurvivesTheSpatialIngestsEntityManagerClear(): void
+    {
+        self::bootKernel();
+        $area = AreaOfInterestFactory::createOne();
+        $png = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+        // The vector layer's staged ingest clears the EntityManager mid-store; the raster AFTER it
+        // must still land, linked to managed copies of the area and the run (roads regression).
+        $engine = new MockHttpClient(new MockResponse((string) json_encode([
+            'run' => ['module' => 'roads', 'status' => 'succeeded', 'source' => 'OpenStreetMap · Overpass'],
+            'datasets' => [
+                ['key' => 'roads_map', 'kind' => 'vector', 'attribute' => 'label', 'simplify' => 0.00005,
+                 'geojson' => ['type' => 'FeatureCollection', 'features' => [[
+                     'type' => 'Feature', 'properties' => ['label' => 'trunk'],
+                     'geometry' => ['type' => 'Polygon', 'coordinates' => [[[35.0, -3.1], [35.1, -3.1], [35.1, -3.0], [35.0, -3.1]]]],
+                 ]]]],
+                ['key' => 'remoteness', 'kind' => 'raster', 'format' => 'png',
+                 'bounds' => [[-3.61, 34.88], [-2.50, 35.97]], 'data' => $png],
+            ],
+        ]), ['http_code' => 200, 'response_headers' => ['content-type' => 'application/json']]), 'http://engine.test');
+
+        ($this->handler($engine, 'secret-token'))(new RunModuleIngestion((int) $area->getId(), 'roads'));
+
+        $repo = self::getContainer()->get(DatasetRepository::class);
+        \assert($repo instanceof DatasetRepository);
+        $raster = $repo->findOneFor($area, 'roads', 'remoteness');
+        self::assertNotNull($raster, 'the raster after the vector layer must still be stored');
+        self::assertSame($png, $raster->getPayload());
+        self::assertNotNull($raster->getRun()?->getId());
+        self::assertSame(DatasetRun::STATUS_SUCCEEDED, $this->runs()[0]->getStatus());
+    }
+
     private function handler(HttpClientInterface $engine, string $token): RunModuleIngestionHandler
     {
         $c = self::getContainer();
         $em = $c->get(EntityManagerInterface::class);
         $areas = $c->get(AreaOfInterestRepository::class);
         $datasets = $c->get(DatasetRepository::class);
+        $spatial = $c->get(SpatialFeatureIngestor::class);
         \assert($em instanceof EntityManagerInterface);
         \assert($areas instanceof AreaOfInterestRepository);
         \assert($datasets instanceof DatasetRepository);
+        \assert($spatial instanceof SpatialFeatureIngestor);
 
-        return new RunModuleIngestionHandler($em, $engine, $areas, $datasets, $token);
+        return new RunModuleIngestionHandler($em, $engine, $areas, $datasets, $spatial, $token);
     }
 
     /** @return list<DatasetRun> */

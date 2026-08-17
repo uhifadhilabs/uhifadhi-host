@@ -1,0 +1,14 @@
+{# Placeholder body for a data-backed module tab (Dataframe / Explore / Method) before its Dataset
+   is wired. The tab itself is fully live — routed, guarded and navigable; only its inner panel is
+   deferred to the Dataset-wiring slice. Honest about that rather than faking data. #}
+{% set copy = {
+    dataframe: 'The module\'s data as a sortable, filterable dataframe — one row per record, typed columns.',
+    explore:   'The classified layer on the map with its legend, and the summary statistics for the same data.',
+    method:    'How this figure is computed, what it answers, and the data source behind it.',
+} %}
+<div class="c" style="padding:44px 32px;text-align:center">
+    <span class="chip idle" style="margin:0 auto 14px">{{ tab }}</span>
+    <h2 style="font-size:18px;font-weight:600;margin:0 0 8px">{{ tab|capitalize }} — awaiting data</h2>
+    <p class="fog" style="font-size:13px;max-width:520px;margin:0 auto">{{ copy[tab] }}</p>
+    <p class="fog" style="font-size:12px;max-width:520px;margin:10px auto 0">This view activates once {{ module.label|lower }}'s dataset is wired for this area.</p>
+</div>

@@ -13,11 +13,14 @@ final class LossYearPaletteService
 {
     /** @var list<array{int, array{int, int, int}}> */
     private const STOPS = [
-        [2001, [0xFF, 0xFF, 0xB2]],
-        [2008, [0xFE, 0xCC, 0x5C]],
-        [2014, [0xFD, 0x8D, 0x3C]],
-        [2019, [0xF0, 0x3B, 0x20]],
-        [2023, [0xBD, 0x00, 0x26]],
+        // Plasma (indigo → magenta → orange → yellow): no earth tones, so every year stays
+        // visible over the satellite basemap and adjacent years remain tellable apart —
+        // the pale-yellow YlOrRd ramp blended into dry savanna.
+        [2001, [0x0D, 0x08, 0x87]],
+        [2008, [0x7E, 0x03, 0xA8]],
+        [2014, [0xCC, 0x44, 0x78]],
+        [2019, [0xF8, 0x95, 0x40]],
+        [2023, [0xF0, 0xF9, 0x21]],
     ];
 
     public function colorFor(int $year): string

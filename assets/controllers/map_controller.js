@@ -14,13 +14,13 @@ import { Controller } from '@hotwired/stimulus';
  * ever serve vector tiles.
  */
 
-// Hansen GFC year ramp (YlOrRd), 2001 → 2023.
+// Hansen GFC year ramp (plasma), 2001 → 2023 — MUST match LossYearPaletteService::STOPS.
 const RAMP = [
-    [2001, [0xff, 0xff, 0xb2]],
-    [2008, [0xfe, 0xcc, 0x5c]],
-    [2014, [0xfd, 0x8d, 0x3c]],
-    [2019, [0xf0, 0x3b, 0x20]],
-    [2023, [0xbd, 0x00, 0x26]],
+    [2001, [0x0d, 0x08, 0x87]],
+    [2008, [0x7e, 0x03, 0xa8]],
+    [2014, [0xcc, 0x44, 0x78]],
+    [2019, [0xf8, 0x95, 0x40]],
+    [2023, [0xf0, 0xf9, 0x21]],
 ];
 
 function yearColor(year) {
@@ -39,7 +39,7 @@ function yearColor(year) {
 const rgb = (c) => `rgb(${c[0]},${c[1]},${c[2]})`;
 
 export default class extends Controller {
-    static values = { boundary: Object, forestLossUrl: String };
+    static values = { boundary: Object, forestLossUrl: String, classLayerUrl: String, classPalette: Object, rasterUrl: String, rasterBounds: Array };
     static targets = ['canvas', 'frame', 'fromYear', 'toYear', 'bar', 'rangeFill', 'rangeSummary', 'dimBtn'];
 
     static YEAR_MIN = 2001;
@@ -72,7 +72,48 @@ export default class extends Controller {
         this.bases.satellite.addTo(this.map); // satellite is the default base
 
         this.drawBoundary();
-        this.loadForestLoss();
+        // Both overlays are optional — a module map may carry a class layer, the area map forest loss.
+        if (this.hasForestLossUrlValue && this.forestLossUrlValue) this.loadForestLoss();
+        if (this.hasClassLayerUrlValue && this.classLayerUrlValue) this.loadClassLayer();
+        // A continuous raster surface (NDVI, biomass, suitability …) as an ImageOverlay, under vectors.
+        if (this.hasRasterUrlValue && this.rasterUrlValue && this.hasRasterBoundsValue && this.rasterBoundsValue.length === 2) {
+            this.rasterLayer = this.L.imageOverlay(this.rasterUrlValue, this.rasterBoundsValue, { opacity: 0.8 }).addTo(this.map);
+            this.rasterLayer.bringToBack();
+        }
+    }
+
+    // Tear the Leaflet map down when Stimulus disconnects (Turbo/soft-nav navigation, cached previews).
+    // Without this, revisiting the page runs L.map() on an already-initialized container — Leaflet
+    // throws, the map never builds, and its zoom/controls flash in then vanish.
+    disconnect() {
+        if (this.map) {
+            this.map.remove();
+            this.map = null;
+        }
+    }
+
+    // A dissolved per-class layer (e.g. land cover), coloured by the label→colour palette. Read-only:
+    // fetched from the module's .geojson endpoint (PostGIS-dissolved), rendered like forest loss.
+    async loadClassLayer() {
+        const res = await fetch(this.classLayerUrlValue);
+        if (!res.ok) {
+            console.error('[map] class-layer fetch failed:', res.status);
+            return;
+        }
+        const data = await res.json();
+        const palette = this.hasClassPaletteValue ? this.classPaletteValue : {};
+        this.classLayer = this.L.geoJSON(data, {
+            // Stroke = the class colour: small dissolved patches are mostly stroke at park
+            // zoom, and a fixed dark stroke would mute them (same lesson as the loss layer).
+            // Same stroke/weight/opacity as the hub's loss layer, so the SAME dissolved
+            // features render identically on the area dashboard and the module page.
+            style: (f) => ({
+                color: palette[f.properties.label] || '#888888', weight: 0.8,
+                fillColor: palette[f.properties.label] || '#888888', fillOpacity: 0.85,
+            }),
+            onEachFeature: (f, layer) => layer.bindPopup(`<strong>${f.properties.label}</strong>`),
+        }).addTo(this.map);
+        this.classLayer.bringToBack(); // sit under the boundary casing/line
     }
 
     drawBoundary() {
@@ -138,20 +179,23 @@ export default class extends Controller {
         }
         const [lo, hi] = this.yearRange();
         this.lossLayer = this.L.geoJSON(this.lossData, {
-            filter: (f) => f.properties.year >= lo && f.properties.year <= hi,
+            // The generic module layer labels each dissolved feature by its YEAR (a string).
+            filter: (f) => Number(f.properties.label) >= lo && Number(f.properties.label) <= hi,
             style: (f) => {
+                const year = Number(f.properties.label);
                 // Hovering a chart bar spotlights that year; the rest fade back.
-                const dimmed = this.hoveredYear != null && f.properties.year !== this.hoveredYear;
+                const dimmed = this.hoveredYear != null && year !== this.hoveredYear;
+                // Stroke = the year colour too: small patches are mostly stroke at park zoom,
+                // so a fixed stroke colour would drown the ramp (it used to read all-red).
                 return {
-                    color: '#7f0000',
-                    weight: dimmed ? 0.3 : 0.5,
-                    fillColor: yearColor(f.properties.year),
+                    color: yearColor(year),
+                    weight: dimmed ? 0.3 : 0.8,
+                    fillColor: yearColor(year),
                     fillOpacity: dimmed ? 0.15 : 0.85,
                 };
             },
             onEachFeature: (f, layer) => {
-                const ha = Math.round(Number(f.properties.areaHa) || 0).toLocaleString();
-                layer.bindPopup(`<strong>${f.properties.year}</strong><br>${ha} ha lost`);
+                layer.bindPopup(`<strong>${f.properties.label}</strong> — tree cover lost`);
             },
         }).addTo(this.map);
     }

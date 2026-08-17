@@ -47,7 +47,9 @@ final class RunModuleIngestionCommand extends Command
         $this
             ->addArgument('aoi', InputArgument::REQUIRED, 'AreaOfInterest uuid, id or name')
             ->addArgument('module', InputArgument::REQUIRED, 'module slug, e.g. landcover')
-            ->addOption('res', null, InputOption::VALUE_REQUIRED, 'target resolution in metres', '30');
+            ->addOption('res', null, InputOption::VALUE_REQUIRED, 'stats resolution in metres', '30')
+            ->addOption('detail', null, InputOption::VALUE_REQUIRED, 'map-layer coarseness factor (×res): lower = finer, heavier', '4')
+            ->addOption('param', 'p', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'extra engine param as key=value (repeatable) — passed through verbatim', []);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -57,8 +59,9 @@ final class RunModuleIngestionCommand extends Command
         $aoiArg = $input->getArgument('aoi');
         $module = $input->getArgument('module');
         $res = $input->getOption('res');
-        if (!\is_string($aoiArg) || !\is_string($module) || !is_numeric($res)) {
-            $io->error('aoi and module must be strings, --res numeric.');
+        $detail = $input->getOption('detail');
+        if (!\is_string($aoiArg) || !\is_string($module) || !is_numeric($res) || !is_numeric($detail)) {
+            $io->error('aoi and module must be strings, --res and --detail numeric.');
 
             return Command::FAILURE;
         }
@@ -74,8 +77,19 @@ final class RunModuleIngestionCommand extends Command
 
         // Sync transport so the run happens inline and the operator sees its datasets; the web UI
         // routes the same message to the async worker unchanged.
+        // Module-agnostic pass-through params (e.g. -p year=2023, -p cov_stack=/path.tif) —
+        // the engine module decides what they mean; numeric values are cast.
+        $params = ['res_m' => (float) $res, 'display_factor' => (int) $detail];
+        $extra = $input->getOption('param');
+        foreach (\is_array($extra) ? $extra : [] as $pair) {
+            if (\is_string($pair) && str_contains($pair, '=')) {
+                [$key, $value] = explode('=', $pair, 2);
+                $params[$key] = is_numeric($value) ? $value + 0 : $value;
+            }
+        }
+
         $this->bus->dispatch(
-            new RunModuleIngestion($area->getId(), $module, ['res_m' => (float) $res]),
+            new RunModuleIngestion($area->getId(), $module, $params),
             [new TransportNamesStamp(['sync'])],
         );
 

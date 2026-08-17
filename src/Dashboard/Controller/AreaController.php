@@ -6,10 +6,9 @@ namespace App\Dashboard\Controller;
 
 use App\Dashboard\Form\AreaUploadType;
 use App\Dashboard\Service\AreaCardService;
-use App\Dashboard\Service\AreaModuleService;
-use App\Forest\Repository\ForestLossYearRepository;
 use App\Forest\Service\ForestLossSummaryService;
-use App\Ingestion\Message\IngestHansenLoss;
+use App\Ingestion\Message\RunModuleIngestion;
+use App\Ingestion\Repository\DatasetRepository;
 use App\Ingestion\Repository\DatasetRunRepository;
 use App\Spatial\Entity\AreaOfInterest;
 use App\Spatial\Exception\BoundaryImportException;
@@ -36,17 +35,18 @@ final class AreaController extends AbstractController
     #[Route('/', name: 'dashboard_index', methods: ['GET'])]
     public function index(
         AreaOfInterestRepository $areas,
-        ForestLossYearRepository $loss,
+        DatasetRepository $datasets,
         DatasetRunRepository $runs,
         AreaCardService $cards,
     ): Response {
         $rows = [];
         foreach ($areas->findBy([], ['id' => 'ASC']) as $area) {
-            $lossRows = $loss->findBy(['aoi' => $area], ['year' => 'ASC']);
+            // The forest series from the generic store: rows of (year, ha, cumulative_ha).
+            $lossRows = $datasets->findOneFor($area, 'forest', 'forest_loss_year')?->getRows() ?? [];
             $totalHa = 0.0;
             $series = [];
             foreach ($lossRows as $lossRow) {
-                $ha = $lossRow->getAreaHa() ?? 0.0;
+                $ha = is_numeric($lossRow[1] ?? null) ? (float) $lossRow[1] : 0.0;
                 $totalHa += $ha;
                 $series[] = $ha;
             }
@@ -139,7 +139,6 @@ final class AreaController extends AbstractController
         AreaOfInterestRepository $areas,
         DatasetRunRepository $runs,
         ForestLossSummaryService $forestLoss,
-        AreaModuleService $modules,
     ): Response {
         $geom = $area->getGeom();
         $boundary = [
@@ -162,8 +161,6 @@ final class AreaController extends AbstractController
             'runs' => $areaRuns,
             'runCount' => \count($areaRuns),
             'hasRunningRun' => [] !== array_filter($areaRuns, static fn ($run) => 'running' === $run->getStatus()),
-            'modules' => $modules->modules($area),
-            'planned' => $modules->planned(),
             'stats' => [
                 'areaKm2' => (int) round($areas->stAreaKm2(['id' => $area->getId()])),
                 'totalLossHa' => (int) round($loss['totalHa']),
@@ -172,6 +169,18 @@ final class AreaController extends AbstractController
                 'worstYear' => $loss['worstYear'],
                 'worstHa' => (int) round($loss['worstHa']),
             ],
+        ]);
+    }
+
+    #[Route('/areas/{uuid}/settings', name: 'dashboard_area_settings', requirements: ['uuid' => Requirement::UUID], methods: ['GET'])]
+    #[IsGranted('area.edit')]
+    public function settings(
+        #[MapEntity(mapping: ['uuid' => 'uuid'])] AreaOfInterest $area,
+        AreaOfInterestRepository $areas,
+    ): Response {
+        return $this->render('dashboard/area_settings.html.twig', [
+            'area' => $area,
+            'areaKm2' => (int) round($areas->stAreaKm2(['id' => $area->getId()])),
         ]);
     }
 
@@ -187,8 +196,8 @@ final class AreaController extends AbstractController
             throw $this->createAccessDeniedException('Invalid CSRF token.');
         }
 
-        // Routed async — the worker runs the minutes-long ETL; this returns now.
-        $bus->dispatch(new IngestHansenLoss(aoiId: (int) $area->getId()));
+        // Routed async — the worker calls the engine's forest module; this returns now.
+        $bus->dispatch(new RunModuleIngestion((int) $area->getId(), 'forest', ['display_factor' => 2]));
         $this->addFlash('success', \sprintf(
             'Hansen ingestion started for "%s" — the run appears below and the map updates when it finishes.',
             (string) $area->getName(),

@@ -1,0 +1,17 @@
+{# Within-module tabs — a module is self-contained: these link only between THIS module's own
+   tabs, never to other modules. Switching modules is done from the area's Modules grid, reached
+   by the "All modules" backbtn. `active` is the tab slug (overview/dataframe/explore/method/settings).
+   The Settings tab is the module edit surface, so it shows only to users who may edit (module.create). #}
+{% set tabs = [
+    {slug: 'overview',  label: 'Overview',  href: path('dashboard_area_module', {uuid: area.uuid, module: module.slug})},
+    {slug: 'dataframe', label: 'Dataframe', href: path('dashboard_area_module', {uuid: area.uuid, module: module.slug, tab: 'dataframe'})},
+    {slug: 'explore',   label: 'Explore',   href: path('dashboard_area_module', {uuid: area.uuid, module: module.slug, tab: 'explore'})},
+    {slug: 'method',    label: 'Method',    href: path('dashboard_area_module', {uuid: area.uuid, module: module.slug, tab: 'method'})},
+    {slug: 'settings',  label: 'Settings',  href: path('dashboard_area_module', {uuid: area.uuid, module: module.slug, tab: 'settings'})},
+] %}
+<a href="{{ path('dashboard_area_modules_grid', {uuid: area.uuid}) }}" class="backbtn">{{ ux_icon('lucide:chevron-left') }}All modules</a>
+<div class="atabs">
+    {%- for t in tabs -%}
+        <a href="{{ t.href }}"{{ active == t.slug ? ' class="on"' : '' }}>{{ t.label }}</a>
+    {%- endfor -%}
+</div>
