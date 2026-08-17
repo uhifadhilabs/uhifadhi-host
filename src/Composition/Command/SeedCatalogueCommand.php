@@ -54,7 +54,7 @@ final class SeedCatalogueCommand extends Command
     private const CATALOGUE = [
         ['slug' => 'overview', 'name' => 'Overview', 'category' => ModuleCategory::Hub, 'status' => ModuleStatus::Hub, 'source' => 'the park hub', 'pinned' => true, 'active' => true],
         ['slug' => 'forest', 'name' => 'Forest loss', 'category' => ModuleCategory::Flux, 'status' => ModuleStatus::Live, 'source' => 'Hansen GFC', 'pinned' => false, 'active' => true],
-        ['slug' => 'structure', 'name' => 'Forest structure', 'category' => ModuleCategory::Flux, 'status' => ModuleStatus::Template, 'source' => 'GEDI · CCI biomass', 'pinned' => false, 'active' => true],
+        ['slug' => 'structure', 'name' => 'Forest structure', 'category' => ModuleCategory::Flux, 'status' => ModuleStatus::Template, 'source' => 'CCI biomass · GLAD height', 'pinned' => false, 'active' => true],
         ['slug' => 'vegetation', 'name' => 'Vegetation', 'category' => ModuleCategory::Flux, 'status' => ModuleStatus::Template, 'source' => 'Sentinel-2 · EnMAP', 'pinned' => false, 'active' => true],
         ['slug' => 'landcover', 'name' => 'Land cover', 'category' => ModuleCategory::Flux, 'status' => ModuleStatus::Template, 'source' => 'ESA WorldCover', 'pinned' => false, 'active' => true],
         ['slug' => 'climate', 'name' => 'Climate', 'category' => ModuleCategory::Flux, 'status' => ModuleStatus::Template, 'source' => 'CHIRPS · WorldClim', 'pinned' => false, 'active' => true],

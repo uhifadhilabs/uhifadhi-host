@@ -11,6 +11,7 @@ use App\LandCover\Module\LandCoverModule;
 use App\Roads\Module\RoadsModule;
 use App\Settlement\Module\SettlementModule;
 use App\Statistics\Module\StatisticsModule;
+use App\Structure\Module\StructureModule;
 use App\Vegetation\Module\VegetationModule;
 use App\Wildlife\Module\WildlifeModule;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -35,6 +36,7 @@ final class ModuleRegistryTest extends KernelTestCase
         self::assertInstanceOf(RoadsModule::class, $registry->definitionFor('roads'));
         self::assertInstanceOf(WildlifeModule::class, $registry->definitionFor('wildlife'));
         self::assertInstanceOf(StatisticsModule::class, $registry->definitionFor('statistics'));
+        self::assertInstanceOf(StructureModule::class, $registry->definitionFor('structure'));
 
         $generic = $registry->definitionFor('fires');
         self::assertInstanceOf(GenericModule::class, $generic);

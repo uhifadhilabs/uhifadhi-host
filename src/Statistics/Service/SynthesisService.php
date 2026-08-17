@@ -67,6 +67,12 @@ final readonly class SynthesisService
             $last = end($loss);
             $rows[] = ['Forest', \sprintf('Tree cover lost %s–%s', $loss[0][0], $last[0]), (float) $last[2], 'ha', $this->source($area, 'forest', 'forest_loss_year')];
         }
+        if (null !== $structure = $this->rows($area, 'structure', 'structure_stats')) {
+            $byMetric = array_column($structure, 1, 0);
+            if (isset($byMetric['pearson_r'])) {
+                $rows[] = ['Structure', 'Canopy–biomass agreement (Pearson r)', (float) $byMetric['pearson_r'], '−1–1 (1 = perfect)', $this->source($area, 'structure', 'structure_stats')];
+            }
+        }
         if (null !== $stats = $this->rows($area, 'roads', 'roads_stats')) {
             $byMetric = array_column($stats, 1, 0);
             $rows[] = ['Roads', 'Mapped road network', (float) ($byMetric['total_km'] ?? 0), 'km', $this->source($area, 'roads', 'roads_stats')];
