@@ -42,7 +42,7 @@ final readonly class SynthesisService
         if (null !== $epochs = $this->rows($area, 'settlement', 'builtup_epoch')) {
             $last = end($epochs);
             $rows[] = ['Settlement', \sprintf('Built-up area %s', $last[0]), (float) $last[1], 'km²', $this->source($area, 'settlement', 'builtup_epoch')];
-            $rows[] = ['Settlement', \sprintf('Built-up growth since %s', $epochs[0][0]), (float) $last[4], '×', $this->source($area, 'settlement', 'builtup_epoch')];
+            $rows[] = ['Settlement', \sprintf('Built-up growth since %s', $epochs[0][0]), (float) $last[4], \sprintf('× the %s level', $epochs[0][0]), $this->source($area, 'settlement', 'builtup_epoch')];
         }
         if (null !== $classes = $this->rows($area, 'landcover', 'landcover_class')) {
             $top = $classes[0];
