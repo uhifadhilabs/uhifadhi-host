@@ -45,7 +45,7 @@ final class SynthesisServiceTest extends KernelTestCase
 
         $byIndicator = array_column($rows, null, 1);
         self::assertSame(4.23, $byIndicator['Built-up area 2020'][2]);
-        self::assertSame(3.58, $byIndicator['Built-up growth since 1975'][2]);
+        self::assertSame(1.18, $byIndicator['Built-up area 1975'][2]);
         self::assertSame('GHSL GHS-BUILT-S R2023A · 1 km', $byIndicator['Built-up area 2020'][4]);
         self::assertSame(2345.6, $byIndicator['Mapped road network'][2]);
         self::assertSame(51.0, $byIndicator['More than 2 km from any road'][2]);
