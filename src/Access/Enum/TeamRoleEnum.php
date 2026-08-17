@@ -39,9 +39,10 @@ enum TeamRoleEnum: string
         return \in_array($this, [self::SuperAdmin, self::Admin, self::Manager], true);
     }
 
-    /** Super Admin, Admin and Manager hold every permission by tier (used by the voter). */
+    /** Super Admin and Admin hold every permission by tier (used by the voter); everyone
+     * else — Manager included — holds exactly their Position's permissions. */
     public function canManageContent(): bool
     {
-        return \in_array($this, [self::SuperAdmin, self::Admin, self::Manager], true);
+        return \in_array($this, [self::SuperAdmin, self::Admin], true);
     }
 }

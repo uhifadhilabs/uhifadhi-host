@@ -10,7 +10,7 @@
                 <h1 class="pg">{{ area.name }}</h1>
                 <p class="pgsub">Every analytical module on this area — one card, one page. Open a card to view it; edit or run its data from there.</p>
             </div>
-            {% if is_granted('module.create') %}
+            {% if is_granted('ROLE_ADMIN') %}
                 <div class="pgact"><a class="cta" href="{{ path('dashboard_area_modules', {uuid: area.uuid}) }}">{{ ux_icon('lucide:sliders-horizontal') }}Customize</a></div>
             {% endif %}
         </div>
@@ -27,7 +27,7 @@
         {% else %}
             <div class="c" style="padding:44px 32px;text-align:center">
                 <p class="fog" style="font-size:13px">No modules on this area yet.
-                    {% if is_granted('module.create') %}Add some from <a class="acc" href="{{ path('dashboard_area_modules', {uuid: area.uuid}) }}">Customize</a>.{% endif %}
+                    {% if is_granted('ROLE_ADMIN') %}Add some from <a class="acc" href="{{ path('dashboard_area_modules', {uuid: area.uuid}) }}">Customize</a>.{% endif %}
                 </p>
             </div>
         {% endfor %}

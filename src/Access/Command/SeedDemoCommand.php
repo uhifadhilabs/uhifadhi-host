@@ -58,14 +58,16 @@ final class SeedDemoCommand extends Command
             }
         }
 
-        // Positions first — the Staff demo accounts reference them.
+        // Positions first — Manager and Staff are position-driven (only Admin+ hold
+        // permissions by tier), so every non-admin demo account references one.
+        $parkManager = $this->ensurePosition('Park Manager', PermissionEnum::cases());
         $ranger = $this->ensurePosition('Ranger', [PermissionEnum::AreaView, PermissionEnum::IngestionRun]);
         $analyst = $this->ensurePosition('Analyst', [PermissionEnum::AreaView, PermissionEnum::ModuleView, PermissionEnum::ModuleCreate]);
 
         $created = 0;
         $created += $this->ensureUser('superadmin@ncaa.uhifadhi.com', 'Sofia', 'Marwa', TeamRoleEnum::SuperAdmin, password: $this->superAdminPassword);
         $created += $this->ensureUser('admin@ncaa.uhifadhi.com', 'Amina', 'Hassan', TeamRoleEnum::Admin);
-        $created += $this->ensureUser('manager@ncaa.uhifadhi.com', 'Joseph', 'Kimaro', TeamRoleEnum::Manager);
+        $created += $this->ensureUser('manager@ncaa.uhifadhi.com', 'Joseph', 'Kimaro', TeamRoleEnum::Manager, $parkManager);
         $created += $this->ensureUser('ranger@ncaa.uhifadhi.com', 'Neema', 'Kileo', TeamRoleEnum::Staff, $ranger);
         $created += $this->ensureUser('analyst@ncaa.uhifadhi.com', 'Baraka', 'Mushi', TeamRoleEnum::Staff, $analyst);
 

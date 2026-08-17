@@ -24,7 +24,7 @@ enum PermissionEnum: string
     case IngestionRun = 'ingestion.run';
     // Modules → ROLE_MODULES
     case ModuleView = 'module.view';
-    case ModuleCreate = 'module.create';
+    case ModuleCreate = 'module.create';   // configure a module: settings + visualizations (composition is Admin-tier)
 
     public function umbrella(): string
     {

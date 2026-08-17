@@ -24,7 +24,7 @@ abstract class AuthenticatedWebTestCase extends WebTestCase
     /**
      * Persist a user at the given tier and sign the client in as them.
      */
-    protected function loginAs(KernelBrowser $client, TeamRoleEnum $tier = TeamRoleEnum::Manager): User
+    protected function loginAs(KernelBrowser $client, TeamRoleEnum $tier = TeamRoleEnum::Admin): User
     {
         $user = UserFactory::createOne(['teamRole' => $tier]);
         $client->loginUser($user);

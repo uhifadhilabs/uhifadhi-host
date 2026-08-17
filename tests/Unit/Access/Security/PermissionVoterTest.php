@@ -15,7 +15,7 @@ use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
 /**
  * The voter is the single action-level gate: managing tiers (Super Admin / Admin /
- * Manager) hold every permission by tier; Staff hold exactly the permissions of their
+ * only) hold every permission by tier; Manager and Staff hold exactly the permissions of their
  * assigned Position and nothing more. Anything that isn't a PermissionEnum value is not
  * ours to decide — the voter abstains so other voters (role checks) can run.
  */
@@ -76,9 +76,9 @@ final class PermissionVoterTest extends TestCase
         );
     }
 
-    public function testManagingTiersHoldEveryPermissionEvenWithoutAPosition(): void
+    public function testAdminTiersHoldEveryPermissionEvenWithoutAPosition(): void
     {
-        $tiers = [TeamRoleEnum::SuperAdmin, TeamRoleEnum::Admin, TeamRoleEnum::Manager];
+        $tiers = [TeamRoleEnum::SuperAdmin, TeamRoleEnum::Admin];
 
         foreach ($tiers as $tier) {
             $user = (new User())->setTeamRole($tier);

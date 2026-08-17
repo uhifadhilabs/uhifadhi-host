@@ -145,9 +145,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 $roles[] = 'ROLE_ADMIN';
                 break;
             case TeamRoleEnum::Manager:
-                $roles[] = 'ROLE_MANAGER';
-                break;
             case TeamRoleEnum::Staff:
+                // Manager and Staff are position-driven: their capability roles come from
+                // the assigned Position, nothing by tier.
+                if (TeamRoleEnum::Manager === $this->teamRole) {
+                    $roles[] = 'ROLE_MANAGER';
+                }
                 if (null !== $this->position) {
                     foreach ($this->position->getPermissions() as $permission) {
                         $roles[] = $permission->capabilityRole();

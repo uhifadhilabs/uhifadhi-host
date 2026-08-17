@@ -30,11 +30,11 @@ final class TeamRoleEnumTest extends TestCase
         self::assertFalse(TeamRoleEnum::Staff->canManageTeam());
     }
 
-    public function testManagerAndAboveHoldEveryPermissionByTier(): void
+    public function testOnlyAdminAndAboveHoldEveryPermissionByTier(): void
     {
         self::assertTrue(TeamRoleEnum::SuperAdmin->canManageContent());
         self::assertTrue(TeamRoleEnum::Admin->canManageContent());
-        self::assertTrue(TeamRoleEnum::Manager->canManageContent());
+        self::assertFalse(TeamRoleEnum::Manager->canManageContent());
         self::assertFalse(TeamRoleEnum::Staff->canManageContent());
     }
 

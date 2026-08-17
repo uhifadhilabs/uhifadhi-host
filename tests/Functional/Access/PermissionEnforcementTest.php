@@ -58,16 +58,50 @@ final class PermissionEnforcementTest extends WebTestCase
         self::assertResponseStatusCodeSame(403);
     }
 
-    public function testAManagerCanTriggerIngestion(): void
+    public function testAManagerIsPositionDrivenForIngestion(): void
     {
+        // Without a position, a Manager holds nothing — the tier grants no permissions.
         $client = static::createClient();
         $client->loginUser(UserFactory::createOne(['teamRole' => TeamRoleEnum::Manager]));
         $area = AreaOfInterestFactory::createOne();
 
         $client->request('GET', '/areas/'.$area->getUuidString());
         $client->submitForm('Run Hansen forest-loss ingestion');
+        self::assertResponseStatusCodeSame(403);
 
+        // With a position granting ingestion.run, the same action goes through.
+        $client->loginUser(UserFactory::createOne([
+            'teamRole' => TeamRoleEnum::Manager,
+            'position' => PositionFactory::new()->withPermissions([PermissionEnum::IngestionRun])->create(),
+        ]));
+        $client->request('GET', '/areas/'.$area->getUuidString());
+        $client->submitForm('Run Hansen forest-loss ingestion');
         self::assertResponseRedirects('/areas/'.$area->getUuidString());
+    }
+
+    public function testComposingModulesIsReservedForTheAdminTier(): void
+    {
+        $client = static::createClient();
+        $area = AreaOfInterestFactory::createOne();
+        $customize = '/areas/'.$area->getUuidString().'/modules/customize';
+
+        // Even a fully-permissioned Manager position cannot compose modules…
+        $client->loginUser(UserFactory::createOne([
+            'teamRole' => TeamRoleEnum::Manager,
+            'position' => PositionFactory::new()->withPermissions(PermissionEnum::cases())->create(),
+        ]));
+        $client->request('GET', $customize);
+        self::assertResponseStatusCodeSame(403);
+
+        // …nor can Staff holding module.create (that capability is settings/viz, not composition)…
+        $this->loginStaffWith($client, [PermissionEnum::ModuleView, PermissionEnum::ModuleCreate]);
+        $client->request('GET', $customize);
+        self::assertResponseStatusCodeSame(403);
+
+        // …while an Admin composes without any position at all.
+        $client->loginUser(UserFactory::createOne(['teamRole' => TeamRoleEnum::Admin]));
+        $client->request('GET', $customize);
+        self::assertResponseIsSuccessful();
     }
 
     /**
