@@ -50,12 +50,12 @@ final readonly class SynthesisService
         }
         if (null !== $phenology = $this->rows($area, 'vegetation', 'phenology_16day')) {
             $peak = max(array_map(static fn (array $row): float => (float) $row[2], $phenology));
-            $rows[] = ['Vegetation', 'Peak-season NDVI (spatial median)', round($peak, 3), '', $this->source($area, 'vegetation', 'phenology_16day')];
+            $rows[] = ['Vegetation', 'Peak-season NDVI (spatial median)', round($peak, 3), '0–1 index', $this->source($area, 'vegetation', 'phenology_16day')];
         }
         if (null !== $sdm = $this->rows($area, 'wildlife', 'sdm_performance')) {
             foreach ($sdm as $row) {
                 if ('native' === ($row[2] ?? null) && null !== ($row[4] ?? null)) {
-                    $rows[] = ['Wildlife', \sprintf('%s habitat model AUC', (string) $row[1]), (float) $row[4], '', $this->source($area, 'wildlife', 'sdm_performance')];
+                    $rows[] = ['Wildlife', \sprintf('%s habitat model AUC', (string) $row[1]), (float) $row[4], '0.5–1 (1 = perfect)', $this->source($area, 'wildlife', 'sdm_performance')];
                     break;
                 }
             }
