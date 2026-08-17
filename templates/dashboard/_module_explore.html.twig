@@ -17,45 +17,9 @@
         </div>
         <div class="use">The module's layer clipped to the AOI.</div>
     </div>
-    {% if legend is not empty %}
-    <div class="c">
-        <span class="tab"><span class="idx">LG</span>Legend<span class="src">· {{ legend|length }} classes</span></span>
-        <div style="margin-top:8px;max-height:340px;overflow-y:auto">
-            {% for item in legend %}
-                <div style="display:flex;align-items:center;gap:9px;padding:5px 0">
-                    <span style="width:14px;height:14px;border-radius:3px;flex:none;background:{{ item.color }}"></span>
-                    <span style="font-size:12px;flex:1">{{ item.label }}</span>
-                    {% if item.value %}<span class="mono d" style="font-size:10px">{{ item.value }}</span>{% endif %}
-                </div>
-            {% endfor %}
-        </div>
-        <div class="use">The map layer's classes, coloured by the module's palette.</div>
+    <div style="display:flex;flex-direction:column;gap:16px">
+        {{ include('dashboard/_module_legend_card.html.twig') }}
     </div>
-    {% elseif rasterLegend %}
-    <div class="c">
-        <span class="tab"><span class="idx">LG</span>Legend<span class="src">· surface</span></span>
-        <p style="font-size:12px;margin:10px 0 8px">{{ rasterLegend.label }}</p>
-        {% set stops = [] %}
-        {% for stop in rasterLegend.ramp %}{% set stops = stops|merge(['%s %d%%'|format(stop[1], stop[0] * 100)]) %}{% endfor %}
-        <div style="height:12px;border-radius:6px;background:linear-gradient(90deg, {{ stops|join(', ') }})"></div>
-        <div style="display:flex;justify-content:space-between;gap:12px;margin-top:5px">
-            <span style="font-size:11px;max-width:46%">
-                <span class="mono d" style="font-size:10px">{{ rasterLegend.min }}{{ rasterLegend.unit is defined ? ' ' ~ rasterLegend.unit }}</span>
-                {% if rasterLegend.low is defined %}<br>{{ rasterLegend.low }}{% endif %}
-            </span>
-            <span style="font-size:11px;max-width:46%;text-align:right">
-                <span class="mono d" style="font-size:10px">{{ rasterLegend.max }}{{ rasterLegend.unit is defined ? ' ' ~ rasterLegend.unit }}</span>
-                {% if rasterLegend.high is defined %}<br>{{ rasterLegend.high }}{% endif %}
-            </span>
-        </div>
-        <div class="use">The surface's colour ramp, from the engine run.</div>
-    </div>
-    {% else %}
-    <div class="c">
-        <span class="tab"><span class="idx">LG</span>Legend<span class="src">· surface</span></span>
-        <p class="fog" style="font-size:12px;margin-top:10px">This module's map is a continuous surface (engine-coloured raster) — no class legend.</p>
-    </div>
-    {% endif %}
 </div>
 
 <div class="grid g2" style="margin-top:22px">

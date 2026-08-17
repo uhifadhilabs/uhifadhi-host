@@ -103,9 +103,13 @@ export default class extends Controller {
         const data = await res.json();
         const palette = this.hasClassPaletteValue ? this.classPaletteValue : {};
         this.classLayer = this.L.geoJSON(data, {
+            // Stroke = the class colour: small dissolved patches are mostly stroke at park
+            // zoom, and a fixed dark stroke would mute them (same lesson as the loss layer).
+            // Same stroke/weight/opacity as the hub's loss layer, so the SAME dissolved
+            // features render identically on the area dashboard and the module page.
             style: (f) => ({
-                color: '#0b0f0d', weight: 0.25,
-                fillColor: palette[f.properties.label] || '#888888', fillOpacity: 0.62,
+                color: palette[f.properties.label] || '#888888', weight: 0.8,
+                fillColor: palette[f.properties.label] || '#888888', fillOpacity: 0.85,
             }),
             onEachFeature: (f, layer) => layer.bindPopup(`<strong>${f.properties.label}</strong>`),
         }).addTo(this.map);
@@ -181,9 +185,11 @@ export default class extends Controller {
                 const year = Number(f.properties.label);
                 // Hovering a chart bar spotlights that year; the rest fade back.
                 const dimmed = this.hoveredYear != null && year !== this.hoveredYear;
+                // Stroke = the year colour too: small patches are mostly stroke at park zoom,
+                // so a fixed stroke colour would drown the ramp (it used to read all-red).
                 return {
-                    color: '#7f0000',
-                    weight: dimmed ? 0.3 : 0.5,
+                    color: yearColor(year),
+                    weight: dimmed ? 0.3 : 0.8,
                     fillColor: yearColor(year),
                     fillOpacity: dimmed ? 0.15 : 0.85,
                 };

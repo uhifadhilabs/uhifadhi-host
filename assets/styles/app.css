@@ -745,10 +745,11 @@ table.tbl tr:hover .open-btn { background: rgb(var(--c-acc)); color: rgb(var(--c
 }
 .leaflet-control-zoom a:hover { background: rgba(8, 13, 10, .9); }
 
-/* ==================== DATA-ONLY: Hansen fire ramp ==================== */
-/* The yellow→red loss ramp, reused by the map legend. Data-only — never chrome. */
+/* ==================== DATA-ONLY: Hansen year ramp ==================== */
+/* The plasma loss-year ramp, reused by the map legend — MUST match
+   LossYearPaletteService::STOPS and map_controller's RAMP. Data-only — never chrome. */
 @utility loss-ramp {
-    background-image: linear-gradient(90deg, #ffffb2, #fecc5c, #fd8d3c, #f03b20, #bd0026);
+    background-image: linear-gradient(90deg, #0d0887, #7e03a8, #cc4478, #f89540, #f0f921);
 }
 
 /* One of the two stacked <input type="range"> that form the dual-handle year
