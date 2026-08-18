@@ -12,6 +12,7 @@ use App\Composition\Enum\ModuleStatus;
 use App\Composition\Enum\VizType;
 use App\Composition\Repository\AreaModuleRepository;
 use App\Composition\Repository\ModuleRepository;
+use App\Composition\Service\ProviderCatalogueMapper;
 use App\Spatial\Repository\AreaOfInterestRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -19,6 +20,8 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
+use UhifadhiLabs\ModuleContracts\ModuleProviderInterface;
 
 /**
  * Seeds the module catalogue (the 15 modules + the Overview hub, from the designs) and backfills
@@ -70,22 +73,48 @@ final class SeedCatalogueCommand extends Command
         ['slug' => 'statistics', 'name' => 'Statistics', 'category' => ModuleCategory::Biodiversity, 'status' => ModuleStatus::Template, 'source' => 'derived', 'pinned' => false, 'active' => true],
     ];
 
+    /**
+     * @param iterable<ModuleProviderInterface> $moduleProviders installed module bundles' providers
+     */
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly ModuleRepository $modules,
         private readonly AreaModuleRepository $areaModules,
         private readonly AreaOfInterestRepository $areas,
+        private readonly ProviderCatalogueMapper $providerMapper,
+        #[AutowireIterator('uhifadhi.module')]
+        private readonly iterable $moduleProviders = [],
     ) {
         parent::__construct();
+    }
+
+    /**
+     * The built-in catalogue plus any installed module bundles' rows, appended
+     * after the built-ins (so bundle modules sort last and land parked).
+     *
+     * @return list<array{slug: string, name: string, category: ModuleCategory, status: ModuleStatus, source: string, pinned: bool, active: bool}>
+     */
+    private function catalogue(): array
+    {
+        $rows = self::CATALOGUE;
+        $position = \count($rows);
+        foreach ($this->moduleProviders as $provider) {
+            $row = $this->providerMapper->toRow($provider, $position++);
+            unset($row['position']); // positional index below drives Module::position
+            $rows[] = $row;
+        }
+
+        return $rows;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
 
-        // 1) Upsert the catalogue by slug.
+        // 1) Upsert the catalogue by slug (built-ins + any installed module bundles).
+        $catalogue = $this->catalogue();
         $bySlug = [];
-        foreach (self::CATALOGUE as $position => $row) {
+        foreach ($catalogue as $position => $row) {
             $module = $this->modules->findBySlug($row['slug']) ?? new Module();
             $module->setSlug($row['slug'])
                 ->setName($row['name'])
@@ -145,7 +174,7 @@ final class SeedCatalogueCommand extends Command
 
         $io->success(\sprintf(
             'Catalogue seeded (%d modules); %d area-module assignment(s) backfilled; %d visualization(s) seeded.',
-            \count(self::CATALOGUE), $backfilled, $vizSeeded,
+            \count($catalogue), $backfilled, $vizSeeded,
         ));
 
         return Command::SUCCESS;

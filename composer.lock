@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "870543b69f27e702700cc1002c0c298e",
+    "content-hash": "4062d1e08b585aad463a31e780f50258",
     "packages": [
         {
             "name": "composer/semver",
@@ -1333,16 +1333,16 @@
         },
         {
             "name": "fundistadi/postgis-bundle",
-            "version": "v0.4.0",
+            "version": "v0.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/fundistadi/postgis-bundle.git",
-                "reference": "1f6f5a7d8df4ddff5c7e04dd98021d7738f08858"
+                "reference": "87450135696748220539a9645e2425b98879ac08"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fundistadi/postgis-bundle/zipball/1f6f5a7d8df4ddff5c7e04dd98021d7738f08858",
-                "reference": "1f6f5a7d8df4ddff5c7e04dd98021d7738f08858",
+                "url": "https://api.github.com/repos/fundistadi/postgis-bundle/zipball/87450135696748220539a9645e2425b98879ac08",
+                "reference": "87450135696748220539a9645e2425b98879ac08",
                 "shasum": ""
             },
             "require": {
@@ -1361,7 +1361,7 @@
             "type": "symfony-bundle",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "0.4-dev"
+                    "dev-main": "0.5-dev"
                 }
             },
             "autoload": {
@@ -1394,9 +1394,9 @@
             ],
             "support": {
                 "issues": "https://github.com/fundistadi/postgis-bundle/issues",
-                "source": "https://github.com/fundistadi/postgis-bundle/tree/v0.4.0"
+                "source": "https://github.com/fundistadi/postgis-bundle/tree/v0.5.0"
             },
-            "time": "2026-08-08T22:43:14+00:00"
+            "time": "2026-08-18T04:48:24+00:00"
         },
         {
             "name": "monolog/monolog",
@@ -7870,6 +7870,96 @@
             "time": "2026-05-29T05:06:50+00:00"
         },
         {
+            "name": "symfony/workflow",
+            "version": "v8.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/workflow.git",
+                "reference": "8a4690c56fbc8766d4b49f02e60e8fa0ed360211"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/workflow/zipball/8a4690c56fbc8766d4b49f02e60e8fa0ed360211",
+                "reference": "8a4690c56fbc8766d4b49f02e60e8fa0ed360211",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.4.1"
+            },
+            "require-dev": {
+                "psr/log": "^1|^2|^3",
+                "symfony/config": "^7.4|^8.0",
+                "symfony/console": "^7.4|^8.0",
+                "symfony/dependency-injection": "^7.4|^8.0",
+                "symfony/error-handler": "^7.4|^8.0",
+                "symfony/event-dispatcher": "^7.4|^8.0",
+                "symfony/expression-language": "^7.4|^8.0",
+                "symfony/http-kernel": "^7.4|^8.0",
+                "symfony/security-core": "^7.4|^8.0",
+                "symfony/stopwatch": "^7.4|^8.0",
+                "symfony/validator": "^7.4|^8.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\Workflow\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Grégoire Pineau",
+                    "email": "lyrixx@lyrixx.info"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Provides tools for managing a workflow or finite state machine",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "petrinet",
+                "place",
+                "state",
+                "statemachine",
+                "transition",
+                "workflow"
+            ],
+            "support": {
+                "source": "https://github.com/symfony/workflow/tree/v8.1.0"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://github.com/nicolas-grekas",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2026-05-29T05:06:50+00:00"
+        },
+        {
             "name": "symfony/yaml",
             "version": "v8.1.2",
             "source": {
@@ -8160,6 +8250,184 @@
                 }
             ],
             "time": "2026-07-03T20:44:34+00:00"
+        },
+        {
+            "name": "uhifadhilabs/module-contracts",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/uhifadhilabs/module-contracts.git",
+                "reference": "20d02c2d9eb35f3e4b797cc14dbc3b6dc04db8e0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/uhifadhilabs/module-contracts/zipball/20d02c2d9eb35f3e4b797cc14dbc3b6dc04db8e0",
+                "reference": "20d02c2d9eb35f3e4b797cc14dbc3b6dc04db8e0",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.4"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.95",
+                "phpstan/phpstan": "^2.2",
+                "phpunit/phpunit": "^13.2"
+            },
+            "default-branch": true,
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-main": "0.1-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "UhifadhiLabs\\ModuleContracts\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "UhifadhiLabs\\ModuleContracts\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "cs:fix": [
+                    "php-cs-fixer fix"
+                ],
+                "cs:check": [
+                    "php-cs-fixer fix --dry-run --diff"
+                ],
+                "phpstan": [
+                    "phpstan analyse --no-progress --memory-limit=1G"
+                ],
+                "test": [
+                    "phpunit"
+                ],
+                "check": [
+                    "@cs:check",
+                    "@phpstan",
+                    "@test"
+                ]
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Ezekiel Mjema",
+                    "homepage": "https://github.com/eemjema"
+                }
+            ],
+            "description": "The contract a uhifadhi module declares itself with — catalogue metadata plus an optional own entry route. Implemented by built-in modules and by installable module bundles alike.",
+            "keywords": [
+                "contract",
+                "module",
+                "symfony",
+                "uhifadhi"
+            ],
+            "support": {
+                "source": "https://github.com/uhifadhilabs/module-contracts/tree/main",
+                "issues": "https://github.com/uhifadhilabs/module-contracts/issues"
+            },
+            "time": "2026-08-18T10:40:54+00:00"
+        },
+        {
+            "name": "uhifadhilabs/uhakiki-bundle",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "git@github.com:uhifadhilabs/uhakiki-bundle.git",
+                "reference": "c1333678019d0c07c4cfe334ed93b78c4d43c5a1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/uhifadhilabs/uhakiki-bundle/zipball/c1333678019d0c07c4cfe334ed93b78c4d43c5a1",
+                "reference": "c1333678019d0c07c4cfe334ed93b78c4d43c5a1",
+                "shasum": ""
+            },
+            "require": {
+                "doctrine/dbal": "^4.0",
+                "doctrine/doctrine-bundle": "^3.0",
+                "doctrine/orm": "^3.5",
+                "fundistadi/postgis-bundle": "^0.5",
+                "php": ">=8.4",
+                "symfony/config": "^7.3 || ^8.0",
+                "symfony/console": "^7.3 || ^8.0",
+                "symfony/framework-bundle": "^7.3 || ^8.0",
+                "symfony/twig-bundle": "^7.3 || ^8.0",
+                "symfony/uid": "^7.3 || ^8.0",
+                "symfony/workflow": "^7.3 || ^8.0",
+                "uhifadhilabs/module-contracts": "dev-main"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.95",
+                "phpstan/phpstan": "^2.2",
+                "phpunit/phpunit": "^13.2",
+                "symfony/browser-kit": "^7.3 || ^8.0",
+                "symfony/css-selector": "^7.3 || ^8.0",
+                "symfony/dependency-injection": "^7.3 || ^8.0",
+                "symfony/security-core": "^7.3 || ^8.0"
+            },
+            "default-branch": true,
+            "type": "symfony-bundle",
+            "extra": {
+                "branch-alias": {
+                    "dev-main": "0.1-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "UhifadhiLabs\\UhakikiBundle\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "UhifadhiLabs\\UhakikiBundle\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "cs:fix": [
+                    "php-cs-fixer fix"
+                ],
+                "cs:check": [
+                    "php-cs-fixer fix --dry-run --diff"
+                ],
+                "phpstan": [
+                    "phpstan analyse --no-progress --memory-limit=1G"
+                ],
+                "test": [
+                    "phpunit"
+                ],
+                "check": [
+                    "@cs:check",
+                    "@phpstan",
+                    "@test"
+                ]
+            },
+            "license": [
+                "proprietary"
+            ],
+            "authors": [
+                {
+                    "name": "Ezekiel Mjema",
+                    "homepage": "https://github.com/eemjema"
+                }
+            ],
+            "description": "Uhakiki: blind-consensus verification of geographic point candidates against live satellite imagery — campaigns, verdict taxonomies, relocation, disputes and tiebreaks as an enforced state machine.",
+            "keywords": [
+                "consensus",
+                "gis",
+                "postgis",
+                "review",
+                "symfony",
+                "uhifadhi",
+                "verification"
+            ],
+            "support": {
+                "source": "https://github.com/uhifadhilabs/uhakiki-bundle/tree/main",
+                "issues": "https://github.com/uhifadhilabs/uhakiki-bundle/issues"
+            },
+            "time": "2026-08-18T13:23:19+00:00"
         },
         {
             "name": "webmozart/assert",
@@ -11535,7 +11803,10 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {},
+    "stability-flags": {
+        "uhifadhilabs/module-contracts": 20,
+        "uhifadhilabs/uhakiki-bundle": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {

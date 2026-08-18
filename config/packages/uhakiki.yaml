@@ -1,0 +1,20 @@
+# Uhakiki verification campaigns for this deployment.
+# Reference: bin/console config:dump-reference uhakiki
+uhakiki:
+    campaigns:
+        nca_bomas:
+            subject: Boma
+            area_ref: d0ce9044-b57d-45f7-b615-69b0e38bd271  # Ngorongoro Conservation Area
+            plate_radius_m: 500
+            required_verdicts: 2
+            relocation_tolerance_m: 30
+            snap_radius_m: 30
+            taxonomy:
+                confirm:
+                    label: Boma
+                    children: [active, abandoned, under construction]
+                reject:
+                    label: Not a boma
+                    children: ['kopje / rocks', 'lodge · hotel', 'tented camp', 'staff village', 'office · station', 'farm / shamba', 'former boma (scar)', 'gully / stream', 'other…']
+                unsure:
+                    label: Unsure

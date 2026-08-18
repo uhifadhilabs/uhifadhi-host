@@ -31,6 +31,7 @@ final readonly class ModuleGridService
         private AreaModuleService $areaModules,
         private ModuleRegistry $registry,
         private DatasetRepository $datasets,
+        private ModuleEntryRouteResolver $entryRoutes,
     ) {
     }
 
@@ -39,7 +40,7 @@ final readonly class ModuleGridService
      *
      * @return list<array{label: string, cards: list<array{
      *     slug: string, title: string, status: string, source: string, summary: string,
-     *     stat: string|null, statSub: string|null, series: list<float>}>}>
+     *     stat: string|null, statSub: string|null, series: list<float>, entryRoute: string|null}>}>
      */
     public function grouped(AreaOfInterest $area): array
     {
@@ -64,7 +65,7 @@ final readonly class ModuleGridService
 
     /**
      * @return array{slug: string, title: string, status: string, source: string, summary: string,
-     *     stat: string|null, statSub: string|null, series: list<float>}
+     *     stat: string|null, statSub: string|null, series: list<float>, entryRoute: string|null}
      */
     private function card(AreaOfInterest $area, Module $module): array
     {
@@ -105,6 +106,7 @@ final readonly class ModuleGridService
             'stat' => $stat,
             'statSub' => $statSub,
             'series' => $series,
+            'entryRoute' => $this->entryRoutes->entryRouteFor($slug),
         ];
     }
 }

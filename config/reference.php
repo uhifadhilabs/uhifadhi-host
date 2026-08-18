@@ -1558,6 +1558,21 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     },
  *     ignore_not_found?: bool|Param, // Ignore error when an icon is not found. Set to 'true' to fail silently. // Default: false
  * }
+ * @psalm-type UhakikiConfig = array{
+ *     module_category?: scalar|Param|null, // Catalogue category the Uhakiki module is filed under in each area (subject-neutral, so configured per deployment). // Default: "pressure"
+ *     campaigns?: array<string, array{ // Default: []
+ *         subject?: scalar|Param|null, // Subject noun shown to reviewers ("Water point").
+ *         area_ref?: scalar|Param|null, // The host area this campaign belongs to (its uuid). Null = unscoped. // Default: null
+ *         plate_radius_m?: float|Param, // Hard pan bound of the review plate, metres. // Default: 500.0
+ *         required_verdicts?: int|Param, // Distinct decisive verdicts needed to settle a candidate. // Default: 2
+ *         relocation_tolerance_m?: float|Param, // Agreeing relocations must land within this distance. // Default: 30.0
+ *         snap_radius_m?: float|Param, // Points closer than this to an existing candidate are the same feature (import dedupe, missed-mark snapping). // Default: 30.0
+ *         taxonomy?: array<string, array{ // Default: []
+ *             label?: scalar|Param|null,
+ *             children?: list<scalar|Param|null>,
+ *         }>,
+ *     }>,
+ * }
  * @psalm-type ConfigType = array{
  *     imports?: ImportsConfig,
  *     parameters?: ParametersConfig,
@@ -1574,6 +1589,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     symfonycasts_tailwind?: SymfonycastsTailwindConfig,
  *     fundi_stadi_gdal?: FundiStadiGdalConfig,
  *     ux_icons?: UxIconsConfig,
+ *     uhakiki?: UhakikiConfig,
  *     "when@dev"?: array{
  *         imports?: ImportsConfig,
  *         parameters?: ParametersConfig,
@@ -1594,6 +1610,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         zenstruck_foundry?: ZenstruckFoundryConfig,
  *         fundi_stadi_gdal?: FundiStadiGdalConfig,
  *         ux_icons?: UxIconsConfig,
+ *         uhakiki?: UhakikiConfig,
  *     },
  *     "when@prod"?: array{
  *         imports?: ImportsConfig,
@@ -1611,6 +1628,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         symfonycasts_tailwind?: SymfonycastsTailwindConfig,
  *         fundi_stadi_gdal?: FundiStadiGdalConfig,
  *         ux_icons?: UxIconsConfig,
+ *         uhakiki?: UhakikiConfig,
  *     },
  *     "when@test"?: array{
  *         imports?: ImportsConfig,
@@ -1631,6 +1649,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         dama_doctrine_test?: DamaDoctrineTestConfig,
  *         fundi_stadi_gdal?: FundiStadiGdalConfig,
  *         ux_icons?: UxIconsConfig,
+ *         uhakiki?: UhakikiConfig,
  *     },
  *     ...<string, ExtensionType|array{ // extra keys must follow the when@%env% pattern or match an extension alias
  *         imports?: ImportsConfig,

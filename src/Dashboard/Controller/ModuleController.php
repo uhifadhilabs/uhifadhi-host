@@ -54,6 +54,10 @@ final class ModuleController extends AbstractController
         requirements: ['uuid' => Requirement::UUID, 'module' => '[a-z]+', 'tab' => self::VIEW_TABS],
         defaults: ['tab' => 'overview'],
         methods: ['GET'],
+        // This catch-all matches any module slug, so it must yield to a module
+        // that ships its own route (a bundle module's entry route): lowest
+        // priority = matched last, after every specific route.
+        priority: -100,
     )]
     #[IsGranted('module.view')]
     public function show(

@@ -19,4 +19,5 @@ return [
     FundiStadi\PostGISBundle\FundiStadiPostGISBundle::class => ['all' => true],
     FundiStadi\GDALBundle\FundiStadiGDALBundle::class => ['all' => true],
     Symfony\UX\Icons\UXIconsBundle::class => ['all' => true],
+    UhifadhiLabs\UhakikiBundle\UhifadhiLabsUhakikiBundle::class => ['all' => true],
 ];

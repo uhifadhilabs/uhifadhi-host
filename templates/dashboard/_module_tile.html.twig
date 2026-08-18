@@ -4,7 +4,12 @@
    stat + series; a template one shows only its summary and source (its metric line is omitted). #}
 {%- set chip = {'live': 'ok', 'template': 'warn'}[card.status]|default('idle') -%}
 {%- set chipLabel = {'live': 'live', 'template': 'template'}[card.status]|default('planned') -%}
-<a class="c mtile" href="{{ path('dashboard_area_module', {uuid: area.uuid, module: card.slug}) }}">
+{# A module that owns its pages (a bundle module) links to its own entry route; a
+   built-in module links to the generic module page keyed by slug. #}
+{%- set href = card.entryRoute is not null
+    ? path(card.entryRoute, {uuid: area.uuid})
+    : path('dashboard_area_module', {uuid: area.uuid, module: card.slug}) -%}
+<a class="c mtile" href="{{ href }}">
     <div class="mtile-head">
         <span class="mtile-title">{{ card.title }}</span>
         <span class="chip {{ chip }}">{{ chipLabel }}</span>
