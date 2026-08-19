@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Functional\Dashboard;
+namespace Uhifadhi\Tests\Functional\Dashboard;
 
-use App\Spatial\Repository\AreaOfInterestRepository;
-use App\Tests\Functional\AuthenticatedWebTestCase;
+use Uhifadhi\Spatial\Repository\AreaOfInterestRepository;
+use Uhifadhi\Tests\Functional\AuthenticatedWebTestCase;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**

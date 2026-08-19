@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Structure\Module;
+namespace Uhifadhi\Structure\Module;
 
-use App\Spatial\Module\MethodCaption;
-use App\Spatial\Module\ModuleDefinition;
-use App\Spatial\Module\VizSpec;
+use Uhifadhi\Spatial\Module\MethodCaption;
+use Uhifadhi\Spatial\Module\ModuleDefinition;
+use Uhifadhi\Spatial\Module\VizSpec;
 
 /**
  * The Forest-structure module's definition: the proxy-agreement scatter over the

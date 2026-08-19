@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Dashboard\Controller;
+namespace Uhifadhi\Dashboard\Controller;
 
-use App\Dashboard\Service\ModuleGridService;
-use App\Spatial\Entity\AreaOfInterest;
+use Uhifadhi\Dashboard\Service\ModuleGridService;
+use Uhifadhi\Spatial\Entity\AreaOfInterest;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;

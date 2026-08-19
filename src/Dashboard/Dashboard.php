@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Dashboard;
+namespace Uhifadhi\Dashboard;
 
 /**
  * Marker for the Dashboard bounded context — the UI composition layer.

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Dashboard\Service;
+namespace Uhifadhi\Dashboard\Service;
 
-use App\Ingestion\Entity\Dataset;
-use App\Ingestion\Entity\DatasetRun;
-use App\Spatial\Module\Kpi;
+use Uhifadhi\Ingestion\Entity\Dataset;
+use Uhifadhi\Ingestion\Entity\DatasetRun;
+use Uhifadhi\Spatial\Module\Kpi;
 
 /**
  * The GENERIC Overview KPI derivation — used when a module's definition supplies no KPIs of its own:

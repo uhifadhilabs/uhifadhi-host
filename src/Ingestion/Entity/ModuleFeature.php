@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Ingestion\Entity;
+namespace Uhifadhi\Ingestion\Entity;
 
-use App\Ingestion\Repository\ModuleFeatureRepository;
-use App\Spatial\Entity\AreaOfInterest;
+use Uhifadhi\Ingestion\Repository\ModuleFeatureRepository;
+use Uhifadhi\Spatial\Entity\AreaOfInterest;
 use Doctrine\ORM\Mapping as ORM;
 
 /**

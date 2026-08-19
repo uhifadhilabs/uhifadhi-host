@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace App\Forest\Module;
+namespace Uhifadhi\Forest\Module;
 
-use App\Forest\Service\ForestLossSummaryService;
-use App\Forest\Service\LossYearPaletteService;
-use App\Spatial\Entity\AreaOfInterest;
-use App\Spatial\Module\Kpi;
-use App\Spatial\Module\MethodCaption;
-use App\Spatial\Module\ModuleDefinition;
-use App\Spatial\Module\VizSpec;
+use Uhifadhi\Forest\Service\ForestLossSummaryService;
+use Uhifadhi\Forest\Service\LossYearPaletteService;
+use Uhifadhi\Spatial\Entity\AreaOfInterest;
+use Uhifadhi\Spatial\Module\Kpi;
+use Uhifadhi\Spatial\Module\MethodCaption;
+use Uhifadhi\Spatial\Module\ModuleDefinition;
+use Uhifadhi\Spatial\Module\VizSpec;
 
 /**
  * The Forest module's definition — its Overview KPIs (computed HERE, by Forest's own services, never

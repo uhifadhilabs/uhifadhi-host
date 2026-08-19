@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Integration\Dashboard;
+namespace Uhifadhi\Tests\Integration\Dashboard;
 
-use App\Composition\Enum\ModuleStatus;
-use App\Composition\Factory\AreaModuleFactory;
-use App\Composition\Factory\ModuleFactory;
-use App\Composition\Repository\AreaModuleRepository;
-use App\Dashboard\Service\AreaModuleService;
-use App\Spatial\Entity\AreaOfInterest;
-use App\Spatial\Factory\AreaOfInterestFactory;
+use Uhifadhi\Composition\Enum\ModuleStatus;
+use Uhifadhi\Composition\Factory\AreaModuleFactory;
+use Uhifadhi\Composition\Factory\ModuleFactory;
+use Uhifadhi\Composition\Repository\AreaModuleRepository;
+use Uhifadhi\Dashboard\Service\AreaModuleService;
+use Uhifadhi\Spatial\Entity\AreaOfInterest;
+use Uhifadhi\Spatial\Factory\AreaOfInterestFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Zenstruck\Foundry\Test\Factories;
 

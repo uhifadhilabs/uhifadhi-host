@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Access\Command;
+namespace Uhifadhi\Access\Command;
 
-use App\Access\Entity\User;
-use App\Access\Enum\TeamRoleEnum;
-use App\Access\Repository\UserRepository;
+use Uhifadhi\Access\Entity\User;
+use Uhifadhi\Access\Enum\TeamRoleEnum;
+use Uhifadhi\Access\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;

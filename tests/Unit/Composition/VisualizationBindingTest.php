@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Unit\Composition;
+namespace Uhifadhi\Tests\Unit\Composition;
 
-use App\Composition\Entity\Visualization;
+use Uhifadhi\Composition\Entity\Visualization;
 use PHPUnit\Framework\TestCase;
 
 /**

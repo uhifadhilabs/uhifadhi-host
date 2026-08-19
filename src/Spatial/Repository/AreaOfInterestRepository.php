@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Spatial\Repository;
+namespace Uhifadhi\Spatial\Repository;
 
-use App\Spatial\Entity\AreaOfInterest;
+use Uhifadhi\Spatial\Entity\AreaOfInterest;
 use Doctrine\Persistence\ManagerRegistry;
 use FundiStadi\PostGISBundle\Repository\SpatialEntityRepository;
 

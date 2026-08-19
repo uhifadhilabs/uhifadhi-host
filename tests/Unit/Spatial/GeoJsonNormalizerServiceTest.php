@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Unit\Spatial;
+namespace Uhifadhi\Tests\Unit\Spatial;
 
-use App\Spatial\Service\GeoJsonNormalizerService;
+use Uhifadhi\Spatial\Service\GeoJsonNormalizerService;
 use PHPUnit\Framework\TestCase;
 
 final class GeoJsonNormalizerServiceTest extends TestCase

@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Composition\Service;
+namespace Uhifadhi\Composition\Service;
 
-use App\Composition\Enum\ModuleCategory;
-use App\Composition\Enum\ModuleStatus;
+use Uhifadhi\Composition\Enum\ModuleCategory;
+use Uhifadhi\Composition\Enum\ModuleStatus;
 use UhifadhiLabs\ModuleContracts\ModuleProviderInterface;
 
 /**

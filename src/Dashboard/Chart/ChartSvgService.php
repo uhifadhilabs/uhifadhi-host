@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Dashboard\Chart;
+namespace Uhifadhi\Dashboard\Chart;
 
 /**
  * The module-agnostic plot engine: server-rendered SVG (bar / line / area) from plain (label, value)

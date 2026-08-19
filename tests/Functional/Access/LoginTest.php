@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Functional\Access;
+namespace Uhifadhi\Tests\Functional\Access;
 
-use App\Access\Entity\User;
-use App\Access\Factory\UserFactory;
+use Uhifadhi\Access\Entity\User;
+use Uhifadhi\Access\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;

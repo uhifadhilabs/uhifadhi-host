@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Spatial\Command;
+namespace Uhifadhi\Spatial\Command;
 
-use App\Spatial\Entity\AreaOfInterest;
-use App\Spatial\Service\GeoJsonNormalizerService;
+use Uhifadhi\Spatial\Entity\AreaOfInterest;
+use Uhifadhi\Spatial\Service\GeoJsonNormalizerService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;

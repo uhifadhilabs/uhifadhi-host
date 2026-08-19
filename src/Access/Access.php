@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Access;
+namespace Uhifadhi\Access;
 
 /**
  * Marker for the Access bounded context — authentication and position/permission

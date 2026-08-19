@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Spatial\Factory;
+namespace Uhifadhi\Spatial\Factory;
 
-use App\Spatial\Entity\AreaOfInterest;
+use Uhifadhi\Spatial\Entity\AreaOfInterest;
 use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
 /**

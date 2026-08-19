@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Unit\Access\Security;
+namespace Uhifadhi\Tests\Unit\Access\Security;
 
-use App\Access\Entity\Position;
-use App\Access\Entity\User;
-use App\Access\Enum\PermissionEnum;
-use App\Access\Enum\TeamRoleEnum;
-use App\Access\Security\PermissionVoter;
+use Uhifadhi\Access\Entity\Position;
+use Uhifadhi\Access\Entity\User;
+use Uhifadhi\Access\Enum\PermissionEnum;
+use Uhifadhi\Access\Enum\TeamRoleEnum;
+use Uhifadhi\Access\Security\PermissionVoter;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;

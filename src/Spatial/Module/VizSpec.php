@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Spatial\Module;
+namespace Uhifadhi\Spatial\Module;
 
 /**
  * A default visualization a module ships with: chart type (a VizType value — kept as string here so

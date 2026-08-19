@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Integration\Ingestion;
+namespace Uhifadhi\Tests\Integration\Ingestion;
 
-use App\Ingestion\Repository\ModuleFeatureRepository;
-use App\Ingestion\Service\SpatialFeatureIngestor;
-use App\Spatial\Factory\AreaOfInterestFactory;
+use Uhifadhi\Ingestion\Repository\ModuleFeatureRepository;
+use Uhifadhi\Ingestion\Service\SpatialFeatureIngestor;
+use Uhifadhi\Spatial\Factory\AreaOfInterestFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Zenstruck\Foundry\Test\Factories;
 

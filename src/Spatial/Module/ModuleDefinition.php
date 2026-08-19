@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace App\Spatial\Module;
+namespace Uhifadhi\Spatial\Module;
 
-use App\Spatial\Entity\AreaOfInterest;
+use Uhifadhi\Spatial\Entity\AreaOfInterest;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
 /**
  * The ONE app-side extension point of the module system. A module ships as a subclass in its own
- * bounded context (e.g. App\Forest\Module\ForestModule) overriding only what differs from the
+ * bounded context (e.g. Uhifadhi\Forest\Module\ForestModule) overriding only what differs from the
  * defaults — a data-only module can ship with no overrides at all (or no class: the registry falls
- * back to {@see \App\Dashboard\Module\GenericModule}). Every concrete subclass is auto-tagged
+ * back to {@see \Uhifadhi\Dashboard\Module\GenericModule}). Every concrete subclass is auto-tagged
  * `app.module` and collected by the registry; generic code NEVER names a module —
  * `if ($slug === 'forest')` is banned.
  */

@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Statistics\Service;
+namespace Uhifadhi\Statistics\Service;
 
-use App\Ingestion\Entity\Dataset;
-use App\Ingestion\Enum\DatasetKind;
-use App\Ingestion\Repository\DatasetRepository;
-use App\Spatial\Entity\AreaOfInterest;
-use App\Spatial\Module\ModuleDefinition;
-use App\Spatial\Repository\AreaOfInterestRepository;
+use Uhifadhi\Ingestion\Entity\Dataset;
+use Uhifadhi\Ingestion\Enum\DatasetKind;
+use Uhifadhi\Ingestion\Repository\DatasetRepository;
+use Uhifadhi\Spatial\Entity\AreaOfInterest;
+use Uhifadhi\Spatial\Module\ModuleDefinition;
+use Uhifadhi\Spatial\Repository\AreaOfInterestRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 

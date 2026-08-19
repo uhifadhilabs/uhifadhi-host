@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Access\Entity;
+namespace Uhifadhi\Access\Entity;
 
-use App\Access\Enum\TeamRoleEnum;
-use App\Access\Repository\UserRepository;
-use App\Foundation\Entity\Trait\TimestampableTrait;
-use App\Foundation\Entity\Trait\UuidTrait;
+use Uhifadhi\Access\Enum\TeamRoleEnum;
+use Uhifadhi\Access\Repository\UserRepository;
+use Uhifadhi\Foundation\Entity\Trait\TimestampableTrait;
+use Uhifadhi\Foundation\Entity\Trait\UuidTrait;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -127,7 +127,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * Stored roles + ROLE_USER, then the tier's roles and — for Staff — the capability role of
      * each permission in their position. Super Admin / Admin / Manager hold every permission by
      * tier (role_hierarchy + the voter's canManageContent()); Staff open only their position's
-     * umbrellas here, with the granular action checked by {@see \App\Access\Security\PermissionVoter}.
+     * umbrellas here, with the granular action checked by {@see \Uhifadhi\Access\Security\PermissionVoter}.
      *
      * @return list<string>
      */

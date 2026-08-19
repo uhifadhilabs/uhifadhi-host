@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Panther;
+namespace Uhifadhi\Tests\Panther;
 
 use Symfony\Component\Panther\PantherTestCase;
 use Symfony\Component\Process\Process;

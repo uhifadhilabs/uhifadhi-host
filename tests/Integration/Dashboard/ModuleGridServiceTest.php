@@ -2,21 +2,22 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Integration\Dashboard;
+namespace Uhifadhi\Tests\Integration\Dashboard;
 
-use App\Composition\Enum\ModuleCategory;
-use App\Composition\Enum\ModuleStatus;
-use App\Composition\Factory\AreaModuleFactory;
-use App\Composition\Factory\ModuleFactory;
-use App\Composition\Service\AreaCompositionService;
-use App\Dashboard\Module\ModuleRegistry;
-use App\Dashboard\Service\AreaModuleService;
-use App\Dashboard\Service\ModuleGridService;
-use App\Ingestion\Enum\DatasetKind;
-use App\Ingestion\Factory\DatasetFactory;
-use App\Ingestion\Repository\DatasetRepository;
-use App\Spatial\Entity\AreaOfInterest;
-use App\Spatial\Factory\AreaOfInterestFactory;
+use Uhifadhi\Composition\Enum\ModuleCategory;
+use Uhifadhi\Composition\Enum\ModuleStatus;
+use Uhifadhi\Composition\Factory\AreaModuleFactory;
+use Uhifadhi\Composition\Factory\ModuleFactory;
+use Uhifadhi\Composition\Service\AreaCompositionService;
+use Uhifadhi\Dashboard\Module\ModuleRegistry;
+use Uhifadhi\Dashboard\Service\AreaModuleService;
+use Uhifadhi\Dashboard\Service\ModuleEntryRouteResolver;
+use Uhifadhi\Dashboard\Service\ModuleGridService;
+use Uhifadhi\Ingestion\Enum\DatasetKind;
+use Uhifadhi\Ingestion\Factory\DatasetFactory;
+use Uhifadhi\Ingestion\Repository\DatasetRepository;
+use Uhifadhi\Spatial\Entity\AreaOfInterest;
+use Uhifadhi\Spatial\Factory\AreaOfInterestFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Zenstruck\Foundry\Test\Factories;
 
@@ -36,12 +37,14 @@ final class ModuleGridServiceTest extends KernelTestCase
         $areaModules = $c->get(AreaModuleService::class);
         $registry = $c->get(ModuleRegistry::class);
         $datasets = $c->get(DatasetRepository::class);
+        $entryRoutes = $c->get(ModuleEntryRouteResolver::class);
         \assert($composition instanceof AreaCompositionService);
         \assert($areaModules instanceof AreaModuleService);
         \assert($registry instanceof ModuleRegistry);
         \assert($datasets instanceof DatasetRepository);
+        \assert($entryRoutes instanceof ModuleEntryRouteResolver);
 
-        return new ModuleGridService($composition, $areaModules, $registry, $datasets);
+        return new ModuleGridService($composition, $areaModules, $registry, $datasets, $entryRoutes);
     }
 
     public function testGroupsActiveModulesByZoneAndDropsThePinnedHub(): void
@@ -78,7 +81,7 @@ final class ModuleGridServiceTest extends KernelTestCase
         $forest = $cards[array_search('forest', array_column($cards, 'slug'), true)];
         $landcover = $cards[array_search('landcover', array_column($cards, 'slug'), true)];
 
-        // ForestModule's first KPI (computed in App\Forest) becomes the card stat.
+        // ForestModule's first KPI (computed in Uhifadhi\Forest) becomes the card stat.
         self::assertSame('306 ha', $forest['stat']);
         self::assertSame('2013–2014 · real', $forest['statSub']);
         // The spark is column 1 (the value column) of its first tabular dataset.

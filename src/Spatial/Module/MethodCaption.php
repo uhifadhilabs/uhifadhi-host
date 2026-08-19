@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Spatial\Module;
+namespace Uhifadhi\Spatial\Module;
 
 /**
  * The Method-tab caption that travels with a module from the analysis prototype: what it measures &

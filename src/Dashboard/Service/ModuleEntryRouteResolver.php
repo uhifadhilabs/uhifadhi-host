@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Dashboard\Service;
+namespace Uhifadhi\Dashboard\Service;
 
 use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 use UhifadhiLabs\ModuleContracts\ModuleProviderInterface;

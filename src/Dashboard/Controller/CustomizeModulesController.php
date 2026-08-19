@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Dashboard\Controller;
+namespace Uhifadhi\Dashboard\Controller;
 
-use App\Composition\Repository\AreaModuleRepository;
-use App\Composition\Repository\ModuleRepository;
-use App\Composition\Service\AreaCompositionService;
-use App\Spatial\Entity\AreaOfInterest;
+use Uhifadhi\Composition\Repository\AreaModuleRepository;
+use Uhifadhi\Composition\Repository\ModuleRepository;
+use Uhifadhi\Composition\Service\AreaCompositionService;
+use Uhifadhi\Spatial\Entity\AreaOfInterest;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;

@@ -25,31 +25,31 @@ doctrine:
                 type: attribute
                 is_bundle: false
                 dir: '%kernel.project_dir%/src/Access/Entity'
-                prefix: 'App\Access\Entity'
+                prefix: 'Uhifadhi\Access\Entity'
                 alias: Access
             Spatial:
                 type: attribute
                 is_bundle: false
                 dir: '%kernel.project_dir%/src/Spatial/Entity'
-                prefix: 'App\Spatial\Entity'
+                prefix: 'Uhifadhi\Spatial\Entity'
                 alias: Spatial
             Forest:
                 type: attribute
                 is_bundle: false
                 dir: '%kernel.project_dir%/src/Forest/Entity'
-                prefix: 'App\Forest\Entity'
+                prefix: 'Uhifadhi\Forest\Entity'
                 alias: Forest
             Ingestion:
                 type: attribute
                 is_bundle: false
                 dir: '%kernel.project_dir%/src/Ingestion/Entity'
-                prefix: 'App\Ingestion\Entity'
+                prefix: 'Uhifadhi\Ingestion\Entity'
                 alias: Ingestion
             Composition:
                 type: attribute
                 is_bundle: false
                 dir: '%kernel.project_dir%/src/Composition/Entity'
-                prefix: 'App\Composition\Entity'
+                prefix: 'Uhifadhi\Composition\Entity'
                 alias: Composition
 
 when@test:

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Ingestion\Message;
+namespace Uhifadhi\Ingestion\Message;
 
 /**
  * Run a module's data ingestion for one area: hand the area's geometry (and any tuning params) to the

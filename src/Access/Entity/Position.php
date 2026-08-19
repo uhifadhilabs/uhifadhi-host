@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Access\Entity;
+namespace Uhifadhi\Access\Entity;
 
-use App\Access\Enum\PermissionEnum;
-use App\Access\Repository\PositionRepository;
-use App\Foundation\Entity\Trait\TimestampableTrait;
-use App\Foundation\Entity\Trait\UuidTrait;
+use Uhifadhi\Access\Enum\PermissionEnum;
+use Uhifadhi\Access\Repository\PositionRepository;
+use Uhifadhi\Foundation\Entity\Trait\TimestampableTrait;
+use Uhifadhi\Foundation\Entity\Trait\UuidTrait;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 

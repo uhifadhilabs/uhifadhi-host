@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Dashboard\Service;
+namespace Uhifadhi\Dashboard\Service;
 
 /**
  * Pure, view-model computations for the areas register — the metrics the design's

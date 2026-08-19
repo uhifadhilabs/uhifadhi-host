@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Functional\Dashboard;
+namespace Uhifadhi\Tests\Functional\Dashboard;
 
-use App\Ingestion\Enum\DatasetKind;
-use App\Ingestion\Factory\DatasetFactory;
-use App\Spatial\Factory\AreaOfInterestFactory;
-use App\Tests\Functional\AuthenticatedWebTestCase;
+use Uhifadhi\Ingestion\Enum\DatasetKind;
+use Uhifadhi\Ingestion\Factory\DatasetFactory;
+use Uhifadhi\Spatial\Factory\AreaOfInterestFactory;
+use Uhifadhi\Tests\Functional\AuthenticatedWebTestCase;
 
 /**
  * The home page: every area with its size, loss metrics and last-run status.

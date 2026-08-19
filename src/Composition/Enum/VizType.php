@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Composition\Enum;
+namespace Uhifadhi\Composition\Enum;
 
 /**
- * The chart form a {@see \App\Composition\Entity\Visualization} takes. The display set (the chip on
+ * The chart form a {@see \Uhifadhi\Composition\Entity\Visualization} takes. The display set (the chip on
  * each viz card) plus the shapes the configure/add builders offer. Rendered server-side as SVG in
  * the existing Twig-chart idiom — no chart library.
  */

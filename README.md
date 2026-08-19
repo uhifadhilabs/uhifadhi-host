@@ -28,7 +28,7 @@ The database runs in fundi's PostGIS cluster for the pinned major (see
 ## Auth & demo accounts
 
 The app is behind a login. Authentication and position/permission authorization live in
-the **`App\Access`** bounded context: a `TeamRoleEnum` tier (Super Admin / Admin / Manager
+the **`Uhifadhi\Access`** bounded context: a `TeamRoleEnum` tier (Super Admin / Admin / Manager
 / Staff) plus, for Staff, an assigned **Position** that bundles granular permissions
 (checked by `PermissionVoter`). Managing tiers hold every permission by tier; team
 administration (`/team`) is Manager-and-up.

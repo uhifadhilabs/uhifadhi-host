@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Dashboard\Service;
+namespace Uhifadhi\Dashboard\Service;
 
-use App\Composition\Entity\Module;
-use App\Composition\Enum\ModuleCategory;
-use App\Composition\Service\AreaCompositionService;
-use App\Dashboard\Module\ModuleRegistry;
-use App\Ingestion\Repository\DatasetRepository;
-use App\Spatial\Entity\AreaOfInterest;
+use Uhifadhi\Composition\Entity\Module;
+use Uhifadhi\Composition\Enum\ModuleCategory;
+use Uhifadhi\Composition\Service\AreaCompositionService;
+use Uhifadhi\Dashboard\Module\ModuleRegistry;
+use Uhifadhi\Ingestion\Repository\DatasetRepository;
+use Uhifadhi\Spatial\Entity\AreaOfInterest;
 
 /**
  * Builds the area's Modules-tab card grid: one content-ful card per active module, grouped by the

@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Integration\Dashboard;
+namespace Uhifadhi\Tests\Integration\Dashboard;
 
-use App\Composition\Enum\VizType;
-use App\Composition\Factory\AreaModuleFactory;
-use App\Composition\Factory\ModuleFactory;
-use App\Composition\Factory\VisualizationFactory;
-use App\Dashboard\Chart\ChartSvgService;
-use App\Dashboard\Module\DatasetChartRenderer;
-use App\Ingestion\Enum\DatasetKind;
-use App\Ingestion\Factory\DatasetFactory;
-use App\Ingestion\Repository\DatasetRepository;
-use App\Spatial\Factory\AreaOfInterestFactory;
+use Uhifadhi\Composition\Enum\VizType;
+use Uhifadhi\Composition\Factory\AreaModuleFactory;
+use Uhifadhi\Composition\Factory\ModuleFactory;
+use Uhifadhi\Composition\Factory\VisualizationFactory;
+use Uhifadhi\Dashboard\Chart\ChartSvgService;
+use Uhifadhi\Dashboard\Module\DatasetChartRenderer;
+use Uhifadhi\Ingestion\Enum\DatasetKind;
+use Uhifadhi\Ingestion\Factory\DatasetFactory;
+use Uhifadhi\Ingestion\Repository\DatasetRepository;
+use Uhifadhi\Spatial\Factory\AreaOfInterestFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Zenstruck\Foundry\Test\Factories;
 

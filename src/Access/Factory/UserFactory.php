@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Access\Factory;
+namespace Uhifadhi\Access\Factory;
 
-use App\Access\Entity\User;
-use App\Access\Enum\TeamRoleEnum;
+use Uhifadhi\Access\Entity\User;
+use Uhifadhi\Access\Enum\TeamRoleEnum;
 use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
 /**

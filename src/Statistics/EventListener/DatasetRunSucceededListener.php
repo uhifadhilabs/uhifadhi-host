@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Statistics\EventListener;
+namespace Uhifadhi\Statistics\EventListener;
 
-use App\Ingestion\Entity\DatasetRun;
-use App\Statistics\Message\RefreshSynthesis;
+use Uhifadhi\Ingestion\Entity\DatasetRun;
+use Uhifadhi\Statistics\Message\RefreshSynthesis;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsEntityListener;
 use Doctrine\ORM\Events;
 use Symfony\Component\Messenger\MessageBusInterface;

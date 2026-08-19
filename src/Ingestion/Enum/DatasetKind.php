@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Ingestion\Enum;
+namespace Uhifadhi\Ingestion\Enum;
 
 /**
- * What shape a {@see \App\Ingestion\Entity\Dataset} holds. Tabular kinds carry their payload inline
+ * What shape a {@see \Uhifadhi\Ingestion\Entity\Dataset} holds. Tabular kinds carry their payload inline
  * (columns + rows) and feed the server-side SVG charts; spatial kinds are file-backed (a path on the
  * shared engine volume) and feed the Leaflet map layers.
  */

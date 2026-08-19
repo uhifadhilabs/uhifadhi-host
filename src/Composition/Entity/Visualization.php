@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Composition\Entity;
+namespace Uhifadhi\Composition\Entity;
 
-use App\Composition\Enum\VizType;
-use App\Composition\Repository\VisualizationRepository;
-use App\Foundation\Entity\Trait\TimestampableTrait;
-use App\Foundation\Entity\Trait\UuidTrait;
+use Uhifadhi\Composition\Enum\VizType;
+use Uhifadhi\Composition\Repository\VisualizationRepository;
+use Uhifadhi\Foundation\Entity\Trait\TimestampableTrait;
+use Uhifadhi\Foundation\Entity\Trait\UuidTrait;
 use Doctrine\ORM\Mapping as ORM;
 
 /**

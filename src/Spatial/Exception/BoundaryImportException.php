@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Spatial\Exception;
+namespace Uhifadhi\Spatial\Exception;
 
 /**
  * A boundary upload could not be turned into an area — the message is written

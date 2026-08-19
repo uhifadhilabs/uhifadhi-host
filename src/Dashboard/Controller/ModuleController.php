@@ -2,26 +2,26 @@
 
 declare(strict_types=1);
 
-namespace App\Dashboard\Controller;
+namespace Uhifadhi\Dashboard\Controller;
 
-use App\Composition\Entity\AreaModule;
-use App\Composition\Enum\VizType;
-use App\Composition\Repository\VisualizationRepository;
-use App\Composition\Service\AreaCompositionService;
-use App\Dashboard\Module\DatasetChartRenderer;
-use App\Dashboard\Module\ModuleRegistry;
-use App\Dashboard\Service\AreaModuleService;
-use App\Dashboard\Service\DatasetPresenter;
-use App\Dashboard\Service\ModuleOverviewService;
-use App\Dashboard\Service\ModuleVizDefaults;
-use App\Ingestion\Entity\Dataset;
-use App\Ingestion\Entity\DatasetRun;
-use App\Ingestion\Enum\DatasetKind;
-use App\Ingestion\Message\RunModuleIngestion;
-use App\Ingestion\Repository\DatasetRepository;
-use App\Ingestion\Repository\DatasetRunRepository;
-use App\Ingestion\Repository\ModuleFeatureRepository;
-use App\Spatial\Entity\AreaOfInterest;
+use Uhifadhi\Composition\Entity\AreaModule;
+use Uhifadhi\Composition\Enum\VizType;
+use Uhifadhi\Composition\Repository\VisualizationRepository;
+use Uhifadhi\Composition\Service\AreaCompositionService;
+use Uhifadhi\Dashboard\Module\DatasetChartRenderer;
+use Uhifadhi\Dashboard\Module\ModuleRegistry;
+use Uhifadhi\Dashboard\Service\AreaModuleService;
+use Uhifadhi\Dashboard\Service\DatasetPresenter;
+use Uhifadhi\Dashboard\Service\ModuleOverviewService;
+use Uhifadhi\Dashboard\Service\ModuleVizDefaults;
+use Uhifadhi\Ingestion\Entity\Dataset;
+use Uhifadhi\Ingestion\Entity\DatasetRun;
+use Uhifadhi\Ingestion\Enum\DatasetKind;
+use Uhifadhi\Ingestion\Message\RunModuleIngestion;
+use Uhifadhi\Ingestion\Repository\DatasetRepository;
+use Uhifadhi\Ingestion\Repository\DatasetRunRepository;
+use Uhifadhi\Ingestion\Repository\ModuleFeatureRepository;
+use Uhifadhi\Spatial\Entity\AreaOfInterest;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -35,7 +35,7 @@ use Symfony\Component\Uid\Uuid;
 /**
  * A per-area analytical module page (a self-contained sub-app): its own within-module tabs
  * (Overview / Dataframe / Explore / Method / Settings), an "All modules" way back to the area, and
- * per-tab bodies. Everything renders GENERICALLY, driven by the module's {@see \App\Spatial\Module\ModuleDefinition}
+ * per-tab bodies. Everything renders GENERICALLY, driven by the module's {@see \Uhifadhi\Spatial\Module\ModuleDefinition}
  * (KPIs, default charts, method caption, palette — resolved by slug through {@see ModuleRegistry})
  * plus the module's stored datasets. No module is ever named here: adding a module means adding a
  * tagged definition + an engine module + a catalogue row — never editing this controller.
@@ -268,7 +268,7 @@ final class ModuleController extends AbstractController
      * coloured by the definition's palette, with a value attached only when the module's first table
      * is genuinely class-shaped (its first column contains that label).
      *
-     * @param list<\App\Ingestion\Entity\ModuleFeature> $layerFeatures
+     * @param list<\Uhifadhi\Ingestion\Entity\ModuleFeature> $layerFeatures
      * @param array<string, string>                     $palette
      *
      * @return list<array{label: string, color: string, value: string|null}>

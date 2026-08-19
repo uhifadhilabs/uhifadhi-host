@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Functional\Dashboard;
+namespace Uhifadhi\Tests\Functional\Dashboard;
 
-use App\Ingestion\Enum\DatasetKind;
-use App\Ingestion\Factory\DatasetFactory;
-use App\Ingestion\Message\RunModuleIngestion;
-use App\Spatial\Factory\AreaOfInterestFactory;
-use App\Tests\Functional\AuthenticatedWebTestCase;
+use Uhifadhi\Ingestion\Enum\DatasetKind;
+use Uhifadhi\Ingestion\Factory\DatasetFactory;
+use Uhifadhi\Ingestion\Message\RunModuleIngestion;
+use Uhifadhi\Spatial\Factory\AreaOfInterestFactory;
+use Uhifadhi\Tests\Functional\AuthenticatedWebTestCase;
 use Symfony\Component\Messenger\Transport\InMemory\InMemoryTransport;
 
 /**

@@ -395,7 +395,7 @@
             "repo": "github.com/uhifadhilabs/recipes",
             "branch": "main",
             "version": "0.1",
-            "ref": "0d82606fe3dbabc335841c16a66d461458afe228"
+            "ref": "8c905ecf88e7d8075c72392c85ecf28bc7d69427"
         },
         "files": [
             "config/packages/uhakiki.yaml",

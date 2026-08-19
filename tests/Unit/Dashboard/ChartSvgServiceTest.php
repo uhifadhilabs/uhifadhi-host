@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Unit\Dashboard;
+namespace Uhifadhi\Tests\Unit\Dashboard;
 
-use App\Dashboard\Chart\ChartSvgService;
+use Uhifadhi\Dashboard\Chart\ChartSvgService;
 use PHPUnit\Framework\TestCase;
 
 /**

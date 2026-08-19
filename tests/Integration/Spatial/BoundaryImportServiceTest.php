@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Integration\Spatial;
+namespace Uhifadhi\Tests\Integration\Spatial;
 
-use App\Spatial\Exception\BoundaryImportException;
-use App\Spatial\Service\BoundaryImportService;
-use App\Spatial\Service\GeoJsonNormalizerService;
+use Uhifadhi\Spatial\Exception\BoundaryImportException;
+use Uhifadhi\Spatial\Service\BoundaryImportService;
+use Uhifadhi\Spatial\Service\GeoJsonNormalizerService;
 use Doctrine\ORM\EntityManagerInterface;
 use FundiStadi\GDALBundle\Process\GdalBinaryLocator;
 use FundiStadi\GDALBundle\Process\GdalRunner;

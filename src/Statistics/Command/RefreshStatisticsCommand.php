@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Statistics\Command;
+namespace Uhifadhi\Statistics\Command;
 
-use App\Spatial\Repository\AreaOfInterestRepository;
-use App\Statistics\Service\SynthesisService;
+use Uhifadhi\Spatial\Repository\AreaOfInterestRepository;
+use Uhifadhi\Statistics\Service\SynthesisService;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;

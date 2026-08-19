@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace App\Dashboard\Controller;
+namespace Uhifadhi\Dashboard\Controller;
 
-use App\Dashboard\Form\AreaUploadType;
-use App\Dashboard\Service\AreaCardService;
-use App\Forest\Service\ForestLossSummaryService;
-use App\Ingestion\Message\RunModuleIngestion;
-use App\Ingestion\Repository\DatasetRepository;
-use App\Ingestion\Repository\DatasetRunRepository;
-use App\Spatial\Entity\AreaOfInterest;
-use App\Spatial\Exception\BoundaryImportException;
-use App\Spatial\Repository\AreaOfInterestRepository;
-use App\Spatial\Service\BoundaryImportService;
+use Uhifadhi\Dashboard\Form\AreaUploadType;
+use Uhifadhi\Dashboard\Service\AreaCardService;
+use Uhifadhi\Forest\Service\ForestLossSummaryService;
+use Uhifadhi\Ingestion\Message\RunModuleIngestion;
+use Uhifadhi\Ingestion\Repository\DatasetRepository;
+use Uhifadhi\Ingestion\Repository\DatasetRunRepository;
+use Uhifadhi\Spatial\Entity\AreaOfInterest;
+use Uhifadhi\Spatial\Exception\BoundaryImportException;
+use Uhifadhi\Spatial\Repository\AreaOfInterestRepository;
+use Uhifadhi\Spatial\Service\BoundaryImportService;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;

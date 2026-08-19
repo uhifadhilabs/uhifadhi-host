@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Roads\Module;
+namespace Uhifadhi\Roads\Module;
 
-use App\Spatial\Module\MethodCaption;
-use App\Spatial\Module\ModuleDefinition;
-use App\Spatial\Module\VizSpec;
+use Uhifadhi\Spatial\Module\MethodCaption;
+use Uhifadhi\Spatial\Module\ModuleDefinition;
+use Uhifadhi\Spatial\Module\VizSpec;
 
 /**
  * The Roads module's definition: default charts over the `roads_by_class` dataframe, the OSM

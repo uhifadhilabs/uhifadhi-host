@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Spatial\Service;
+namespace Uhifadhi\Spatial\Service;
 
 /**
  * Normalises any polygonal GeoJSON document — Geometry, Feature or

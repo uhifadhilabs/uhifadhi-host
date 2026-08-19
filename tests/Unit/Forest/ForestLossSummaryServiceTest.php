@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Unit\Forest;
+namespace Uhifadhi\Tests\Unit\Forest;
 
-use App\Forest\Service\LossYearPaletteService;
+use Uhifadhi\Forest\Service\LossYearPaletteService;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -51,7 +51,7 @@ final class ForestLossSummaryServiceTest extends TestCase
     {
         // summarize() is pure — only forArea() touches the dataset store, so the service can be
         // built with a stubbed repository-free path by calling the pure method directly.
-        $service = new \ReflectionClass(\App\Forest\Service\ForestLossSummaryService::class);
+        $service = new \ReflectionClass(\Uhifadhi\Forest\Service\ForestLossSummaryService::class);
         $instance = $service->newInstanceWithoutConstructor();
         $palette = $service->getProperty('palette');
         $palette->setValue($instance, new LossYearPaletteService());

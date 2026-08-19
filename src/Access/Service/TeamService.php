@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Access\Service;
+namespace Uhifadhi\Access\Service;
 
-use App\Access\Entity\Position;
-use App\Access\Entity\User;
-use App\Access\Enum\PermissionEnum;
-use App\Access\Repository\PositionRepository;
-use App\Access\Repository\UserRepository;
+use Uhifadhi\Access\Entity\Position;
+use Uhifadhi\Access\Entity\User;
+use Uhifadhi\Access\Enum\PermissionEnum;
+use Uhifadhi\Access\Repository\PositionRepository;
+use Uhifadhi\Access\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
@@ -36,10 +36,10 @@ final readonly class TeamService
 
         // Tier is an enum, so sort in PHP against a fixed rank rather than in DQL.
         $rank = [
-            \App\Access\Enum\TeamRoleEnum::SuperAdmin->value => 0,
-            \App\Access\Enum\TeamRoleEnum::Admin->value => 1,
-            \App\Access\Enum\TeamRoleEnum::Manager->value => 2,
-            \App\Access\Enum\TeamRoleEnum::Staff->value => 3,
+            \Uhifadhi\Access\Enum\TeamRoleEnum::SuperAdmin->value => 0,
+            \Uhifadhi\Access\Enum\TeamRoleEnum::Admin->value => 1,
+            \Uhifadhi\Access\Enum\TeamRoleEnum::Manager->value => 2,
+            \Uhifadhi\Access\Enum\TeamRoleEnum::Staff->value => 3,
         ];
         usort($members, static fn (User $a, User $b): int => $rank[$a->getTeamRole()->value] <=> $rank[$b->getTeamRole()->value]);
 

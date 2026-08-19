@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Dashboard\Module;
+namespace Uhifadhi\Dashboard\Module;
 
-use App\Spatial\Module\ModuleDefinition;
+use Uhifadhi\Spatial\Module\ModuleDefinition;
 use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 
 /**

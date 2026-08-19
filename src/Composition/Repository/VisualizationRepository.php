@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Composition\Repository;
+namespace Uhifadhi\Composition\Repository;
 
-use App\Composition\Entity\Visualization;
+use Uhifadhi\Composition\Entity\Visualization;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 

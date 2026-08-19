@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Functional\Dashboard;
+namespace Uhifadhi\Tests\Functional\Dashboard;
 
-use App\Composition\Entity\AreaModule;
-use App\Composition\Entity\Visualization;
-use App\Composition\Factory\AreaModuleFactory;
-use App\Composition\Factory\ModuleFactory;
-use App\Composition\Factory\VisualizationFactory;
-use App\Ingestion\Enum\DatasetKind;
-use App\Ingestion\Factory\DatasetFactory;
-use App\Spatial\Factory\AreaOfInterestFactory;
-use App\Tests\Functional\AuthenticatedWebTestCase;
+use Uhifadhi\Composition\Entity\AreaModule;
+use Uhifadhi\Composition\Entity\Visualization;
+use Uhifadhi\Composition\Factory\AreaModuleFactory;
+use Uhifadhi\Composition\Factory\ModuleFactory;
+use Uhifadhi\Composition\Factory\VisualizationFactory;
+use Uhifadhi\Ingestion\Enum\DatasetKind;
+use Uhifadhi\Ingestion\Factory\DatasetFactory;
+use Uhifadhi\Spatial\Factory\AreaOfInterestFactory;
+use Uhifadhi\Tests\Functional\AuthenticatedWebTestCase;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**

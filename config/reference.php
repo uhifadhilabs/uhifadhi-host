@@ -1560,6 +1560,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  * }
  * @psalm-type UhakikiConfig = array{
  *     module_category?: scalar|Param|null, // Catalogue category the Uhakiki module is filed under in each area (subject-neutral, so configured per deployment). // Default: "pressure"
+ *     dev_tools?: bool|Param, // Register dev-only tooling (uhakiki:seed:*). Off by default; the recipe enables it via when@dev/when@test — never in prod. // Default: false
  *     campaigns?: array<string, array{ // Default: []
  *         subject?: scalar|Param|null, // Subject noun shown to reviewers ("Water point").
  *         area_ref?: scalar|Param|null, // The host area this campaign belongs to (its uuid). Null = unscoped. // Default: null

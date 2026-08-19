@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Spatial\Service;
+namespace Uhifadhi\Spatial\Service;
 
-use App\Spatial\Entity\AreaOfInterest;
-use App\Spatial\Exception\BoundaryImportException;
+use Uhifadhi\Spatial\Entity\AreaOfInterest;
+use Uhifadhi\Spatial\Exception\BoundaryImportException;
 use Doctrine\ORM\EntityManagerInterface;
 use FundiStadi\GDALBundle\Process\GdalRunner;
 

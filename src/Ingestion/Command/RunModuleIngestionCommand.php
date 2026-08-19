@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Ingestion\Command;
+namespace Uhifadhi\Ingestion\Command;
 
-use App\Ingestion\Entity\DatasetRun;
-use App\Ingestion\Message\RunModuleIngestion;
-use App\Ingestion\Repository\DatasetRepository;
-use App\Ingestion\Repository\DatasetRunRepository;
-use App\Spatial\Entity\AreaOfInterest;
-use App\Spatial\Repository\AreaOfInterestRepository;
+use Uhifadhi\Ingestion\Entity\DatasetRun;
+use Uhifadhi\Ingestion\Message\RunModuleIngestion;
+use Uhifadhi\Ingestion\Repository\DatasetRepository;
+use Uhifadhi\Ingestion\Repository\DatasetRunRepository;
+use Uhifadhi\Spatial\Entity\AreaOfInterest;
+use Uhifadhi\Spatial\Repository\AreaOfInterestRepository;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;

@@ -16,7 +16,7 @@ services:
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
-    App\:
+    Uhifadhi\:
         resource: '../src/'
         exclude:
             # Constructed by ModuleRegistry with a runtime slug — not a container service.

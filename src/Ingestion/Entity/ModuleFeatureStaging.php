@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Ingestion\Entity;
+namespace Uhifadhi\Ingestion\Entity;
 
-use App\Ingestion\Repository\ModuleFeatureStagingRepository;
+use Uhifadhi\Ingestion\Repository\ModuleFeatureStagingRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**

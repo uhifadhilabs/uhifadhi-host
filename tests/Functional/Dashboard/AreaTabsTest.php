@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Functional\Dashboard;
+namespace Uhifadhi\Tests\Functional\Dashboard;
 
-use App\Composition\Enum\ModuleCategory;
-use App\Composition\Enum\ModuleStatus;
-use App\Composition\Factory\AreaModuleFactory;
-use App\Composition\Factory\ModuleFactory;
-use App\Ingestion\Enum\DatasetKind;
-use App\Ingestion\Factory\DatasetFactory;
-use App\Spatial\Entity\AreaOfInterest;
-use App\Spatial\Factory\AreaOfInterestFactory;
-use App\Tests\Functional\AuthenticatedWebTestCase;
+use Uhifadhi\Composition\Enum\ModuleCategory;
+use Uhifadhi\Composition\Enum\ModuleStatus;
+use Uhifadhi\Composition\Factory\AreaModuleFactory;
+use Uhifadhi\Composition\Factory\ModuleFactory;
+use Uhifadhi\Ingestion\Enum\DatasetKind;
+use Uhifadhi\Ingestion\Factory\DatasetFactory;
+use Uhifadhi\Spatial\Entity\AreaOfInterest;
+use Uhifadhi\Spatial\Factory\AreaOfInterestFactory;
+use Uhifadhi\Tests\Functional\AuthenticatedWebTestCase;
 
 /**
  * The area's top-level tabs (Overview / Modules / Settings) and the Modules-tab card grid: the

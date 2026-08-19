@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Ingestion\Repository;
+namespace Uhifadhi\Ingestion\Repository;
 
-use App\Ingestion\Entity\DatasetRun;
+use Uhifadhi\Ingestion\Entity\DatasetRun;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 

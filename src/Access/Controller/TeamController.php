@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Access\Controller;
+namespace Uhifadhi\Access\Controller;
 
-use App\Access\Entity\Position;
-use App\Access\Entity\User;
-use App\Access\Enum\PermissionEnum;
-use App\Access\Form\PositionType;
-use App\Access\Repository\PositionRepository;
-use App\Access\Service\TeamService;
+use Uhifadhi\Access\Entity\Position;
+use Uhifadhi\Access\Entity\User;
+use Uhifadhi\Access\Enum\PermissionEnum;
+use Uhifadhi\Access\Form\PositionType;
+use Uhifadhi\Access\Repository\PositionRepository;
+use Uhifadhi\Access\Service\TeamService;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormInterface;

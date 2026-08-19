@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Unit\Composition;
+namespace Uhifadhi\Tests\Unit\Composition;
 
-use App\Composition\Enum\ModuleCategory;
-use App\Composition\Enum\ModuleStatus;
-use App\Composition\Service\ProviderCatalogueMapper;
+use Uhifadhi\Composition\Enum\ModuleCategory;
+use Uhifadhi\Composition\Enum\ModuleStatus;
+use Uhifadhi\Composition\Service\ProviderCatalogueMapper;
 use PHPUnit\Framework\TestCase;
 use UhifadhiLabs\ModuleContracts\ModuleProviderInterface;
 use UhifadhiLabs\ModuleContracts\ModuleProviderTrait;

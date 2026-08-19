@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Access\Enum;
+namespace Uhifadhi\Access\Enum;
 
 /**
- * The fixed catalogue of granular permissions a {@see \App\Access\Entity\Position} can grant.
+ * The fixed catalogue of granular permissions a {@see \Uhifadhi\Access\Entity\Position} can grant.
  * Each belongs to an umbrella (Areas, Ingestion, …) with a specific action (View, Create, …)
  * and implies a coarse umbrella *capability role* used by security.yaml's access_control — so a
  * position holding any permission in an umbrella opens that whole area, while the granular
- * permission itself is checked by {@see \App\Access\Security\PermissionVoter}.
+ * permission itself is checked by {@see \Uhifadhi\Access\Security\PermissionVoter}.
  *
  * Single-org: no party axis (uhifadhi is one authority, unlike vivutio's operator/supplier split).
  */

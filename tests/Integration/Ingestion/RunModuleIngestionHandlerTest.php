@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Integration\Ingestion;
+namespace Uhifadhi\Tests\Integration\Ingestion;
 
-use App\Ingestion\Entity\DatasetRun;
-use App\Ingestion\Enum\DatasetKind;
-use App\Ingestion\Message\RunModuleIngestion;
-use App\Ingestion\MessageHandler\RunModuleIngestionHandler;
-use App\Ingestion\Repository\DatasetRepository;
-use App\Ingestion\Repository\DatasetRunRepository;
-use App\Ingestion\Service\SpatialFeatureIngestor;
-use App\Spatial\Factory\AreaOfInterestFactory;
-use App\Spatial\Repository\AreaOfInterestRepository;
+use Uhifadhi\Ingestion\Entity\DatasetRun;
+use Uhifadhi\Ingestion\Enum\DatasetKind;
+use Uhifadhi\Ingestion\Message\RunModuleIngestion;
+use Uhifadhi\Ingestion\MessageHandler\RunModuleIngestionHandler;
+use Uhifadhi\Ingestion\Repository\DatasetRepository;
+use Uhifadhi\Ingestion\Repository\DatasetRunRepository;
+use Uhifadhi\Ingestion\Service\SpatialFeatureIngestor;
+use Uhifadhi\Spatial\Factory\AreaOfInterestFactory;
+use Uhifadhi\Spatial\Repository\AreaOfInterestRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\HttpClient\MockHttpClient;

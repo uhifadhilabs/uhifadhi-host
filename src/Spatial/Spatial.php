@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Spatial;
+namespace Uhifadhi\Spatial;
 
 /**
  * Marker for the Spatial bounded context — the shared spatial kernel.

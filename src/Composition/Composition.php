@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Composition;
+namespace Uhifadhi\Composition;
 
 /**
  * Marker for the Composition bounded context — how an area's sub-app is *composed*: which

@@ -15,46 +15,49 @@ deptrac:
   layers:
     - name: Foundation
       collectors:
-        - { type: classLike, value: 'App\\Foundation\\.*' }
+        - { type: classLike, value: 'Uhifadhi\\Foundation\\.*' }
     - name: Access
       collectors:
-        - { type: classLike, value: 'App\\Access\\.*' }
+        - { type: classLike, value: 'Uhifadhi\\Access\\.*' }
     - name: Spatial
       collectors:
-        - { type: classLike, value: 'App\\Spatial\\.*' }
+        - { type: classLike, value: 'Uhifadhi\\Spatial\\.*' }
     - name: Forest
       collectors:
-        - { type: classLike, value: 'App\\Forest\\.*' }
+        - { type: classLike, value: 'Uhifadhi\\Forest\\.*' }
     - name: LandCover
       collectors:
-        - { type: classLike, value: 'App\\LandCover\\.*' }
+        - { type: classLike, value: 'Uhifadhi\\LandCover\\.*' }
     - name: Vegetation
       collectors:
-        - { type: classLike, value: 'App\\Vegetation\\.*' }
+        - { type: classLike, value: 'Uhifadhi\\Vegetation\\.*' }
     - name: Settlement
       collectors:
-        - { type: classLike, value: 'App\\Settlement\\.*' }
+        - { type: classLike, value: 'Uhifadhi\\Settlement\\.*' }
     - name: Roads
       collectors:
-        - { type: classLike, value: 'App\\Roads\\.*' }
+        - { type: classLike, value: 'Uhifadhi\\Roads\\.*' }
     - name: Wildlife
       collectors:
-        - { type: classLike, value: 'App\\Wildlife\\.*' }
+        - { type: classLike, value: 'Uhifadhi\\Wildlife\\.*' }
     - name: Structure
       collectors:
-        - { type: classLike, value: 'App\\Structure\\.*' }
+        - { type: classLike, value: 'Uhifadhi\\Structure\\.*' }
     - name: Statistics
       collectors:
-        - { type: classLike, value: 'App\\Statistics\\.*' }
+        - { type: classLike, value: 'Uhifadhi\\Statistics\\.*' }
     - name: Ingestion
       collectors:
-        - { type: classLike, value: 'App\\Ingestion\\.*' }
+        - { type: classLike, value: 'Uhifadhi\\Ingestion\\.*' }
     - name: Composition
       collectors:
-        - { type: classLike, value: 'App\\Composition\\.*' }
+        - { type: classLike, value: 'Uhifadhi\\Composition\\.*' }
     - name: Dashboard
       collectors:
-        - { type: classLike, value: 'App\\Dashboard\\.*' }
+        - { type: classLike, value: 'Uhifadhi\\Dashboard\\.*' }
+    - name: Seeding
+      collectors:
+        - { type: classLike, value: 'Uhifadhi\\Seeding\\.*' }
   ruleset:
     # Cross-cutting entity concerns (UUID/timestamps). Seen by all, sees none.
     Foundation: [Foundation]
@@ -96,3 +99,7 @@ deptrac:
     # UI composition layer — the only place allowed to see everything; nothing
     # depends on it.
     Dashboard: [Dashboard, Spatial, Forest, LandCover, Vegetation, Settlement, Roads, Wildlife, Structure, Statistics, Ingestion, Composition, Access, Foundation]
+    # Demo/dev data seeding — a cross-context orchestration layer (like Dashboard):
+    # it may seed any context it wires up, and nothing depends on it. The uhakiki
+    # bundle it drives is a vendor package, so it isn't a deptrac layer here.
+    Seeding: [Seeding, Access, Spatial, Composition, Ingestion, Foundation]

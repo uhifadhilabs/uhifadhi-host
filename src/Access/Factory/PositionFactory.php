@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Access\Factory;
+namespace Uhifadhi\Access\Factory;
 
-use App\Access\Entity\Position;
-use App\Access\Enum\PermissionEnum;
+use Uhifadhi\Access\Entity\Position;
+use Uhifadhi\Access\Enum\PermissionEnum;
 use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
 /**

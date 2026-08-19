@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Composition\Enum;
+namespace Uhifadhi\Composition\Enum;
 
 /**
  * How far along a module is: the Overview {@see Hub}; a {@see Live} module rendering real data

@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Composition\Entity;
+namespace Uhifadhi\Composition\Entity;
 
-use App\Composition\Enum\ModuleCategory;
-use App\Composition\Enum\ModuleStatus;
-use App\Composition\Repository\ModuleRepository;
-use App\Foundation\Entity\Trait\TimestampableTrait;
-use App\Foundation\Entity\Trait\UuidTrait;
+use Uhifadhi\Composition\Enum\ModuleCategory;
+use Uhifadhi\Composition\Enum\ModuleStatus;
+use Uhifadhi\Composition\Repository\ModuleRepository;
+use Uhifadhi\Foundation\Entity\Trait\TimestampableTrait;
+use Uhifadhi\Foundation\Entity\Trait\UuidTrait;
 use Doctrine\ORM\Mapping as ORM;
 
 /**

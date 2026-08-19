@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace Uhifadhi;
 
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\DependencyInjection\ContainerBuilder;

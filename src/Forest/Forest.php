@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Forest;
+namespace Uhifadhi\Forest;
 
 /**
  * Marker for the Forest bounded context — DNCA Topic 6 (Deforestation), the PoC domain.

@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace App\Dashboard\Service;
+namespace Uhifadhi\Dashboard\Service;
 
-use App\Composition\Entity\AreaModule;
-use App\Composition\Entity\Visualization;
-use App\Composition\Enum\VizType;
-use App\Dashboard\Module\ModuleRegistry;
+use Uhifadhi\Composition\Entity\AreaModule;
+use Uhifadhi\Composition\Entity\Visualization;
+use Uhifadhi\Composition\Enum\VizType;
+use Uhifadhi\Dashboard\Module\ModuleRegistry;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
- * Materialises a module's default visualizations — declared by its {@see \App\Spatial\Module\ModuleDefinition}
+ * Materialises a module's default visualizations — declared by its {@see \Uhifadhi\Spatial\Module\ModuleDefinition}
  * — as editable Visualization rows, ONCE per area-module (guarded by {@see AreaModule::isVizSeeded()})
  * so a user who deletes them isn't fighting a resurrection. No module is named here: the definition
  * registry supplies whatever the module ships.

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Integration\Spatial;
+namespace Uhifadhi\Tests\Integration\Spatial;
 
-use App\Spatial\Repository\AreaOfInterestRepository;
+use Uhifadhi\Spatial\Repository\AreaOfInterestRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;

@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Integration\Statistics;
+namespace Uhifadhi\Tests\Integration\Statistics;
 
-use App\Ingestion\Enum\DatasetKind;
-use App\Ingestion\Factory\DatasetFactory;
-use App\Ingestion\Repository\DatasetRepository;
-use App\Spatial\Factory\AreaOfInterestFactory;
-use App\Statistics\Service\SynthesisService;
+use Uhifadhi\Ingestion\Enum\DatasetKind;
+use Uhifadhi\Ingestion\Factory\DatasetFactory;
+use Uhifadhi\Ingestion\Repository\DatasetRepository;
+use Uhifadhi\Spatial\Factory\AreaOfInterestFactory;
+use Uhifadhi\Statistics\Service\SynthesisService;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Zenstruck\Foundry\Test\Factories;
 

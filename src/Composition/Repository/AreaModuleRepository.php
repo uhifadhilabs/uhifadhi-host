@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Composition\Repository;
+namespace Uhifadhi\Composition\Repository;
 
-use App\Composition\Entity\AreaModule;
-use App\Spatial\Entity\AreaOfInterest;
+use Uhifadhi\Composition\Entity\AreaModule;
+use Uhifadhi\Spatial\Entity\AreaOfInterest;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 

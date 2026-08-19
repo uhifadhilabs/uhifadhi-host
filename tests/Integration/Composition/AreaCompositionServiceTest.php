@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Integration\Composition;
+namespace Uhifadhi\Tests\Integration\Composition;
 
-use App\Composition\Entity\Module;
-use App\Composition\Enum\ModuleCategory;
-use App\Composition\Factory\AreaModuleFactory;
-use App\Composition\Factory\ModuleFactory;
-use App\Composition\Repository\AreaModuleRepository;
-use App\Composition\Repository\ModuleRepository;
-use App\Composition\Service\AreaCompositionService;
-use App\Spatial\Factory\AreaOfInterestFactory;
+use Uhifadhi\Composition\Entity\Module;
+use Uhifadhi\Composition\Enum\ModuleCategory;
+use Uhifadhi\Composition\Factory\AreaModuleFactory;
+use Uhifadhi\Composition\Factory\ModuleFactory;
+use Uhifadhi\Composition\Repository\AreaModuleRepository;
+use Uhifadhi\Composition\Repository\ModuleRepository;
+use Uhifadhi\Composition\Service\AreaCompositionService;
+use Uhifadhi\Spatial\Factory\AreaOfInterestFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Zenstruck\Foundry\Test\Factories;

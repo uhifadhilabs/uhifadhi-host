@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Access\Repository;
+namespace Uhifadhi\Access\Repository;
 
-use App\Access\Entity\Position;
+use Uhifadhi\Access\Entity\Position;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 

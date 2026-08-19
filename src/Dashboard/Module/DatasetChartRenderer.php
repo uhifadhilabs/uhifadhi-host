@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Dashboard\Module;
+namespace Uhifadhi\Dashboard\Module;
 
-use App\Composition\Entity\Visualization;
-use App\Composition\Enum\VizType;
-use App\Dashboard\Chart\ChartSvgService;
-use App\Ingestion\Entity\Dataset;
-use App\Ingestion\Repository\DatasetRepository;
-use App\Spatial\Entity\AreaOfInterest;
+use Uhifadhi\Composition\Entity\Visualization;
+use Uhifadhi\Composition\Enum\VizType;
+use Uhifadhi\Dashboard\Chart\ChartSvgService;
+use Uhifadhi\Ingestion\Entity\Dataset;
+use Uhifadhi\Ingestion\Repository\DatasetRepository;
+use Uhifadhi\Spatial\Entity\AreaOfInterest;
 
 /**
  * The module-agnostic read path of the engine contract: renders any bound {@see Visualization} by

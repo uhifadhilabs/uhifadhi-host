@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Functional\Access;
+namespace Uhifadhi\Tests\Functional\Access;
 
-use App\Access\Entity\Position;
-use App\Access\Entity\User;
-use App\Access\Enum\PermissionEnum;
-use App\Access\Enum\TeamRoleEnum;
-use App\Access\Factory\PositionFactory;
-use App\Access\Factory\UserFactory;
-use App\Access\Repository\PositionRepository;
-use App\Tests\Functional\AuthenticatedWebTestCase;
+use Uhifadhi\Access\Entity\Position;
+use Uhifadhi\Access\Entity\User;
+use Uhifadhi\Access\Enum\PermissionEnum;
+use Uhifadhi\Access\Enum\TeamRoleEnum;
+use Uhifadhi\Access\Factory\PositionFactory;
+use Uhifadhi\Access\Factory\UserFactory;
+use Uhifadhi\Access\Repository\PositionRepository;
+use Uhifadhi\Tests\Functional\AuthenticatedWebTestCase;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**

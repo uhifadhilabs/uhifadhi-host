@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Functional\Access;
+namespace Uhifadhi\Tests\Functional\Access;
 
-use App\Access\Enum\PermissionEnum;
-use App\Access\Enum\TeamRoleEnum;
-use App\Access\Factory\PositionFactory;
-use App\Access\Factory\UserFactory;
-use App\Spatial\Factory\AreaOfInterestFactory;
+use Uhifadhi\Access\Enum\PermissionEnum;
+use Uhifadhi\Access\Enum\TeamRoleEnum;
+use Uhifadhi\Access\Factory\PositionFactory;
+use Uhifadhi\Access\Factory\UserFactory;
+use Uhifadhi\Spatial\Factory\AreaOfInterestFactory;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Zenstruck\Foundry\Test\Factories;
@@ -17,7 +17,7 @@ use Zenstruck\Foundry\Test\Factories;
  * The #[IsGranted] guards on the dashboard actions, exercised through a real login: a
  * Staff user is limited to their Position's permissions (403 otherwise), while a managing
  * tier holds everything. This is the enforcement counterpart to the unit-level
- * {@see \App\Tests\Unit\Access\Security\PermissionVoterTest}.
+ * {@see \Uhifadhi\Tests\Unit\Access\Security\PermissionVoterTest}.
  */
 final class PermissionEnforcementTest extends WebTestCase
 {

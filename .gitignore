@@ -38,3 +38,10 @@
 ###< claude ###
 /designs/_build/__pycache__/
 NGORONGORO_FIGURES_IMPLEMENTATION.md
+
+# Local-only fixtures / seed data (provided per deployment) — never committed
+/fixtures/
+
+# Local design workspace (mockups + Google-derived imagery props) — never committed;
+# already-tracked generic generators/tiles stay tracked, untracked client props stay out.
+/designs/

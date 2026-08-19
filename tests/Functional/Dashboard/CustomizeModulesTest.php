@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Functional\Dashboard;
+namespace Uhifadhi\Tests\Functional\Dashboard;
 
-use App\Composition\Entity\AreaModule;
-use App\Composition\Enum\ModuleCategory;
-use App\Composition\Enum\ModuleStatus;
-use App\Composition\Factory\AreaModuleFactory;
-use App\Composition\Factory\ModuleFactory;
-use App\Spatial\Factory\AreaOfInterestFactory;
-use App\Tests\Functional\AuthenticatedWebTestCase;
+use Uhifadhi\Composition\Entity\AreaModule;
+use Uhifadhi\Composition\Enum\ModuleCategory;
+use Uhifadhi\Composition\Enum\ModuleStatus;
+use Uhifadhi\Composition\Factory\AreaModuleFactory;
+use Uhifadhi\Composition\Factory\ModuleFactory;
+use Uhifadhi\Spatial\Factory\AreaOfInterestFactory;
+use Uhifadhi\Tests\Functional\AuthenticatedWebTestCase;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**

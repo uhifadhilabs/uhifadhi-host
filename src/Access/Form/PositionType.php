@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Access\Form;
+namespace Uhifadhi\Access\Form;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -14,7 +14,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 /**
  * Just the position's name. The permission matrix is deliberately NOT a form field — it is
  * rendered as manual survey-plate checkboxes (name="permissions[]") so it keeps the design
- * system, and the controller reads/filters it via {@see \App\Access\Enum\PermissionEnum::tryFrom}.
+ * system, and the controller reads/filters it via {@see \Uhifadhi\Access\Enum\PermissionEnum::tryFrom}.
  */
 final class PositionType extends AbstractType
 {

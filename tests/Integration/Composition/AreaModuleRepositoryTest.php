@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Integration\Composition;
+namespace Uhifadhi\Tests\Integration\Composition;
 
-use App\Composition\Entity\AreaModule;
-use App\Composition\Factory\AreaModuleFactory;
-use App\Composition\Factory\ModuleFactory;
-use App\Composition\Repository\AreaModuleRepository;
-use App\Spatial\Factory\AreaOfInterestFactory;
+use Uhifadhi\Composition\Entity\AreaModule;
+use Uhifadhi\Composition\Factory\AreaModuleFactory;
+use Uhifadhi\Composition\Factory\ModuleFactory;
+use Uhifadhi\Composition\Repository\AreaModuleRepository;
+use Uhifadhi\Spatial\Factory\AreaOfInterestFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Zenstruck\Foundry\Test\Factories;
 

@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Dashboard\Service;
+namespace Uhifadhi\Dashboard\Service;
 
-use App\Composition\Repository\AreaModuleRepository;
-use App\Spatial\Entity\AreaOfInterest;
+use Uhifadhi\Composition\Repository\AreaModuleRepository;
+use Uhifadhi\Spatial\Entity\AreaOfInterest;
 
 /**
  * The per-area analytical modules that make up the sub-app sub-nav: their slug, label, status and
- * one-line blurb, in order. When an area has been composed (its {@see \App\Composition\Entity\AreaModule}
+ * one-line blurb, in order. When an area has been composed (its {@see \Uhifadhi\Composition\Entity\AreaModule}
  * rows exist) the sub-nav follows that — so switching a module on/off or reordering it on the
  * customize page drives the real app. Un-composed areas fall back to {@see self::DEFAULTS}. `live`
  * modules render real data; `template` modules are scaffolded until their ingestion lands.

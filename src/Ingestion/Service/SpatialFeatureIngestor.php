@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Ingestion\Service;
+namespace Uhifadhi\Ingestion\Service;
 
-use App\Ingestion\Entity\ModuleFeature;
-use App\Ingestion\Entity\ModuleFeatureStaging;
-use App\Ingestion\Repository\ModuleFeatureRepository;
-use App\Ingestion\Repository\ModuleFeatureStagingRepository;
-use App\Spatial\Entity\AreaOfInterest;
+use Uhifadhi\Ingestion\Entity\ModuleFeature;
+use Uhifadhi\Ingestion\Entity\ModuleFeatureStaging;
+use Uhifadhi\Ingestion\Repository\ModuleFeatureRepository;
+use Uhifadhi\Ingestion\Repository\ModuleFeatureStagingRepository;
+use Uhifadhi\Spatial\Entity\AreaOfInterest;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**

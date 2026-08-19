@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Unit\Dashboard;
+namespace Uhifadhi\Tests\Unit\Dashboard;
 
-use App\Dashboard\Service\DatasetPresenter;
-use App\Ingestion\Entity\Dataset;
-use App\Ingestion\Enum\DatasetKind;
+use Uhifadhi\Dashboard\Service\DatasetPresenter;
+use Uhifadhi\Ingestion\Entity\Dataset;
+use Uhifadhi\Ingestion\Enum\DatasetKind;
 use PHPUnit\Framework\TestCase;
 
 /**

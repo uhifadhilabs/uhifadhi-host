@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Dashboard\Form;
+namespace Uhifadhi\Dashboard\Form;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Dashboard\Service;
+namespace Uhifadhi\Dashboard\Service;
 
-use App\Ingestion\Entity\Dataset;
+use Uhifadhi\Ingestion\Entity\Dataset;
 
 /**
  * Presents a generic {@see Dataset} for the R-style dataframe viewer and the Explore statistics:

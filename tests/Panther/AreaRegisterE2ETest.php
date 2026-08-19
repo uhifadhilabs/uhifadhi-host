@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Panther;
+namespace Uhifadhi\Tests\Panther;
 
-use App\Ingestion\Enum\DatasetKind;
-use App\Ingestion\Factory\DatasetFactory;
-use App\Spatial\Factory\AreaOfInterestFactory;
+use Uhifadhi\Ingestion\Enum\DatasetKind;
+use Uhifadhi\Ingestion\Factory\DatasetFactory;
+use Uhifadhi\Spatial\Factory\AreaOfInterestFactory;
 use DAMA\DoctrineTestBundle\PHPUnit\SkipDatabaseRollback;
 
 /**

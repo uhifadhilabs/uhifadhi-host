@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Spatial\Entity;
+namespace Uhifadhi\Spatial\Entity;
 
-use App\Foundation\Entity\Trait\TimestampableTrait;
-use App\Foundation\Entity\Trait\UuidTrait;
-use App\Spatial\Repository\AreaOfInterestRepository;
+use Uhifadhi\Foundation\Entity\Trait\TimestampableTrait;
+use Uhifadhi\Foundation\Entity\Trait\UuidTrait;
+use Uhifadhi\Spatial\Repository\AreaOfInterestRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**

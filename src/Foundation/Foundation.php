@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Foundation;
+namespace Uhifadhi\Foundation;
 
 /**
  * Marker for the Foundation bounded context — cross-cutting entity concerns that

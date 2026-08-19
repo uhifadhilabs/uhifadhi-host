@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Composition\Enum;
+namespace Uhifadhi\Composition\Enum;
 
 /**
  * The taxonomy a module belongs to in the "add a module" catalogue (from the design's

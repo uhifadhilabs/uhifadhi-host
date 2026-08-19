@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Dashboard\Controller;
+namespace Uhifadhi\Dashboard\Controller;
 
-use App\Ingestion\Enum\DatasetKind;
-use App\Ingestion\Repository\DatasetRepository;
-use App\Ingestion\Repository\ModuleFeatureRepository;
-use App\Spatial\Entity\AreaOfInterest;
+use Uhifadhi\Ingestion\Enum\DatasetKind;
+use Uhifadhi\Ingestion\Repository\DatasetRepository;
+use Uhifadhi\Ingestion\Repository\ModuleFeatureRepository;
+use Uhifadhi\Spatial\Entity\AreaOfInterest;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -18,7 +18,7 @@ use Symfony\Component\Routing\Requirement\Requirement;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
- * A module's dissolved spatial layer as GeoJSON — the data endpoint every module map (and the area hub's loss layer) fetches. Each {@see \App\Ingestion\Entity\ModuleFeature}
+ * A module's dissolved spatial layer as GeoJSON — the data endpoint every module map (and the area hub's loss layer) fetches. Each {@see \Uhifadhi\Ingestion\Entity\ModuleFeature}
  * carries its geometry already as GeoJSON (the PostGIS bundle's type), so a row decodes straight into
  * a feature; the label travels as a property so the map can colour by class. Addressed by area UUID.
  */

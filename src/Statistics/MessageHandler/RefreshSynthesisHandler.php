@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Statistics\MessageHandler;
+namespace Uhifadhi\Statistics\MessageHandler;
 
-use App\Spatial\Repository\AreaOfInterestRepository;
-use App\Statistics\Message\RefreshSynthesis;
-use App\Statistics\Service\SynthesisService;
+use Uhifadhi\Spatial\Repository\AreaOfInterestRepository;
+use Uhifadhi\Statistics\Message\RefreshSynthesis;
+use Uhifadhi\Statistics\Service\SynthesisService;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler]

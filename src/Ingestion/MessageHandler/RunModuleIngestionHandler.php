@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace App\Ingestion\MessageHandler;
+namespace Uhifadhi\Ingestion\MessageHandler;
 
-use App\Ingestion\Entity\DatasetRun;
-use App\Ingestion\Enum\DatasetKind;
-use App\Ingestion\Message\RunModuleIngestion;
-use App\Ingestion\Repository\DatasetRepository;
-use App\Ingestion\Service\SpatialFeatureIngestor;
-use App\Spatial\Entity\AreaOfInterest;
-use App\Spatial\Repository\AreaOfInterestRepository;
+use Uhifadhi\Ingestion\Entity\DatasetRun;
+use Uhifadhi\Ingestion\Enum\DatasetKind;
+use Uhifadhi\Ingestion\Message\RunModuleIngestion;
+use Uhifadhi\Ingestion\Repository\DatasetRepository;
+use Uhifadhi\Ingestion\Service\SpatialFeatureIngestor;
+use Uhifadhi\Spatial\Entity\AreaOfInterest;
+use Uhifadhi\Spatial\Repository\AreaOfInterestRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;

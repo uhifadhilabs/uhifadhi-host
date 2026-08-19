@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Composition\Factory;
+namespace Uhifadhi\Composition\Factory;
 
-use App\Composition\Entity\Module;
-use App\Composition\Enum\ModuleCategory;
-use App\Composition\Enum\ModuleStatus;
+use Uhifadhi\Composition\Entity\Module;
+use Uhifadhi\Composition\Enum\ModuleCategory;
+use Uhifadhi\Composition\Enum\ModuleStatus;
 use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
 /**

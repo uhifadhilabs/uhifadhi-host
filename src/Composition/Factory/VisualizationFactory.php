@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Composition\Factory;
+namespace Uhifadhi\Composition\Factory;
 
-use App\Composition\Entity\Visualization;
-use App\Composition\Enum\VizType;
+use Uhifadhi\Composition\Entity\Visualization;
+use Uhifadhi\Composition\Enum\VizType;
 use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
 /**

@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Access\Command;
+namespace Uhifadhi\Access\Command;
 
-use App\Access\Entity\Position;
-use App\Access\Entity\User;
-use App\Access\Enum\PermissionEnum;
-use App\Access\Enum\TeamRoleEnum;
-use App\Access\Repository\PositionRepository;
-use App\Access\Repository\UserRepository;
+use Uhifadhi\Access\Entity\Position;
+use Uhifadhi\Access\Entity\User;
+use Uhifadhi\Access\Enum\PermissionEnum;
+use Uhifadhi\Access\Enum\TeamRoleEnum;
+use Uhifadhi\Access\Repository\PositionRepository;
+use Uhifadhi\Access\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -27,8 +27,9 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
  * logins, not for prod; provision real prod accounts with app:user:create.
  */
 #[AsCommand(
-    name: 'app:demo:seed',
-    description: 'Idempotently seed the demo accounts + positions (password from DEMO_PASSWORD).',
+    name: 'app:seed:accounts',
+    aliases: ['app:demo:seed'],
+    description: 'Seed the demo accounts + positions (idempotent; password from DEMO_PASSWORD).',
 )]
 final class SeedDemoCommand extends Command
 {

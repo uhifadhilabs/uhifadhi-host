@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace App\Composition\Command;
+namespace Uhifadhi\Composition\Command;
 
-use App\Composition\Entity\AreaModule;
-use App\Composition\Entity\Module;
-use App\Composition\Entity\Visualization;
-use App\Composition\Enum\ModuleCategory;
-use App\Composition\Enum\ModuleStatus;
-use App\Composition\Enum\VizType;
-use App\Composition\Repository\AreaModuleRepository;
-use App\Composition\Repository\ModuleRepository;
-use App\Composition\Service\ProviderCatalogueMapper;
-use App\Spatial\Repository\AreaOfInterestRepository;
+use Uhifadhi\Composition\Entity\AreaModule;
+use Uhifadhi\Composition\Entity\Module;
+use Uhifadhi\Composition\Entity\Visualization;
+use Uhifadhi\Composition\Enum\ModuleCategory;
+use Uhifadhi\Composition\Enum\ModuleStatus;
+use Uhifadhi\Composition\Enum\VizType;
+use Uhifadhi\Composition\Repository\AreaModuleRepository;
+use Uhifadhi\Composition\Repository\ModuleRepository;
+use Uhifadhi\Composition\Service\ProviderCatalogueMapper;
+use Uhifadhi\Spatial\Repository\AreaOfInterestRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -30,7 +30,8 @@ use UhifadhiLabs\ModuleContracts\ModuleProviderInterface;
  * against the dev/prod databases' real data.
  */
 #[AsCommand(
-    name: 'app:composition:seed',
+    name: 'app:seed:catalogue',
+    aliases: ['app:composition:seed'],
     description: 'Seed the module catalogue and backfill areas with their modules (idempotent).',
 )]
 final class SeedCatalogueCommand extends Command

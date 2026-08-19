@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Access\Security;
+namespace Uhifadhi\Access\Security;
 
-use App\Access\Entity\User;
-use App\Access\Enum\PermissionEnum;
+use Uhifadhi\Access\Entity\User;
+use Uhifadhi\Access\Enum\PermissionEnum;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
@@ -13,7 +13,7 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 /**
  * Decides a granular permission (e.g. `is_granted('area.create')`) from the user's tier and
  * position. Super Admin / Admin / Manager hold every permission by tier; a Staff user holds
- * exactly the permissions of their assigned {@see \App\Access\Entity\Position}. Attributes that
+ * exactly the permissions of their assigned {@see \Uhifadhi\Access\Entity\Position}. Attributes that
  * are not a {@see PermissionEnum} value are none of this voter's business — it abstains so the
  * role voters can decide them.
  *

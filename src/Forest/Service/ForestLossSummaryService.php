@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Forest\Service;
+namespace Uhifadhi\Forest\Service;
 
-use App\Ingestion\Repository\DatasetRepository;
-use App\Spatial\Entity\AreaOfInterest;
+use Uhifadhi\Ingestion\Repository\DatasetRepository;
+use Uhifadhi\Spatial\Entity\AreaOfInterest;
 
 /**
  * The per-area annual forest-loss summary: the year series (each coloured by the Hansen year ramp)

@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Integration\Dashboard;
+namespace Uhifadhi\Tests\Integration\Dashboard;
 
-use App\Dashboard\Module\GenericModule;
-use App\Dashboard\Module\ModuleRegistry;
-use App\Forest\Module\ForestModule;
-use App\LandCover\Module\LandCoverModule;
-use App\Roads\Module\RoadsModule;
-use App\Settlement\Module\SettlementModule;
-use App\Statistics\Module\StatisticsModule;
-use App\Structure\Module\StructureModule;
-use App\Vegetation\Module\VegetationModule;
-use App\Wildlife\Module\WildlifeModule;
+use Uhifadhi\Dashboard\Module\GenericModule;
+use Uhifadhi\Dashboard\Module\ModuleRegistry;
+use Uhifadhi\Forest\Module\ForestModule;
+use Uhifadhi\LandCover\Module\LandCoverModule;
+use Uhifadhi\Roads\Module\RoadsModule;
+use Uhifadhi\Settlement\Module\SettlementModule;
+use Uhifadhi\Statistics\Module\StatisticsModule;
+use Uhifadhi\Structure\Module\StructureModule;
+use Uhifadhi\Vegetation\Module\VegetationModule;
+use Uhifadhi\Wildlife\Module\WildlifeModule;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 /**

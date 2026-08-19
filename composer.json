@@ -65,12 +65,12 @@
     },
     "autoload": {
         "psr-4": {
-            "App\\": "src/"
+            "Uhifadhi\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "App\\Tests\\": "tests/"
+            "Uhifadhi\\Tests\\": "tests/"
         }
     },
     "replace": {

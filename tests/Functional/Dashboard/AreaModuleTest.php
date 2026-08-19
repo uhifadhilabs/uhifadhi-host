@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Functional\Dashboard;
+namespace Uhifadhi\Tests\Functional\Dashboard;
 
-use App\Composition\Enum\ModuleStatus;
-use App\Composition\Factory\AreaModuleFactory;
-use App\Composition\Factory\ModuleFactory;
-use App\Ingestion\Enum\DatasetKind;
-use App\Ingestion\Factory\DatasetFactory;
-use App\Spatial\Factory\AreaOfInterestFactory;
-use App\Tests\Functional\AuthenticatedWebTestCase;
+use Uhifadhi\Composition\Enum\ModuleStatus;
+use Uhifadhi\Composition\Factory\AreaModuleFactory;
+use Uhifadhi\Composition\Factory\ModuleFactory;
+use Uhifadhi\Ingestion\Enum\DatasetKind;
+use Uhifadhi\Ingestion\Factory\DatasetFactory;
+use Uhifadhi\Spatial\Factory\AreaOfInterestFactory;
+use Uhifadhi\Tests\Functional\AuthenticatedWebTestCase;
 
 /**
  * A module is a self-contained page with its own within-module tabs (Overview /
@@ -94,7 +94,7 @@ final class AreaModuleTest extends AuthenticatedWebTestCase
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('.atabs a.on', 'Overview');
         self::assertSelectorTextContains('.pg', 'Forest loss');
-        // KPIs come from ForestModule (App\Forest), charts from the seeded default visualizations —
+        // KPIs come from ForestModule (Uhifadhi\Forest), charts from the seeded default visualizations —
         // the SAME generic path every module uses; no forest-specific branch exists.
         self::assertSelectorTextContains('body', 'Annual loss');
         self::assertSelectorTextContains('body', '186');

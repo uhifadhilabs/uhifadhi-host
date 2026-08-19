@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Composition\Factory;
+namespace Uhifadhi\Composition\Factory;
 
-use App\Composition\Entity\AreaModule;
-use App\Spatial\Factory\AreaOfInterestFactory;
+use Uhifadhi\Composition\Entity\AreaModule;
+use Uhifadhi\Spatial\Factory\AreaOfInterestFactory;
 use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
 /**

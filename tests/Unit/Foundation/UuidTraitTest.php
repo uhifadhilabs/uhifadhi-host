@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Unit\Foundation;
+namespace Uhifadhi\Tests\Unit\Foundation;
 
-use App\Foundation\Entity\Trait\UuidTrait;
+use Uhifadhi\Foundation\Entity\Trait\UuidTrait;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Uid\UuidV7;
 

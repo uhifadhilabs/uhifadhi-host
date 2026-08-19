@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace App\Dashboard\Controller;
+namespace Uhifadhi\Dashboard\Controller;
 
-use App\Composition\Entity\AreaModule;
-use App\Composition\Entity\Visualization;
-use App\Composition\Enum\VizType;
-use App\Composition\Repository\VisualizationRepository;
-use App\Composition\Service\AreaCompositionService;
-use App\Dashboard\Module\DatasetChartRenderer;
-use App\Spatial\Entity\AreaOfInterest;
+use Uhifadhi\Composition\Entity\AreaModule;
+use Uhifadhi\Composition\Entity\Visualization;
+use Uhifadhi\Composition\Enum\VizType;
+use Uhifadhi\Composition\Repository\VisualizationRepository;
+use Uhifadhi\Composition\Service\AreaCompositionService;
+use Uhifadhi\Dashboard\Module\DatasetChartRenderer;
+use Uhifadhi\Spatial\Entity\AreaOfInterest;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Ingestion;
+namespace Uhifadhi\Ingestion;
 
 /**
  * Marker for the Ingestion bounded context — how external data enters the platform.

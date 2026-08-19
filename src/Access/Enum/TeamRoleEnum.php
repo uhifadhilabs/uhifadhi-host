@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Access\Enum;
+namespace Uhifadhi\Access\Enum;
 
 /**
  * A user's tier within the single authority that runs uhifadhi. There is no "Owner" —
  * nobody owns a national park. Super Admin / Admin / Manager hold every permission by
- * tier ({@see canManageContent()}); Staff hold exactly their {@see \App\Access\Entity\Position}.
+ * tier ({@see canManageContent()}); Staff hold exactly their {@see \Uhifadhi\Access\Entity\Position}.
  * Permission queries live here to keep the user entity thin.
  */
 enum TeamRoleEnum: string

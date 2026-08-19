@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Composition\Entity;
+namespace Uhifadhi\Composition\Entity;
 
-use App\Composition\Repository\AreaModuleRepository;
-use App\Foundation\Entity\Trait\TimestampableTrait;
-use App\Foundation\Entity\Trait\UuidTrait;
-use App\Spatial\Entity\AreaOfInterest;
+use Uhifadhi\Composition\Repository\AreaModuleRepository;
+use Uhifadhi\Foundation\Entity\Trait\TimestampableTrait;
+use Uhifadhi\Foundation\Entity\Trait\UuidTrait;
+use Uhifadhi\Spatial\Entity\AreaOfInterest;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;

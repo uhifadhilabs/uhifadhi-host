@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\LandCover\Module;
+namespace Uhifadhi\LandCover\Module;
 
-use App\Spatial\Module\MethodCaption;
-use App\Spatial\Module\ModuleDefinition;
-use App\Spatial\Module\VizSpec;
+use Uhifadhi\Spatial\Module\MethodCaption;
+use Uhifadhi\Spatial\Module\ModuleDefinition;
+use Uhifadhi\Spatial\Module\VizSpec;
 
 /**
  * The Land-cover module's definition: default charts over the `landcover_class` dataframe, the

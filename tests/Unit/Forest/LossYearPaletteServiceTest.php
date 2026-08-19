@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Unit\Forest;
+namespace Uhifadhi\Tests\Unit\Forest;
 
-use App\Forest\Service\LossYearPaletteService;
+use Uhifadhi\Forest\Service\LossYearPaletteService;
 use PHPUnit\Framework\TestCase;
 
 /**

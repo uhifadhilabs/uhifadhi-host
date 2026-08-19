@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Ingestion\Factory;
+namespace Uhifadhi\Ingestion\Factory;
 
-use App\Ingestion\Entity\Dataset;
-use App\Ingestion\Enum\DatasetKind;
-use App\Spatial\Factory\AreaOfInterestFactory;
+use Uhifadhi\Ingestion\Entity\Dataset;
+use Uhifadhi\Ingestion\Enum\DatasetKind;
+use Uhifadhi\Spatial\Factory\AreaOfInterestFactory;
 use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
 /**

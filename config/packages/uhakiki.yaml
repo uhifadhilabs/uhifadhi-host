@@ -18,3 +18,12 @@ uhakiki:
                     children: ['kopje / rocks', 'lodge · hotel', 'tented camp', 'staff village', 'office · station', 'farm / shamba', 'former boma (scar)', 'gully / stream', 'other…']
                 unsure:
                     label: Unsure
+
+# Dev-only tooling (uhakiki:seed:*) only outside production.
+when@dev:
+    uhakiki:
+        dev_tools: true
+
+when@test:
+    uhakiki:
+        dev_tools: true

@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Functional\Dashboard;
+namespace Uhifadhi\Tests\Functional\Dashboard;
 
-use App\Ingestion\Enum\DatasetKind;
-use App\Ingestion\Factory\DatasetFactory;
-use App\Spatial\Factory\AreaOfInterestFactory;
-use App\Tests\Functional\AuthenticatedWebTestCase;
+use Uhifadhi\Ingestion\Enum\DatasetKind;
+use Uhifadhi\Ingestion\Factory\DatasetFactory;
+use Uhifadhi\Spatial\Factory\AreaOfInterestFactory;
+use Uhifadhi\Tests\Functional\AuthenticatedWebTestCase;
 
 /**
  * The data-backed module tabs read the module's stored Dataset: Dataframe renders the R-style viewer
@@ -61,7 +61,7 @@ final class ModuleDataTabsTest extends AuthenticatedWebTestCase
         // with the class-shaped table contributing the km² value.
         $em = static::getContainer()->get(\Doctrine\ORM\EntityManagerInterface::class);
         \assert($em instanceof \Doctrine\ORM\EntityManagerInterface);
-        $em->persist((new \App\Ingestion\Entity\ModuleFeature())
+        $em->persist((new \Uhifadhi\Ingestion\Entity\ModuleFeature())
             ->setAoi($area)
             ->setModuleSlug('landcover')
             ->setDatasetKey('landcover_map')

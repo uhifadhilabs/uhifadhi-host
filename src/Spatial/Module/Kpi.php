@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Spatial\Module;
+namespace Uhifadhi\Spatial\Module;
 
 /**
  * One headline figure on a module's Overview cockpit: `PL·xx`-style index, label, the big value

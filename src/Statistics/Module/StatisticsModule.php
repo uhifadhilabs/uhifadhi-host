@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Statistics\Module;
+namespace Uhifadhi\Statistics\Module;
 
-use App\Spatial\Entity\AreaOfInterest;
-use App\Spatial\Module\Kpi;
-use App\Spatial\Module\MethodCaption;
-use App\Spatial\Module\ModuleDefinition;
-use App\Spatial\Module\VizSpec;
-use App\Statistics\Service\SynthesisService;
+use Uhifadhi\Spatial\Entity\AreaOfInterest;
+use Uhifadhi\Spatial\Module\Kpi;
+use Uhifadhi\Spatial\Module\MethodCaption;
+use Uhifadhi\Spatial\Module\ModuleDefinition;
+use Uhifadhi\Spatial\Module\VizSpec;
+use Uhifadhi\Statistics\Service\SynthesisService;
 
 /**
  * The Statistics module's definition — the Q6 scorecard. The proof of the architecture's last

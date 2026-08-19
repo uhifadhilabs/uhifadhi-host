@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Functional;
+namespace Uhifadhi\Tests\Functional;
 
-use App\Access\Entity\User;
-use App\Access\Enum\TeamRoleEnum;
-use App\Access\Factory\UserFactory;
+use Uhifadhi\Access\Entity\User;
+use Uhifadhi\Access\Enum\TeamRoleEnum;
+use Uhifadhi\Access\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Zenstruck\Foundry\Test\Factories;

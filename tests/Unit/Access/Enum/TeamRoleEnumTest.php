@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Unit\Access\Enum;
+namespace Uhifadhi\Tests\Unit\Access\Enum;
 
-use App\Access\Enum\TeamRoleEnum;
+use Uhifadhi\Access\Enum\TeamRoleEnum;
 use PHPUnit\Framework\TestCase;
 
 /**

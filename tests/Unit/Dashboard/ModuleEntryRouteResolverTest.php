@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Unit\Dashboard;
+namespace Uhifadhi\Tests\Unit\Dashboard;
 
-use App\Dashboard\Service\ModuleEntryRouteResolver;
+use Uhifadhi\Dashboard\Service\ModuleEntryRouteResolver;
 use PHPUnit\Framework\TestCase;
 use UhifadhiLabs\ModuleContracts\ModuleProviderInterface;
 use UhifadhiLabs\ModuleContracts\ModuleProviderTrait;

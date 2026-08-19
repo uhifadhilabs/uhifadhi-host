@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Smoke;
+namespace Uhifadhi\Tests\Smoke;
 
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 

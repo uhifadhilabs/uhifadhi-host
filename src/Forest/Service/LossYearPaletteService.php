@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Forest\Service;
+namespace Uhifadhi\Forest\Service;
 
 /**
  * The Hansen YlOrRd year ramp (2001–2023) — MUST stay identical to the stops in

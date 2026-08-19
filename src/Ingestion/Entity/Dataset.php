@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Ingestion\Entity;
+namespace Uhifadhi\Ingestion\Entity;
 
-use App\Foundation\Entity\Trait\TimestampableTrait;
-use App\Ingestion\Enum\DatasetKind;
-use App\Ingestion\Repository\DatasetRepository;
-use App\Spatial\Entity\AreaOfInterest;
+use Uhifadhi\Foundation\Entity\Trait\TimestampableTrait;
+use Uhifadhi\Ingestion\Enum\DatasetKind;
+use Uhifadhi\Ingestion\Repository\DatasetRepository;
+use Uhifadhi\Spatial\Entity\AreaOfInterest;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 

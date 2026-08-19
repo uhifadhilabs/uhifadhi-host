@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Composition\Service;
+namespace Uhifadhi\Composition\Service;
 
-use App\Composition\Entity\AreaModule;
-use App\Composition\Entity\Module;
-use App\Composition\Enum\ModuleCategory;
-use App\Composition\Repository\AreaModuleRepository;
-use App\Composition\Repository\ModuleRepository;
-use App\Spatial\Entity\AreaOfInterest;
+use Uhifadhi\Composition\Entity\AreaModule;
+use Uhifadhi\Composition\Entity\Module;
+use Uhifadhi\Composition\Enum\ModuleCategory;
+use Uhifadhi\Composition\Repository\AreaModuleRepository;
+use Uhifadhi\Composition\Repository\ModuleRepository;
+use Uhifadhi\Spatial\Entity\AreaOfInterest;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
