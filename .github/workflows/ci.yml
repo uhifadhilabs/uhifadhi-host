@@ -59,6 +59,12 @@ jobs:
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: ${{ runner.os }}-composer-
 
+      # uhifadhilabs/uhakiki-bundle is a PRIVATE cross-repo dependency; the default
+      # GITHUB_TOKEN can't fetch it. BUNDLES_TOKEN is a fine-grained PAT with
+      # Contents:read on the private uhifadhilabs bundle repos (add it as a repo secret).
+      - name: Configure Composer auth for private uhifadhilabs bundles
+        run: composer config --global github-oauth.github.com "${{ secrets.BUNDLES_TOKEN }}"
+
       - name: Install dependencies
         run: composer install --no-interaction --no-progress --prefer-dist
 
