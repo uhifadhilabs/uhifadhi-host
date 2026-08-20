@@ -11,6 +11,13 @@ Current contexts:
 - **Forest** — deforestation footprints from Hansen Global Forest Change
   (`ForestLossYear`: per-year `MultiPolygon` loss geometry in WGS84).
 
+## Contents
+
+- [Local development](#local-development)
+- [Auth & demo accounts](#auth-demo-accounts)
+- [Notes](#notes)
+  - [`doctrine/orm` is pinned to `3.6.7` (temporary)](#doctrineorm-is-pinned-to-367-temporary)
+
 ## Local development
 
 Uses [`fundi`](https://github.com/fundistadi/fundi-cli) — no Docker. It serves

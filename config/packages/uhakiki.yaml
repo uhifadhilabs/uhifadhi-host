@@ -5,6 +5,7 @@ uhakiki:
         nca_bomas:
             subject: Boma
             area_ref: d0ce9044-b57d-45f7-b615-69b0e38bd271  # Ngorongoro Conservation Area
+            source_ref_property: boma_id  # the id each feature carries in the source export
             plate_radius_m: 500
             required_verdicts: 2
             relocation_tolerance_m: 30

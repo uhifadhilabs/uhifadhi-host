@@ -1564,10 +1564,11 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     campaigns?: array<string, array{ // Default: []
  *         subject?: scalar|Param|null, // Subject noun shown to reviewers ("Water point").
  *         area_ref?: scalar|Param|null, // The host area this campaign belongs to (its uuid). Null = unscoped. // Default: null
+ *         source_ref_property?: scalar|Param|null, // GeoJSON property carrying this dataset's own reference (e.g. well_id). Null = features import without one. // Default: null
  *         plate_radius_m?: float|Param, // Hard pan bound of the review plate, metres. // Default: 500.0
- *         required_verdicts?: int|Param, // Distinct decisive verdicts needed to settle a candidate. // Default: 2
+ *         required_verdicts?: int|Param, // Distinct decisive verdicts needed to settle a feature. // Default: 2
  *         relocation_tolerance_m?: float|Param, // Agreeing relocations must land within this distance. // Default: 30.0
- *         snap_radius_m?: float|Param, // Points closer than this to an existing candidate are the same feature (import dedupe, missed-mark snapping). // Default: 30.0
+ *         snap_radius_m?: float|Param, // Points closer than this to an existing feature are the same feature (import dedupe, missed-mark snapping). // Default: 30.0
  *         taxonomy?: array<string, array{ // Default: []
  *             label?: scalar|Param|null,
  *             children?: list<scalar|Param|null>,
