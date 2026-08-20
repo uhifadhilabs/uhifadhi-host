@@ -8337,12 +8337,12 @@
             "source": {
                 "type": "git",
                 "url": "git@github.com:uhifadhilabs/uhakiki-bundle.git",
-                "reference": "90857317808bbd86438bf5725a3265def139808d"
+                "reference": "72454fde2b149a080568909d8675d27b5b11950c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/uhifadhilabs/uhakiki-bundle/zipball/90857317808bbd86438bf5725a3265def139808d",
-                "reference": "90857317808bbd86438bf5725a3265def139808d",
+                "url": "https://api.github.com/repos/uhifadhilabs/uhakiki-bundle/zipball/72454fde2b149a080568909d8675d27b5b11950c",
+                "reference": "72454fde2b149a080568909d8675d27b5b11950c",
                 "shasum": ""
             },
             "require": {
@@ -8385,7 +8385,8 @@
             "autoload-dev": {
                 "psr-4": {
                     "UhifadhiLabs\\UhakikiBundle\\Tests\\": "tests/",
-                    "Uhifadhi\\Access\\Entity\\": "tests/Fixtures/Uhifadhi/Access/Entity/"
+                    "Uhifadhi\\Access\\Entity\\": "tests/Fixtures/Uhifadhi/Access/Entity/",
+                    "Uhifadhi\\Spatial\\Entity\\": "tests/Fixtures/Uhifadhi/Spatial/Entity/"
                 }
             },
             "scripts": {
@@ -8430,7 +8431,7 @@
                 "source": "https://github.com/uhifadhilabs/uhakiki-bundle/tree/main",
                 "issues": "https://github.com/uhifadhilabs/uhakiki-bundle/issues"
             },
-            "time": "2026-08-19T15:19:32+00:00"
+            "time": "2026-08-19T21:46:10+00:00"
         },
         {
             "name": "webmozart/assert",
