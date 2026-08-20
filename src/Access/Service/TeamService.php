@@ -6,7 +6,6 @@ namespace Uhifadhi\Access\Service;
 
 use Uhifadhi\Access\Entity\Position;
 use Uhifadhi\Access\Entity\User;
-use Uhifadhi\Access\Enum\PermissionEnum;
 use Uhifadhi\Access\Repository\PositionRepository;
 use Uhifadhi\Access\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -55,13 +54,14 @@ final readonly class TeamService
     }
 
     /**
-     * @param list<PermissionEnum> $permissions
+     * @param list<string> $permissionValues catalogue-validated values — core
+     *                                       and module-declared permissions alike
      */
-    public function createPosition(string $name, array $permissions): Position
+    public function createPosition(string $name, array $permissionValues): Position
     {
         $position = (new Position())
             ->setName($name)
-            ->setPermissions($permissions);
+            ->setPermissionValues($permissionValues);
 
         $this->em->persist($position);
         $this->em->flush();
@@ -70,15 +70,16 @@ final readonly class TeamService
     }
 
     /**
-     * @param list<PermissionEnum> $permissions
+     * @param list<string> $permissionValues catalogue-validated values — core
+     *                                       and module-declared permissions alike
      */
-    public function updatePosition(Position $position, string $name, array $permissions): void
+    public function updatePosition(Position $position, string $name, array $permissionValues): void
     {
         // A locked position keeps its label (reserved); its permissions may still change.
         if (!$position->isLocked()) {
             $position->setName($name);
         }
-        $position->setPermissions($permissions);
+        $position->setPermissionValues($permissionValues);
 
         $this->em->flush();
     }

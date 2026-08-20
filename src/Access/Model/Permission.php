@@ -1,0 +1,29 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Uhifadhi\Access\Model;
+
+/**
+ * One entry of the deployment's permission catalogue, whichever side declared
+ * it: the app's own {@see \Uhifadhi\Access\Enum\PermissionEnum} cases or a
+ * permission an installed module declares through its provider. The matrix and
+ * the voter treat both identically; only core permissions may imply an umbrella
+ * capability role — a module-declared permission never mints one (declared,
+ * never granted).
+ */
+final readonly class Permission
+{
+    public function __construct(
+        public string $value,
+        public string $umbrella,
+        public string $action,
+        public ?string $capabilityRole = null,
+    ) {
+    }
+
+    public function label(): string
+    {
+        return $this->umbrella.' · '.$this->action;
+    }
+}

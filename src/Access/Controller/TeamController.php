@@ -6,9 +6,10 @@ namespace Uhifadhi\Access\Controller;
 
 use Uhifadhi\Access\Entity\Position;
 use Uhifadhi\Access\Entity\User;
-use Uhifadhi\Access\Enum\PermissionEnum;
 use Uhifadhi\Access\Form\PositionType;
+use Uhifadhi\Access\Model\Permission;
 use Uhifadhi\Access\Repository\PositionRepository;
+use Uhifadhi\Access\Service\PermissionCatalogueService;
 use Uhifadhi\Access\Service\TeamService;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -32,6 +33,7 @@ final class TeamController extends AbstractController
     public function __construct(
         private readonly TeamService $team,
         private readonly PositionRepository $positions,
+        private readonly PermissionCatalogueService $permissionCatalogue,
     ) {
     }
 
@@ -83,7 +85,7 @@ final class TeamController extends AbstractController
 
         $checked = $request->isMethod('POST')
             ? $this->submittedValues($request)
-            : array_map(static fn (PermissionEnum $p): string => $p->value, $position->getPermissions());
+            : $position->getPermissionValues();
 
         return $this->render('team/position_form.html.twig', [
             'form' => $form,
@@ -140,35 +142,32 @@ final class TeamController extends AbstractController
     }
 
     /**
-     * The permission catalogue grouped by umbrella, for the checkbox matrix.
+     * The permission catalogue grouped by umbrella, for the checkbox matrix —
+     * the app's own permissions plus everything the installed modules declare.
      *
-     * @return array<string, list<PermissionEnum>>
+     * @return array<string, list<Permission>>
      */
     private function catalogue(): array
     {
-        $grouped = [];
-        foreach (PermissionEnum::all() as $permission) {
-            $grouped[$permission->umbrella()][] = $permission;
-        }
-
-        return $grouped;
+        return $this->permissionCatalogue->groupedByUmbrella();
     }
 
     /**
-     * The submitted permissions[], filtered to the known catalogue.
+     * The submitted permissions[], filtered to the known catalogue (core and
+     * module-declared alike; unknown values are dropped).
      *
-     * @return list<PermissionEnum>
+     * @return list<string>
      */
     private function submittedPermissions(Request $request): array
     {
-        $permissions = [];
+        $values = [];
         foreach ($request->request->all('permissions') as $value) {
-            if (\is_string($value) && null !== ($permission = PermissionEnum::tryFrom($value))) {
-                $permissions[] = $permission;
+            if (\is_string($value)) {
+                $values[] = $value;
             }
         }
 
-        return $permissions;
+        return $this->permissionCatalogue->knownValues($values);
     }
 
     /**
@@ -178,7 +177,7 @@ final class TeamController extends AbstractController
      */
     private function submittedValues(Request $request): array
     {
-        return array_map(static fn (PermissionEnum $p): string => $p->value, $this->submittedPermissions($request));
+        return $this->submittedPermissions($request);
     }
 
     private function positionFromRequest(Request $request): ?Position

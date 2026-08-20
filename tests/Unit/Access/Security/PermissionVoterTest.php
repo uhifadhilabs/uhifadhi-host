@@ -9,7 +9,11 @@ use Uhifadhi\Access\Entity\User;
 use Uhifadhi\Access\Enum\PermissionEnum;
 use Uhifadhi\Access\Enum\TeamRoleEnum;
 use Uhifadhi\Access\Security\PermissionVoter;
+use Uhifadhi\Access\Service\PermissionCatalogueService;
 use PHPUnit\Framework\TestCase;
+use UhifadhiLabs\ModuleContracts\ModulePermission;
+use UhifadhiLabs\ModuleContracts\ModuleProviderInterface;
+use UhifadhiLabs\ModuleContracts\ModuleProviderTrait;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
@@ -25,7 +29,32 @@ final class PermissionVoterTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->voter = new PermissionVoter();
+        // The catalogue carries the enum plus one module-declared permission, so
+        // the voter's behaviour is identical for both kinds.
+        $tiebreak = new class implements ModuleProviderInterface {
+            use ModuleProviderTrait;
+
+            public function slug(): string
+            {
+                return 'verifier';
+            }
+
+            public function name(): string
+            {
+                return 'Verifier';
+            }
+
+            public function category(): string
+            {
+                return 'pressure';
+            }
+
+            public function permissions(): array
+            {
+                return [new ModulePermission('verification.tiebreak', 'Verification', 'Tiebreak')];
+            }
+        };
+        $this->voter = new PermissionVoter(new PermissionCatalogueService([$tiebreak]));
     }
 
     public function testStaffAreGrantedOnlyTheirPositionsPermissions(): void
@@ -112,6 +141,56 @@ final class PermissionVoterTest extends TestCase
         self::assertSame(
             VoterInterface::ACCESS_DENIED,
             $this->vote(null, PermissionEnum::AreaView->value),
+        );
+    }
+
+    public function testStaffAreGrantedAModuleDeclaredPermissionTheirPositionHolds(): void
+    {
+        $position = (new Position())
+            ->setName('Verifier')
+            ->setPermissionValues(['verification.tiebreak']);
+        $staff = (new User())
+            ->setTeamRole(TeamRoleEnum::Staff)
+            ->setPosition($position);
+
+        self::assertSame(
+            VoterInterface::ACCESS_GRANTED,
+            $this->vote($staff, 'verification.tiebreak'),
+        );
+    }
+
+    public function testStaffAreDeniedAModuleDeclaredPermissionOutsideTheirPosition(): void
+    {
+        $position = (new Position())
+            ->setName('Ranger')
+            ->setPermissions([PermissionEnum::AreaView]);
+        $staff = (new User())
+            ->setTeamRole(TeamRoleEnum::Staff)
+            ->setPosition($position);
+
+        self::assertSame(
+            VoterInterface::ACCESS_DENIED,
+            $this->vote($staff, 'verification.tiebreak'),
+        );
+    }
+
+    public function testAdminTiersHoldModuleDeclaredPermissionsByTierToo(): void
+    {
+        $admin = (new User())->setTeamRole(TeamRoleEnum::Admin);
+
+        self::assertSame(
+            VoterInterface::ACCESS_GRANTED,
+            $this->vote($admin, 'verification.tiebreak'),
+        );
+    }
+
+    public function testItAbstainsOnAPermissionNoModuleDeclares(): void
+    {
+        $admin = (new User())->setTeamRole(TeamRoleEnum::SuperAdmin);
+
+        self::assertSame(
+            VoterInterface::ACCESS_ABSTAIN,
+            $this->vote($admin, 'uninstalled.module.permission'),
         );
     }
 

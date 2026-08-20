@@ -12,6 +12,12 @@
                 "enabled": false,
                 "fetch": "eager"
             }
+        },
+        "@uhifadhilabs/uhakiki-bundle": {
+            "map-viewer": {
+                "enabled": true,
+                "fetch": "lazy"
+            }
         }
     },
     "entrypoints": []

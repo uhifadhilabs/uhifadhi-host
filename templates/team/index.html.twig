@@ -67,7 +67,7 @@
                             <tr>
                                 <td><a href="{{ path('app_team_position_edit', {uuid: p.uuidString}) }}">{{ p.name }}</a></td>
                                 <td>
-                                    {% for perm in p.permissions %}<span class="perm">{{ perm.value }}</span> {% else %}<span class="fog mono" style="font-size:11px">no permissions</span>{% endfor %}
+                                    {% for value in p.permissionValues %}<span class="perm">{{ value }}</span> {% else %}<span class="fog mono" style="font-size:11px">no permissions</span>{% endfor %}
                                 </td>
                                 <td class="num">{{ members|filter(u => u.position and u.position.uuidString == p.uuidString)|length }}</td>
                                 <td class="num">

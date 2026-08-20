@@ -87,7 +87,36 @@ class Position
 
     public function hasPermission(PermissionEnum $permission): bool
     {
-        return \in_array($permission->value, $this->permissions, true);
+        return $this->hasPermissionValue($permission->value);
+    }
+
+    /**
+     * The raw granted values. The enum-typed accessors above silently drop any
+     * value that is not a {@see PermissionEnum} case, so module-declared
+     * permissions (validated against the catalogue on write) only round-trip
+     * through this value-based surface.
+     *
+     * @return list<string>
+     */
+    public function getPermissionValues(): array
+    {
+        return $this->permissions;
+    }
+
+    /**
+     * @param list<string> $values catalogue-validated by the caller
+     *                             (see PermissionCatalogueService::knownValues)
+     */
+    public function setPermissionValues(array $values): static
+    {
+        $this->permissions = array_values(array_unique($values));
+
+        return $this;
+    }
+
+    public function hasPermissionValue(string $value): bool
+    {
+        return \in_array($value, $this->permissions, true);
     }
 
     public function isLocked(): bool

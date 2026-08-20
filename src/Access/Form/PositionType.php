@@ -14,7 +14,8 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 /**
  * Just the position's name. The permission matrix is deliberately NOT a form field — it is
  * rendered as manual survey-plate checkboxes (name="permissions[]") so it keeps the design
- * system, and the controller reads/filters it via {@see \Uhifadhi\Access\Enum\PermissionEnum::tryFrom}.
+ * system, and the controller filters the submitted values against
+ * {@see \Uhifadhi\Access\Service\PermissionCatalogueService} (core + module-declared).
  */
 final class PositionType extends AbstractType
 {
