@@ -748,7 +748,9 @@ table.tbl tr:hover .open-btn { background: rgb(var(--c-acc)); color: rgb(var(--c
 .leaflet-control-zoom a {
     background: rgba(8, 13, 10, .72); color: #F5F7F3; border: 1px solid rgba(245, 247, 243, .25);
 }
-.leaflet-control-zoom a:hover { background: rgba(8, 13, 10, .9); }
+.leaflet-control-zoom a:hover,
+.leaflet-control-zoom a:focus,
+.leaflet-control-zoom a:active { background: rgba(8, 13, 10, .9); color: #F5F7F3; }
 
 /* ==================== DATA-ONLY: Hansen year ramp ==================== */
 /* The plasma loss-year ramp, reused by the map legend — MUST match

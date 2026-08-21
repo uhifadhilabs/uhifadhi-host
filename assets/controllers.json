@@ -17,6 +17,10 @@
             "map-viewer": {
                 "enabled": true,
                 "fetch": "lazy"
+            },
+            "coverage-map": {
+                "enabled": true,
+                "fetch": "lazy"
             }
         }
     },

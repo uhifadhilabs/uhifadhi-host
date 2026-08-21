@@ -8337,12 +8337,12 @@
             "source": {
                 "type": "git",
                 "url": "git@github.com:uhifadhilabs/uhakiki-bundle.git",
-                "reference": "645391c6af9baf85dd7ee2a53162c48511df5883"
+                "reference": "d50f3a43e85bd549401f2c0a081eb7a113ae1f55"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/uhifadhilabs/uhakiki-bundle/zipball/645391c6af9baf85dd7ee2a53162c48511df5883",
-                "reference": "645391c6af9baf85dd7ee2a53162c48511df5883",
+                "url": "https://api.github.com/repos/uhifadhilabs/uhakiki-bundle/zipball/d50f3a43e85bd549401f2c0a081eb7a113ae1f55",
+                "reference": "d50f3a43e85bd549401f2c0a081eb7a113ae1f55",
                 "shasum": ""
             },
             "require": {
@@ -8433,7 +8433,7 @@
                 "source": "https://github.com/uhifadhilabs/uhakiki-bundle/tree/main",
                 "issues": "https://github.com/uhifadhilabs/uhakiki-bundle/issues"
             },
-            "time": "2026-08-21T15:07:14+00:00"
+            "time": "2026-08-21T18:27:30+00:00"
         },
         {
             "name": "webmozart/assert",
