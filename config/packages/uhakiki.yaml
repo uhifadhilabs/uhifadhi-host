@@ -1,6 +1,9 @@
 # Uhakiki verification campaigns for this deployment.
 # Reference: bin/console config:dump-reference uhakiki
 uhakiki:
+    # Official Google Map Tiles API (maps) + Static Maps (thumbnails).
+    # Empty/unset = keyless satellite tile fallback.
+    google_maps_api_key: '%env(UHAKIKI_GOOGLE_MAPS_API_KEY)%'
     campaigns:
         nca_bomas:
             subject: Boma
