@@ -21,6 +21,10 @@
             "coverage-map": {
                 "enabled": true,
                 "fetch": "lazy"
+            },
+            "review-form": {
+                "enabled": true,
+                "fetch": "lazy"
             }
         }
     },
