@@ -1,0 +1,12 @@
+# Patrols module (uhifadhilabs/patrol-bundle). Types and observation categories
+# are this deployment's vocabulary — defaults (foot/vehicle/drone) apply until
+# overridden here.
+patrol: ~
+
+when@dev:
+    patrol:
+        dev_tools: true
+
+when@test:
+    patrol:
+        dev_tools: true

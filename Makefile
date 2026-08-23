@@ -1,5 +1,5 @@
 # Developer convenience targets. The interesting pair is bundle-link / bundle-release:
-# uhifadhilabs bundles are developed as sibling checkouts (../<bundle>) and consumed
+# uhifadhilabs bundles are developed as checkouts in ../UhifadhiBundles/<bundle> and consumed
 # here as composer (vcs, dev-main) dependencies. During development you want the local
 # checkout wired in so edits show up instantly; before committing you want the PUBLISHED
 # remote so composer.lock + CI reflect reality. These targets toggle the two, for any
@@ -12,7 +12,7 @@
 
 BUNDLE ?= uhakiki-bundle
 VENDOR := vendor/uhifadhilabs/$(BUNDLE)
-LOCAL  := $(abspath ../$(BUNDLE))
+LOCAL  := $(abspath ../UhifadhiBundles/$(BUNDLE))
 
 .PHONY: bundle-link bundle-release check
 

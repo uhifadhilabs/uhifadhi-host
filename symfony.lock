@@ -389,6 +389,9 @@
     "twig/extra-bundle": {
         "version": "v3.24.0"
     },
+    "uhifadhilabs/patrol-bundle": {
+        "version": "dev-main"
+    },
     "uhifadhilabs/uhakiki-bundle": {
         "version": "0.1",
         "recipe": {

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4062d1e08b585aad463a31e780f50258",
+    "content-hash": "d4f4375b0a07b3529f413e8a75aa9489",
     "packages": [
         {
             "name": "composer/semver",
@@ -1333,16 +1333,16 @@
         },
         {
             "name": "fundistadi/postgis-bundle",
-            "version": "v0.5.0",
+            "version": "v0.5.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/fundistadi/postgis-bundle.git",
-                "reference": "87450135696748220539a9645e2425b98879ac08"
+                "reference": "5cab699143638f27e612b4b0ea6be04b1b1b60f7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fundistadi/postgis-bundle/zipball/87450135696748220539a9645e2425b98879ac08",
-                "reference": "87450135696748220539a9645e2425b98879ac08",
+                "url": "https://api.github.com/repos/fundistadi/postgis-bundle/zipball/5cab699143638f27e612b4b0ea6be04b1b1b60f7",
+                "reference": "5cab699143638f27e612b4b0ea6be04b1b1b60f7",
                 "shasum": ""
             },
             "require": {
@@ -1394,9 +1394,9 @@
             ],
             "support": {
                 "issues": "https://github.com/fundistadi/postgis-bundle/issues",
-                "source": "https://github.com/fundistadi/postgis-bundle/tree/v0.5.0"
+                "source": "https://github.com/fundistadi/postgis-bundle/tree/v0.5.1"
             },
-            "time": "2026-08-18T04:48:24+00:00"
+            "time": "2026-08-23T08:24:01+00:00"
         },
         {
             "name": "monolog/monolog",
@@ -8332,6 +8332,111 @@
             "time": "2026-08-20T20:42:32+00:00"
         },
         {
+            "name": "uhifadhilabs/patrol-bundle",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "git@github.com:uhifadhilabs/patrol-bundle.git",
+                "reference": "5b24adbd6b370fc1ecee62e23b8bdeb27745cbb1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/uhifadhilabs/patrol-bundle/zipball/5b24adbd6b370fc1ecee62e23b8bdeb27745cbb1",
+                "reference": "5b24adbd6b370fc1ecee62e23b8bdeb27745cbb1",
+                "shasum": ""
+            },
+            "require": {
+                "doctrine/dbal": "^4.0",
+                "doctrine/doctrine-bundle": "^3.0",
+                "doctrine/orm": "^3.5",
+                "ext-simplexml": "*",
+                "fundistadi/postgis-bundle": "^0.5",
+                "php": ">=8.4",
+                "symfony/asset": "^7.3 || ^8.0",
+                "symfony/config": "^7.3 || ^8.0",
+                "symfony/console": "^7.3 || ^8.0",
+                "symfony/framework-bundle": "^7.3 || ^8.0",
+                "symfony/twig-bundle": "^7.3 || ^8.0",
+                "symfony/uid": "^7.3 || ^8.0",
+                "uhifadhilabs/module-contracts": "dev-main"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.95",
+                "phpstan/phpstan": "^2.2",
+                "phpunit/phpunit": "^13.2",
+                "symfony/browser-kit": "^7.3 || ^8.0",
+                "symfony/css-selector": "^7.3 || ^8.0",
+                "symfony/dependency-injection": "^7.3 || ^8.0",
+                "symfony/security-bundle": "^7.3 || ^8.0",
+                "symfony/security-core": "^7.3 || ^8.0",
+                "symfony/stimulus-bundle": "^2.20 || ^2.30 || ^2.0"
+            },
+            "default-branch": true,
+            "type": "symfony-bundle",
+            "extra": {
+                "branch-alias": {
+                    "dev-main": "0.1-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "UhifadhiLabs\\PatrolBundle\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "UhifadhiLabs\\PatrolBundle\\Tests\\": "tests/",
+                    "Uhifadhi\\Access\\Entity\\": "tests/Fixtures/Uhifadhi/Access/Entity/",
+                    "Uhifadhi\\Spatial\\Entity\\": "tests/Fixtures/Uhifadhi/Spatial/Entity/"
+                }
+            },
+            "scripts": {
+                "cs:fix": [
+                    "php-cs-fixer fix"
+                ],
+                "cs:check": [
+                    "php-cs-fixer fix --dry-run --diff"
+                ],
+                "phpstan": [
+                    "phpstan analyse --no-progress --memory-limit=1G"
+                ],
+                "test": [
+                    "phpunit"
+                ],
+                "check": [
+                    "@cs:check",
+                    "@phpstan",
+                    "@test"
+                ]
+            },
+            "license": [
+                "proprietary"
+            ],
+            "authors": [
+                {
+                    "name": "Ezekiel Mjema",
+                    "homepage": "https://github.com/eemjema"
+                }
+            ],
+            "description": "Patrols: field patrol effort as first-class records — GPX track ingest, en-route observations with photos, coverage mapping and a per-user widget dashboard.",
+            "keywords": [
+                "gis",
+                "gpx",
+                "patrol",
+                "postgis",
+                "ranger",
+                "symfony",
+                "symfony-ux",
+                "tracking",
+                "uhifadhi"
+            ],
+            "support": {
+                "source": "https://github.com/uhifadhilabs/patrol-bundle/tree/main",
+                "issues": "https://github.com/uhifadhilabs/patrol-bundle/issues"
+            },
+            "time": "2026-08-23T07:47:51+00:00"
+        },
+        {
             "name": "uhifadhilabs/uhakiki-bundle",
             "version": "dev-main",
             "source": {
@@ -11814,6 +11919,7 @@
     "minimum-stability": "stable",
     "stability-flags": {
         "uhifadhilabs/module-contracts": 20,
+        "uhifadhilabs/patrol-bundle": 20,
         "uhifadhilabs/uhakiki-bundle": 20
     },
     "prefer-stable": true,

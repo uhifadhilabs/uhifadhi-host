@@ -11,7 +11,7 @@
         "doctrine/doctrine-migrations-bundle": "^4.0",
         "doctrine/orm": "3.6.7",
         "fundistadi/gdal-bundle": "^0.1",
-        "fundistadi/postgis-bundle": "^0.5",
+        "fundistadi/postgis-bundle": "^0.5.1",
         "phpdocumentor/reflection-docblock": "^6.0",
         "phpstan/phpdoc-parser": "^2.3",
         "symfony/asset": "8.1.*",
@@ -49,7 +49,8 @@
         "twig/extra-bundle": "^2.12|^3.0",
         "twig/twig": "^2.12|^3.0",
         "uhifadhilabs/module-contracts": "dev-main",
-        "uhifadhilabs/uhakiki-bundle": "dev-main"
+        "uhifadhilabs/uhakiki-bundle": "dev-main",
+        "uhifadhilabs/patrol-bundle": "dev-main"
     },
     "config": {
         "allow-plugins": {
@@ -116,7 +117,10 @@
         "symfony": {
             "allow-contrib": false,
             "require": "8.1.*",
-            "endpoint": ["https://raw.githubusercontent.com/uhifadhilabs/recipes/flex/main/index.json", "flex://defaults"]
+            "endpoint": [
+                "https://raw.githubusercontent.com/uhifadhilabs/recipes/flex/main/index.json",
+                "flex://defaults"
+            ]
         }
     },
     "require-dev": {
@@ -134,13 +138,21 @@
         "symfony/web-profiler-bundle": "8.1.*",
         "zenstruck/foundry": "^2.11"
     },
-    "repositories": [{
-        "name": "module-contracts",
-        "type": "vcs",
-        "url": "https://github.com/uhifadhilabs/module-contracts"
-    },{
-        "name": "uhakiki",
-        "type": "vcs",
-        "url": "https://github.com/uhifadhilabs/uhakiki-bundle"
-    }]
+    "repositories": [
+        {
+            "name": "module-contracts",
+            "type": "vcs",
+            "url": "https://github.com/uhifadhilabs/module-contracts"
+        },
+        {
+            "name": "uhakiki",
+            "type": "vcs",
+            "url": "https://github.com/uhifadhilabs/uhakiki-bundle"
+        },
+        {
+            "name": "patrol",
+            "type": "vcs",
+            "url": "https://github.com/uhifadhilabs/patrol-bundle"
+        }
+    ]
 }

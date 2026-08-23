@@ -20,4 +20,5 @@ return [
     FundiStadi\GDALBundle\FundiStadiGDALBundle::class => ['all' => true],
     Symfony\UX\Icons\UXIconsBundle::class => ['all' => true],
     UhifadhiLabs\UhakikiBundle\UhifadhiLabsUhakikiBundle::class => ['all' => true],
+    UhifadhiLabs\PatrolBundle\UhifadhiLabsPatrolBundle::class => ['all' => true],
 ];

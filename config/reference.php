@@ -1576,6 +1576,17 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         }>,
  *     }>,
  * }
+ * @psalm-type PatrolConfig = array{
+ *     module_category?: scalar|Param|null, // Catalogue category the Patrols module is filed under in each area. // Default: "pressure"
+ *     dev_tools?: bool|Param, // Register dev-only tooling (patrol:seed:*). Off by default; the recipe enables it via when@dev/when@test — never in prod. // Default: false
+ *     types?: array<string, array{ // Default: {"foot":{"label":"Foot"},"vehicle":{"label":"Vehicle"},"drone":{"label":"Drone"}}
+ *         label?: scalar|Param|null,
+ *     }>,
+ *     observation_categories?: array<string, array{ // Default: {"wildlife":{"label":"Wildlife sighting"},"sign":{"label":"Sign / evidence"},"infrastructure":{"label":"Infrastructure"}}
+ *         label?: scalar|Param|null,
+ *     }>,
+ *     gap_threshold_minutes?: float|Param, // A pause between consecutive GPX points longer than this counts as a GPS gap — flagged on import, stored with the track, never smoothed. // Default: 5.0
+ * }
  * @psalm-type ConfigType = array{
  *     imports?: ImportsConfig,
  *     parameters?: ParametersConfig,
@@ -1593,6 +1604,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     fundi_stadi_gdal?: FundiStadiGdalConfig,
  *     ux_icons?: UxIconsConfig,
  *     uhakiki?: UhakikiConfig,
+ *     patrol?: PatrolConfig,
  *     "when@dev"?: array{
  *         imports?: ImportsConfig,
  *         parameters?: ParametersConfig,
@@ -1614,6 +1626,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         fundi_stadi_gdal?: FundiStadiGdalConfig,
  *         ux_icons?: UxIconsConfig,
  *         uhakiki?: UhakikiConfig,
+ *         patrol?: PatrolConfig,
  *     },
  *     "when@prod"?: array{
  *         imports?: ImportsConfig,
@@ -1632,6 +1645,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         fundi_stadi_gdal?: FundiStadiGdalConfig,
  *         ux_icons?: UxIconsConfig,
  *         uhakiki?: UhakikiConfig,
+ *         patrol?: PatrolConfig,
  *     },
  *     "when@test"?: array{
  *         imports?: ImportsConfig,
@@ -1653,6 +1667,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         fundi_stadi_gdal?: FundiStadiGdalConfig,
  *         ux_icons?: UxIconsConfig,
  *         uhakiki?: UhakikiConfig,
+ *         patrol?: PatrolConfig,
  *     },
  *     ...<string, ExtensionType|array{ // extra keys must follow the when@%env% pattern or match an extension alias
  *         imports?: ImportsConfig,
