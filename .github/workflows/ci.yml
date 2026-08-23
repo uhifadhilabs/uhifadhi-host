@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   check:
-    name: composer check (deptrac, twig/container lint, tests)
+    name: composer check (cs, twig/container lint, tests)
     runs-on: ubuntu-latest
 
     env:
