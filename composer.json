@@ -49,7 +49,7 @@
         "twig/extra-bundle": "^2.12|^3.0",
         "twig/twig": "^2.12|^3.0",
         "uhifadhilabs/module-contracts": "dev-main",
-        "uhifadhilabs/patrol-module": "dev-main",
+        "uhifadhilabs/patrol-module": "^0.1",
         "uhifadhilabs/seeder-module": "dev-main"
     },
     "config": {
