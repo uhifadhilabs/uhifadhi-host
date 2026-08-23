@@ -51,15 +51,11 @@
                 <div class="map-view" style="position:relative;height:380px;border-radius:10px;overflow:hidden">
                     <div id="map" class="absolute inset-0 isolate" data-map-target="canvas" style="position:absolute;inset:0"></div>
 
-                    {# Dim toggle + expand + layer toggle own the top-right; Leaflet's zoom owns the top-left. #}
-                    <div style="position:absolute;top:10px;right:10px;z-index:10;display:flex;gap:6px;align-items:flex-start">
-                        <button type="button" class="map-pill on" data-map-target="dimBtn" data-action="map#toggleDim" title="Dim outside the boundary">DIM&nbsp;ON</button>
-                        <button type="button" class="map-btn" data-action="map#expand" title="Expand map" aria-label="Expand map">{{ ux_icon('lucide:maximize') }}</button>
-                        <div class="map-toggle">
-                            <button type="button" class="on" data-base="satellite" data-action="map#showBase">Satellite</button>
-                            <button type="button" data-base="osm" data-action="map#showBase">Map</button>
-                        </div>
-                    </div>
+                    {# No controls written here: the platform chrome module
+                       (assets/map_chrome.js) builds zoom, DIM, the base-layer
+                       menu and fullscreen into this frame, so the area map and
+                       every module map wear exactly the same instrument and
+                       neither repo keeps a second copy of the markup. #}
                 </div>
 
                 </div>{# /.map-frame #}

@@ -1067,3 +1067,62 @@ table.tbl tr:hover .open-btn.danger { background: rgb(var(--c-fail)); color: rgb
 .confirm-modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
 .confirm-modal-actions .cta { border: 0; cursor: pointer; font-family: inherit; }
 .confirm-modal-danger { background: rgb(var(--c-fail)); color: #fff; }
+
+/* ── platform map chrome ──────────────────────────────────────────────────
+   The controls every map wears — built by assets/map_chrome.js, styled here so
+   the host and every module bundle share ONE definition (a module must never
+   ship its own copy of these, and the host must never load a module's CSS).
+   Fixed dark hexes throughout: this chrome sits on satellite imagery, which is
+   dark in both themes. */
+.map-chrome { position: absolute; z-index: 6; right: 10px; top: 10px; display: flex; flex-direction: column; gap: 6px; }
+.map-chrome button {
+    width: 26px; height: 26px; display: grid; place-items: center; padding: 0;
+    background: rgba(10, 14, 11, .72); border: 1px solid rgba(234, 242, 236, .18);
+    border-radius: 6px; color: #eaf2ec; font: 600 13px var(--font-mono); cursor: pointer;
+}
+.map-chrome button svg { width: 14px; height: 14px; }
+.map-chrome button.on { background: rgb(var(--c-acc)); color: rgb(var(--c-accT)); border-color: transparent; }
+.map-chrome button:focus-visible,
+.map-chrome-menu button:focus-visible { outline: 2px solid rgb(var(--c-acc)); outline-offset: 2px; }
+
+/* Closed until the layers pill opens it. `hidden` alone loses to the display. */
+.map-chrome-menu[hidden] { display: none; }
+.map-chrome-menu {
+    position: absolute; z-index: 6; right: 44px; top: 74px;
+    display: flex; flex-direction: column; gap: 2px; padding: 4px;
+    background: rgba(10, 14, 11, .88); border: 1px solid rgba(234, 242, 236, .18); border-radius: 8px;
+}
+.map-chrome-menu button {
+    font: 700 10px var(--font-mono); letter-spacing: .08em; text-transform: uppercase;
+    color: #eaf2ec; padding: 5px 9px; border-radius: 6px; cursor: pointer;
+    background: none; border: 0; text-align: left;
+}
+.map-chrome-menu button.on { background: rgb(var(--c-acc)); color: rgb(var(--c-accT)); }
+
+/* The scroll bargain: a plain wheel over a map scrolls the page and flashes
+   this; Ctrl/⌘ + wheel zooms. Never shown in full screen, where the wheel
+   zooms outright because there is no page behind the map. */
+.map-chrome-hint {
+    position: absolute; inset: 0; z-index: 7; display: grid; place-items: center;
+    font: 600 12px var(--font-mono); color: #eaf2ec; letter-spacing: .04em;
+    background: rgba(10, 14, 11, .55); pointer-events: none;
+    opacity: 0; transition: opacity 180ms ease;
+}
+.map-chrome-hint.on { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { .map-chrome-hint { transition: none; } }
+
+/* Leaflet's own controls, dressed as the same overlay pills. */
+.leaflet-container { font: inherit; }
+.map-chrome-host .leaflet-control-attribution,
+.map-chrome-host .leaflet-control-scale-line {
+    font: 600 9px var(--font-mono); color: #eaf2ec; letter-spacing: .04em;
+    background: rgba(10, 14, 11, .72); border: 1px solid rgba(234, 242, 236, .18);
+    border-radius: 6px; padding: 3px 7px;
+}
+.map-chrome-host .leaflet-control-attribution a { color: #eaf2ec; }
+.map-chrome-host .leaflet-control-scale-line { border-top: 0; }
+.map-chrome-host .leaflet-tooltip {
+    font: 600 10px var(--font-mono); color: #eaf2ec; background: rgba(10, 14, 11, .88);
+    border: 1px solid rgba(234, 242, 236, .18); border-radius: 6px; box-shadow: none;
+}
+.map-chrome-host .leaflet-tooltip::before { display: none; }

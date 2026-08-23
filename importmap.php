@@ -28,6 +28,15 @@ return [
     // under a bare specifier so MODULE controllers can import the same helper the
     // host's own map controller uses — one basemap definition, every map.
     'uhifadhi/basemaps' => ['path' => './assets/google_tiles.js'],
+    // How an area boundary is drawn, likewise under a bare specifier: the host's
+    // map controller and every module's map import the SAME casing + line style,
+    // so a boundary can never read one way on an area page and another inside a
+    // module (the "same layer renders identically everywhere" rule).
+    'uhifadhi/boundary' => ['path' => './assets/map_boundary.js'],
+    // The controls that sit on a map — zoom, DIM, base-layer menu, fullscreen,
+    // scale, the Ctrl/⌘-scroll bargain. Built in JS rather than written into two
+    // repos' templates, so an area map and a module map wear the same instrument.
+    'uhifadhi/map-chrome' => ['path' => './assets/map_chrome.js'],
     '@hotwired/stimulus' => ['version' => '3.2.2'],
     '@symfony/stimulus-bundle' => ['path' => './vendor/symfony/stimulus-bundle/assets/dist/loader.js'],
     '@hotwired/turbo' => ['version' => '8.0.23'],

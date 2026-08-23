@@ -29,6 +29,10 @@
             "rows": {
                 "enabled": true,
                 "fetch": "eager"
+            },
+            "calendar": {
+                "enabled": true,
+                "fetch": "eager"
             }
         }
     },

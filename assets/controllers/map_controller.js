@@ -1,5 +1,7 @@
 import { Controller } from '@hotwired/stimulus';
 import { satelliteLayer, streetLayer } from 'uhifadhi/basemaps';
+import { drawBoundary } from 'uhifadhi/boundary';
+import { mountMapChrome } from 'uhifadhi/map-chrome';
 
 /*
  * Deforestation map: the NCA boundary (embedded `boundary` value) plus per-year
@@ -41,7 +43,7 @@ const rgb = (c) => `rgb(${c[0]},${c[1]},${c[2]})`;
 
 export default class extends Controller {
     static values = { boundary: Object, forestLossUrl: String, classLayerUrl: String, classPalette: Object, rasterUrl: String, rasterBounds: Array };
-    static targets = ['canvas', 'frame', 'fromYear', 'toYear', 'bar', 'rangeFill', 'rangeSummary', 'dimBtn'];
+    static targets = ['canvas', 'frame', 'fromYear', 'toYear', 'bar', 'rangeFill', 'rangeSummary'];
 
     static YEAR_MIN = 2001;
     static YEAR_MAX = 2023;
@@ -54,11 +56,10 @@ export default class extends Controller {
         }
         this.L = L;
 
-        // Zoom top-left (navigation); the layer toggle + expand own the top-right.
+        // Every control comes from the platform chrome module (built in JS, see
+        // assets/map_chrome.js) — the same instrument a module's maps wear.
         this.map = L.map(this.canvasTarget, { zoomControl: false });
-        L.control.zoom({ position: 'topleft' }).addTo(this.map);
-        L.control.scale({ imperial: false, position: 'bottomleft' }).addTo(this.map);
-        this.map.attributionControl.setPrefix(false);
+        this.canvasTarget.classList.add('map-chrome-host');
 
         // One definition of the two bases for the whole platform (assets/google_tiles.js):
         // satellite is Google's official Map Tiles API, falling back to keyless
@@ -70,6 +71,20 @@ export default class extends Controller {
         this.bases.satellite.addTo(this.map); // satellite is the default base
 
         this.drawBoundary();
+
+        // The chrome goes on after the boundary, so the DIM pill has a scrim to
+        // switch. Fullscreen takes the whole frame — map plus the loss-year
+        // strip — so filtering stays available there.
+        this.chrome = mountMapChrome(L, this.map, this.canvasTarget.parentElement, {
+            bases: this.bases,
+            scrim: this.dimLayer,
+            scrimOn: true,
+            fullscreenTarget: this.hasFrameTarget ? this.frameTarget : this.canvasTarget.parentElement,
+            // Re-frame the area when the viewport changes size, or full screen
+            // would just show more of Tanzania around the same small boundary.
+            onResize: () => this.boundaryLayer && this.map.fitBounds(this.boundaryLayer.getBounds(), { padding: [40, 40] }),
+        });
+
         // Both overlays are optional — a module map may carry a class layer, the area map forest loss.
         if (this.hasForestLossUrlValue && this.forestLossUrlValue) this.loadForestLoss();
         if (this.hasClassLayerUrlValue && this.classLayerUrlValue) this.loadClassLayer();
@@ -84,7 +99,13 @@ export default class extends Controller {
     // Without this, revisiting the page runs L.map() on an already-initialized container — Leaflet
     // throws, the map never builds, and its zoom/controls flash in then vanish.
     disconnect() {
+        this.chrome?.destroy();
+        this.chrome = null;
         if (this.map) {
+            // stop() first: a zoom animation still in flight fires its
+            // transitionend on a pane remove() has already detached, and Leaflet
+            // throws on '_leaflet_pos'. Navigating mid-zoom is ordinary.
+            this.map.stop();
             this.map.remove();
             this.map = null;
         }
@@ -120,46 +141,15 @@ export default class extends Controller {
             this.map.setView([-3.2, 35.5], 9);
             return;
         }
-        // Dim everything OUTSIDE the boundary (a scrim with the AOI punched out) so
-        // inside vs outside reads as figure/ground — toggleable via the DIM control.
-        this.dimLayer = this.buildDim(data);
-        this.dimLayer.addTo(this.map);
-
-        // White casing under a jade line so the boundary reads on any base.
-        this.L.geoJSON(data, { style: { color: '#ffffff', weight: 6, opacity: 0.9, fill: false } }).addTo(this.map);
-        const line = this.L.geoJSON(data, { style: { color: '#49E6B4', weight: 3, fill: false } }).addTo(this.map);
-        this.map.fitBounds(line.getBounds(), { padding: [40, 40] });
+        // The platform's ONE boundary treatment (assets/map_boundary.js): the
+        // outside-the-area scrim, a white casing and the jade line - the same
+        // three things, in the same order, that every module's maps draw.
+        const boundary = drawBoundary(this.L, this.map, data);
+        this.boundaryLayer = boundary;
+        this.dimLayer = boundary.scrimLayer;
+        this.map.fitBounds(boundary.getBounds(), { padding: [40, 40] });
     }
 
-    // A world-covering polygon with the boundary rings as holes → dims the outside.
-    buildDim(geojson) {
-        const world = [[-89, -179], [-89, 179], [89, 179], [89, -179]];
-        const holes = [];
-        const collect = (poly) => holes.push(poly[0].map(([lng, lat]) => [lat, lng]));
-        for (const f of geojson.features ?? []) {
-            const g = f.geometry;
-            if (g?.type === 'Polygon') collect(g.coordinates);
-            else if (g?.type === 'MultiPolygon') g.coordinates.forEach(collect);
-        }
-        return this.L.polygon([world, ...holes], {
-            stroke: false, fillColor: '#060a08', fillOpacity: 0.42, interactive: false,
-        });
-    }
-
-    // Toggle the outside-boundary scrim (the DIM control).
-    toggleDim() {
-        if (!this.dimLayer) return;
-        const on = this.map.hasLayer(this.dimLayer);
-        if (on) {
-            this.map.removeLayer(this.dimLayer);
-        } else {
-            this.dimLayer.addTo(this.map);
-        }
-        if (this.hasDimBtnTarget) {
-            this.dimBtnTarget.classList.toggle('on', !on);
-            this.dimBtnTarget.textContent = on ? 'DIM OFF' : 'DIM ON';
-        }
-    }
 
     async loadForestLoss() {
         const res = await fetch(this.forestLossUrlValue);
@@ -198,32 +188,7 @@ export default class extends Controller {
         }).addTo(this.map);
     }
 
-    // Toggle the satellite ⇄ street base layer (the SATELLITE/MAP pill).
-    showBase(event) {
-        const base = event.currentTarget.dataset.base;
-        Object.entries(this.bases).forEach(([name, layer]) => {
-            if (name === base) {
-                layer.addTo(this.map);
-            } else {
-                this.map.removeLayer(layer);
-            }
-        });
-        event.currentTarget.parentElement.querySelectorAll('button').forEach((b) => {
-            b.classList.toggle('on', b === event.currentTarget);
-        });
-    }
 
-    // Expand to full screen (the ⤢ affordance). Fullscreens the whole frame — map
-    // plus the loss-year strip and its controls — so filtering stays available.
-    expand() {
-        const frame = this.hasFrameTarget ? this.frameTarget : this.canvasTarget.parentElement;
-        if (document.fullscreenElement) {
-            document.exitFullscreen();
-        } else if (frame.requestFullscreen) {
-            frame.requestFullscreen().then(() => this.map.invalidateSize());
-        }
-        setTimeout(() => this.map.invalidateSize(), 200);
-    }
 
     // Show only loss within the selected [from, to] year range; the slider fill,
     // the range summary, and the loss-by-year bars all track it live.

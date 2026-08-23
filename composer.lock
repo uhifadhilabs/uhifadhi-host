@@ -8247,12 +8247,12 @@
             "source": {
                 "type": "git",
                 "url": "git@github.com:uhifadhilabs/patrol-module.git",
-                "reference": "51cb84d0885b7f8067ca95c00051e2c3b16d6034"
+                "reference": "7744ccec26e6ce888e7a4a34560591f2055ed522"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/uhifadhilabs/patrol-module/zipball/51cb84d0885b7f8067ca95c00051e2c3b16d6034",
-                "reference": "51cb84d0885b7f8067ca95c00051e2c3b16d6034",
+                "url": "https://api.github.com/repos/uhifadhilabs/patrol-module/zipball/7744ccec26e6ce888e7a4a34560591f2055ed522",
+                "reference": "7744ccec26e6ce888e7a4a34560591f2055ed522",
                 "shasum": ""
             },
             "require": {
@@ -8260,6 +8260,7 @@
                 "doctrine/doctrine-bundle": "^3.0",
                 "doctrine/orm": "^3.5",
                 "ext-simplexml": "*",
+                "ext-xmlwriter": "*",
                 "fundistadi/postgis-bundle": "^0.5",
                 "php": ">=8.4",
                 "symfony/asset": "^7.3 || ^8.0",
@@ -8344,7 +8345,7 @@
                 "source": "https://github.com/uhifadhilabs/patrol-module/tree/main",
                 "issues": "https://github.com/uhifadhilabs/patrol-module/issues"
             },
-            "time": "2026-08-23T21:01:15+00:00"
+            "time": "2026-08-23T22:32:17+00:00"
         },
         {
             "name": "uhifadhilabs/seeder-module",
