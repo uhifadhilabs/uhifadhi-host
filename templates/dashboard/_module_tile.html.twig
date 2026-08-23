@@ -1,0 +1,15 @@
+{# A content-ful module card: headline metric + a mini preview of what it plots + source — so the grid
+   reads like a dashboard of the area's modules, not a list of settings. Opens the module's own page.
+   `card` = {slug, title, status, source}. The card carries only what the host can know:
+   catalogue identity; everything richer lives on the module's own pages. #}
+{%- set chip = {'live': 'ok', 'template': 'warn'}[card.status]|default('idle') -%}
+{%- set chipLabel = {'live': 'live', 'template': 'template'}[card.status]|default('planned') -%}
+{# A module owns its pages (its bundle's entry route). A catalogue row without an
+   entry route has no pages yet — its tile is informational, not a link. #}
+{% if card.entryRoute is not null %}<a class="c mtile" href="{{ path(card.entryRoute, {uuid: area.uuid}) }}">{% else %}<div class="c mtile mtile-inert">{% endif %}
+    <div class="mtile-head">
+        <span class="mtile-title">{{ card.title }}</span>
+        <span class="chip {{ chip }}">{{ chipLabel }}</span>
+    </div>
+    <div class="mtile-source"><span class="mono">{{ card.source }}</span></div>
+{% if card.entryRoute is not null %}</a>{% else %}</div>{% endif %}

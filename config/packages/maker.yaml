@@ -1,0 +1,5 @@
+# MakerBundle is dev-only; tell it the app's root namespace so `make:*` generates
+# Uhifadhi\… classes (the app was renamed from the App\ skeleton default).
+when@dev:
+    maker:
+        root_namespace: 'Uhifadhi'

@@ -1,0 +1,47 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}New area — Uhifadhi{% endblock %}
+
+{% block content %}
+    <div class="page">
+        <div class="crumb"><a href="{{ path('dashboard_index') }}">uhifadhi</a> / <a href="{{ path('dashboard_index') }}">areas</a> / new area</div>
+        <h1 class="pg">New area</h1>
+        <p class="pgsub">Upload as a watched job: the form is small, the pipeline is the page. A finished import births a new park sub-app.</p>
+
+        <div class="grid g32">
+            {{ form_start(form) }}
+                <div class="c" id="upload">
+                    <span class="tab"><span class="idx">PL·121</span>Boundary upload<span class="src">· BoundaryImportService</span></span>
+
+                    <div class="mb-0" style="margin-bottom:12px">{{ form_errors(form) }}</div>
+
+                    {{ form_widget(form.name, {attr: {class: 'fld', placeholder: 'Area name — e.g. Serengeti National Park', style: 'margin-bottom:12px'}}) }}
+                    <div class="r" style="font-size:11px">{{ form_errors(form.name) }}</div>
+
+                    <label style="display:block;border:1.5px dashed color-mix(in srgb, rgb(var(--c-acc)) 45%, transparent);border-radius:12px;padding:34px 20px;text-align:center;color:var(--color-fog);font-size:13px;line-height:1.8;background:color-mix(in srgb, rgb(var(--c-acc)) 4%, transparent);cursor:pointer">
+                        Drop your boundary here — or click to choose<br>
+                        <span class="mono" style="font-size:10px;color:var(--color-dim)">GeoJSON · zipped Shapefile · GeoPackage · KML/KMZ · zipped FGDB — WDPA nested archives are scanned automatically</span>
+                        <div style="margin-top:14px">{{ form_widget(form.boundaryFile, {attr: {class: 'mono', style: 'font-size:11px'}}) }}</div>
+                    </label>
+                    <div class="r" style="font-size:11px;margin-top:6px">{{ form_errors(form.boundaryFile) }}</div>
+
+                    <div style="display:flex;margin-top:14px;align-items:center">
+                        <a href="{{ path('dashboard_index') }}" class="fog" style="font-size:12px;text-decoration:none">← Back to areas</a>
+                        <button type="submit" class="cta" style="margin-left:auto;border:0;cursor:pointer">Import boundary</button>
+                    </div>
+                </div>
+            {{ form_end(form) }}
+
+            <div class="c" id="pipeline">
+                <span class="tab"><span class="idx">PL·122</span>Import pipeline<span class="src">· BoundaryImportService</span></span>
+                <div class="rln"><span class="d mono">○</span><span class="d">archive scanned for a polygon layer</span></div>
+                <div class="rln"><span class="d mono">○</span><span class="d">reproject → EPSG:4326</span></div>
+                <div class="rln"><span class="d mono">○</span><span class="d">persist boundary via ORM</span></div>
+                <div class="rln"><span class="d mono">○</span><span class="d">open the new area's sub-app</span></div>
+                <div class="mono" style="margin-top:10px;font-size:9.5px;color:var(--color-dim);border-top:1px dashed color-mix(in srgb, rgb(var(--c-fog)) 25%, transparent);padding-top:10px">
+                    WDPA downloads are zips-of-zips — the scan walks nested archives and prefers the polygon layer automatically. Oversized files are refused with the server limit named.
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

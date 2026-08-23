@@ -1,0 +1,16 @@
+#!/bin/sh
+# Runs after a successful deploy — applies DB migrations inside the live container so
+# `kamal deploy` is one command. Skipped on rollback (don't migrate onto old code).
+set -e
+
+case "$KAMAL_COMMAND" in
+  deploy|redeploy)
+    echo "post-deploy » running database migrations"
+    # One container only — a bare `app exec` runs on EVERY role, racing
+    # concurrent migrations into duplicate-table errors when roles multiply.
+    kamal app exec --reuse --primary --roles web "php bin/console doctrine:migrations:migrate --no-interaction"
+    ;;
+  *)
+    echo "post-deploy » skipping migrations for '$KAMAL_COMMAND'"
+    ;;
+esac

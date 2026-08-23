@@ -1,0 +1,50 @@
+<?php
+
+declare(strict_types=1);
+
+/*
+ * This file is part of uhifadhi.
+ *
+ * (c) Ezekiel Mjema <https://github.com/eemjema>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace Uhifadhi\Repository;
+
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Persistence\ManagerRegistry;
+use Uhifadhi\Entity\Module;
+
+/**
+ * @extends ServiceEntityRepository<Module>
+ */
+final class ModuleRepository extends ServiceEntityRepository
+{
+    public function __construct(ManagerRegistry $registry)
+    {
+        parent::__construct($registry, Module::class);
+    }
+
+    /**
+     * The whole catalogue in display order.
+     *
+     * @return list<Module>
+     */
+    public function catalogue(): array
+    {
+        /** @var list<Module> $result */
+        $result = $this->createQueryBuilder('m')
+            ->orderBy('m.position', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        return $result;
+    }
+
+    public function findBySlug(string $slug): ?Module
+    {
+        return $this->findOneBy(['slug' => $slug]);
+    }
+}

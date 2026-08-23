@@ -1,0 +1,159 @@
+{
+    "type": "project",
+    "license": "AGPL-3.0-or-later",
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "require": {
+        "php": ">=8.4",
+        "ext-ctype": "*",
+        "ext-iconv": "*",
+        "doctrine/doctrine-bundle": "^3.3",
+        "doctrine/doctrine-migrations-bundle": "^4.0",
+        "doctrine/orm": "3.6.7",
+        "fundistadi/gdal-bundle": "^0.1",
+        "fundistadi/postgis-bundle": "^0.5.1",
+        "phpdocumentor/reflection-docblock": "^6.0",
+        "phpstan/phpdoc-parser": "^2.3",
+        "symfony/asset": "8.1.*",
+        "symfony/asset-mapper": "8.1.*",
+        "symfony/console": "8.1.*",
+        "symfony/doctrine-messenger": "8.1.*",
+        "symfony/dotenv": "8.1.*",
+        "symfony/expression-language": "8.1.*",
+        "symfony/flex": "^2",
+        "symfony/form": "8.1.*",
+        "symfony/framework-bundle": "8.1.*",
+        "symfony/http-client": "8.1.*",
+        "symfony/intl": "8.1.*",
+        "symfony/mailer": "8.1.*",
+        "symfony/mime": "8.1.*",
+        "symfony/monolog-bundle": "^3.0|^4.0",
+        "symfony/notifier": "8.1.*",
+        "symfony/property-access": "8.1.*",
+        "symfony/property-info": "8.1.*",
+        "symfony/rate-limiter": "8.1.*",
+        "symfony/runtime": "8.1.*",
+        "symfony/security-bundle": "8.1.*",
+        "symfony/serializer": "8.1.*",
+        "symfony/stimulus-bundle": "^3.4",
+        "symfony/string": "8.1.*",
+        "symfony/translation": "8.1.*",
+        "symfony/twig-bundle": "8.1.*",
+        "symfony/uid": "8.1.*",
+        "symfony/ux-icons": "^3.4",
+        "symfony/ux-turbo": "^3.4",
+        "symfony/validator": "8.1.*",
+        "symfony/web-link": "8.1.*",
+        "symfony/yaml": "8.1.*",
+        "symfonycasts/tailwind-bundle": "^1.0",
+        "twig/extra-bundle": "^2.12|^3.0",
+        "twig/twig": "^2.12|^3.0",
+        "uhifadhilabs/module-contracts": "dev-main",
+        "uhifadhilabs/patrol-module": "dev-main",
+        "uhifadhilabs/seeder-module": "dev-main"
+    },
+    "config": {
+        "allow-plugins": {
+            "php-http/discovery": true,
+            "symfony/flex": true,
+            "symfony/runtime": true
+        },
+        "platform": {
+            "php": "8.4.13"
+        },
+        "bump-after-update": true,
+        "sort-packages": true
+    },
+    "autoload": {
+        "psr-4": {
+            "Uhifadhi\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Uhifadhi\\Tests\\": "tests/"
+        }
+    },
+    "replace": {
+        "symfony/polyfill-ctype": "*",
+        "symfony/polyfill-iconv": "*",
+        "symfony/polyfill-php72": "*",
+        "symfony/polyfill-php73": "*",
+        "symfony/polyfill-php74": "*",
+        "symfony/polyfill-php80": "*",
+        "symfony/polyfill-php81": "*",
+        "symfony/polyfill-php82": "*",
+        "symfony/polyfill-php83": "*",
+        "symfony/polyfill-php84": "*"
+    },
+    "scripts": {
+        "auto-scripts": {
+            "cache:clear": "symfony-cmd",
+            "assets:install %PUBLIC_DIR%": "symfony-cmd",
+            "importmap:install": "symfony-cmd"
+        },
+        "post-install-cmd": [
+            "@auto-scripts"
+        ],
+        "post-update-cmd": [
+            "@auto-scripts"
+        ],
+        "lint:twig": "php bin/console lint:twig templates",
+        "lint:container": "php bin/console lint:container",
+        "test": "phpunit --testsuite=default",
+        "test:e2e": "phpunit --testsuite=panther",
+        "check": [
+            "@cs:check",
+            "@lint:twig",
+            "@lint:container",
+            "@test"
+        ],
+        "cs:fix": "php-cs-fixer fix",
+        "cs:check": "php-cs-fixer fix --dry-run --diff"
+    },
+    "conflict": {
+        "symfony/symfony": "*"
+    },
+    "extra": {
+        "symfony": {
+            "allow-contrib": false,
+            "require": "8.1.*",
+            "endpoint": [
+                "https://raw.githubusercontent.com/uhifadhilabs/recipes/flex/main/index.json",
+                "flex://defaults"
+            ]
+        }
+    },
+    "require-dev": {
+        "dama/doctrine-test-bundle": "^8.6",
+        "dbrekelmans/bdi": "^1.4",
+        "friendsofphp/php-cs-fixer": "^3.95",
+        "phpunit/phpunit": "^13.3",
+        "symfony/browser-kit": "8.1.*",
+        "symfony/css-selector": "8.1.*",
+        "symfony/debug-bundle": "8.1.*",
+        "symfony/maker-bundle": "^1.0",
+        "symfony/panther": "^2.4",
+        "symfony/process": "8.1.*",
+        "symfony/stopwatch": "8.1.*",
+        "symfony/web-profiler-bundle": "8.1.*",
+        "zenstruck/foundry": "^2.11"
+    },
+    "repositories": [
+        {
+            "name": "module-contracts",
+            "type": "vcs",
+            "url": "https://github.com/uhifadhilabs/module-contracts"
+        },
+        {
+            "name": "patrol-module",
+            "type": "vcs",
+            "url": "https://github.com/uhifadhilabs/patrol-module"
+        },
+        {
+            "type": "vcs",
+            "name": "seeder-module",
+            "url": "https://github.com/uhifadhilabs/seeder-module"
+        }
+    ]
+}

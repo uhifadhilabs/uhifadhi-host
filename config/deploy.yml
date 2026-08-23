@@ -1,0 +1,87 @@
+# Kamal 2 deployment for uhifadhi.
+# Deploy is driven by GitHub Actions (.github/workflows/deploy.yml): it builds the
+# amd64 image on a GH runner and runs `kamal deploy` (or `kamal setup` on first run).
+# No secret VALUES live here — only names under `secret:`; real values come from GH
+# Actions secrets, written into .kamal/secrets by the workflow at deploy time.
+
+service: uhifadhi
+image: uhifadhilabs/uhifadhi        # → ghcr.io/uhifadhilabs/uhifadhi (registry.server prepended)
+
+# Host + public domain come from the environment (GH Actions secrets → the
+# workflow exports them; locally: export DEPLOY_HOST/DEPLOY_DOMAIN first) so
+# the public repo names no server IP (it would defeat Cloudflare's origin
+# hiding) and no deployment-specific domain.
+servers:
+  web:
+    - <%= ENV["DEPLOY_HOST"] %>
+  # No worker role: nothing dispatches async messages since Ingestion moved to
+  # its module. Restore a messenger:consume worker when a module needs the queue.
+
+# Kamal Proxy: zero-downtime rollouts + host routing. TLS mirrors vivutio: the origin
+# serves a Cloudflare Origin Certificate (CERTIFICATE_PEM / PRIVATE_KEY_PEM), so the
+# Cloudflare → origin hop is encrypted AND authenticated with the CF proxy ON (orange).
+# → In Cloudflare set the SSL/TLS mode to "Full (strict)".
+proxy:
+  ssl:
+    certificate_pem: CERTIFICATE_PEM
+    private_key_pem: PRIVATE_KEY_PEM
+  host: <%= ENV["DEPLOY_DOMAIN"] %>
+  app_port: 80
+  healthcheck:
+    path: /up                        # DB-free liveness (schema may not exist pre-migration)
+    interval: 3
+    timeout: 5
+
+registry:
+  server: ghcr.io
+  username: uhifadhilabs
+  password:
+    - KAMAL_REGISTRY_PASSWORD        # the workflow's GITHUB_TOKEN (packages:write)
+
+builder:
+  arch: amd64                        # the deploy target is x86-64
+  # BuildKit secret for the composer layer: private uhifadhilabs packages
+  # (patrol-module, …) install from GitHub vcs repos. Value read from
+  # .kamal/secrets; consumed in the Dockerfile via --mount=type=secret,
+  # so the token never lands in an image layer.
+  secrets:
+    - COMPOSER_AUTH
+
+# Non-secret runtime env. Secret env is written from GH Actions secrets.
+env:
+  clear:
+    APP_ENV: prod
+    APP_DEBUG: "0"
+    SERVER_NAME: ":80"
+    # Behind kamal-proxy on a private Docker network — trust the proxy for X-Forwarded-*.
+    SYMFONY_TRUSTED_PROXIES: private_ranges
+    # Async queue over the Postgres DB (no broker). auto_setup stays OFF in prod:
+    # the initial migration owns messenger_messages — with auto_setup on, a booting
+    # worker creates the table before the post-deploy migration and collides with it.
+    MESSENGER_TRANSPORT_DSN: "doctrine://default?auto_setup=0"
+  secret:
+    - APP_SECRET
+    - DATABASE_URL                   # points at the `db` accessory below
+
+# Persist Symfony logs across releases.
+volumes:
+  - "uhifadhi_var:/app/var/log"
+
+# PostGIS runs as a Kamal accessory on the same host; data on a named volume.
+# uhifadhi's first migration does CREATE EXTENSION IF NOT EXISTS postgis.
+accessories:
+  db:
+    image: postgis/postgis:17-3.5
+    host: <%= ENV["DEPLOY_HOST"] %>
+    port: "127.0.0.1:5432:5432"
+    env:
+      clear:
+        POSTGRES_USER: uhifadhi
+        POSTGRES_DB: uhifadhi
+      secret:
+        - POSTGRES_PASSWORD
+    directories:
+      - data:/var/lib/postgresql/data
+
+# Keep the last 5 releases for instant `kamal rollback`.
+retain_containers: 5

@@ -1,0 +1,64 @@
+{% extends 'base.html.twig' %}
+
+{# National shell: collapsible Grafana-style sidebar + a main-area top header.
+   Each page fills {% block content %} with its own `.page` (crumb · pghead · body). #}
+{% set _route = app.request.attributes.get('_route') %}
+{% set _on_areas = _route starts with 'dashboard' %}
+{% set _on_team = _route starts with 'app_team' %}
+
+{% block body %}
+    <div class="shell">
+        <aside class="side" id="side" {{ stimulus_controller('sidebar') }}>
+            <div class="side-top">
+                <a class="brand" href="{{ path('dashboard_index') }}"><img class="brandmark" src="{{ asset('icon.svg') }}" width="30" height="30" alt=""><b>Uhifadhi</b></a>
+                <button class="collapse-btn" type="button" data-action="sidebar#toggle"
+                        title="Collapse sidebar" aria-label="Collapse sidebar">{{ ux_icon('lucide:chevrons-left') }}</button>
+            </div>
+            <nav class="nav">
+                <span class="nav-item off" title="Overview — coming soon">{{ ux_icon('lucide:layout-dashboard') }}<span>Overview</span></span>
+                <a class="nav-item{{ _on_areas ? ' on' }}" href="{{ path('dashboard_index') }}">{{ ux_icon('lucide:map') }}<span>Areas</span></a>
+                <span class="nav-item off" title="Alerts — coming soon">{{ ux_icon('lucide:bell') }}<span>Alerts</span></span>
+                <span class="nav-item off" title="Compare — coming soon">{{ ux_icon('lucide:columns-2') }}<span>Compare</span></span>
+                <span class="nav-item off" title="Runs — coming soon">{{ ux_icon('lucide:activity') }}<span>Runs</span></span>
+                <span class="nav-item off" title="Gallery — coming soon">{{ ux_icon('lucide:layout-grid') }}<span>Gallery</span></span>
+                {% if is_granted('ROLE_MANAGER') %}
+                    <a class="nav-item{{ _on_team ? ' on' }}" href="{{ path('app_team') }}">{{ ux_icon('lucide:users') }}<span>Team</span></a>
+                {% endif %}
+            </nav>
+            <div class="side-foot">
+                <span class="row" style="cursor:default" title="Settings — coming soon">{{ ux_icon('lucide:settings') }}<span>Settings</span></span>
+            </div>
+        </aside>
+
+        <main class="main">
+            {% if is_granted('IS_IMPERSONATOR') %}
+                <div class="impersonation-banner">
+                    {{ ux_icon('lucide:venetian-mask') }}
+                    <span>Impersonating <b>{{ app.user.fullName }}</b></span>
+                    <a href="{{ path('dashboard_index', {_switch_user: '_exit'}) }}">Exit</a>
+                </div>
+            {% endif %}
+            <header class="topbar">
+                <span class="tb-right">
+                    <span class="live"><i></i>worker</span>
+                    <span class="tb-icon" title="Alerts — coming soon">{{ ux_icon('lucide:bell') }}</span>
+                    <button class="tb-icon" type="button" {{ stimulus_controller('theme') }} data-action="theme#toggle"
+                            title="Toggle theme" aria-label="Toggle theme">{{ ux_icon('lucide:sun') }}</button>
+                    {% if app.user %}
+                        <span class="user" title="{{ app.user.email }}">
+                            <span class="avatar">{{ (app.user.firstName|first ~ app.user.lastName|first)|upper }}</span>
+                            <span class="uinfo"><b>{{ app.user.fullName }}</b><em>{{ app.user.teamRole.label }}</em></span>
+                        </span>
+                        <a class="tb-icon" href="{{ path('app_logout') }}" title="Sign out" aria-label="Sign out">{{ ux_icon('lucide:log-out') }}</a>
+                    {% endif %}
+                </span>
+            </header>
+
+            {% block content %}{% endblock %}
+
+            <div class="page" style="padding-top:0">
+                <div class="footer">{% block footer %}Uhifadhi — analytical observatory for protected areas. Sources: Hansen GFC · WDPA. Proof of concept.{% endblock %}</div>
+            </div>
+        </main>
+    </div>
+{% endblock %}

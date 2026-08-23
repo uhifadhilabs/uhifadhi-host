@@ -1,0 +1,86 @@
+name: CI
+
+# The quality gate, mirroring vivutio: runs on every PR into main and on pushes to
+# main. Merge only when green, then dispatch "Deploy uhifadhi to Hetzner" from main.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: composer check (deptrac, twig/container lint, tests)
+    runs-on: ubuntu-latest
+
+    env:
+      # Dev-env connection used by deptrac/lint; when@test appends "_test" to the db name.
+      DATABASE_URL: "postgresql://app:!ChangeMe!@127.0.0.1:5432/uhifadhi?serverVersion=17&charset=utf8"
+      APP_SECRET: ci-not-a-real-secret
+
+    services:
+      database:
+        # PostGIS (not plain Postgres) — the spatial migrations need the extension.
+        image: postgis/postgis:17-3.5
+        env:
+          POSTGRES_USER: app
+          POSTGRES_PASSWORD: "!ChangeMe!"
+          POSTGRES_DB: uhifadhi
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U app"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: bcmath, ctype, iconv, intl, pdo_pgsql
+          coverage: none
+          tools: composer:v2
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      # uhifadhilabs/uhakiki-bundle is a PRIVATE cross-repo dependency; the default
+      # GITHUB_TOKEN can't fetch it. BUNDLES_TOKEN is a fine-grained PAT with
+      # Contents:read on the private uhifadhilabs bundle repos (add it as a repo secret).
+      - name: Configure Composer auth for private uhifadhilabs bundles
+        run: composer config --global github-oauth.github.com "${{ secrets.BUNDLES_TOKEN }}"
+
+      - name: Install dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      # The default suite runs against <db>_test (DAMA rolls each test back). Create it,
+      # then migrate — the first migration does `CREATE EXTENSION IF NOT EXISTS postgis`.
+      - name: Create and migrate the test database
+        env:
+          PGPASSWORD: "!ChangeMe!"
+        run: |
+          psql -h 127.0.0.1 -p 5432 -U app -d uhifadhi -c 'CREATE DATABASE uhifadhi_test;'
+          php bin/console doctrine:migrations:migrate --no-interaction --env=test
+
+      # Functional tests render base.html.twig, whose importmap resolves the
+      # Tailwind-compiled app.css. Build it first (pinned standalone binary — no Node).
+      - name: Build Tailwind CSS
+        run: php bin/console tailwind:build --minify
+
+      - name: Run quality gate
+        run: composer check

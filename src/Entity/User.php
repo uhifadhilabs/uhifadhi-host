@@ -1,0 +1,267 @@
+<?php
+
+declare(strict_types=1);
+
+/*
+ * This file is part of uhifadhi.
+ *
+ * (c) Ezekiel Mjema <https://github.com/eemjema>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace Uhifadhi\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Uhifadhi\Entity\Trait\TimestampableTrait;
+use Uhifadhi\Entity\Trait\UuidTrait;
+use Uhifadhi\Enum\TeamRoleEnum;
+use Uhifadhi\Repository\UserRepository;
+
+/**
+ * A staff account of the single authority that runs uhifadhi. Single-org: no STI, no party
+ * isolation, no legacy `functions` fallback. Two authorization axes — a {@see TeamRoleEnum}
+ * tier and, for Staff, an assigned {@see Position} bundling granular permissions.
+ */
+#[ORM\Entity(repositoryClass: UserRepository::class)]
+#[ORM\Table(name: '`user`')]
+#[ORM\HasLifecycleCallbacks]
+#[UniqueEntity(fields: ['email'], message: 'An account already exists with this email address.')]
+class User implements UserInterface, PasswordAuthenticatedUserInterface
+{
+    use TimestampableTrait;
+    use UuidTrait;
+
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
+    private ?int $id = null;
+
+    #[ORM\Column(length: 180, unique: true)]
+    private ?string $email = null;
+
+    #[ORM\Column(length: 100)]
+    private ?string $firstName = null;
+
+    #[ORM\Column(length: 100)]
+    private ?string $lastName = null;
+
+    /**
+     * @var list<string>
+     */
+    #[ORM\Column]
+    private array $roles = [];
+
+    #[ORM\Column(enumType: TeamRoleEnum::class)]
+    private TeamRoleEnum $teamRole = TeamRoleEnum::Staff;
+
+    /** The position a Staff user holds; Super Admin / Admin / Manager hold everything by tier. */
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?Position $position = null;
+
+    #[ORM\Column]
+    private ?string $password = null;
+
+    #[ORM\Column]
+    private bool $isVerified = false;
+
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $verificationToken = null;
+
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $passwordResetToken = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $passwordResetRequestedAt = null;
+
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getEmail(): ?string
+    {
+        return $this->email;
+    }
+
+    public function setEmail(string $email): static
+    {
+        $this->email = strtolower($email);
+
+        return $this;
+    }
+
+    public function getFirstName(): ?string
+    {
+        return $this->firstName;
+    }
+
+    public function setFirstName(string $firstName): static
+    {
+        $this->firstName = $firstName;
+
+        return $this;
+    }
+
+    public function getLastName(): ?string
+    {
+        return $this->lastName;
+    }
+
+    public function setLastName(string $lastName): static
+    {
+        $this->lastName = $lastName;
+
+        return $this;
+    }
+
+    public function getFullName(): string
+    {
+        return trim(($this->firstName ?? '').' '.($this->lastName ?? ''));
+    }
+
+    public function getUserIdentifier(): string
+    {
+        $email = (string) $this->email;
+
+        return '' !== $email ? $email : throw new \LogicException('User has no email identifier.');
+    }
+
+    /**
+     * Stored roles + ROLE_USER, then the tier's roles and — for Staff — the capability role of
+     * each permission in their position. Super Admin / Admin / Manager hold every permission by
+     * tier (role_hierarchy + the voter's canManageContent()); Staff open only their position's
+     * umbrellas here, with the granular action checked by {@see \Uhifadhi\Security\PermissionVoter}.
+     *
+     * @return list<string>
+     */
+    public function getRoles(): array
+    {
+        $roles = $this->roles;
+        $roles[] = 'ROLE_USER';
+
+        switch ($this->teamRole) {
+            case TeamRoleEnum::SuperAdmin:
+                $roles[] = 'ROLE_SUPER_ADMIN';
+                $roles[] = 'ROLE_ALLOWED_TO_SWITCH';
+                break;
+            case TeamRoleEnum::Admin:
+                $roles[] = 'ROLE_ADMIN';
+                break;
+            case TeamRoleEnum::Manager:
+            case TeamRoleEnum::Staff:
+                // Manager and Staff are position-driven: their capability roles come from
+                // the assigned Position, nothing by tier.
+                if (TeamRoleEnum::Manager === $this->teamRole) {
+                    $roles[] = 'ROLE_MANAGER';
+                }
+                if (null !== $this->position) {
+                    foreach ($this->position->getPermissions() as $permission) {
+                        $roles[] = $permission->capabilityRole();
+                    }
+                }
+                break;
+        }
+
+        return array_values(array_unique($roles));
+    }
+
+    /**
+     * @param list<string> $roles
+     */
+    public function setRoles(array $roles): static
+    {
+        $this->roles = $roles;
+
+        return $this;
+    }
+
+    public function getTeamRole(): TeamRoleEnum
+    {
+        return $this->teamRole;
+    }
+
+    public function setTeamRole(TeamRoleEnum $teamRole): static
+    {
+        $this->teamRole = $teamRole;
+
+        return $this;
+    }
+
+    public function getPosition(): ?Position
+    {
+        return $this->position;
+    }
+
+    public function setPosition(?Position $position): static
+    {
+        $this->position = $position;
+
+        return $this;
+    }
+
+    public function getPassword(): ?string
+    {
+        return $this->password;
+    }
+
+    public function setPassword(string $password): static
+    {
+        $this->password = $password;
+
+        return $this;
+    }
+
+    public function isVerified(): bool
+    {
+        return $this->isVerified;
+    }
+
+    public function setVerified(bool $isVerified): static
+    {
+        $this->isVerified = $isVerified;
+
+        return $this;
+    }
+
+    public function getVerificationToken(): ?string
+    {
+        return $this->verificationToken;
+    }
+
+    public function setVerificationToken(?string $verificationToken): static
+    {
+        $this->verificationToken = $verificationToken;
+
+        return $this;
+    }
+
+    public function getPasswordResetToken(): ?string
+    {
+        return $this->passwordResetToken;
+    }
+
+    public function setPasswordResetToken(?string $passwordResetToken): static
+    {
+        $this->passwordResetToken = $passwordResetToken;
+
+        return $this;
+    }
+
+    public function getPasswordResetRequestedAt(): ?\DateTimeImmutable
+    {
+        return $this->passwordResetRequestedAt;
+    }
+
+    public function setPasswordResetRequestedAt(?\DateTimeImmutable $passwordResetRequestedAt): static
+    {
+        $this->passwordResetRequestedAt = $passwordResetRequestedAt;
+
+        return $this;
+    }
+}

@@ -1,0 +1,50 @@
+
+###> symfony/framework-bundle ###
+/.env.local
+/.env.local.php
+/.env.*.local
+/config/secrets/prod/prod.decrypt.private.php
+/.kamal/secrets
+/public/bundles/
+/var/
+/vendor/
+###< symfony/framework-bundle ###
+
+###> phpunit/phpunit ###
+/phpunit.xml
+/.phpunit.cache/
+###< phpunit/phpunit ###
+
+###> symfony/asset-mapper ###
+/public/assets/
+/assets/vendor/
+###< symfony/asset-mapper ###
+
+###> project ###
+/.idea/
+###< project ###
+
+###> claude ###
+/CLAUDE.md
+###< claude ###
+
+###> dbrekelmans/bdi ###
+/drivers/
+###< dbrekelmans/bdi ###
+
+###> claude ###
+/.claude/
+###< claude ###
+/designs/_build/__pycache__/
+
+# Local-only fixtures / seed data (provided per deployment) — never committed
+/fixtures/
+
+# Local design workspace (mockups + Google-derived imagery props) — never committed;
+# already-tracked generic generators/tiles stay tracked, untracked client props stay out.
+/designs/
+
+###> friendsofphp/php-cs-fixer ###
+/.php-cs-fixer.php
+/.php-cs-fixer.cache
+###< friendsofphp/php-cs-fixer ###

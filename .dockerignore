@@ -1,0 +1,16 @@
+# Keep the production image lean — the app doesn't need these at runtime.
+.git
+.github
+.gitattributes
+.gitignore
+.dockerignore
+designs
+tests
+node_modules
+var/cache
+var/log
+.kamal/secrets
+.env.local
+.env.*.local
+*.md
+.claude

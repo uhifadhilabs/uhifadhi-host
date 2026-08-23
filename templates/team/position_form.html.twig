@@ -1,0 +1,55 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}{{ heading }} — Uhifadhi{% endblock %}
+
+{% block content %}
+    <div class="page">
+        <div class="crumb"><a href="{{ path('dashboard_index') }}">uhifadhi</a> / <a href="{{ path('app_team') }}">team</a> / position</div>
+        <div class="pghead">
+            <div>
+                <h1 class="pg">{{ heading }}</h1>
+                <p class="pgsub">A position is a named bundle of permissions. Tick what it grants; every Staff member assigned this
+                    position inherits exactly these — the action-level check is the <b>PermissionVoter</b>.</p>
+            </div>
+        </div>
+
+        <div style="max-width:560px">
+            {{ form_start(form) }}
+                <div class="c">
+                    <span class="tab"><span class="idx">PL·10</span>Position<span class="src">· name + permissions</span></span>
+
+                    <div class="mb-0" style="margin-bottom:12px">{{ form_errors(form) }}</div>
+
+                    <label class="matrix-label" for="{{ form.name.vars.id }}">Name</label>
+                    {{ form_widget(form.name, {attr: {class: 'fld', placeholder: 'e.g. Ranger'}}) }}
+                    <div class="r" style="font-size:11px;margin-top:6px">{{ form_errors(form.name) }}</div>
+
+                    <label class="matrix-label" style="margin-top:18px">Permissions</label>
+                    <div class="matrix">
+                        {% for umbrella, permissions in catalogue %}
+                            <div class="umb">
+                                <h4>{{ umbrella }}</h4>
+                                <div class="ticks">
+                                    {% for perm in permissions %}
+                                        <label class="tick">
+                                            <input type="checkbox" name="permissions[]" value="{{ perm.value }}"
+                                                   {{ perm.value in checked ? 'checked' }}>
+                                            {{ perm.action }} <em>{{ perm.value }}</em>
+                                        </label>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <div style="display:flex;margin-top:18px;align-items:center">
+                        <a href="{{ path('app_team') }}" class="fog" style="font-size:12px;text-decoration:none">← Back to team</a>
+                        <button type="submit" class="cta" style="margin-left:auto;border:0;cursor:pointer">
+                            {{ locked ? 'Save permissions' : 'Save position' }}
+                        </button>
+                    </div>
+                </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+{% endblock %}
