@@ -1,0 +1,8 @@
+# Demo seeding (uhifadhilabs/seeder-module). Passwords come from .env.local's
+# DEMO_* values (the module refuses placeholders); the email domain decides
+# what the five demo logins look like — override SEEDER_EMAIL_DOMAIN in
+# .env.local to keep older logins (e.g. a deployment domain) working locally.
+seeder:
+    demo_password: '%env(DEMO_PASSWORD)%'
+    super_admin_password: '%env(DEMO_SUPER_ADMIN_PASSWORD)%'
+    email_domain: '%env(SEEDER_EMAIL_DOMAIN)%'
