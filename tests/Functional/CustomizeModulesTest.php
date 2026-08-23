@@ -75,6 +75,41 @@ final class CustomizeModulesTest extends AuthenticatedWebTestCase
         self::assertTrue($this->reload($roads)->isActive(), 'the parked module is now active');
     }
 
+    public function testAFreshAreaShowsTheWholeCatalogueInTheShop(): void
+    {
+        $client = static::createClient();
+        $this->loginAs($client);
+        // An area created after app:seed:catalogue ran has no area_module rows at all.
+        $area = AreaOfInterestFactory::createOne(['name' => 'Kilombero']);
+        ModuleFactory::createOne(['slug' => 'roads', 'name' => 'Roads', 'category' => ModuleCategory::Pressure]);
+        ModuleFactory::createOne(['slug' => 'forest', 'name' => 'Forest loss', 'category' => ModuleCategory::Flux]);
+
+        $crawler = $client->request('GET', '/areas/'.$area->getUuidString().'/modules/customize');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('#settings-shop', 'Roads');
+        self::assertSelectorTextContains('#settings-shop', 'Forest loss');
+        self::assertSelectorTextContains('#settings-shop .src', '2 parked');
+        self::assertCount(2, $crawler->filter('#settings-shop form[action$="/add"]'), 'each row-less module offers +Add');
+    }
+
+    public function testAddingFromTheShopCreatesTheRowAndActivatesIt(): void
+    {
+        $client = static::createClient();
+        $this->loginAs($client);
+        $area = AreaOfInterestFactory::createOne();
+        ModuleFactory::createOne(['slug' => 'roads', 'name' => 'Roads', 'category' => ModuleCategory::Pressure]);
+
+        $crawler = $client->request('GET', '/areas/'.$area->getUuidString().'/modules/customize');
+        $token = $crawler->filter('#settings-shop form input[name="_token"]')->attr('value');
+        $client->request('POST', '/areas/'.$area->getUuidString().'/modules/customize/add', ['_token' => $token, 'module' => 'roads']);
+
+        self::assertResponseRedirects('/areas/'.$area->getUuidString().'/modules/customize');
+        $client->followRedirect();
+        self::assertSelectorTextContains('#settings-active', 'Roads');
+        self::assertSelectorTextNotContains('#settings-shop', 'Roads');
+    }
+
     private function assign(
         object $area,
         string $slug,

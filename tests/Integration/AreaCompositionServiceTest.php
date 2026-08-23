@@ -20,6 +20,7 @@ use Uhifadhi\Enum\ModuleCategory;
 use Uhifadhi\Factory\AreaModuleFactory;
 use Uhifadhi\Factory\AreaOfInterestFactory;
 use Uhifadhi\Factory\ModuleFactory;
+use Uhifadhi\Model\ParkedModule;
 use Uhifadhi\Repository\AreaModuleRepository;
 use Uhifadhi\Repository\ModuleRepository;
 use Uhifadhi\Service\AreaCompositionService;
@@ -96,5 +97,50 @@ final class AreaCompositionServiceTest extends KernelTestCase
 
         self::assertSame(['Pressure'], array_keys($grouped), 'only categories with parked modules appear');
         self::assertCount(2, $grouped['Pressure']);
+    }
+
+    public function testCatalogueModulesTheAreaHasNoRowForCountAsParked(): void
+    {
+        self::bootKernel();
+        $area = AreaOfInterestFactory::createOne(); // created after the catalogue seed — no assignments at all
+        ModuleFactory::createOne(['slug' => 'roads', 'name' => 'Roads', 'category' => ModuleCategory::Pressure]);
+        ModuleFactory::createOne(['slug' => 'forest', 'name' => 'Forest loss', 'category' => ModuleCategory::Flux]);
+
+        $parked = $this->service()->parkedFor($area);
+
+        self::assertCount(2, $parked, 'the whole catalogue is available to a row-less area');
+        self::assertSame(['forest', 'roads'], $this->slugsOf($parked));
+        self::assertNull($parked[0]->assignment, 'no row is invented on read');
+    }
+
+    public function testParkedMixesInactiveRowsWithRowLessCatalogueModules(): void
+    {
+        self::bootKernel();
+        $area = AreaOfInterestFactory::createOne();
+        $fires = ModuleFactory::createOne(['slug' => 'fires', 'name' => 'Fires', 'category' => ModuleCategory::Pressure]);
+        AreaModuleFactory::createOne(['area' => $area, 'module' => $fires, 'active' => false, 'position' => 3]);
+        AreaModuleFactory::createOne(['area' => $area, 'active' => true,
+            'module' => ModuleFactory::new(['slug' => 'forest', 'category' => ModuleCategory::Flux])]);
+        ModuleFactory::createOne(['slug' => 'roads', 'name' => 'Roads', 'category' => ModuleCategory::Pressure]);
+
+        $grouped = $this->service()->parkedByCategory($area);
+
+        self::assertSame(['Pressure'], array_keys($grouped));
+        self::assertSame(['fires', 'roads'], $this->slugsOf($grouped['Pressure']));
+        self::assertNotNull($grouped['Pressure'][0]->assignment, 'the parked row keeps its assignment');
+        self::assertNull($grouped['Pressure'][1]->assignment, 'the never-assigned module has none');
+    }
+
+    /**
+     * @param list<ParkedModule> $parked
+     *
+     * @return list<string>
+     */
+    private function slugsOf(array $parked): array
+    {
+        $slugs = array_map(static fn (ParkedModule $p): string => (string) $p->module->getSlug(), $parked);
+        sort($slugs);
+
+        return $slugs;
     }
 }

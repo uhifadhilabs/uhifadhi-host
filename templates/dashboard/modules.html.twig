@@ -89,8 +89,11 @@
                 <div style="margin-top:6px">
                     {% for category, rows in parkedByCategory %}
                         <div class="mod-cat">{{ category }}</div>
-                        {% for am in rows %}
-                            {% set m = am.module %}
+                        {# A shop card is either a switched-off assignment or a catalogue module this
+                           area has no row for yet — both are added by slug, which creates or
+                           re-activates the row. #}
+                        {% for parked in rows %}
+                            {% set m = parked.module %}
                             <div class="mod-parked" style="view-transition-name: mod-{{ m.slug }}">
                                 <div class="body">
                                     <div class="name">{{ m.name }} {{ helper.status_chip(m.status) }}</div>

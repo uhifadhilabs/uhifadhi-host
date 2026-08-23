@@ -1,8 +1,6 @@
-# Patrols module (uhifadhilabs/patrol-bundle). Types and observation categories
-# are this deployment's vocabulary — defaults (foot/vehicle/drone) apply until
-# overridden here.
-patrol: ~
-
+# Patrols module (uhifadhilabs/patrol-module). dev_tools registers the
+# patrol:seed:* commands — dev/test only, so production never grows commands
+# that fabricate patrols.
 when@dev:
     patrol:
         dev_tools: true

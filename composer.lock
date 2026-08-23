@@ -8247,12 +8247,12 @@
             "source": {
                 "type": "git",
                 "url": "git@github.com:uhifadhilabs/patrol-module.git",
-                "reference": "0bfe14f157841d25f6bf926ef8c4edc79cadc4a9"
+                "reference": "ccb1853b5561ed2b8521943afc3e52bdb764f97e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/uhifadhilabs/patrol-module/zipball/0bfe14f157841d25f6bf926ef8c4edc79cadc4a9",
-                "reference": "0bfe14f157841d25f6bf926ef8c4edc79cadc4a9",
+                "url": "https://api.github.com/repos/uhifadhilabs/patrol-module/zipball/ccb1853b5561ed2b8521943afc3e52bdb764f97e",
+                "reference": "ccb1853b5561ed2b8521943afc3e52bdb764f97e",
                 "shasum": ""
             },
             "require": {
@@ -8343,7 +8343,7 @@
                 "source": "https://github.com/uhifadhilabs/patrol-module/tree/main",
                 "issues": "https://github.com/uhifadhilabs/patrol-module/issues"
             },
-            "time": "2026-08-23T17:18:02+00:00"
+            "time": "2026-08-23T19:32:30+00:00"
         },
         {
             "name": "uhifadhilabs/seeder-module",
