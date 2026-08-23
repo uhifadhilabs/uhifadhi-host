@@ -12,6 +12,24 @@
                 "enabled": false,
                 "fetch": "eager"
             }
+        },
+        "@uhifadhilabs/patrol-module": {
+            "coverage-map": {
+                "enabled": true,
+                "fetch": "eager"
+            },
+            "track-plate": {
+                "enabled": true,
+                "fetch": "eager"
+            },
+            "filters": {
+                "enabled": true,
+                "fetch": "eager"
+            },
+            "rows": {
+                "enabled": true,
+                "fetch": "eager"
+            }
         }
     },
     "entrypoints": []

@@ -8247,12 +8247,12 @@
             "source": {
                 "type": "git",
                 "url": "git@github.com:uhifadhilabs/patrol-module.git",
-                "reference": "ccb1853b5561ed2b8521943afc3e52bdb764f97e"
+                "reference": "51cb84d0885b7f8067ca95c00051e2c3b16d6034"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/uhifadhilabs/patrol-module/zipball/ccb1853b5561ed2b8521943afc3e52bdb764f97e",
-                "reference": "ccb1853b5561ed2b8521943afc3e52bdb764f97e",
+                "url": "https://api.github.com/repos/uhifadhilabs/patrol-module/zipball/51cb84d0885b7f8067ca95c00051e2c3b16d6034",
+                "reference": "51cb84d0885b7f8067ca95c00051e2c3b16d6034",
                 "shasum": ""
             },
             "require": {
@@ -8279,6 +8279,7 @@
                 "symfony/dependency-injection": "^7.3 || ^8.0",
                 "symfony/security-bundle": "^7.3 || ^8.0",
                 "symfony/security-core": "^7.3 || ^8.0",
+                "symfony/security-csrf": "^7.3 || ^8.0",
                 "symfony/stimulus-bundle": "^2.20 || ^2.30 || ^2.0"
             },
             "default-branch": true,
@@ -8343,7 +8344,7 @@
                 "source": "https://github.com/uhifadhilabs/patrol-module/tree/main",
                 "issues": "https://github.com/uhifadhilabs/patrol-module/issues"
             },
-            "time": "2026-08-23T19:32:30+00:00"
+            "time": "2026-08-23T21:01:15+00:00"
         },
         {
             "name": "uhifadhilabs/seeder-module",

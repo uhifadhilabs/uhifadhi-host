@@ -62,6 +62,7 @@ env:
   secret:
     - APP_SECRET
     - DATABASE_URL                   # points at the `db` accessory below
+    - UHIFADHI_GOOGLE_MAPS_API_KEY   # Map Tiles satellite base (referrer-restricted at Google)
 
 # Persist Symfony logs across releases.
 volumes:

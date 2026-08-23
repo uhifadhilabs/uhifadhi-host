@@ -1,5 +1,13 @@
 twig:
     file_name_pattern: '*.twig'
+    globals:
+        # The Google Map Tiles key every map's satellite layer uses. Published to
+        # the browser ONCE, as a data attribute on <body> in base.html.twig, so
+        # host maps and module maps read the same value and no module has to know
+        # about the env var. An empty value is normal (fresh dev install, CI): the
+        # maps fall back to keyless imagery. The key is public by nature — it goes
+        # in tile URLs — so it must be HTTP-referrer-restricted at Google.
+        google_maps_api_key: '%env(default::UHIFADHI_GOOGLE_MAPS_API_KEY)%'
 
 when@test:
     twig:

@@ -24,6 +24,10 @@
  */
 return [
     'app' => ['path' => './assets/app.js', 'entrypoint' => true],
+    // The platform's basemap sources (Google Map Tiles satellite + OSM street),
+    // under a bare specifier so MODULE controllers can import the same helper the
+    // host's own map controller uses — one basemap definition, every map.
+    'uhifadhi/basemaps' => ['path' => './assets/google_tiles.js'],
     '@hotwired/stimulus' => ['version' => '3.2.2'],
     '@symfony/stimulus-bundle' => ['path' => './vendor/symfony/stimulus-bundle/assets/dist/loader.js'],
     '@hotwired/turbo' => ['version' => '8.0.23'],

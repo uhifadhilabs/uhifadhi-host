@@ -1569,6 +1569,11 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     }>,
  *     gap_threshold_minutes?: float|Param, // A pause between consecutive GPX points longer than this counts as a GPS gap — flagged on import, stored with the track, never smoothed. // Default: 5.0
  * }
+ * @psalm-type SeederConfig = array{
+ *     demo_password?: scalar|Param|null, // Shared password for the demo tier accounts. The command refuses placeholder values. // Default: "%env(DEMO_PASSWORD)%"
+ *     super_admin_password?: scalar|Param|null, // Distinct password for the Super Admin account, which can impersonate anyone. // Default: "%env(DEMO_SUPER_ADMIN_PASSWORD)%"
+ *     email_domain?: scalar|Param|null, // Domain of the generated demo emails (superadmin@, admin@, manager@, ranger@, analyst@). // Default: "uhifadhi.test"
+ * }
  * @psalm-type ConfigType = array{
  *     imports?: ImportsConfig,
  *     parameters?: ParametersConfig,
@@ -1586,6 +1591,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     fundi_stadi_gdal?: FundiStadiGdalConfig,
  *     ux_icons?: UxIconsConfig,
  *     patrol?: PatrolConfig,
+ *     seeder?: SeederConfig,
  *     "when@dev"?: array{
  *         imports?: ImportsConfig,
  *         parameters?: ParametersConfig,
@@ -1607,6 +1613,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         fundi_stadi_gdal?: FundiStadiGdalConfig,
  *         ux_icons?: UxIconsConfig,
  *         patrol?: PatrolConfig,
+ *         seeder?: SeederConfig,
  *     },
  *     "when@prod"?: array{
  *         imports?: ImportsConfig,
@@ -1625,6 +1632,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         fundi_stadi_gdal?: FundiStadiGdalConfig,
  *         ux_icons?: UxIconsConfig,
  *         patrol?: PatrolConfig,
+ *         seeder?: SeederConfig,
  *     },
  *     "when@test"?: array{
  *         imports?: ImportsConfig,
@@ -1646,6 +1654,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         fundi_stadi_gdal?: FundiStadiGdalConfig,
  *         ux_icons?: UxIconsConfig,
  *         patrol?: PatrolConfig,
+ *         seeder?: SeederConfig,
  *     },
  *     ...<string, ExtensionType|array{ // extra keys must follow the when@%env% pattern or match an extension alias
  *         imports?: ImportsConfig,

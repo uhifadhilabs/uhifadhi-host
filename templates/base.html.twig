@@ -30,7 +30,11 @@
         <script src="https://cdn.jsdelivr.net/npm/frankenphp-hot-reload/+esm" type="module"></script>
         {% endif %}
     </head>
-    <body>
+    {# One place the whole platform reads the Google Map Tiles key from — the host
+       owns it, every map controller (host or module) reads this attribute, and
+       nothing else has to know the env var exists. Empty is fine: the satellite
+       layer then falls back to keyless imagery. #}
+    <body data-google-maps-api-key="{{ google_maps_api_key|default('') }}">
         {% block body %}{% endblock %}
     </body>
 </html>

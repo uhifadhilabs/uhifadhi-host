@@ -1032,3 +1032,38 @@ table.tbl tr:hover .open-btn.danger { background: rgb(var(--c-fail)); color: rgb
 .cat-on { font-family: var(--font-mono); font-size: 9.5px; color: rgb(var(--c-dim)); }
 /* A form field the current chart type doesn't use (e.g. X for a histogram). */
 .viz-field-off { opacity: .45; }
+
+/* ==================== CONFIRM MODAL (shared destructive-action dialog) ======
+   The platform's "are you sure?" — used by the app AND by module bundles via
+   assets/controllers/confirm_modal_controller.js, so every destructive action in
+   every module asks the same way. Built on <dialog>, so the focus trap, the top
+   layer and Escape are the platform's; only the surface is ours.
+
+   Reuses the design system rather than restating it: the card is the .modal
+   gradient/border, the buttons are .tgl and .cta. Only what has no equivalent
+   lives here. */
+.confirm-modal {
+    border: 0; padding: 0; background: none; color: rgb(var(--c-tx));
+    max-width: 460px; width: calc(100% - 32px);
+}
+.confirm-modal::backdrop {
+    background: color-mix(in srgb, rgb(var(--c-cv)) 55%, transparent);
+    backdrop-filter: blur(3px);
+}
+.confirm-modal-card {
+    background: linear-gradient(180deg, rgb(var(--c-p1)), rgb(var(--c-p2)));
+    border: 1px solid var(--c-ln2); border-radius: 14px; box-shadow: var(--shadow);
+    padding: 20px;
+}
+.confirm-modal-head { display: flex; align-items: center; gap: 11px; }
+.confirm-modal-icon { display: grid; place-items: center; color: rgb(var(--c-fog)); flex: none; }
+/* Destructive actions wear the fail colour — the icon is the first thing read. */
+.confirm-modal-icon.danger { color: rgb(var(--c-fail)); }
+.confirm-modal-title { font-family: var(--font-display); font-size: 16px; font-weight: 700; margin: 0; }
+.confirm-modal-message {
+    color: rgb(var(--c-fog)); font-size: 12.5px; line-height: 1.6;
+    margin: 12px 0 0; padding-top: 12px; border-top: 1px solid var(--c-ln);
+}
+.confirm-modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+.confirm-modal-actions .cta { border: 0; cursor: pointer; font-family: inherit; }
+.confirm-modal-danger { background: rgb(var(--c-fail)); color: #fff; }

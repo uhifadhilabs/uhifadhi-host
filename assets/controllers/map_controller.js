@@ -1,4 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
+import { satelliteLayer, streetLayer } from 'uhifadhi/basemaps';
 
 /*
  * Deforestation map: the NCA boundary (embedded `boundary` value) plus per-year
@@ -59,15 +60,12 @@ export default class extends Controller {
         L.control.scale({ imperial: false, position: 'bottomleft' }).addTo(this.map);
         this.map.attributionControl.setPrefix(false);
 
+        // One definition of the two bases for the whole platform (assets/google_tiles.js):
+        // satellite is Google's official Map Tiles API, falling back to keyless
+        // Esri imagery when no UHIFADHI_GOOGLE_MAPS_API_KEY is configured.
         this.bases = {
-            osm: L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-                attribution: '© OpenStreetMap contributors',
-            }),
-            satellite: L.tileLayer(
-                'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-                { maxZoom: 19, attribution: 'Esri, Maxar, Earthstar Geographics' },
-            ),
+            osm: streetLayer(L),
+            satellite: satelliteLayer(L, this.map),
         };
         this.bases.satellite.addTo(this.map); // satellite is the default base
 
