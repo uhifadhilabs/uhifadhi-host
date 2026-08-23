@@ -3,7 +3,9 @@
 {# National shell: collapsible Grafana-style sidebar + a main-area top header.
    Each page fills {% block content %} with its own `.page` (crumb · pghead · body). #}
 {% set _route = app.request.attributes.get('_route') %}
-{% set _on_areas = _route starts with 'dashboard' %}
+{# Module screens (bundle routes like patrol_*) all live under /areas/… — match
+   the URL space, not route names, so the host stays module-blind. #}
+{% set _on_areas = _route starts with 'dashboard' or app.request.pathInfo starts with '/areas' %}
 {% set _on_team = _route starts with 'app_team' %}
 
 {% block body %}
