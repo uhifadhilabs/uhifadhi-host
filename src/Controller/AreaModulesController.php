@@ -20,6 +20,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Requirement\Requirement;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Uhifadhi\Entity\AreaOfInterest;
+use Uhifadhi\Entity\User;
 use Uhifadhi\Service\ModuleGridService;
 
 /**
@@ -41,9 +42,12 @@ final class AreaModulesController extends AbstractController
         #[MapEntity(mapping: ['uuid' => 'uuid'])] AreaOfInterest $area,
         ModuleGridService $grid,
     ): Response {
+        $viewer = $this->getUser();
+
         return $this->render('dashboard/modules_grid.html.twig', [
             'area' => $area,
-            'groups' => $grid->grouped($area),
+            // The department lens: the viewer's own modules lead, nothing is taken away.
+            'groups' => $grid->grouped($area, $viewer instanceof User ? $viewer : null),
         ]);
     }
 }

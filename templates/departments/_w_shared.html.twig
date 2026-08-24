@@ -1,0 +1,37 @@
+{# Departments widget 'shared' — owned by its widget agent; receives: departments,
+   modules, departmentsByModule, positionsByDepartment, usersByDepartment, canManage. #}
+{# Design: ngoro-departments-a.html, plate DP·09 — the modules two or more departments claim,
+   each with the departments claiming it. The whole point of the lens said as a table: one
+   module, one set of rows, several readings. Modules with a single department stay out. #}
+{% set _shared = modules
+    |filter(m => (departmentsByModule[m.id]|default([]))|length > 1)
+    |sort((a, b) => ((departmentsByModule[b.id]|default([]))|length <=> (departmentsByModule[a.id]|default([]))|length) ?: (a.name <=> b.name))
+%}
+<div class="c" data-w="shared">
+    <span class="tab"><span class="idx">DP·09</span>Shared modules<span class="src">· the lens in one line</span></span>
+    {% if _shared is empty %}
+        <p class="dp-lead">No module is claimed by two departments yet. Attach one to a second
+            department and it appears here — with every department that reads it.</p>
+        <p class="use"><b>One row, many readings.</b> Sharing a module duplicates nothing: the second
+            department reads the same table the first one files into.</p>
+    {% else %}
+        <div class="dp-tblwrap">
+            <table class="tbl">
+                <thead><tr><th>Module</th><th>Attached to</th><th class="num">Departments</th></tr></thead>
+                <tbody>
+                    {% for module in _shared %}
+                        {% set claimants = departmentsByModule[module.id]|default([]) %}
+                        <tr>
+                            <td><b>{{ module.name }}</b></td>
+                            <td class="fog dp-claim">{{ claimants|map(d => d.name)|join(', ') }}</td>
+                            <td class="num acc">{{ claimants|length }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <p class="use"><b>One row, many readings.</b> A shared module is one table, not a copy per
+            department. Each department sees it ranked for the work it does — and none of them can
+            hide a row from another.</p>
+    {% endif %}
+</div>

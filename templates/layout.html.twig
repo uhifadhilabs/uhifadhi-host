@@ -7,6 +7,9 @@
    the URL space, not route names, so the host stays module-blind. #}
 {% set _on_areas = _route starts with 'dashboard' or app.request.pathInfo starts with '/areas' %}
 {% set _on_team = _route starts with 'app_team' %}
+{# Both the dashboard (app_departments…) and every management write (app_department_…) share
+   this prefix, so the item stays lit wherever the surface takes you. #}
+{% set _on_departments = _route starts with 'app_department' %}
 
 {% block body %}
     <div class="shell">
@@ -26,6 +29,9 @@
                 {% if is_granted('ROLE_MANAGER') %}
                     <a class="nav-item{{ _on_team ? ' on' }}" href="{{ path('app_team') }}">{{ ux_icon('lucide:users') }}<span>Team</span></a>
                 {% endif %}
+                {# Departments are a lens everyone looks through, so the item is not gated the way
+                   Team is — only its management chrome is. #}
+                <a class="nav-item{{ _on_departments ? ' on' }}" href="{{ path('app_departments') }}">{{ ux_icon('lucide:building-2') }}<span>Departments</span></a>
             </nav>
             <div class="side-foot">
                 <span class="row" style="cursor:default" title="Settings — coming soon">{{ ux_icon('lucide:settings') }}<span>Settings</span></span>

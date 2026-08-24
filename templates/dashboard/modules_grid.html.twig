@@ -17,8 +17,9 @@
 
         {{ include('dashboard/_area_tabs.html.twig', {area: area, active: 'modules'}) }}
 
+        {# A department leads the first group — the lens marker says which one, and only then. #}
         {% for group in groups %}
-            <h2 class="zone">{{ group.label }}</h2>
+            <h2 class="zone">{{ group.label }}{% if group.department %}<span class="lens-led">{{ ux_icon('lucide:focus') }}led by {{ group.department }}</span>{% endif %}</h2>
             <div class="grid g4">
                 {% for card in group.cards %}
                     {{ include('dashboard/_module_tile.html.twig', {area: area, card: card}) }}

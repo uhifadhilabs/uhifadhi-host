@@ -57,7 +57,7 @@ final class ProviderCatalogueMapperTest extends TestCase
                 return $this->stat;
             }
 
-            public function dataSource(): ?string
+            public function dataSource(): string
             {
                 return 'verification';
             }

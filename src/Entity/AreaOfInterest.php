@@ -35,7 +35,7 @@ class AreaOfInterest
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    private ?int $id = null;
+    private ?int $id = null; // @phpstan-ignore property.unusedType (assigned by Doctrine via reflection)
 
     #[ORM\Column(length: 128)]
     private ?string $name = null;

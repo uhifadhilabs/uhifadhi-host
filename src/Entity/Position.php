@@ -36,7 +36,7 @@ class Position
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    private ?int $id = null;
+    private ?int $id = null; // @phpstan-ignore property.unusedType (assigned by Doctrine via reflection)
 
     #[ORM\Column(length: 120)]
     private ?string $name = null;
@@ -52,6 +52,14 @@ class Position
     /** Reserved: a position whose label is fixed. Owners bypass positions by tier, so unused today. */
     #[ORM\Column]
     private bool $locked = false;
+
+    /**
+     * The department this position sits in, if any — how a user's department is derived. Purely
+     * organizational: it re-orders what its holders see and grants nothing (permissions above do).
+     */
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?Department $department = null;
 
     public function getId(): ?int
     {
@@ -126,6 +134,18 @@ class Position
     public function hasPermissionValue(string $value): bool
     {
         return \in_array($value, $this->permissions, true);
+    }
+
+    public function getDepartment(): ?Department
+    {
+        return $this->department;
+    }
+
+    public function setDepartment(?Department $department): static
+    {
+        $this->department = $department;
+
+        return $this;
     }
 
     public function isLocked(): bool

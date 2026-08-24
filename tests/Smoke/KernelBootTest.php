@@ -23,9 +23,9 @@ final class KernelBootTest extends KernelTestCase
 {
     public function testTheKernelBootsInTheTestEnvironment(): void
     {
-        self::bootKernel();
+        $kernel = self::bootKernel();
 
-        self::assertSame('test', self::$kernel->getEnvironment());
+        self::assertSame('test', $kernel->getEnvironment());
         self::assertTrue(self::getContainer()->has('doctrine'));
     }
 }

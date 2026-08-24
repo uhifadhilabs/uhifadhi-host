@@ -1,0 +1,31 @@
+{# Departments widget 'kpis' — owned by its widget agent; receives: departments,
+   modules, departmentsByModule, positionsByDepartment, usersByDepartment, canManage. #}
+{# Design: ngoro-departments-a.html, the .kstrip of four DP·K plates. Four counts and
+   nothing else — the strip answers "how big is the org chart" before any card is read. #}
+{% set _departments = departments|length %}
+{% set _people = usersByDepartment|reduce((carry, members) => carry + members|length, 0) %}
+{% set _positions = positionsByDepartment|reduce((carry, held) => carry + held|length, 0) %}
+{% set _attached = modules|filter(m => (departmentsByModule[m.id]|default([]))|length > 0)|length %}
+{% set _shared = modules|filter(m => (departmentsByModule[m.id]|default([]))|length > 1)|length %}
+<div class="grid w-flush dp-kstrip" data-w="kpis">
+    <div class="c kpi">
+        <span class="tab"><span class="idx">DP·K1</span>Departments</span>
+        <b class="disp">{{ _departments }}</b>
+        <span class="sub">org-wide · not per-area</span>
+    </div>
+    <div class="c kpi">
+        <span class="tab"><span class="idx">DP·K2</span>People placed</span>
+        <b class="disp">{{ _people }}</b>
+        <span class="sub">placed through their position</span>
+    </div>
+    <div class="c kpi">
+        <span class="tab"><span class="idx">DP·K3</span>Positions</span>
+        <b class="disp">{{ _positions }}</b>
+        <span class="sub">each links to one department</span>
+    </div>
+    <div class="c kpi">
+        <span class="tab"><span class="idx">DP·K4</span>Modules attached</span>
+        <b class="disp">{{ _attached }}</b>
+        <span class="sub">{{ _shared }} shared across departments</span>
+    </div>
+</div>

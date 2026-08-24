@@ -1,0 +1,74 @@
+{# The org-wide departments dashboard (settled design: ngoro-departments-a … -e, all five as
+   widgets). Everything below the header is the platform widget framework: the person's own
+   resolved layout, in their own order, with the widgets they switched off simply absent.
+
+   Every widget is a partial in this folder and receives exactly the surface's context — see
+   Uhifadhi\Service\DepartmentsSurface. #}
+{% extends 'layout.html.twig' %}
+
+{% block title %}Departments — Uhifadhi{% endblock %}
+
+{% block content %}
+    <div class="page">
+        <div class="crumb"><a href="{{ path('dashboard_index') }}">uhifadhi</a> / departments</div>
+
+        <div class="pghead">
+            <div>
+                <h1 class="pg">Departments</h1>
+                <p class="pgsub">Departments are <b>org-wide</b>, like Team — created once, used by every area. Each one
+                    attaches the modules it works in and owns the positions its people hold.
+                    A department shapes emphasis, never access.</p>
+            </div>
+            <div class="pgact w-pgact">
+                {% if canManage %}
+                    {# One field, so it is one field — not a screen. The token id is shared by every
+                       management write on this surface (DepartmentsController::MANAGE_TOKEN). #}
+                    <form method="post" action="{{ path('app_department_create') }}" class="assign">
+                        <input type="hidden" name="_token" value="{{ csrf_token('department_manage') }}">
+                        <input type="text" name="name" class="fld" placeholder="New department" aria-label="New department name" required>
+                        <button class="cta" type="submit">{{ ux_icon('lucide:plus') }}Add</button>
+                    </form>
+                {% endif %}
+                <a class="tgl w-act" href="{{ path('app_departments_widgets') }}">{{ ux_icon('lucide:layout-grid') }}Widget library</a>
+            </div>
+        </div>
+
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="c" style="padding:12px 16px;margin-bottom:16px"><span class="acc">{{ label == 'error' ? '!' : '✓' }}</span> {{ message }}</div>
+            {% endfor %}
+        {% endfor %}
+
+        {# EXACTLY what a partial receives, stated once. with_context: false so the contract is
+           the contract: a partial that reaches for a variable this map does not name fails here,
+           on the surface that owns it, rather than on whichever screen borrows it next. #}
+        {% set widgetContext = {
+            departments: departments,
+            modules: modules,
+            departmentsByModule: departmentsByModule,
+            positionsByDepartment: positionsByDepartment,
+            usersByDepartment: usersByDepartment,
+            canManage: canManage,
+        } %}
+
+        <div class="w-grid">
+            {# A switched-off widget is simply absent — not hidden, not an empty cell. #}
+            {% for widget in widgets|filter(w => w.on) %}
+                {# w-span-N, never w-N: a bare `w-12` is Tailwind's width utility
+                   and would render this cell 48px wide (see the widget-framework
+                   block in app.css). #}
+                <div class="w-cell w-span-{{ widget.cols }}" data-widget-id="{{ widget.id }}" data-widget-cols="{{ widget.cols }}">
+                    <div class="w-inner">
+                        {{ include('departments/_w_' ~ widget.id ~ '.html.twig', widgetContext, with_context: false) }}
+                    </div>
+                </div>
+            {% endfor %}
+            {# The door to editing, in the grid itself — adding/removing/arranging
+               happens in the LIBRARY (the patrol-era ruling); this tile just makes
+               that reachable from where you notice a widget is missing. #}
+            <a class="w-cell w-span-12 w-addtile" href="{{ path('app_departments_widgets') }}">
+                {{ ux_icon('lucide:plus') }}<span>Add widgets — open the library</span>
+            </a>
+        </div>
+    </div>
+{% endblock %}

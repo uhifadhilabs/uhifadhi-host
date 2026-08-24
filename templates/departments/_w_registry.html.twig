@@ -1,0 +1,91 @@
+{# Departments widget 'registry' — owned by its widget agent; receives: departments,
+   modules, departmentsByModule, positionsByDepartment, usersByDepartment, canManage.
+
+   The table of record: every department, the modules it claims, the positions filed under it
+   and the members those positions carry. With `canManage` it also carries the management
+   controls — an inline create row, per-row rename, and a delete that asks first through the
+   host's confirm-modal controller. Without it the very same table is read-only.
+
+   positionsByDepartment / usersByDepartment are read as either a count or a collection,
+   keyed by department id (or uuid), so the page may hand over whichever it already has. #}
+{% set can_manage = canManage|default(false) %}
+<div class="c" data-w="registry">
+    <span class="tab"><span class="idx">PL·03</span>Departments<span class="src">· {{ departments|length }} · org-wide</span></span>
+    <table class="tbl">
+        <thead><tr><th>Department</th><th>Modules attached</th><th class="num">Positions</th><th class="num">Members</th><th></th></tr></thead>
+        <tbody>
+        {% for d in departments %}
+            {% set positions = positionsByDepartment[d.id] ?? positionsByDepartment[d.uuidString] ?? 0 %}
+            {% set members = usersByDepartment[d.id] ?? usersByDepartment[d.uuidString] ?? 0 %}
+            {% set position_count = positions is iterable ? positions|length : positions %}
+            {% set member_count = members is iterable ? members|length : members %}
+            <tr>
+                <td>
+                    <div class="who">
+                        <span class="avatar sm mute">{{ '%02d'|format(loop.index) }}</span>
+                        {% if can_manage %}
+                            <form method="post" action="{{ path('app_department_rename', {uuid: d.uuidString}) }}" class="dept-inline">
+                                <input type="hidden" name="_token" value="{{ csrf_token('department_manage') }}">
+                                <input class="inl" type="text" name="name" value="{{ d.name }}" required
+                                       aria-label="Rename “{{ d.name }}”">
+                                <button class="open-btn" type="submit">Rename</button>
+                            </form>
+                        {% else %}
+                            <b>{{ d.name }}</b>
+                        {% endif %}
+                    </div>
+                </td>
+                <td>
+                    <div class="chiprow">
+                        {% for m in d.modules %}
+                            {% set claimants = departmentsByModule[m.id]|default([])|length %}
+                            <span class="dchip{{ claimants > 1 ? ' shared' }}"
+                                  title="{{ claimants > 1
+                                      ? 'shared with ' ~ claimants ~ ' departments — same rows, different lens'
+                                      : 'attached to this department only' }}">{{ m.name }}{% if claimants > 1 %}<i>·{{ claimants }}</i>{% endif %}</span>
+                        {% else %}
+                            <span class="dchip ghost">none</span>
+                        {% endfor %}
+                    </div>
+                </td>
+                <td class="num">{{ position_count }}</td>
+                <td class="num">{{ member_count }}</td>
+                <td class="num">
+                    {% if can_manage %}
+                        <div class="pos-actions">
+                            <form method="post" action="{{ path('app_department_delete', {uuid: d.uuidString}) }}">
+                                <input type="hidden" name="_token" value="{{ csrf_token('department_manage') }}">
+                                <button class="open-btn danger" type="submit"
+                                        data-controller="confirm-modal"
+                                        data-action="click->confirm-modal#ask"
+                                        data-confirm-modal-title-value="Delete “{{ d.name }}”?"
+                                        data-confirm-modal-message-value="Only the lens goes. Its {{ d.modules|length }} module{{ d.modules|length == 1 ? '' : 's' }} survive untouched, the {{ position_count }} position{{ position_count == 1 ? '' : 's' }} filed under it are unfiled, and no member is removed."
+                                        data-confirm-modal-confirm-label-value="Delete department"
+                                        data-confirm-modal-danger-value="true">Delete</button>
+                            </form>
+                        </div>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+        {% if can_manage %}
+            {# The create row is the last row of the same table — a new department is one more
+               line of the list, not a screen of its own. The submit sits in the actions column
+               and reaches the form by id, as the design has it. #}
+            <tr class="newrow">
+                <td>
+                    <form id="department-create" method="post" action="{{ path('app_department_create') }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token('department_manage') }}">
+                        <input class="inl" type="text" name="name" required
+                               placeholder="New department name…" aria-label="New department name">
+                    </form>
+                </td>
+                <td><span class="fog mono dash">—</span></td>
+                <td class="num fog mono dash">—</td>
+                <td class="num fog mono dash">—</td>
+                <td class="num"><button class="open-btn" type="submit" form="department-create">Create</button></td>
+            </tr>
+        {% endif %}
+        </tbody>
+    </table>
+</div>

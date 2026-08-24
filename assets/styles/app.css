@@ -1126,3 +1126,698 @@ table.tbl tr:hover .open-btn.danger { background: rgb(var(--c-fail)); color: rgb
     border: 1px solid rgba(234, 242, 236, .18); border-radius: 6px; box-shadow: none;
 }
 .map-chrome-host .leaflet-tooltip::before { display: none; }
+
+/* ============================================================================
+   WIDGET FRAMEWORK — the platform's dashboard grid and widget library
+   ----------------------------------------------------------------------------
+   Generalised from the patrols module's own library/grid blocks, which is where
+   every rule below was proven. Naming: the framework owns the `w-` prefix and
+   nothing else — .w-grid and .w-span-12 … .w-span-3 for the DASHBOARD, .w-lib,
+   .w-card and their chrome for the LIBRARY, .w-dragging, .w-dropslot,
+   .w-droptarget and .w-sliding for the drag states assets/widgets.js adds. Any
+   surface that ships a WidgetCatalog wears these, so a dashboard in a module and
+   a dashboard in the host lay out identically.
+
+   CONSTRAINT — a framework class must NEVER spell a Tailwind utility. This host
+   compiles Tailwind 4, whose utility layer out-cascades these rules, so the
+   earlier .w-12/.w-9/.w-6/.w-3 span classes silently became width:3rem/2.25rem/
+   1.5rem/0.75rem and a full-width widget rendered 48px wide in a 1236px grid.
+   Bare `w-<number>` is Tailwind's width scale; so are h-N, m-N, p-N, gap-N,
+   text-*, and the container scale (w-sm … w-7xl, w-full/auto/fit/min/max/px).
+   Hence the numeric spans read .w-span-N, which is nobody's utility. Check any
+   new class here against that list BEFORE adding it.
+
+   Everything the design system already ships (.c, .chip, .mchip, .tgl, .pghead)
+   is REUSED, never redefined here.
+   ========================================================================== */
+
+/* ---- dashboard grid ---------------------------------------------------- */
+/* Twelve columns; each widget declares its span. The span class comes from the
+   person's stored preference (WidgetService), which is the surface catalogue's
+   own layout until they change it in the library. */
+.w-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 20px; }
+.w-grid > .w-cell { grid-column: span 12; min-width: 0; position: relative; }
+.w-grid > .w-cell.w-span-12 { grid-column: span 12; }
+.w-grid > .w-cell.w-span-9 { grid-column: span 9; }
+.w-grid > .w-cell.w-span-6 { grid-column: span 6; }
+.w-grid > .w-cell.w-span-3 { grid-column: span 3; }
+.w-grid > .w-cell .w-inner { height: 100%; display: flex; flex-direction: column; min-height: 0; }
+.w-grid > .w-cell .w-inner > .c,
+.w-grid > .w-cell .w-inner > .grid { flex: 1; min-height: 0; margin-bottom: 0; }
+/* The design system's .grid carries a bottom margin; inside a widget the grid
+   gap owns the spacing instead. */
+.w-flush { margin-bottom: 0; }
+@media (max-width: 980px) {
+    .w-grid > .w-cell { grid-column: span 12 !important; }
+}
+
+/* ---- widget library ---------------------------------------------------- */
+/* The editing surface IS the dashboard layout with editing chrome on top: the
+   same twelve columns, the same fractions and the same breakpoint as .w-grid, so
+   two half-width widgets sit side by side here exactly as they will there. The
+   span is read from the card's data-widget-cols rather than a class, so a width
+   chip — which already rewrites that attribute — re-lays the library live, with
+   no JavaScript of its own. */
+.w-libintro { margin-bottom: 22px; }
+.w-lib {
+    display: grid; grid-template-columns: repeat(12, 1fr);
+    gap: 34px 20px; align-items: start;
+}
+.w-card { grid-column: span 12; min-width: 0; }
+.w-card[data-widget-cols="9"] { grid-column: span 9; }
+.w-card[data-widget-cols="6"] { grid-column: span 6; }
+.w-card[data-widget-cols="3"] { grid-column: span 3; }
+/* The notice speaks for the whole library, never for one column of it. */
+.w-notice { grid-column: span 12; }
+@media (max-width: 980px) {
+    /* The dashboard makes every widget full width here, so the library must stop
+       promising a layout this viewport never renders. !important for the same
+       reason .w-grid needs it: the span rules above are attribute-scoped and
+       would otherwise out-specify this. */
+    .w-card { grid-column: span 12 !important; }
+}
+
+/* A library drawn as headed sections: one group per section, each with its own
+   twelve columns, under a heading and ONE line saying what the section is for
+   (WidgetGroup::$description). The sections are why a drag stays inside its own
+   parent — see assets/widgets.js. */
+.w-section { margin-bottom: 40px; }
+.w-sectionhead {
+    font-family: var(--font-display); font-weight: 700; font-size: 17px;
+    margin: 0 0 4px;
+}
+.w-sectionsub { font-size: 12.5px; color: rgb(var(--c-fog)); margin: 0 0 18px; }
+
+.w-head { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; margin: 0 0 14px; }
+.w-name { font-family: var(--font-display); font-weight: 700; font-size: 15px; }
+/* The design system's .tgl already draws the chip; the library only pushes it to
+   the far end of its row. */
+.w-tgl { margin-left: auto; display: inline-flex; align-items: center; gap: 7px; text-decoration: none; }
+.w-grip {
+    display: grid; place-items: center; width: 22px; height: 20px;
+    border: 1px solid var(--c-ln2); border-radius: 6px; color: rgb(var(--c-fog)); cursor: grab;
+}
+.w-grip svg { width: 12px; height: 12px; }
+.w-chips { display: inline-flex; align-items: center; gap: 5px; margin-left: 10px; }
+.w-chiplabel {
+    font: 500 9px var(--font-mono); color: rgb(var(--c-dim));
+    text-transform: uppercase; letter-spacing: .1em;
+}
+/* .mchip is an inline element; as a <button> it needs the font and the pointer
+   stated, nothing else. */
+/* Named .w-widthchip, not .w-span: the spans are .w-span-N now, and a chip that
+   shared their stem would read as one of them. */
+.w-widthchip { padding: 2px 8px; font-size: 9.5px; font-family: inherit; cursor: pointer; }
+/* A refused save, said out loud. Same shape as .auth-error so a failure reads
+   the same wherever it happens; [hidden] is honoured explicitly because the
+   display below would otherwise override it. */
+.w-notice {
+    border: 1px solid color-mix(in srgb, rgb(var(--c-fail)) 45%, transparent);
+    background: color-mix(in srgb, rgb(var(--c-fail)) 8%, transparent);
+    color: rgb(var(--c-fail));
+    border-radius: 10px; padding: 10px 13px; font-size: 12px; margin-bottom: 18px;
+    display: flex; align-items: center; gap: 8px;
+}
+.w-notice[hidden] { display: none; }
+
+/* The CARD owns the width, so the preview is full-bleed inside it — never a
+   second shrink. It stays as the hook that dims a switched-off widget without
+   dimming the controls that switch it back on, and off means off: the preview is
+   a picture, not a live control surface. */
+.w-preview { min-width: 0; }
+.w-card[data-widget-on="0"] .w-preview { opacity: .38; filter: grayscale(.55); pointer-events: none; }
+
+/* Chrome on a narrow card. The controls must survive a quarter-width column, so
+   the row wraps first, then sheds its least load-bearing parts: the "width"
+   caption goes, then the toggle's words — whose title attribute still carries
+   them, and whose icon says add-or-remove on its own. */
+.w-tglicon { width: 13px; height: 13px; flex: none; }
+.w-card[data-widget-on="1"] .w-tglicon-add,
+.w-card[data-widget-on="0"] .w-tglicon-rm { display: none; }
+.w-card[data-widget-cols="3"] .w-name { font-size: 13px; }
+.w-card[data-widget-cols="3"] .w-chiplabel,
+.w-card[data-widget-cols="6"] .w-chiplabel { display: none; }
+.w-card[data-widget-cols="3"] .w-chips { margin-left: 0; }
+.w-card[data-widget-cols="3"] [data-widget-toggle-label] { display: none; }
+.w-card[data-widget-cols="3"] .w-tgl { padding: 5px 8px; }
+
+/* ---- widget library: drag states --------------------------------------- */
+/* Three states, each answering a different question mid-drag: WHICH widget is in
+   flight (the dotted ghost, left in place), WHERE it will land (the accent slot
+   between the cards) and NEXT TO WHICH neighbour (the lit target). All three are
+   added by assets/widgets.js, so a browser without it sees none of them and
+   nothing looks half-drawn. */
+.w-card.w-dragging {
+    opacity: .4;
+    outline: 2px dotted rgb(var(--c-acc));
+    outline-offset: 8px;
+    border-radius: 12px;
+}
+/* The ghost must not swallow the dragover events aimed at the cards under the
+   cursor — without this the pointer never "reaches" its neighbours. */
+.w-card.w-dragging * { pointer-events: none; }
+/* In grid flow the slot is a grid item, so it shows the FOOTPRINT the widget
+   will take — widgets.js copies the dragged card's span onto it. A full-width
+   bar between two half-width cards would promise the wrong landing. */
+.w-dropslot {
+    grid-column: span 12;
+    min-height: 96px;
+    border: 2px dashed rgb(var(--c-acc));
+    border-radius: 10px;
+    background: color-mix(in srgb, rgb(var(--c-acc)) 16%, transparent);
+}
+.w-dropslot[data-widget-cols="9"] { grid-column: span 9; }
+.w-dropslot[data-widget-cols="6"] { grid-column: span 6; }
+.w-dropslot[data-widget-cols="3"] { grid-column: span 3; }
+@media (max-width: 980px) {
+    .w-dropslot { grid-column: span 12 !important; }
+}
+.w-card.w-droptarget {
+    outline: 1px dashed color-mix(in srgb, rgb(var(--c-acc)) 55%, transparent);
+    outline-offset: 8px;
+    border-radius: 12px;
+}
+/* The transition half of the FLIP in assets/widgets.js: the script measures the
+   move and writes the inverted transform (a per-element pixel offset no
+   stylesheet can hold), this rule plays it back. Added only for the length of a
+   slide, so a card that is not moving carries no transition at all.
+   Keep in step with SLIDE_MS in assets/widgets.js. */
+.w-sliding { transition: transform 160ms ease; }
+/* Belt and braces beside the script's own prefers-reduced-motion check: if the
+   class is ever applied, it still must not animate. */
+@media (prefers-reduced-motion: reduce) {
+    .w-sliding { transition: none; }
+}
+
+/* ---- widget library: page header actions ------------------------------- */
+.w-pgact { display: flex; gap: 10px; }
+.w-act { display: inline-flex; align-items: center; gap: 7px; text-decoration: none; }
+
+/* ---- departments widget: kpis ---- */
+/* The design's .kstrip is a fixed four-up. A widget cannot be: the same strip has to
+   sit in twelve columns and in six, so the four plates fold on their own content
+   width instead of on the page's breakpoint. */
+.dp-kstrip { grid-template-columns: repeat(auto-fit, minmax(168px, 1fr)); }
+
+/* ---- departments widget: cards ---- */
+/* The lens principle, stated once above the cards — dashed and accent-tinted so it
+   reads as a rule of the model, not as a status. */
+.dp-lensnote {
+    display: flex; gap: 12px; align-items: flex-start;
+    border: 1px dashed color-mix(in srgb, rgb(var(--c-acc)) 42%, transparent);
+    border-radius: 12px; padding: 13px 16px;
+    background: color-mix(in srgb, rgb(var(--c-acc)) 5%, transparent);
+    font-size: 12.5px; color: rgb(var(--c-fog)); line-height: 1.6;
+}
+.dp-lensnote svg { flex: none; color: rgb(var(--c-acc)); margin-top: 2px; }
+.dp-lensnote b { color: rgb(var(--c-tx)); }
+/* Cards fold on their own width, so the grid is identical at span 12 and span 6. */
+.dp-cardgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); gap: 20px; }
+@media (max-width: 420px) { .dp-cardgrid { grid-template-columns: 1fr; } }
+.dp-card { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.dp-lead { font-size: 12.5px; color: rgb(var(--c-fog)); line-height: 1.55; margin: 2px 2px 0; }
+.dp-lead b { color: rgb(var(--c-tx)); }
+/* Soft section label inside a plate ("Modules · 4"). */
+.dp-lbl {
+    font-family: var(--font-mono); font-size: 9px; font-weight: 600; letter-spacing: .16em;
+    text-transform: uppercase; color: rgb(var(--c-dim)); display: block; margin: 0 0 7px;
+}
+.dp-none { font-family: var(--font-mono); font-size: 11px; }
+
+/* The department↔module attachment, as a chip. `.shared` is the whole point of the
+   design: a module claimed by two or more departments is lit and carries the count. */
+.dp-chiprow { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.dp-chip {
+    display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-mono);
+    font-size: 10px; font-weight: 700; letter-spacing: .04em;
+    border: 1px solid var(--c-ln2); border-radius: 999px; padding: 5px 10px 4px;
+    color: rgb(var(--c-tx)); background: color-mix(in srgb, rgb(var(--c-fog)) 6%, transparent);
+    line-height: 1; min-height: 22px; box-sizing: border-box; max-width: 100%;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.dp-chip.shared {
+    border-color: color-mix(in srgb, rgb(var(--c-acc)) 48%, transparent);
+    background: color-mix(in srgb, rgb(var(--c-acc)) 9%, transparent);
+}
+.dp-chip.shared i { font-style: normal; color: rgb(var(--c-acc)); font-size: 9px; letter-spacing: .02em; }
+.dp-chip.ghost { border-style: dashed; color: rgb(var(--c-dim)); background: none; }
+
+/* One position: name, the permissions it grants, how many people hold it. The perms
+   wrap to their own line before the row ever pushes the plate wider. */
+.dp-posrow {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 7px 0;
+    border-bottom: 1px dashed color-mix(in srgb, rgb(var(--c-fog)) 18%, transparent);
+}
+.dp-posrow:last-child { border-bottom: 0; }
+.dp-posrow .pn { font-size: 12.5px; font-weight: 600; color: rgb(var(--c-tx)); min-width: 0; }
+.dp-posrow .pp { margin-left: auto; display: flex; gap: 3px; flex-wrap: wrap; justify-content: flex-end; }
+.dp-posrow .hb {
+    font: 600 10.5px var(--font-mono); color: rgb(var(--c-fog));
+    flex: none; min-width: 54px; text-align: right;
+}
+
+/* The foot pins to the bottom, so cards of unequal height still line their people up. */
+.dp-foot {
+    display: flex; align-items: center; gap: 12px; margin-top: auto;
+    padding-top: 12px; border-top: 1px solid var(--c-ln);
+}
+.dp-astack { display: flex; align-items: center; flex-wrap: wrap; }
+.dp-astack .avatar { margin-left: -7px; box-shadow: 0 0 0 2px rgb(var(--c-p1)); }
+.dp-astack .avatar:first-child { margin-left: 0; }
+.dp-astack .more { margin-left: 8px; font: 600 10px var(--font-mono); color: rgb(var(--c-dim)); }
+/* Members are counted here, not identified — a muted plate, never the accent one
+   the signed-in user's own avatar wears. */
+.avatar.dp-mute {
+    width: 24px; height: 24px; border-radius: 7px; font-size: 9px;
+    background: rgb(var(--c-raised)); color: rgb(var(--c-fog));
+    font-family: var(--font-mono); font-weight: 700;
+}
+
+/* ---- departments widget: shared ---- */
+/* The table is the widest thing this widget owns, so it scrolls inside its own box
+   rather than pushing the plate past its column. */
+.dp-tblwrap { overflow-x: auto; }
+/* The register's rows are clickable; these are a statement of fact, not a way in. */
+.dp-tblwrap table.tbl tr { cursor: default; }
+.dp-tblwrap table.tbl tr:hover td { background: none; }
+.dp-claim { font-size: 12.5px; }
+
+/* ---- departments widget: matrix ---------------------------------------- */
+/* Direction C's DP·01 card: departments down, every module across on a rotated
+   header, a dot per intersection. Ported from designs/ngoro-departments-c.html —
+   the design's --acc/--ln/--fog become the house channel tokens, nothing else
+   changes. Compact on purpose: a whole org has to read in one screen. */
+
+/* The scroll lives inside the card. Fifteen module columns never fit a narrow
+   span-12, and the PAGE must not scroll sideways to show them. Focusable so a
+   keyboard can reach the overflow (a scroll container needs a tab stop). */
+.dp-matrix-wrap { overflow-x: auto; padding-top: 4px; }
+.dp-matrix-wrap:focus-visible { outline: 2px solid rgb(var(--c-acc)); outline-offset: 2px; }
+
+.dp-matrix {
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 12.5px;
+    width: 100%;
+    table-layout: fixed;
+}
+/* A real catalogue (the design's fifteen columns) needs a floor under the column
+   width or the labels collapse; a handful of modules should simply fit instead. */
+.dp-matrix-wide { min-width: 900px; }
+
+/* Rotated column head: the span is absolutely placed so the rotation cannot
+   widen the cell — the column width stays the dot's, not the label's. */
+.dp-matrix th.dp-matrix-rot { height: 126px; vertical-align: bottom; padding: 0 0 8px; position: relative; }
+.dp-matrix th.dp-matrix-rot > span {
+    display: block;
+    transform: rotate(-58deg);
+    transform-origin: left bottom;
+    white-space: nowrap;
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    font-weight: 600;
+    color: rgb(var(--c-fog));
+    position: absolute;
+    bottom: 10px;
+    left: calc(50% - 4px);
+}
+.dp-matrix th.dp-matrix-rot.dp-matrix-shared > span { color: rgb(var(--c-acc)); }
+
+.dp-matrix th.dp-matrix-corner {
+    text-align: left;
+    vertical-align: bottom;
+    padding: 0 14px 10px 2px;
+    width: 240px;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: rgb(var(--c-dim));
+    font-weight: 600;
+}
+
+.dp-matrix th.dp-matrix-rowh {
+    padding: 0 14px 0 2px;
+    white-space: nowrap;
+    border-top: 1px solid var(--c-ln);
+    text-align: left;
+    font-weight: 400;
+}
+.dp-matrix .dp-matrix-in { display: flex; align-items: center; gap: 9px; height: 38px; }
+.dp-matrix .dp-matrix-in b { font-size: 13px; font-weight: 600; color: rgb(var(--c-tx)); }
+.dp-matrix .dp-matrix-pl {
+    font: 700 9px var(--font-mono);
+    color: rgb(var(--c-acc));
+    letter-spacing: .05em;
+    flex: none;
+}
+
+.dp-matrix td.dp-matrix-cell {
+    padding: 0;
+    text-align: center;
+    border-top: 1px solid var(--c-ln);
+    border-left: 1px solid var(--c-ln);
+    height: 38px;
+}
+.dp-matrix td.dp-matrix-cell:last-child { border-right: 1px solid var(--c-ln); }
+/* The tint that says "two or more departments lead with this module" — the whole
+   column, so it reads vertically before any single cell does. */
+.dp-matrix td.dp-matrix-cell.dp-matrix-shared { background: color-mix(in srgb, rgb(var(--c-acc)) 7%, transparent); }
+.dp-matrix tbody tr:hover td { background: color-mix(in srgb, rgb(var(--c-acc)) 7%, transparent); }
+
+/* The form is the control's wrapper only — it must not add a line box inside the
+   38px cell, so it collapses onto the button it carries. */
+.dp-matrix-form { margin: 0; line-height: 0; }
+.dp-matrix-dot {
+    width: 16px;
+    height: 16px;
+    padding: 0;
+    border-radius: 50%;
+    border: 1px solid var(--c-ln2);
+    display: inline-block;
+    vertical-align: middle;
+    background: none;
+}
+button.dp-matrix-dot { cursor: pointer; }
+button.dp-matrix-dot:hover, button.dp-matrix-dot:focus-visible { border-color: rgb(var(--c-acc)); }
+.dp-matrix-dot.dp-matrix-on {
+    background: rgb(var(--c-acc));
+    border-color: rgb(var(--c-acc));
+    box-shadow: 0 0 0 3px color-mix(in srgb, rgb(var(--c-acc)) 14%, transparent);
+}
+
+.dp-matrix tfoot td, .dp-matrix tfoot th {
+    border-top: 1px solid var(--c-ln2);
+    padding-top: 8px;
+    text-align: center;
+    font: 700 10.5px var(--font-mono);
+    color: rgb(var(--c-dim));
+}
+.dp-matrix tfoot td.dp-matrix-shared { color: rgb(var(--c-acc)); }
+.dp-matrix tfoot th.dp-matrix-footh {
+    text-align: left;
+    font-size: 9px;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    padding-left: 2px;
+    border-top: 1px solid var(--c-ln2);
+}
+
+/* The legend is the design system's .legend; only the three round keys are local —
+   the swatches must be the dots they explain. */
+.dp-matrix-legend { margin-top: 16px; }
+/* Scoped through the legend so these beat `.legend i`'s square swatch — the keys
+   must be round, because they stand for the dots. */
+.dp-matrix-legend i.dp-matrix-key { border-radius: 50%; border: 1px solid var(--c-ln2); background: none; }
+.dp-matrix-legend i.dp-matrix-key-on { background: rgb(var(--c-acc)); border-color: rgb(var(--c-acc)); }
+.dp-matrix-legend i.dp-matrix-key-shared { background: color-mix(in srgb, rgb(var(--c-acc)) 18%, transparent); border-color: transparent; }
+
+/* Nothing to draw yet: one quiet line, never an empty grid. */
+.dp-matrix-hint { font-size: 13px; margin: 6px 2px 4px; }
+
+/* ---- departments widget: lanes ---- */
+/* The org chart: organization node → hairline rail → one lane per department.
+   Ported from designs/ngoro-departments-d.html; house tokens throughout, and the
+   design's viewport media queries become CONTAINER queries because a widget's
+   width is its cell's (span 12 / 6), never the window's. */
+.dp-lanes { container-type: inline-size; }
+
+/* The scroll lives HERE, never on the page: eight lanes at their minimum legible
+   width are wider than a narrow cell, and a dashboard that scrolls sideways as a
+   whole is a bug. Vertical is hidden so the box never gains a second bar. */
+.dp-lanes-scroll { overflow-x: auto; overflow-y: hidden; padding-bottom: 4px; }
+.dp-lanes-chart { min-width: 100%; }
+
+.dp-lanes-root { display: flex; flex-direction: column; align-items: center; margin: 6px 0 0; }
+.dp-lanes-rootcard {
+    border: 1px solid var(--c-ln2); border-radius: 12px; padding: 12px 22px; text-align: center;
+    background: linear-gradient(180deg, rgb(var(--c-p1)), rgb(var(--c-p2)));
+}
+.dp-lanes-rootcard b { display: block; font-family: var(--font-display); font-size: 16px; font-weight: 700; color: rgb(var(--c-tx)); }
+.dp-lanes-rootcard span {
+    display: block; font-family: var(--font-mono); font-size: 9.5px; font-weight: 600;
+    letter-spacing: .16em; text-transform: uppercase; color: rgb(var(--c-dim)); margin-top: 4px;
+}
+/* The connectors: a stem down from the root, the rail across, a stem up into each
+   top-row lane. Hairlines only — the shape must read, not decorate. */
+.dp-lanes-stem { width: 1px; height: 20px; background: var(--c-ln2); }
+.dp-lanes-rail { height: 1px; background: var(--c-ln2); width: 100%; }
+
+.dp-lanes-grid { display: grid; grid-template-columns: repeat(4, minmax(200px, 1fr)); gap: 18px; }
+.dp-lanes-lane {
+    position: relative; display: flex; flex-direction: column; gap: 12px; min-width: 0;
+    background: linear-gradient(180deg, rgb(var(--c-p1)), rgb(var(--c-p2)));
+    border: 1px solid var(--c-ln); border-radius: 12px; padding: 16px 15px 14px; margin-top: 22px;
+}
+/* Only the first row hangs off the rail; wrapped rows sit clear of it. The column
+   count is fixed per container size, so the ":nth-child(-n+N)" stays truthful. */
+.dp-lanes-grid > .dp-lanes-lane:nth-child(-n+4)::before {
+    content: ""; position: absolute; top: -22px; left: 50%; width: 1px; height: 22px; background: var(--c-ln2);
+}
+@container (max-width: 1080px) {
+    .dp-lanes-grid { grid-template-columns: repeat(2, minmax(200px, 1fr)); }
+    .dp-lanes-grid > .dp-lanes-lane:nth-child(-n+4)::before { display: none; }
+    .dp-lanes-grid > .dp-lanes-lane:nth-child(-n+2)::before {
+        content: ""; position: absolute; top: -22px; left: 50%; width: 1px; height: 22px;
+        background: var(--c-ln2); display: block;
+    }
+}
+@container (max-width: 620px) {
+    .dp-lanes-grid { grid-template-columns: minmax(200px, 1fr); }
+    .dp-lanes-grid > .dp-lanes-lane:nth-child(-n+2)::before { display: none; }
+    .dp-lanes-grid > .dp-lanes-lane:first-child::before {
+        content: ""; position: absolute; top: -22px; left: 50%; width: 1px; height: 22px;
+        background: var(--c-ln2); display: block;
+    }
+}
+
+.dp-lanes-lh { display: flex; align-items: baseline; gap: 8px; }
+.dp-lanes-lh b { font-family: var(--font-display); font-size: 14.5px; font-weight: 700; line-height: 1.25; color: rgb(var(--c-tx)); }
+.dp-lanes-pl { font-family: var(--font-mono); font-size: 9px; font-weight: 700; color: rgb(var(--c-acc)); letter-spacing: .05em; }
+.dp-lanes-lm {
+    font-family: var(--font-mono); font-size: 9.5px; font-weight: 600; color: rgb(var(--c-dim));
+    letter-spacing: .1em; text-transform: uppercase;
+}
+
+/* Module chips — the department↔module attachment, at the top of the lane.
+   Static spans, not links: this widget only reads. */
+.dp-lanes-chiprow { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.dp-lanes-chip {
+    display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-mono);
+    font-size: 10px; font-weight: 700; letter-spacing: .04em; border: 1px solid var(--c-ln2);
+    border-radius: 999px; padding: 5px 10px 4px; color: rgb(var(--c-tx));
+    background: color-mix(in srgb, rgb(var(--c-fog)) 6%, transparent);
+    line-height: 1; min-height: 22px; box-sizing: border-box; white-space: nowrap; max-width: 100%; overflow: hidden; text-overflow: ellipsis;
+}
+/* Shared = read by more than one lane. Jade, because it is the point of the chart:
+   the same rows under two lenses, never two copies of the data. */
+.dp-lanes-chip--shared {
+    border-color: color-mix(in srgb, rgb(var(--c-acc)) 48%, transparent);
+    background: color-mix(in srgb, rgb(var(--c-acc)) 9%, transparent);
+}
+.dp-lanes-chip--shared i { font-style: normal; color: rgb(var(--c-acc)); font-size: 9px; letter-spacing: .02em; }
+.dp-lanes-chip--ghost { border-style: dashed; color: rgb(var(--c-dim)); background: none; font-weight: 600; }
+.dp-lanes-lane--empty { border-style: dashed; }
+
+.dp-lanes-pgroup { border-top: 1px dashed color-mix(in srgb, rgb(var(--c-fog)) 18%, transparent); padding-top: 9px; }
+.dp-lanes-ph { display: flex; align-items: baseline; gap: 8px; margin-bottom: 7px; }
+.dp-lanes-ph b { font-size: 12.5px; font-weight: 600; color: rgb(var(--c-tx)); }
+.dp-lanes-ph em { font-style: normal; font-family: var(--font-mono); font-size: 10px; font-weight: 600; color: rgb(var(--c-dim)); margin-left: auto; }
+.dp-lanes-note { font-size: 11.5px; color: rgb(var(--c-fog)); margin: 0; line-height: 1.5; }
+
+.dp-lanes-faces { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
+/* Initials chips (the roster's .avatar, shrunk and muted): a lane can hold thirty
+   people, and thirty jade tiles would read as an encoding rather than as faces. */
+.dp-lanes-face {
+    width: 21px; height: 21px; border-radius: 6px; font-family: var(--font-mono); font-size: 8.5px;
+    font-weight: 700; background: rgb(var(--c-raised)); color: rgb(var(--c-fog));
+}
+.dp-lanes-more { font-family: var(--font-mono); font-size: 10px; font-weight: 600; color: rgb(var(--c-dim)); margin-left: 2px; }
+
+.dp-lanes-lfoot {
+    margin-top: auto; padding-top: 11px; border-top: 1px solid var(--c-ln);
+    display: flex; align-items: center; gap: 10px;
+}
+.dp-lanes-code { font-size: 9.5px; color: rgb(var(--c-dim)); }
+.dp-lanes-lfoot .dp-lanes-code:last-child { margin-left: auto; }
+
+/* ---- departments widget: lens ---- */
+/* The lens PREVIEW: two mocked signed-in states of the same area module list, side by side.
+   Everything is scoped inside .lens-w — the preview borrows the vocabulary of the real page
+   (chips, mini cards) at preview scale and must never restyle the page itself. */
+.lens-w .lens-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 6px; }
+@media (max-width: 980px) {
+    .lens-w .lens-pair { grid-template-columns: 1fr; }
+}
+.lens-w .lensc { display: flex; flex-direction: column; }
+.lens-w .persona { display: flex; align-items: center; gap: 11px; margin-bottom: 14px; }
+.lens-w .persona .avatar { width: 34px; height: 34px; border-radius: 10px; font-size: 11px; }
+.lens-w .persona .avatar.mute {
+    background: rgb(var(--c-raised)); color: rgb(var(--c-fog));
+    font-family: var(--font-mono); font-weight: 700;
+}
+.lens-w .persona .pi { display: flex; flex-direction: column; min-width: 0; }
+.lens-w .persona .pi b { font-size: 13.5px; font-weight: 700; line-height: 1.25; color: rgb(var(--c-tx)); }
+.lens-w .persona .pi em {
+    font-style: normal; font: 600 9.5px var(--font-mono); letter-spacing: .1em;
+    text-transform: uppercase; color: rgb(var(--c-acc)); margin-top: 3px;
+}
+.lens-w .persona .pl {
+    margin-left: auto; font: 700 9px var(--font-mono); color: rgb(var(--c-dim));
+    letter-spacing: .05em; border: 1px solid var(--c-ln2); border-radius: 6px; padding: 4px 7px 3px;
+}
+.lens-w .frame {
+    flex: 1; display: flex; flex-direction: column;
+    border: 1px solid var(--c-ln2); border-radius: 12px;
+    background: rgb(var(--c-cv)); padding: 14px 14px 15px;
+}
+.lens-w .frame .fcrumb {
+    font-family: var(--font-mono); font-size: 9.5px; letter-spacing: .14em;
+    text-transform: uppercase; color: rgb(var(--c-dim)); margin-bottom: 11px;
+}
+.lens-w .frame .fcrumb b { color: rgb(var(--c-fog)); font-weight: 600; }
+.lens-w .snav {
+    display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+    padding-bottom: 12px; border-bottom: 1px solid var(--c-ln); margin-bottom: 13px;
+}
+.lens-w .snav .cut { width: 1px; height: 16px; background: var(--c-ln2); margin: 0 4px; }
+.lens-w .chiprow { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.lens-w .frame .chiprow:last-child { margin-bottom: auto; }
+/* The module chip, at preview scale: the viewer's own filled, everything else a ghost. */
+.lens-w .dchip {
+    display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-mono);
+    font-size: 10px; font-weight: 700; letter-spacing: .04em; line-height: 1;
+    border: 1px solid var(--c-ln2); border-radius: 999px; padding: 5px 10px 4px;
+    color: rgb(var(--c-tx)); background: color-mix(in srgb, rgb(var(--c-fog)) 6%, transparent);
+    height: 22px; box-sizing: border-box; white-space: nowrap;
+}
+.lens-w .dchip.mine { background: rgb(var(--c-acc)); color: rgb(var(--c-accT)); border-color: rgb(var(--c-acc)); }
+.lens-w .dchip.ghost { border-style: dashed; color: rgb(var(--c-dim)); background: none; }
+.lens-w .divlbl {
+    display: flex; align-items: center; gap: 10px; margin: 15px 0 10px;
+    font: 600 9px var(--font-mono); letter-spacing: .16em; text-transform: uppercase; color: rgb(var(--c-dim));
+}
+.lens-w .divlbl::after { content: ""; flex: 1; height: 1px; background: var(--c-ln); }
+.lens-w .mmg { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+.lens-w .mmc {
+    border: 1px solid var(--c-ln); border-radius: 10px; padding: 10px 11px;
+    display: flex; flex-direction: column; gap: 4px;
+}
+.lens-w .mmc.lead {
+    border-color: color-mix(in srgb, rgb(var(--c-acc)) 42%, transparent);
+    background: color-mix(in srgb, rgb(var(--c-acc)) 6%, transparent);
+}
+.lens-w .mmc .nm { font-size: 12.5px; font-weight: 700; color: rgb(var(--c-tx)); display: flex; align-items: center; gap: 6px; }
+.lens-w .mmc .nm .bo { font: 700 8px var(--font-mono); letter-spacing: .1em; color: rgb(var(--c-acc)); margin-left: auto; }
+.lens-w .mmc .ss { font: 500 9.5px var(--font-mono); color: rgb(var(--c-dim)); letter-spacing: .05em; }
+/* The "same module, both lenses" note, and the principle the whole widget exists to show. */
+.lens-w .both {
+    display: flex; align-items: center; gap: 9px; margin-top: 14px; padding: 9px 12px;
+    border-radius: 10px; border: 1px dashed color-mix(in srgb, rgb(var(--c-acc)) 42%, transparent);
+    background: color-mix(in srgb, rgb(var(--c-acc)) 5%, transparent);
+    font-size: 11.5px; color: rgb(var(--c-fog)); line-height: 1.55;
+}
+.lens-w .both b { color: rgb(var(--c-tx)); }
+.lens-w .both svg { width: 14px; height: 14px; flex: none; color: rgb(var(--c-acc)); }
+.lens-w .lensnote {
+    display: flex; gap: 12px; align-items: flex-start; margin-top: 18px;
+    border: 1px dashed color-mix(in srgb, rgb(var(--c-acc)) 42%, transparent); border-radius: 12px;
+    padding: 13px 16px; background: color-mix(in srgb, rgb(var(--c-acc)) 5%, transparent);
+    font-size: 12.5px; color: rgb(var(--c-fog)); line-height: 1.6;
+}
+.lens-w .lensnote svg { width: 17px; height: 17px; flex: none; color: rgb(var(--c-acc)); margin-top: 2px; }
+.lens-w .lensnote b { color: rgb(var(--c-tx)); }
+.lens-w .lens-empty { padding: 16px 4px 8px; font-size: 12.5px; color: rgb(var(--c-fog)); line-height: 1.65; }
+.lens-w .lens-empty b { color: rgb(var(--c-tx)); }
+
+/* ---- area modules: department lens ---- */
+/* The marker on the leading group of the area's Modules tab — subtle, and only ever rendered
+   when a department really did lead (a viewer with no department sees no marker at all). */
+.lens-led {
+    display: inline-flex; align-items: center; gap: 5px; margin-left: 10px;
+    font-family: var(--font-mono); font-size: 9px; font-weight: 700; letter-spacing: .12em;
+    text-transform: uppercase; line-height: 1; padding: 4px 9px 3px;
+    border: 1px solid color-mix(in srgb, rgb(var(--c-acc)) 45%, transparent); border-radius: 999px;
+    color: rgb(var(--c-acc)); background: color-mix(in srgb, rgb(var(--c-acc)) 7%, transparent);
+}
+.lens-led svg { width: 11px; height: 11px; }
+
+/* ---- departments widget: registry ---- */
+/* The table of record on the Departments screen: departments down the rows, the
+   modules each claims as chips, and (for someone who may administer them) the
+   inline create/rename/delete controls in the very same cells. Ported from
+   designs/ngoro-departments-b.html. */
+.avatar.mute {
+    background: rgb(var(--c-raised));
+    color: rgb(var(--c-fog));
+    font-family: var(--font-mono);
+    font-weight: 700;
+}
+.avatar.sm.mute { font-size: 9px; }
+.chiprow { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+/* The department↔module attachment. A chip is a lens marker, never a permission. */
+.dchip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 22px;
+    box-sizing: border-box;
+    padding: 5px 10px 4px;
+    border: 1px solid var(--c-ln2);
+    border-radius: 999px;
+    background: color-mix(in srgb, rgb(var(--c-fog)) 6%, transparent);
+    color: rgb(var(--c-tx));
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    line-height: 1;
+    white-space: nowrap;
+}
+/* Claimed by more than one department — same rows, a different lens each. */
+.dchip.shared {
+    border-color: color-mix(in srgb, rgb(var(--c-acc)) 48%, transparent);
+    background: color-mix(in srgb, rgb(var(--c-acc)) 9%, transparent);
+}
+.dchip.shared i { font-style: normal; color: rgb(var(--c-acc)); font-size: 9px; letter-spacing: .02em; }
+.dchip.ghost { border-style: dashed; color: rgb(var(--c-dim)); background: none; }
+/* An inline field inside a table row — the create and rename controls. */
+.inl {
+    background: rgb(var(--c-raised));
+    border: 1px solid var(--c-ln2);
+    border-radius: 8px;
+    color: rgb(var(--c-tx));
+    font-family: inherit;
+    font-size: 12.5px;
+    padding: 5px 10px;
+    height: 26px;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 230px;
+}
+.inl::placeholder { color: rgb(var(--c-dim)); }
+.dept-inline { display: inline-flex; align-items: center; gap: 7px; }
+/* The create row is the last row of the same table, tinted so it reads as an
+   invitation rather than as data. */
+table.tbl tr.newrow td { background: color-mix(in srgb, rgb(var(--c-acc)) 5%, transparent); }
+table.tbl tr.newrow .dash { font-size: 11px; }
+
+/* ---- team: department column ---- */
+/* A person's department is read-only: it follows their position. */
+.dept-col { width: 210px; }
+.dept-via {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: .06em;
+    color: rgb(var(--c-dim));
+    margin-left: 7px;
+}
+
+/* ---- widget framework: the dashboard's add-widgets door ---- */
+/* A trailing dashed tile in the .w-grid linking to the surface's library —
+   editing never happens on the dashboard, but the door to it must be visible
+   where the gap is felt. */
+.w-addtile{display:flex;align-items:center;justify-content:center;gap:8px;min-height:64px;border:1px dashed rgb(var(--c-ln2));border-radius:10px;color:rgb(var(--c-dim));font-size:12.5px;text-decoration:none;transition:color .15s,border-color .15s}
+.w-addtile:hover{color:rgb(var(--c-acc));border-color:rgb(var(--c-acc))}
+.w-addtile svg{width:16px;height:16px}

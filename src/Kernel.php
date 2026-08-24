@@ -34,12 +34,4 @@ class Kernel extends BaseKernel
         $container->registerForAutoconfiguration(ModuleProviderInterface::class)
             ->addTag('uhifadhi.module');
     }
-
-    /**
-     * @return list<string> An array of allowed values for APP_ENV
-     */
-    private function getAllowedEnvs(): array
-    {
-        return ['prod', 'dev', 'test'];
-    }
 }

@@ -46,7 +46,11 @@ final class AreaCardServiceTest extends TestCase
         self::assertStringContainsString('size=160,120', urldecode($url));
         // The padded bbox straddles the boundary centroid (35.5, -3.0).
         parse_str((string) parse_url(urldecode($url), \PHP_URL_QUERY), $q);
-        [$minLon, $minLat, $maxLon, $maxLat] = array_map('floatval', explode(',', (string) $q['bbox']));
+        $bbox = $q['bbox'] ?? null;
+        if (!\is_string($bbox)) {
+            self::fail('the export URL carries a bbox parameter');
+        }
+        [$minLon, $minLat, $maxLon, $maxLat] = array_map('floatval', explode(',', $bbox));
         self::assertTrue($minLon < 35.5 && 35.5 < $maxLon, 'bbox straddles centroid longitude');
         self::assertTrue($minLat < -3.0 && -3.0 < $maxLat, 'bbox straddles centroid latitude');
     }

@@ -18,6 +18,7 @@ use Uhifadhi\Entity\Position;
 use Uhifadhi\Entity\User;
 use Uhifadhi\Enum\PermissionEnum;
 use Uhifadhi\Enum\TeamRoleEnum;
+use Uhifadhi\Factory\DepartmentFactory;
 use Uhifadhi\Factory\PositionFactory;
 use Uhifadhi\Factory\UserFactory;
 use Uhifadhi\Repository\PositionRepository;
@@ -86,6 +87,56 @@ final class TeamManagementTest extends AuthenticatedWebTestCase
         self::assertResponseRedirects('/team');
         self::assertNull($this->positionByName('Temporary'));
         self::assertNull($this->reload($staff)->getPosition(), 'the holder must be unassigned, not orphaned');
+    }
+
+    public function testThePositionsTableCarriesADepartmentColumn(): void
+    {
+        $client = static::createClient();
+        $ecology = DepartmentFactory::createOne(['name' => 'Ecology']);
+        $filed = PositionFactory::createOne(['name' => 'Ecologist', 'department' => $ecology]);
+        PositionFactory::createOne(['name' => 'Drifter', 'department' => null]);
+        UserFactory::createOne(['teamRole' => TeamRoleEnum::Staff, 'position' => $filed]);
+        $this->loginAs($client, TeamRoleEnum::Manager);
+
+        $crawler = $client->request('GET', '/team');
+        self::assertResponseIsSuccessful();
+
+        // The position's own department: a select of the org-wide list, the current one chosen.
+        $select = $crawler->filter('form[action$="'.$filed->getUuidString().'/department"] select[name="department"]');
+        self::assertCount(1, $select);
+        self::assertSame('Ecology', $select->filter('option[selected]')->text());
+        self::assertStringContainsString('— none —', $select->text());
+
+        // A person's department is read-only and comes from their position.
+        $person = $crawler->filter('table.tbl tbody tr:contains("Ecologist")');
+        self::assertStringContainsString('via position', $crawler->filter('.dept-via')->text());
+        self::assertGreaterThan(0, $person->count());
+    }
+
+    public function testAManagerFilesAPositionUnderADepartmentAndUnfilesItAgain(): void
+    {
+        $client = static::createClient();
+        $ecology = DepartmentFactory::createOne(['name' => 'Ecology']);
+        $position = PositionFactory::createOne(['name' => 'Ecologist']);
+        $this->loginAs($client, TeamRoleEnum::Manager);
+
+        $crawler = $client->request('GET', '/team');
+        $token = $crawler->filter('form[action$="'.$position->getUuidString().'/department"] input[name="_token"]')->attr('value');
+
+        $client->request('POST', '/team/positions/'.$position->getUuidString().'/department', [
+            '_token' => $token,
+            'department' => $ecology->getUuidString(),
+        ]);
+        self::assertResponseRedirects('/team');
+        self::assertSame('Ecology', $this->positionByName('Ecologist')?->getDepartment()?->getName());
+
+        // The empty option unfiles the position — the department itself is untouched.
+        $client->request('POST', '/team/positions/'.$position->getUuidString().'/department', [
+            '_token' => $token,
+            'department' => '',
+        ]);
+        self::assertResponseRedirects('/team');
+        self::assertNull($this->positionByName('Ecologist')?->getDepartment());
     }
 
     public function testStaffHaveNoAccessToTheTeamScreen(): void

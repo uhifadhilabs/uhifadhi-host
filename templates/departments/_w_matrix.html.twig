@@ -1,0 +1,85 @@
+{# Departments widget 'matrix' — owned by its widget agent; receives: departments,
+   modules, departmentsByModule, positionsByDepartment, usersByDepartment, canManage.
+
+   Direction C (designs/ngoro-departments-c.html, card DP·01): the whole org in ONE
+   grid — departments down the side, every module across the top on a rotated header,
+   a dot at each intersection. A filled dot is an attachment; a column two or more
+   departments claim is tinted and its footer count accented, because a shared column
+   is the point of the lens, not a conflict.
+
+   positionsByDepartment / usersByDepartment are deliberately not read here: the matrix
+   is the attachment grid and nothing else — head-counts belong to the registry widget.
+
+   When canManage, every intersection is a real control: a one-button form POSTing the
+   toggle, so the grid works with JavaScript switched off (the page reloads). Without
+   the permission the same dots render inert — the reading stays identical. #}
+<div class="c" data-w="matrix">
+    <span class="tab"><span class="idx">DP·01</span>Departments × modules{% if canManage and departments is not empty and modules is not empty %}<span class="src">· click a cell to attach</span>{% endif %}</span>
+
+    {% if departments is empty %}
+        <p class="fog dp-matrix-hint">No departments yet — the grid draws its first row as soon as one exists.</p>
+    {% elseif modules is empty %}
+        <p class="fog dp-matrix-hint">No modules in the catalogue yet — the grid has no columns to draw.</p>
+    {% else %}
+        {# The table is wider than the widget on a small screen (fifteen module columns
+           at span 12 do not fit), so the scroll lives HERE, inside the card — the page
+           itself must never scroll sideways. #}
+        <div class="dp-matrix-wrap" tabindex="0" role="region" aria-label="Departments by module">
+            <table class="dp-matrix{{ modules|length > 8 ? ' dp-matrix-wide' }}">
+                <thead>
+                    <tr>
+                        <th class="dp-matrix-corner" scope="col">Department \ module</th>
+                        {% for module in modules %}
+                            {% set claims = departmentsByModule[module.id]|default([])|length %}
+                            <th class="dp-matrix-rot{{ claims > 1 ? ' dp-matrix-shared' }}" scope="col"><span>{{ module.name }}</span></th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for department in departments %}
+                        <tr>
+                            <th class="dp-matrix-rowh" scope="row">
+                                <span class="dp-matrix-in"><span class="dp-matrix-pl">{{ 'DP·%02d'|format(loop.index) }}</span><b>{{ department.name }}</b></span>
+                            </th>
+                            {% for module in modules %}
+                                {% set attached = department.hasModule(module) %}
+                                {% set claims = departmentsByModule[module.id]|default([])|length %}
+                                <td class="dp-matrix-cell{{ claims > 1 ? ' dp-matrix-shared' }}">
+                                    {% if canManage %}
+                                        <form class="dp-matrix-form" method="post"
+                                              action="{{ path('app_department_module_toggle', {uuid: department.uuidString, moduleUuid: module.uuidString}) }}">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('department_manage') }}">
+                                            <button type="submit"
+                                                    class="dp-matrix-dot{{ attached ? ' dp-matrix-on' }}"
+                                                    aria-pressed="{{ attached ? 'true' : 'false' }}"
+                                                    title="{{ attached ? department.name ~ ' → ' ~ module.name : 'attach ' ~ module.name ~ ' to ' ~ department.name }}"
+                                                    aria-label="{{ attached ? 'Detach ' ~ module.name ~ ' from ' ~ department.name : 'Attach ' ~ module.name ~ ' to ' ~ department.name }}"></button>
+                                        </form>
+                                    {% else %}
+                                        <span class="dp-matrix-dot{{ attached ? ' dp-matrix-on' }}"
+                                              title="{{ attached ? department.name ~ ' → ' ~ module.name : module.name ~ ' — not attached to ' ~ department.name }}"></span>
+                                    {% endif %}
+                                </td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th class="dp-matrix-rowh dp-matrix-footh" scope="row">Departments per module</th>
+                        {% for module in modules %}
+                            {% set claims = departmentsByModule[module.id]|default([])|length %}
+                            <td class="{{ claims > 1 ? 'dp-matrix-shared' }}">{{ claims }}</td>
+                        {% endfor %}
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <div class="legend dp-matrix-legend">
+            <span><i class="dp-matrix-key dp-matrix-key-on"></i>attached</span>
+            <span><i class="dp-matrix-key"></i>not attached{% if canManage %} — click to attach{% endif %}</span>
+            <span class="acc"><i class="dp-matrix-key dp-matrix-key-shared"></i>column shared by 2+ departments</span>
+        </div>
+    {% endif %}
+</div>

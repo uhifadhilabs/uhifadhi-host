@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   check:
-    name: composer check (cs, twig/container lint, tests)
+    name: composer check (cs, phpstan, twig/container lint, tests)
     runs-on: ubuntu-latest
 
     env:
@@ -67,6 +67,12 @@ jobs:
 
       - name: Install dependencies
         run: composer install --no-interaction --no-progress --prefer-dist
+
+      # Static analysis needs no database, so it runs before the db/asset setup —
+      # a type error fails the job in seconds. `composer check` runs it again as
+      # part of the gate; this step is here to name the failure.
+      - name: Run PHPStan (level max)
+        run: composer phpstan
 
       # The default suite runs against <db>_test (DAMA rolls each test back). Create it,
       # then migrate — the first migration does `CREATE EXTENSION IF NOT EXISTS postgis`.

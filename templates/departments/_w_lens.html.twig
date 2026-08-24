@@ -1,0 +1,104 @@
+{# Departments widget 'lens' — owned by its widget agent; receives: departments,
+   modules, departmentsByModule, positionsByDepartment, usersByDepartment, canManage.
+
+   The PREVIEW of the seam: the same area module list, twice, as two real departments meet it.
+   Everything here is real — real departments (the first two that claim modules), real modules,
+   a real position and a real member for the persona line. The ordering is the ordering
+   Uhifadhi\Service\DepartmentLens performs on the actual Modules tab (the department's own
+   modules lead, everyone else keeps their order), so the preview cannot promise something the
+   app does not do; tests/Functional/DepartmentLensWidgetTest pins it to that service.
+   Pure render: no controls, no links — `canManage` is deliberately unused. #}
+
+{%- macro panel(department, index, modules, departmentsByModule, positionsByDepartment, usersByDepartment, sharedName) -%}
+    {%- set mine = [] -%}
+    {%- set rest = [] -%}
+    {%- for module in modules -%}
+        {%- if department.hasModule(module) -%}{% set mine = mine|merge([module]) %}
+        {%- else -%}{% set rest = rest|merge([module]) %}{%- endif -%}
+    {%- endfor -%}
+    {%- set positions = positionsByDepartment[department.id]|default([]) -%}
+    {%- set members = usersByDepartment[department.id]|default([]) -%}
+    {%- set position = positions is iterable and positions|length > 0 ? positions|first : null -%}
+    {%- set member = members is iterable and members|length > 0 ? members|first : null -%}
+    {%- set code = 'DP·' ~ '%02d'|format(index) -%}
+    <div class="lensc">
+        <div class="persona">
+            {% if member %}
+                <span class="avatar">{{ (member.firstName|first ~ member.lastName|first)|upper }}</span>
+            {% else %}
+                <span class="avatar mute">{{ department.name|slice(0, 2)|upper }}</span>
+            {% endif %}
+            <span class="pi">
+                <b>{{ member ? member.fullName : 'A member of ' ~ department.name }}</b>
+                <em>{% if position %}{{ position.name }} · {% endif %}{{ department.name }}</em>
+            </span>
+            <span class="pl">{{ code }}</span>
+        </div>
+        <div class="frame">
+            <div class="fcrumb">uhifadhi / areas / <b>an area</b> / modules</div>
+            <div class="snav">
+                {% for module in mine %}<span class="dchip mine">{{ module.name }}</span>{% endfor %}
+                {% if mine|length > 0 and rest|length > 0 %}<span class="cut"></span>{% endif %}
+                {% for module in rest %}<span class="dchip ghost">{{ module.name }}</span>{% endfor %}
+            </div>
+            <div class="divlbl">Your department leads with</div>
+            <div class="mmg">
+                {% for module in mine %}
+                    {% set claimants = departmentsByModule[module.id]|default([]) %}
+                    <span class="mmc lead">
+                        <span class="nm">{{ module.name }}{% if claimants|length > 1 %}<span class="bo">shared</span>{% endif %}</span>
+                        <span class="ss">{{ module.dataSource }}</span>
+                    </span>
+                {% endfor %}
+            </div>
+            <div class="divlbl">Everything else — one click away</div>
+            <div class="chiprow">
+                {% for module in rest %}<span class="dchip ghost">{{ module.name }}</span>{% endfor %}
+            </div>
+        </div>
+        {% if sharedName %}
+            <div class="both">{{ ux_icon('lucide:check') }}<span><b>{{ sharedName }}</b> appears here <em>and</em> in the other
+                lens. Same module, same rows, same numbers — only the position in the list changed.</span></div>
+        {% endif %}
+    </div>
+{%- endmacro -%}
+
+{% import _self as lens %}
+
+{# The first two departments that actually claim modules — a lens with nothing behind it
+   would be a mock, and this widget shows the real thing or says why it cannot. #}
+{% set previewed = [] %}
+{% set codes = [] %}
+{% for department in departments %}
+    {% if department.modules|length > 0 and previewed|length < 2 %}
+        {% set previewed = previewed|merge([department]) %}
+        {% set codes = codes|merge([loop.index]) %}
+    {% endif %}
+{% endfor %}
+
+<div class="c lens-w" data-w="lens">
+    <span class="tab"><span class="idx">DP·01</span>The lens<span class="src">· one page, two departments</span></span>
+
+    {% if previewed|length < 2 %}
+        <div class="lens-empty">
+            <p><b>Nothing to preview yet.</b> The lens compares one area's module list as two different
+                departments meet it, so it needs at least two departments with modules attached — and
+                positions filed under them for the people who look through it.</p>
+        </div>
+    {% else %}
+        {% set shared = null %}
+        {% for module in modules %}
+            {% if shared is null and previewed[0].hasModule(module) and previewed[1].hasModule(module) %}
+                {% set shared = module.name %}
+            {% endif %}
+        {% endfor %}
+        <div class="lens-pair">
+            {{ lens.panel(previewed[0], codes[0], modules, departmentsByModule, positionsByDepartment, usersByDepartment, shared) }}
+            {{ lens.panel(previewed[1], codes[1], modules, departmentsByModule, positionsByDepartment, usersByDepartment, shared) }}
+        </div>
+        <div class="lensnote">{{ ux_icon('lucide:search') }}<div><b>A lens, not a fence.</b> A department decides what
+            leads — it never decides what is visible. An incident filed by a ranger is the <em>same row</em> another
+            department reads; attaching a module to two departments duplicates nothing. The two panels above are the
+            <em>same URL</em> with the same data behind them.</div></div>
+    {% endif %}
+</div>

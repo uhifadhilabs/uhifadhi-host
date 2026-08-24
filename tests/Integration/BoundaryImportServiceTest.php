@@ -67,8 +67,17 @@ final class BoundaryImportServiceTest extends KernelTestCase
         return new BoundaryImportService(
             $this->runner,
             new GeoJsonNormalizerService(),
-            self::getContainer()->get(EntityManagerInterface::class),
+            $this->em(),
         );
+    }
+
+    /** The test container is untyped (`get()` returns object), so type it here once. */
+    private function em(): EntityManagerInterface
+    {
+        /** @var EntityManagerInterface $em */
+        $em = self::getContainer()->get(EntityManagerInterface::class);
+
+        return $em;
     }
 
     public function testImportsAGeoJsonFileDirectly(): void
@@ -79,7 +88,7 @@ final class BoundaryImportServiceTest extends KernelTestCase
         $aoi = $this->service()->import($file, 'boundary.geojson', 'GeoJSON area', 'test');
 
         self::assertNotNull($aoi->getId());
-        $em = self::getContainer()->get(EntityManagerInterface::class);
+        $em = $this->em();
         /** @var array{t: string, srid: int}|false $row */
         $row = $em->getConnection()->fetchAssociative(
             'SELECT GeometryType(geom) AS t, ST_SRID(geom) AS srid FROM area_of_interest WHERE id = :id',
@@ -111,7 +120,7 @@ final class BoundaryImportServiceTest extends KernelTestCase
         $aoi = $this->service()->import($zipPath, 'boundary.zip', 'Shapefile area', 'test');
 
         // Geometry must come back in 4326 at the original lon/lat neighbourhood.
-        $em = self::getContainer()->get(EntityManagerInterface::class);
+        $em = $this->em();
         /** @var array{srid: int, x: float, y: float}|false $row */
         $row = $em->getConnection()->fetchAssociative(
             'SELECT ST_SRID(geom) AS srid, ST_X(ST_Centroid(geom)) AS x, ST_Y(ST_Centroid(geom)) AS y FROM area_of_interest WHERE id = :id',
@@ -149,7 +158,7 @@ final class BoundaryImportServiceTest extends KernelTestCase
 
         $aoi = $this->service()->import($outer, 'WDPA_test_shp.zip', 'Nested WDPA area', 'test');
 
-        $em = self::getContainer()->get(EntityManagerInterface::class);
+        $em = $this->em();
         /** @var array{t: string, srid: int}|false $row */
         $row = $em->getConnection()->fetchAssociative(
             'SELECT GeometryType(geom) AS t, ST_SRID(geom) AS srid FROM area_of_interest WHERE id = :id',

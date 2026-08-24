@@ -28,9 +28,9 @@ final class ImportAreaOfInterestCommandTest extends KernelTestCase
 {
     private function commandTester(): CommandTester
     {
-        self::bootKernel();
+        $kernel = self::bootKernel();
 
-        return new CommandTester(new Application(self::$kernel)->find('app:aoi:import'));
+        return new CommandTester(new Application($kernel)->find('app:aoi:import'));
     }
 
     public function testAFeatureFileIsImportedAsARealMultiPolygon(): void
@@ -52,6 +52,7 @@ final class ImportAreaOfInterestCommandTest extends KernelTestCase
         self::assertSame(Command::SUCCESS, $exit);
         self::assertStringContainsString('Imported "Test boundary"', $tester->getDisplay());
 
+        /** @var AreaOfInterestRepository $repository */
         $repository = self::getContainer()->get(AreaOfInterestRepository::class);
         $aoi = $repository->findOneBy(['name' => 'Test boundary']);
         self::assertNotNull($aoi);
@@ -59,6 +60,7 @@ final class ImportAreaOfInterestCommandTest extends KernelTestCase
 
         // Ask PostGIS itself what landed in the column — the geometry must be a
         // typed, SRID-4326 MultiPolygon, not just a stored string.
+        /** @var EntityManagerInterface $em */
         $em = self::getContainer()->get(EntityManagerInterface::class);
         /** @var array{t: string, srid: int}|false $row */
         $row = $em->getConnection()->fetchAssociative(

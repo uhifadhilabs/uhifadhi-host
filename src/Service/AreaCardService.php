@@ -33,9 +33,11 @@ final class AreaCardService
         $geom = json_decode($geoJson, true, 512, \JSON_THROW_ON_ERROR);
         $minLon = $minLat = \PHP_FLOAT_MAX;
         $maxLon = $maxLat = -\PHP_FLOAT_MAX;
+        /** @var \Closure(array<array-key, mixed>): void $walk */
         $walk = static function (array $node) use (&$walk, &$minLon, &$minLat, &$maxLon, &$maxLat): void {
-            // A coordinate pair is [lon, lat] of two numbers; anything else is a nesting level.
-            if (2 <= \count($node) && is_numeric($node[0] ?? null) && is_numeric($node[1] ?? null) && !\is_array($node[0])) {
+            // A coordinate pair is [lon, lat] of two numbers; anything else is a
+            // nesting level (is_numeric() already rules an array child out).
+            if (2 <= \count($node) && is_numeric($node[0] ?? null) && is_numeric($node[1] ?? null)) {
                 $lon = (float) $node[0];
                 $lat = (float) $node[1];
                 $minLon = min($minLon, $lon);
@@ -51,7 +53,10 @@ final class AreaCardService
                 }
             }
         };
-        $walk($geom['coordinates'] ?? []);
+        // json_decode() gives back mixed: only a decoded object with a
+        // `coordinates` array has anything to walk.
+        $coordinates = \is_array($geom) ? ($geom['coordinates'] ?? null) : null;
+        $walk(\is_array($coordinates) ? $coordinates : []);
 
         return [$minLon, $minLat, $maxLon, $maxLat];
     }

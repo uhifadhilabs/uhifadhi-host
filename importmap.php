@@ -37,6 +37,13 @@ return [
     // scale, the Ctrl/⌘-scroll bargain. Built in JS rather than written into two
     // repos' templates, so an area map and a module map wear the same instrument.
     'uhifadhi/map-chrome' => ['path' => './assets/map_chrome.js'],
+    // The widget library's editing behaviour — on/off, width, drag-to-place —
+    // for ANY dashboard surface that ships a WidgetCatalog. Under a bare
+    // specifier for the same reason the map helpers are: the host's own
+    // dashboards and every module's arrange themselves through one script, so a
+    // layout can never behave one way in a module and another in the host. The
+    // wire it speaks is Uhifadhi\Model\WidgetDom.
+    'uhifadhi/widgets' => ['path' => './assets/widgets.js'],
     '@hotwired/stimulus' => ['version' => '3.2.2'],
     '@symfony/stimulus-bundle' => ['path' => './vendor/symfony/stimulus-bundle/assets/dist/loader.js'],
     '@hotwired/turbo' => ['version' => '8.0.23'],

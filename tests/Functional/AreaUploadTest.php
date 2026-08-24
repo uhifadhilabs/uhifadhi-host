@@ -32,6 +32,15 @@ final class AreaUploadTest extends AuthenticatedWebTestCase
         return new UploadedFile($path, $name, test: true);
     }
 
+    /** The test container is untyped (`get()` returns object), so type it here once. */
+    private function areas(): AreaOfInterestRepository
+    {
+        /** @var AreaOfInterestRepository $repository */
+        $repository = static::getContainer()->get(AreaOfInterestRepository::class);
+
+        return $repository;
+    }
+
     public function testUploadingAGeoJsonBoundaryCreatesTheArea(): void
     {
         $client = static::createClient();
@@ -52,7 +61,7 @@ final class AreaUploadTest extends AuthenticatedWebTestCase
             ])),
         ]);
 
-        $area = static::getContainer()->get(AreaOfInterestRepository::class)->findOneBy(['name' => 'Uploaded area']);
+        $area = $this->areas()->findOneBy(['name' => 'Uploaded area']);
         self::assertNotNull($area);
         self::assertSame('upload', $area->getSource());
         self::assertResponseRedirects('/areas/'.$area->getUuidString());
@@ -85,6 +94,6 @@ final class AreaUploadTest extends AuthenticatedWebTestCase
 
         self::assertResponseIsUnprocessable();
         self::assertSelectorTextContains('form', 'polygon');
-        self::assertNull(static::getContainer()->get(AreaOfInterestRepository::class)->findOneBy(['name' => 'Broken upload']));
+        self::assertNull($this->areas()->findOneBy(['name' => 'Broken upload']));
     }
 }

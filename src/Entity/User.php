@@ -39,7 +39,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    private ?int $id = null;
+    private ?int $id = null; // @phpstan-ignore property.unusedType (assigned by Doctrine via reflection)
 
     #[ORM\Column(length: 180, unique: true)]
     private ?string $email = null;

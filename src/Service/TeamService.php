@@ -14,9 +14,11 @@ declare(strict_types=1);
 namespace Uhifadhi\Service;
 
 use Doctrine\ORM\EntityManagerInterface;
+use Uhifadhi\Entity\Department;
 use Uhifadhi\Entity\Position;
 use Uhifadhi\Entity\User;
 use Uhifadhi\Enum\TeamRoleEnum;
+use Uhifadhi\Repository\DepartmentRepository;
 use Uhifadhi\Repository\PositionRepository;
 use Uhifadhi\Repository\UserRepository;
 
@@ -31,6 +33,7 @@ final readonly class TeamService
         private EntityManagerInterface $em,
         private UserRepository $users,
         private PositionRepository $positions,
+        private DepartmentRepository $departments,
     ) {
     }
 
@@ -61,6 +64,17 @@ final readonly class TeamService
     public function positions(): array
     {
         return $this->positions->all();
+    }
+
+    /**
+     * The org-wide department list, for the Department column of the position catalogue.
+     * A position sits in at most one; a member's department follows their position.
+     *
+     * @return list<Department>
+     */
+    public function departments(): array
+    {
+        return $this->departments->findAllOrdered();
     }
 
     /**
@@ -101,6 +115,16 @@ final readonly class TeamService
             $holder->setPosition(null);
         }
         $this->em->remove($position);
+        $this->em->flush();
+    }
+
+    /**
+     * File a position under a department (or unfile it with null). Organizational only — the
+     * position keeps every permission it had, and its holders move with it by inheritance.
+     */
+    public function setPositionDepartment(Position $position, ?Department $department): void
+    {
+        $position->setDepartment($department);
         $this->em->flush();
     }
 

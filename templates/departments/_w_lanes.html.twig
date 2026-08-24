@@ -1,0 +1,110 @@
+{# Departments widget 'lanes' — owned by its widget agent; receives: departments,
+   modules, departmentsByModule, positionsByDepartment, usersByDepartment, canManage.
+
+   The org chart (design direction D): the organization at the root, a hairline rail,
+   one lane per department hanging off it — module chips at the top of the lane, then
+   one group per position with the faces of the people who hold it.
+
+   PURE RENDER. `canManage` is deliberately unused: this is the compare index's
+   "weakest editing surface" — it exists to be READ. No add/detach chips, no new-position
+   control, no per-lane menu. Management lives in the registry/matrix widgets; a chart
+   that also edited would have to grow controls that ruin the shape it is drawn for.
+
+   Everything is derived from the vars alone — the counts under the root card are the
+   sums of the lanes below it, so the chart can never claim a person it does not draw. #}
+{% set faceCap = 4 %}
+{% set totalPeople = 0 %}
+{% set totalPositions = 0 %}
+{% for department in departments %}
+    {% set totalPeople = totalPeople + (usersByDepartment[department.id]|default([])|length) %}
+    {% set totalPositions = totalPositions + (positionsByDepartment[department.id]|default([])|length) %}
+{% endfor %}
+
+<div class="c dp-lanes" data-w="lanes">
+    {# A word, not a number, in the index slot: the sibling widgets number themselves and
+       this one must not fight them for DP·01. #}
+    <span class="tab"><span class="idx">DP·CHART</span>Org chart<span class="src">· one lane per department</span></span>
+
+    {% if departments is empty %}
+        <p class="fog" style="font-size:13px;margin:6px 2px 2px">No departments yet — the chart draws itself once the first one exists.</p>
+    {% else %}
+        <div class="dp-lanes-scroll">
+            <div class="dp-lanes-chart">
+                {# The organization node. The app holds no organization record — no name, no
+                   settings, nothing org-identified anywhere in src/ — so the root is labelled
+                   generically rather than inventing (or hardcoding) an authority's name. #}
+                <div class="dp-lanes-root">
+                    <div class="dp-lanes-rootcard">
+                        <b>Organization</b>
+                        <span>{{ totalPeople }} {{ totalPeople == 1 ? 'person' : 'people' }}
+                            · {{ departments|length }} department{{ departments|length == 1 ? '' : 's' }}
+                            · {{ totalPositions }} position{{ totalPositions == 1 ? '' : 's' }}</span>
+                    </div>
+                    <div class="dp-lanes-stem"></div>
+                </div>
+                <div class="dp-lanes-rail"></div>
+
+                <div class="dp-lanes-grid">
+                    {% for department in departments %}
+                        {% set code = 'DP·' ~ (loop.index < 10 ? '0' : '') ~ loop.index %}
+                        {% set people = usersByDepartment[department.id]|default([]) %}
+                        {% set positions = positionsByDepartment[department.id]|default([]) %}
+                        {# Catalogue order, not insertion order: the same module sits in the same
+                           place in every lane, so the eye can compare lanes by column. #}
+                        {% set deptModules = department.modules|sort((a, b) => a.position <=> b.position) %}
+
+                        <div class="dp-lanes-lane{{ deptModules is empty ? ' dp-lanes-lane--empty' }}">
+                            <div class="dp-lanes-lh"><span class="dp-lanes-pl">{{ code }}</span><b>{{ department.name }}</b></div>
+                            <div class="dp-lanes-lm">{{ people|length }} {{ people|length == 1 ? 'person' : 'people' }}
+                                · {{ positions|length }} position{{ positions|length == 1 ? '' : 's' }}</div>
+
+                            <div class="dp-lanes-chiprow">
+                                {% for module in deptModules %}
+                                    {# A lens, not a fence: a module in several lanes is the SAME rows,
+                                       so a shared chip says how many lanes read it — never that it is split. #}
+                                    {% set claimants = departmentsByModule[module.id]|default([])|length %}
+                                    <span class="dp-lanes-chip{{ claimants > 1 ? ' dp-lanes-chip--shared' }}"
+                                          title="{{ claimants > 1
+                                              ? 'shared with ' ~ claimants ~ ' departments — same rows, different lens'
+                                              : 'attached to this department only' }}">{{ module.name }}{% if claimants > 1 %}<i>·{{ claimants }}</i>{% endif %}</span>
+                                {% else %}
+                                    <span class="dp-lanes-chip dp-lanes-chip--ghost">no modules</span>
+                                {% endfor %}
+                            </div>
+
+                            {% for position in positions %}
+                                {% set holders = people|filter(u => u.position and u.position.id == position.id) %}
+                                <div class="dp-lanes-pgroup">
+                                    <div class="dp-lanes-ph"><b>{{ position.name }}</b><em>{{ holders|length }}</em></div>
+                                    {% if holders is empty %}
+                                        <p class="dp-lanes-note">nobody holds this position yet</p>
+                                    {% else %}
+                                        <div class="dp-lanes-faces">
+                                            {% for holder in holders|slice(0, faceCap) %}
+                                                {# Initials exactly as the Team roster builds them — the app has no
+                                                   uploaded avatars, so every face is an initials chip. #}
+                                                <span class="avatar dp-lanes-face" title="{{ holder.fullName }}">{{ (holder.firstName|first ~ holder.lastName|first)|upper }}</span>
+                                            {% endfor %}
+                                            {% if holders|length > faceCap %}
+                                                <span class="dp-lanes-more">+{{ holders|length - faceCap }} more</span>
+                                            {% endif %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            {% else %}
+                                <div class="dp-lanes-pgroup">
+                                    <p class="dp-lanes-note">No positions filed here yet — nobody reports into this department.</p>
+                                </div>
+                            {% endfor %}
+
+                            <div class="dp-lanes-lfoot">
+                                <span class="mono dp-lanes-code">{{ code }}</span>
+                                <span class="mono dp-lanes-code">{{ deptModules|length }} module{{ deptModules|length == 1 ? '' : 's' }}</span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>

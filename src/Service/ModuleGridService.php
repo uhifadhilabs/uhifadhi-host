@@ -14,16 +14,25 @@ declare(strict_types=1);
 namespace Uhifadhi\Service;
 
 use Uhifadhi\Entity\AreaOfInterest;
+use Uhifadhi\Entity\Department;
 use Uhifadhi\Entity\Module;
+use Uhifadhi\Entity\User;
 use Uhifadhi\Enum\ModuleCategory;
 
 /**
  * Builds the area's Modules-tab card grid: one content-ful card per active module, grouped by the
  * flux / pressure / biodiversity taxonomy. A card carries only what the host can know — catalogue
  * identity only. Everything richer lives on the module's own pages (its bundle). No module is named here.
+ *
+ * The viewer's department is the lens over that grid: the modules their department works in lead,
+ * as their own group, and every other module follows in the zone order the area already had. A
+ * lens, never a fence — the set of cards is the same for everyone.
  */
 final readonly class ModuleGridService
 {
+    /** The leading group's heading — the viewer's own department's modules. */
+    private const LEAD_LABEL = 'Your department leads with';
+
     /** The zones, in reading order — flux (the ecosystem), pressure (people), then biodiversity/synthesis. */
     private const ZONES = [
         ModuleCategory::Flux->value => 'Flux — what the ecosystem is doing',
@@ -34,31 +43,54 @@ final readonly class ModuleGridService
     public function __construct(
         private AreaCompositionService $composition,
         private ModuleEntryRouteResolver $entryRoutes,
+        private DepartmentService $departments,
     ) {
     }
 
     /**
-     * The area's active modules as cards, grouped and in zone order. Empty zones are dropped.
+     * The area's active modules as cards: the viewer's department's own first (as one group named
+     * by `department`), then the rest grouped in zone order. Empty groups are dropped, and a viewer
+     * with no department gets the zone groups alone — exactly the grid there was before the lens.
      *
-     * @return list<array{label: string, cards: list<array{
+     * @return list<array{label: string, department: string|null, cards: list<array{
      *     slug: string, title: string, status: string, source: string,
      *     entryRoute: string|null}>}>
      */
-    public function grouped(AreaOfInterest $area): array
+    public function grouped(AreaOfInterest $area, ?User $viewer = null): array
     {
-        $byZone = [];
+        $modules = [];
         foreach ($this->composition->activeFor($area) as $areaModule) {
             $module = $areaModule->getModule();
             if (null === $module || $module->isPinned()) {
                 continue; // the Overview hub is the area's Overview tab, not a module card
             }
+            $modules[] = $module;
+        }
+
+        // The one lens the whole app orders by; the split below only reads what it moved to the front.
+        $department = $viewer?->getPosition()?->getDepartment();
+        $lead = [];
+        $byZone = [];
+        foreach ($this->departments->moduleOrderFor($viewer, $modules) as $module) {
+            if ($department instanceof Department && $department->hasModule($module)) {
+                $lead[] = $this->card($area, $module);
+
+                continue;
+            }
             $byZone[$module->getCategory()->value][] = $this->card($area, $module);
         }
 
         $groups = [];
+        if ([] !== $lead) {
+            $groups[] = [
+                'label' => self::LEAD_LABEL,
+                'department' => (string) $department?->getName(),
+                'cards' => $lead,
+            ];
+        }
         foreach (self::ZONES as $categoryValue => $label) {
             if ([] !== ($byZone[$categoryValue] ?? [])) {
-                $groups[] = ['label' => $label, 'cards' => $byZone[$categoryValue]];
+                $groups[] = ['label' => $label, 'department' => null, 'cards' => $byZone[$categoryValue]];
             }
         }
 

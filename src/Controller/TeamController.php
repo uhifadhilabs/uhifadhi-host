@@ -22,10 +22,12 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Requirement\Requirement;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Uid\Uuid;
+use Uhifadhi\Entity\Department;
 use Uhifadhi\Entity\Position;
 use Uhifadhi\Entity\User;
 use Uhifadhi\Form\PositionType;
 use Uhifadhi\Model\Permission;
+use Uhifadhi\Repository\DepartmentRepository;
 use Uhifadhi\Repository\PositionRepository;
 use Uhifadhi\Service\PermissionCatalogueService;
 use Uhifadhi\Service\TeamService;
@@ -42,6 +44,7 @@ final class TeamController extends AbstractController
     public function __construct(
         private readonly TeamService $team,
         private readonly PositionRepository $positions,
+        private readonly DepartmentRepository $departments,
         private readonly PermissionCatalogueService $permissionCatalogue,
     ) {
     }
@@ -52,6 +55,7 @@ final class TeamController extends AbstractController
         return $this->render('team/index.html.twig', [
             'members' => $this->team->members(),
             'positions' => $this->team->positions(),
+            'departments' => $this->team->departments(),
         ]);
     }
 
@@ -117,6 +121,28 @@ final class TeamController extends AbstractController
 
         $this->team->deletePosition($position);
         $this->addFlash('success', 'Position deleted; its holders were unassigned.');
+
+        return $this->redirectToRoute('app_team');
+    }
+
+    /**
+     * File a position under a department, straight from the Department column of the catalogue —
+     * the same inline-select shape as {@see memberAssign()}, and for the same reason: it is one
+     * field on a row, not a screen. The department grants nothing, so it stays out of
+     * {@see PositionType} and its permission matrix.
+     */
+    #[Route('/positions/{uuid}/department', name: 'app_team_position_department', requirements: ['uuid' => Requirement::UUID], methods: ['POST'])]
+    public function positionDepartment(
+        #[MapEntity(mapping: ['uuid' => 'uuid'])] Position $position,
+        Request $request,
+    ): Response {
+        $token = $request->request->get('_token');
+        if (!\is_string($token) || !$this->isCsrfTokenValid('team_position_department_'.$position->getUuidString(), $token)) {
+            throw $this->createAccessDeniedException('Invalid CSRF token.');
+        }
+
+        $this->team->setPositionDepartment($position, $this->departmentFromRequest($request));
+        $this->addFlash('success', \sprintf('Updated the department of “%s”.', (string) $position->getName()));
 
         return $this->redirectToRoute('app_team');
     }
@@ -187,6 +213,16 @@ final class TeamController extends AbstractController
     private function submittedValues(Request $request): array
     {
         return $this->submittedPermissions($request);
+    }
+
+    private function departmentFromRequest(Request $request): ?Department
+    {
+        $uuid = $request->request->get('department');
+        if (!\is_string($uuid) || '' === $uuid || !Uuid::isValid($uuid)) {
+            return null; // empty selection → unfiled
+        }
+
+        return $this->departments->findOneBy(['uuid' => Uuid::fromString($uuid)]);
     }
 
     private function positionFromRequest(Request $request): ?Position

@@ -1,0 +1,82 @@
+{# Departments widget 'cards' — owned by its widget agent; receives: departments,
+   modules, departmentsByModule, positionsByDepartment, usersByDepartment, canManage. #}
+{# Design: ngoro-departments-a.html — the lens callout above a grid of DP·nn department
+   plates. Each plate says what the department works in (module chips, a shared one marked
+   with the count of departments claiming it), what it owns (positions + who holds them)
+   and who is in it (avatar stack). Pure render: attaching and opening live elsewhere. #}
+<div class="grid w-flush dp-cards" data-w="cards">
+    {% if departments is empty %}
+        <div class="c">
+            <span class="tab"><span class="idx">DP·00</span>Departments<span class="src">· none yet</span></span>
+            <p class="dp-lead">No departments yet. A department is <b>org-wide</b>, like Team — created
+                once, used by every area. It attaches the modules it works in and owns the positions
+                its people hold.</p>
+            <p class="use"><b>A lens, not a fence.</b> Creating one changes what leads, never what is
+                visible — so the first department costs nobody any access.</p>
+        </div>
+    {% else %}
+        <div class="dp-lensnote">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg>
+            <div><b>A lens, not a fence.</b> A department decides what leads — it never decides what is
+                visible. An incident filed by a Protection ranger is the <em>same row</em> Ecology reads;
+                attaching a module to two departments duplicates nothing.</div>
+        </div>
+
+        <div class="dp-cardgrid">
+            {% for department in departments %}
+                {% set members = usersByDepartment[department.id]|default([]) %}
+                {% set positions = positionsByDepartment[department.id]|default([]) %}
+                <div class="c dp-card">
+                    <span class="tab">
+                        <span class="idx">DP·{{ '%02d'|format(loop.index) }}</span>{{ department.name }}<span class="src">· {{ members|length }} member{{ members|length == 1 ? '' : 's' }}</span>
+                    </span>
+
+                    <div>
+                        <span class="dp-lbl">Modules · {{ department.modules|length }}</span>
+                        <div class="dp-chiprow">
+                            {% for module in department.modules %}
+                                {% set claimants = (departmentsByModule[module.id]|default([]))|length %}
+                                {% if claimants > 1 %}
+                                    <span class="dp-chip shared" title="shared with {{ claimants }} departments — same rows, different lens">{{ module.name }}<i>·{{ claimants }}</i></span>
+                                {% else %}
+                                    <span class="dp-chip" title="attached to this department only">{{ module.name }}</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="dp-chip ghost">no modules yet</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div>
+                        <span class="dp-lbl">Positions · {{ positions|length }}</span>
+                        {% for position in positions %}
+                            {% set held = members|filter(u => u.position and u.position.id == position.id)|length %}
+                            <div class="dp-posrow">
+                                <span class="pn">{{ position.name }}</span>
+                                <span class="pp">
+                                    {% for value in position.permissionValues %}<span class="perm">{{ value }}</span>{% else %}<span class="fog dp-none">no permissions</span>{% endfor %}
+                                </span>
+                                <span class="hb">{{ held }} held</span>
+                            </div>
+                        {% else %}
+                            <div class="dp-posrow"><span class="fog dp-none">no positions yet</span></div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="dp-foot">
+                        {% if members is empty %}
+                            <span class="fog dp-none">nobody placed here yet</span>
+                        {% else %}
+                            <span class="dp-astack">
+                                {% for member in members|slice(0, 5) %}
+                                    <span class="avatar sm dp-mute" title="{{ member.fullName }}">{{ (member.firstName|default('')|first ~ member.lastName|default('')|first)|upper }}</span>
+                                {% endfor %}
+                                {% if members|length > 5 %}<span class="more">+{{ members|length - 5 }} more</span>{% endif %}
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>

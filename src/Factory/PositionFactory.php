@@ -32,6 +32,7 @@ final class PositionFactory extends PersistentObjectFactory
         return [
             'name' => self::faker()->unique()->jobTitle(),
             'locked' => false,
+            'department' => null,
         ];
     }
 

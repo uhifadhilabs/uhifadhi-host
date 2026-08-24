@@ -36,7 +36,7 @@ class AreaModule
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    private ?int $id = null;
+    private ?int $id = null; // @phpstan-ignore property.unusedType (assigned by Doctrine via reflection)
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(name: 'aoi_id', nullable: false, onDelete: 'CASCADE')]

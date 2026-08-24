@@ -25,7 +25,7 @@
             <div class="c">
                 <span class="tab"><span class="idx">PL·01</span>People<span class="src">· {{ members|length }} member{{ members|length == 1 ? '' : 's' }}</span></span>
                 <table class="tbl">
-                    <thead><tr><th>Member</th><th>Email</th><th>Tier</th><th>Position</th></tr></thead>
+                    <thead><tr><th>Member</th><th>Email</th><th>Tier</th><th>Position</th><th>Department</th></tr></thead>
                     <tbody>
                     {% for m in members %}
                         <tr>
@@ -48,6 +48,17 @@
                                     </form>
                                 {% endif %}
                             </td>
+                            {# Department is read-only here — it follows the position. Move a
+                               position to another department and every holder moves with it. #}
+                            <td>
+                                {% if m.teamRole.canManageContent %}
+                                    <span class="fog mono" style="font-size:11px">— all departments</span>
+                                {% elseif m.position and m.position.department %}
+                                    <b>{{ m.position.department.name }}</b><span class="dept-via">via position</span>
+                                {% else %}
+                                    <span class="fog mono" style="font-size:11px">—</span>
+                                {% endif %}
+                            </td>
                         </tr>
                     {% endfor %}
                     </tbody>
@@ -61,11 +72,30 @@
                     <p class="fog" style="font-size:13px;margin:6px 2px 4px">No positions yet — create one to grant a Staff member a bundle of permissions.</p>
                 {% else %}
                     <table class="tbl">
-                        <thead><tr><th>Position</th><th>Permissions</th><th class="num">Held by</th><th></th></tr></thead>
+                        <thead><tr><th>Position</th><th class="dept-col">Department</th><th>Permissions</th><th class="num">Held by</th><th></th></tr></thead>
                         <tbody>
                         {% for p in positions %}
                             <tr>
                                 <td><a href="{{ path('app_team_position_edit', {uuid: p.uuidString}) }}">{{ p.name }}</a></td>
+                                {# The one place a department is set: the position carries it, and
+                                   its holders inherit it. Organizational only — it grants nothing,
+                                   which is why it sits beside the permissions rather than in them. #}
+                                <td class="dept-col">
+                                    {% if departments is empty %}
+                                        <span class="fog mono" style="font-size:11px">— no departments —</span>
+                                    {% else %}
+                                        <form method="post" action="{{ path('app_team_position_department', {uuid: p.uuidString}) }}" class="assign">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('team_position_department_' ~ p.uuidString) }}">
+                                            <select name="department" class="fld sel" aria-label="Department of {{ p.name }}">
+                                                <option value="">— none —</option>
+                                                {% for d in departments %}
+                                                    <option value="{{ d.uuidString }}" {{ p.department and p.department.uuidString == d.uuidString ? 'selected' }}>{{ d.name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                            <button class="open-btn" type="submit">Set</button>
+                                        </form>
+                                    {% endif %}
+                                </td>
                                 <td>
                                     {% for value in p.permissionValues %}<span class="perm">{{ value }}</span> {% else %}<span class="fog mono" style="font-size:11px">no permissions</span>{% endfor %}
                                 </td>

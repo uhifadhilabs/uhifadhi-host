@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Uhifadhi\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Uhifadhi\Entity\Trait\TimestampableTrait;
 use Uhifadhi\Entity\Trait\UuidTrait;
@@ -36,7 +38,7 @@ class Module
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    private ?int $id = null;
+    private ?int $id = null; // @phpstan-ignore property.unusedType (assigned by Doctrine via reflection)
 
     /** Routing + identity key, e.g. "forest" → /areas/{uuid}/forest. */
     #[ORM\Column(length: 40, unique: true)]
@@ -62,6 +64,20 @@ class Module
     /** Catalogue display order (the order new areas receive modules in). */
     #[ORM\Column]
     private int $position = 0;
+
+    /**
+     * The departments that work in this module — the inverse of `department_module`. Purely a
+     * lens: it never decides who may open the module.
+     *
+     * @var Collection<int, Department>
+     */
+    #[ORM\ManyToMany(targetEntity: Department::class, mappedBy: 'modules')]
+    private Collection $departments;
+
+    public function __construct()
+    {
+        $this->departments = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -148,6 +164,33 @@ class Module
     public function setPosition(int $position): static
     {
         $this->position = $position;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Department>
+     */
+    public function getDepartments(): Collection
+    {
+        return $this->departments;
+    }
+
+    public function addDepartment(Department $department): static
+    {
+        if (!$this->departments->contains($department)) {
+            $this->departments->add($department);
+            $department->addModule($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDepartment(Department $department): static
+    {
+        if ($this->departments->removeElement($department)) {
+            $department->removeModule($this);
+        }
 
         return $this;
     }

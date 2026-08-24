@@ -34,7 +34,13 @@ final class PermissionCatalogueWiringTest extends KernelTestCase
         $catalogue = static::getContainer()->get(PermissionCatalogueService::class);
 
         self::assertTrue($catalogue->has('patrols.record'));
-        self::assertNull(PermissionEnum::tryFrom('patrols.record'), 'The host itself must not know the permission.');
+        // tryFrom() on a literal is statically knowable; assert over the real
+        // case list instead, so the check keeps its meaning as the enum grows.
+        self::assertNotContains(
+            'patrols.record',
+            array_column(PermissionEnum::cases(), 'value'),
+            'The host itself must not know the permission.',
+        );
 
         $grouped = $catalogue->groupedByUmbrella();
         self::assertArrayHasKey('Patrols', $grouped);

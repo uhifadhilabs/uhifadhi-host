@@ -47,7 +47,7 @@ final class GeoJsonNormalizerService
     /**
      * @return list<mixed>
      */
-    private function fromFeatures($features): array
+    private function fromFeatures(mixed $features): array
     {
         if (!\is_array($features)) {
             throw new \InvalidArgumentException('FeatureCollection has no "features" array.');

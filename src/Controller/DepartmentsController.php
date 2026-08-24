@@ -1,0 +1,192 @@
+<?php
+
+declare(strict_types=1);
+
+/*
+ * This file is part of uhifadhi.
+ *
+ * (c) Ezekiel Mjema <https://github.com/eemjema>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace Uhifadhi\Controller;
+
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Requirement\Requirement;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Uhifadhi\Entity\Department;
+use Uhifadhi\Entity\Module;
+use Uhifadhi\Model\DepartmentsWidgets;
+use Uhifadhi\Service\DepartmentService;
+use Uhifadhi\Service\DepartmentsSurface;
+use Uhifadhi\Service\WidgetEndpoint;
+use Uhifadhi\Service\WidgetService;
+
+/**
+ * The org-wide departments surface: the widget dashboard, its library, and the handful of
+ * writes that administer the org chart.
+ *
+ * READING is for everyone signed in — a department is a lens, and a lens nobody may look
+ * through explains nothing. ADMINISTERING is Manager-and-up, exactly as /team is; the
+ * templates get that same answer as `canManage` so the chrome and the endpoint never disagree.
+ *
+ * The surface is org-wide, so every widget-framework call passes a null area: one stored
+ * layout per person, not one per area.
+ */
+#[Route('/departments')]
+final class DepartmentsController extends AbstractController
+{
+    /** One id for every management write — they are one capability, held by one tier. */
+    private const string MANAGE_TOKEN = 'department_manage';
+
+    public function __construct(
+        private readonly DepartmentsSurface $surface,
+        private readonly DepartmentService $departments,
+        private readonly WidgetService $widgets,
+        private readonly WidgetEndpoint $widgetEndpoint,
+    ) {
+    }
+
+    #[Route('', name: 'app_departments', methods: ['GET'])]
+    public function index(): Response
+    {
+        return $this->render('departments/index.html.twig', [
+            ...$this->surface->context(),
+            'canManage' => $this->isGranted('ROLE_MANAGER'),
+            'widgets' => $this->widgets->resolve(DepartmentsWidgets::catalog(), $this->userId()),
+        ]);
+    }
+
+    /**
+     * The widget library: every widget at full size, as the REAL partial, under the five headed
+     * sections the catalogue declares. What you arrange here is exactly what the dashboard renders,
+     * because both render the same partials from the same context.
+     */
+    #[Route('/widgets', name: 'app_departments_widgets', methods: ['GET'])]
+    public function widgets(): Response
+    {
+        $catalog = DepartmentsWidgets::catalog();
+
+        return $this->render('departments/widgets.html.twig', [
+            ...$this->surface->context(),
+            'canManage' => $this->isGranted('ROLE_MANAGER'),
+            'sections' => WidgetService::sections($catalog, $this->widgets->resolve($catalog, $this->userId())),
+            'csrfToken' => $this->widgetEndpoint->csrfToken($catalog),
+        ]);
+    }
+
+    #[Route('/widgets/save', name: 'app_departments_widgets_save', methods: ['POST'])]
+    public function widgetsSave(Request $request): Response
+    {
+        return $this->widgetEndpoint->save($request, DepartmentsWidgets::catalog());
+    }
+
+    #[Route('/widgets/reset', name: 'app_departments_widgets_reset', methods: ['POST'])]
+    public function widgetsReset(Request $request): Response
+    {
+        return $this->widgetEndpoint->reset($request, DepartmentsWidgets::catalog());
+    }
+
+    #[Route('', name: 'app_department_create', methods: ['POST'])]
+    #[IsGranted('ROLE_MANAGER')]
+    public function create(Request $request): Response
+    {
+        $this->denyUnlessTokenValid($request);
+
+        $name = trim($request->request->getString('name'));
+        if ('' === $name) {
+            $this->addFlash('error', 'A department needs a name.');
+
+            return $this->redirectToRoute('app_departments');
+        }
+
+        $this->departments->create($name);
+        $this->addFlash('success', \sprintf('“%s” created.', $name));
+
+        return $this->redirectToRoute('app_departments');
+    }
+
+    #[Route('/{uuid}/rename', name: 'app_department_rename', requirements: ['uuid' => Requirement::UUID], methods: ['POST'])]
+    #[IsGranted('ROLE_MANAGER')]
+    public function rename(
+        #[MapEntity(mapping: ['uuid' => 'uuid'])] Department $department,
+        Request $request,
+    ): Response {
+        $this->denyUnlessTokenValid($request);
+
+        $name = trim($request->request->getString('name'));
+        if ('' === $name) {
+            $this->addFlash('error', 'A department needs a name.');
+
+            return $this->redirectToRoute('app_departments');
+        }
+
+        $this->departments->rename($department, $name);
+        $this->addFlash('success', \sprintf('Renamed to “%s”.', $name));
+
+        return $this->redirectToRoute('app_departments');
+    }
+
+    /** A lens change only: the modules keep existing and nobody loses their job. */
+    #[Route('/{uuid}/delete', name: 'app_department_delete', requirements: ['uuid' => Requirement::UUID], methods: ['POST'])]
+    #[IsGranted('ROLE_MANAGER')]
+    public function delete(
+        #[MapEntity(mapping: ['uuid' => 'uuid'])] Department $department,
+        Request $request,
+    ): Response {
+        $this->denyUnlessTokenValid($request);
+
+        $name = (string) $department->getName();
+        $this->departments->delete($department);
+        $this->addFlash('success', \sprintf('“%s” deleted; its positions were unfiled.', $name));
+
+        return $this->redirectToRoute('app_departments');
+    }
+
+    /**
+     * Attach the module, or detach it. One route rather than two because the matrix reading of
+     * this screen is a grid of intersections, and an intersection has exactly one affordance.
+     */
+    #[Route(
+        '/{uuid}/modules/{moduleUuid}/toggle',
+        name: 'app_department_module_toggle',
+        requirements: ['uuid' => Requirement::UUID, 'moduleUuid' => Requirement::UUID],
+        methods: ['POST'],
+    )]
+    #[IsGranted('ROLE_MANAGER')]
+    public function toggleModule(
+        #[MapEntity(mapping: ['uuid' => 'uuid'])] Department $department,
+        #[MapEntity(mapping: ['moduleUuid' => 'uuid'])] Module $module,
+        Request $request,
+    ): Response {
+        $this->denyUnlessTokenValid($request);
+
+        if ($department->hasModule($module)) {
+            $this->departments->detachModule($department, $module);
+        } else {
+            $this->departments->attachModule($department, $module);
+        }
+
+        return $this->redirectToRoute('app_departments');
+    }
+
+    /** The signed-in person's id, whose layout this is. Null is impossible behind the firewall. */
+    private function userId(): int
+    {
+        return $this->widgetEndpoint->userId();
+    }
+
+    private function denyUnlessTokenValid(Request $request): void
+    {
+        $token = $request->request->get('_token');
+        if (!\is_string($token) || !$this->isCsrfTokenValid(self::MANAGE_TOKEN, $token)) {
+            throw $this->createAccessDeniedException('Invalid CSRF token.');
+        }
+    }
+}
