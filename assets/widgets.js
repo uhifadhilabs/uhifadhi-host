@@ -125,7 +125,8 @@ export function initWidgetLibrary(root = document.querySelector(ROOT_SELECTOR)) 
         })[0] || null;
     }
 
-    /* Put the page back to a known layout: order, on/off and width. */
+    /* Put the page back to a known layout: order, on/off and
+    width. */
     function applyLayout(state) {
         state.order.forEach(function (id) {
             const card = cardById(id);
