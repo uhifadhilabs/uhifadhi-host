@@ -90,6 +90,119 @@
                empty and hidden, never built in JavaScript. #}
             <p class="w-notice" {{ DOM.notice }} role="alert" hidden></p>
 
+            {# START FROM A DESIGN — the five directions departments was drawn in, each
+               applicable whole. It sits ABOVE the sections because it is the first question
+               ("which of these screens do you want?"); the sections answer the second one
+               ("now change this one thing").
+
+               No JavaScript anywhere in here: each card is a form that posts the library's own
+               CSRF token to a route naming the preset, and the server redirects. The confirm
+               modal is progressive enhancement on top — with the script off the button simply
+               submits, which is why the copy about overwriting is also in the strip's own
+               intro line. The strip is framework furniture and OPTIONAL: a surface whose
+               catalogue names no presets renders nothing here. #}
+            {% if presets|length %}
+                <section class="w-presets" data-presets="designs">
+                    <h2 class="w-presethead">Start from a design</h2>
+                    <p class="w-presetintro">Adopt one of the five directions departments was drawn in — whole.
+                        Applying one replaces your current layout.</p>
+
+                    <div class="w-presetrow">
+                        {% for preset in presets %}
+                            <div class="w-preset" data-preset="{{ preset.id }}">
+                                <span class="w-presetname">{{ preset.label }}</span>
+                                {# The schematic is the layout itself: one block per widget, in the
+                                   preset's order, as wide as the span it gives it. Pure CSS — no
+                                   image to keep in step with the code. #}
+                                <span class="w-presetmini" aria-hidden="true">
+                                    {% for id, cols in preset.layout %}
+                                        <span class="w-presetcell" data-preset-span="{{ cols }}"></span>
+                                    {% endfor %}
+                                </span>
+                                <p class="w-presetsub">{{ preset.description }}</p>
+                                <form method="post" action="{{ path('app_departments_widgets_preset', {presetId: preset.id}) }}">
+                                    <input type="hidden" name="_token" value="{{ csrfToken }}">
+                                    <button type="submit" class="tgl w-presetapply"
+                                            {{ stimulus_controller('confirm-modal') }}
+                                            data-action="click->confirm-modal#ask"
+                                            data-confirm-modal-title-value="Apply “{{ preset.label }}”?"
+                                            data-confirm-modal-message-value="Your departments dashboard is laid out as this design: its widgets, in its order, at its widths. This OVERWRITES your current layout, and your own arrangement is discarded."
+                                            data-confirm-modal-confirm-label-value="Apply this design">{{ ux_icon('lucide:layout-template') }}Apply</button>
+                                </form>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </section>
+            {% endif %}
+
+            {# MY PRESETS — the same idea with the authorship reversed: arrangements this person
+               saved, appliable in one click. Same card shape as the shipped designs, because
+               they are the same thing; the extra row is the management (rename, delete) that a
+               design you did not write does not need.
+
+               All plain forms again. Rename is an inline name box that posts — no modal and no
+               script; delete asks through the confirm modal, and with the script off submits
+               straight away, which is why the button's own words say what goes. #}
+            <section class="w-presets" data-presets="mine">
+                <h2 class="w-presethead">My presets</h2>
+                <p class="w-presetintro">Layouts you saved. Applying one replaces your current layout; deleting one leaves your dashboard alone.</p>
+
+                <form method="post" action="{{ path('app_departments_widgets_preset_create') }}" class="w-presetsave">
+                    <input type="hidden" name="_token" value="{{ csrfToken }}">
+                    <label class="w-presetsavelabel" for="w-presetname">Save the layout you have now as</label>
+                    <input class="w-presetnameinput" id="w-presetname" type="text" name="name" required
+                           maxlength="{{ constant('Uhifadhi\\Service\\WidgetService::NAME_MAX') }}"
+                           placeholder="e.g. Morning check">
+                    <button type="submit" class="tgl w-presetapply">{{ ux_icon('lucide:bookmark') }}Save as preset</button>
+                </form>
+
+                {% if customPresets|length %}
+                    <div class="w-presetrow">
+                        {% for preset in customPresets %}
+                            <div class="w-preset" data-preset="{{ preset.id }}">
+                                <span class="w-presetname">{{ preset.label }}</span>
+                                <span class="w-presetmini" aria-hidden="true">
+                                    {% for id, cols in preset.layout %}
+                                        <span class="w-presetcell" data-preset-span="{{ cols }}"></span>
+                                    {% endfor %}
+                                </span>
+                                <p class="w-presetsub">{{ preset.layout|length }} widget{{ preset.layout|length == 1 ? '' : 's' }}, in your order and at your widths.</p>
+                                <div class="w-presetacts">
+                                    <form method="post" action="{{ path('app_departments_widgets_preset_apply', {presetUuid: preset.id}) }}">
+                                        <input type="hidden" name="_token" value="{{ csrfToken }}">
+                                        <button type="submit" class="tgl w-presetapply"
+                                                {{ stimulus_controller('confirm-modal') }}
+                                                data-action="click->confirm-modal#ask"
+                                                data-confirm-modal-title-value="Apply “{{ preset.label }}”?"
+                                                data-confirm-modal-message-value="Your departments dashboard is laid out as this preset. This OVERWRITES your current layout, and your present arrangement is discarded."
+                                                data-confirm-modal-confirm-label-value="Apply this preset">{{ ux_icon('lucide:layout-template') }}Apply</button>
+                                    </form>
+                                    <form method="post" action="{{ path('app_departments_widgets_preset_delete', {presetUuid: preset.id}) }}">
+                                        <input type="hidden" name="_token" value="{{ csrfToken }}">
+                                        <button type="submit" class="tgl w-presetdel"
+                                                {{ stimulus_controller('confirm-modal') }}
+                                                data-action="click->confirm-modal#ask"
+                                                data-confirm-modal-title-value="Delete “{{ preset.label }}”?"
+                                                data-confirm-modal-message-value="This saved layout is thrown away. Your dashboard keeps whatever it shows now. This cannot be undone."
+                                                data-confirm-modal-confirm-label-value="Delete preset"
+                                                data-confirm-modal-danger-value="true">{{ ux_icon('lucide:trash-2') }}Delete</button>
+                                    </form>
+                                </div>
+                                <form method="post" action="{{ path('app_departments_widgets_preset_rename', {presetUuid: preset.id}) }}" class="w-presetrename">
+                                    <input type="hidden" name="_token" value="{{ csrfToken }}">
+                                    <input class="w-presetnameinput" type="text" name="name" value="{{ preset.label }}" required
+                                           maxlength="{{ constant('Uhifadhi\\Service\\WidgetService::NAME_MAX') }}"
+                                           aria-label="Rename “{{ preset.label }}”">
+                                    <button type="submit" class="tgl w-presetrenamebtn">Rename</button>
+                                </form>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="w-presetempty">You have not saved a layout yet — arrange the widgets below, then save the result under a name.</p>
+                {% endif %}
+            </section>
+
             {% for section in sections %}
                 <section class="w-section">
                     <h2 class="w-sectionhead">{{ section.label }}</h2>

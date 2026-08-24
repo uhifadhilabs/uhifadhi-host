@@ -23,6 +23,12 @@ namespace Uhifadhi\Model;
  * the five directions; their one-line descriptions are the compare index's own trade-off lines,
  * so what the design said about a direction is what the library says about its section.
  *
+ * Each direction was drawn as a WHOLE screen, so each also ships as a {@see WidgetPreset}: one
+ * click adopts option A's layout entire, rather than asking a first-time visitor to assemble it
+ * widget by widget. The direction's letter is its group id AND its preset id, and its trade-off
+ * line is written ONCE — {@see self::directions()} — so a section and the preset that adopts it
+ * can never say different things about the same design.
+ *
  * Static rather than a service: a catalogue is a statement of what a surface ships, it has no
  * dependencies and nothing may vary it at runtime.
  */
@@ -33,15 +39,16 @@ final class DepartmentsWidgets
 
     public static function catalog(): WidgetCatalog
     {
+        $groups = [];
+        $presets = [];
+        foreach (self::directions() as $letter => [$label, $tradeOff, $layout]) {
+            $groups[] = new WidgetGroup($letter, $label, $tradeOff);
+            $presets[] = new WidgetPreset($letter, $label, $tradeOff, $layout);
+        }
+
         return new WidgetCatalog(
             self::SURFACE,
-            [
-                new WidgetGroup('a', 'Department cards', 'Most room to breathe and the easiest to grow; costs a new top-level nav entry for an object edited three times a year.'),
-                new WidgetGroup('b', 'Team view', 'Puts person → position → department on one screen and adds no nav; the page gets long.'),
-                new WidgetGroup('c', 'Configuration matrix', 'Fastest possible configuration and the shared columns are self-evident; says nothing about people.'),
-                new WidgetGroup('d', 'Org chart', 'Instantly legible to a director and great for staffing gaps; weakest surface for editing attachments.'),
-                new WidgetGroup('e', 'Lens preview', 'The only direction that shows the actual payoff of the feature; management is one level deeper.'),
-            ],
+            $groups,
             // Declaration order is the dashboard's default order: the numbers first, then the
             // objects they count, then the people in them.
             [
@@ -53,6 +60,44 @@ final class DepartmentsWidgets
                 new Widget('lens', 'Lens preview', 'e', 12, [12], on: false),
                 new Widget('shared', 'Shared modules', 'a', 12, [12, 6], on: false),
             ],
+            $presets,
         );
+    }
+
+    /**
+     * The five directions: what each is called, what the compare index says it costs, and the
+     * layout that IS that design — listed is on, in that order; absent is off.
+     *
+     * @return array<string, array{string, string, array<string, int>}>
+     */
+    private static function directions(): array
+    {
+        return [
+            'a' => [
+                'Department cards',
+                'Most room to breathe and the easiest to grow; costs a new top-level nav entry for an object edited three times a year.',
+                ['kpis' => 12, 'cards' => 12, 'shared' => 12],
+            ],
+            'b' => [
+                'Team view',
+                'Puts person → position → department on one screen and adds no nav; the page gets long.',
+                ['registry' => 12, 'kpis' => 12],
+            ],
+            'c' => [
+                'Configuration matrix',
+                'Fastest possible configuration and the shared columns are self-evident; says nothing about people.',
+                ['matrix' => 12, 'kpis' => 12],
+            ],
+            'd' => [
+                'Org chart',
+                'Instantly legible to a director and great for staffing gaps; weakest surface for editing attachments.',
+                ['lanes' => 12, 'kpis' => 12],
+            ],
+            'e' => [
+                'Lens preview',
+                'The only direction that shows the actual payoff of the feature; management is one level deeper.',
+                ['lens' => 12, 'cards' => 12],
+            ],
+        ];
     }
 }

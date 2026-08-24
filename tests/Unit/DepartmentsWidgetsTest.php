@@ -83,6 +83,55 @@ final class DepartmentsWidgetsTest extends TestCase
         self::assertSame($on, $widget->on);
     }
 
+    public function testTheSurfaceShipsOnePresetPerDesignDirection(): void
+    {
+        // The five directions were drawn as whole screens, so the library must be
+        // able to adopt one whole — not only to assemble it widget by widget.
+        $presets = DepartmentsWidgets::catalog()->presets();
+
+        self::assertSame(['a', 'b', 'c', 'd', 'e'], array_column($presets, 'id'));
+        self::assertSame(
+            ['Department cards', 'Team view', 'Configuration matrix', 'Org chart', 'Lens preview'],
+            array_column($presets, 'label'),
+        );
+    }
+
+    /**
+     * @return iterable<string, array{string, list<string>}>
+     */
+    public static function presets(): iterable
+    {
+        yield 'a' => ['a', ['kpis', 'cards', 'shared']];
+        yield 'b' => ['b', ['registry', 'kpis']];
+        yield 'c' => ['c', ['matrix', 'kpis']];
+        yield 'd' => ['d', ['lanes', 'kpis']];
+        yield 'e' => ['e', ['lens', 'cards']];
+    }
+
+    /**
+     * @param list<string> $layout
+     */
+    #[DataProvider('presets')]
+    public function testEachPresetIsItsDesignsWholeLayout(string $id, array $layout): void
+    {
+        $preset = DepartmentsWidgets::catalog()->preset($id);
+
+        self::assertNotNull($preset);
+        self::assertSame($layout, $preset->ids(), 'listed is on, in this order; absent is off');
+    }
+
+    public function testAPresetSaysWhatItsDirectionCostsInTheDesignsOwnWords(): void
+    {
+        // The compare index's trade-off line is what the section already says, so
+        // the preset says the same thing — one sentence, one source.
+        $catalog = DepartmentsWidgets::catalog();
+        $groups = array_column($catalog->groups(), null, 'id');
+
+        foreach ($catalog->presets() as $preset) {
+            self::assertSame($groups[$preset->id]->description, $preset->description);
+        }
+    }
+
     public function testEveryWidgetHasAPartial(): void
     {
         foreach (DepartmentsWidgets::catalog()->ids() as $id) {

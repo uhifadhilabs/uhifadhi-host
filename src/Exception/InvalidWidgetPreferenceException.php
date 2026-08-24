@@ -18,7 +18,10 @@ namespace Uhifadhi\Exception;
  * catalogue does not ship, or a shape it cannot read. Preferences arrive from a
  * browser, so the catalogue — not the request — decides what a stored row may
  * contain.
+ *
+ * Not final: {@see UnknownWidgetPresetException} is the one refusal a caller
+ * answers differently (404 rather than 422).
  */
-final class InvalidWidgetPreferenceException extends \InvalidArgumentException
+class InvalidWidgetPreferenceException extends \InvalidArgumentException
 {
 }

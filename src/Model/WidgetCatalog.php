@@ -26,6 +26,11 @@ namespace Uhifadhi\Model;
  *
  * Declaration order is the default order; the design's own layout is simply the
  * order the widgets are listed in.
+ *
+ * PRESETS are optional: a surface may also name whole layouts a person can adopt
+ * in one click ({@see WidgetPreset}). A surface that ships none is complete
+ * without them — the library's preset strip is guarded on `presets|length` and
+ * simply is not drawn.
  */
 final readonly class WidgetCatalog
 {
@@ -35,15 +40,20 @@ final readonly class WidgetCatalog
     /** @var array<string, Widget> */
     private array $widgets;
 
+    /** @var array<string, WidgetPreset> */
+    private array $presets;
+
     /**
-     * @param string            $surface identifies the dashboard, e.g. 'departments'
-     * @param list<WidgetGroup> $groups  the library's headed sections, in the order it draws them
-     * @param list<Widget>      $widgets the surface's widgets, in the order the design lays them out
+     * @param string             $surface identifies the dashboard, e.g. 'departments'
+     * @param list<WidgetGroup>  $groups  the library's headed sections, in the order it draws them
+     * @param list<Widget>       $widgets the surface's widgets, in the order the design lays them out
+     * @param list<WidgetPreset> $presets whole layouts this surface offers, in the order the library lists them
      */
     public function __construct(
         public string $surface,
         array $groups,
         array $widgets,
+        array $presets = [],
     ) {
         if ('' === $surface) {
             throw new \InvalidArgumentException('A widget catalogue must name its surface.');
@@ -71,8 +81,29 @@ final readonly class WidgetCatalog
             $byWidgetId[$widget->id] = $widget;
         }
 
+        // A preset is validated HERE rather than in its own constructor because
+        // only the catalogue knows which widgets exist and what each may span: a
+        // design that names a retired widget, or hands a half-width chart the
+        // full row, is a programming error and must not boot.
+        $byPresetId = [];
+        foreach ($presets as $preset) {
+            if (isset($byPresetId[$preset->id])) {
+                throw new \InvalidArgumentException(\sprintf('The "%s" widget catalogue declares the preset "%s" twice.', $surface, $preset->id));
+            }
+            foreach ($preset->layout as $widgetId => $cols) {
+                if (!isset($byWidgetId[$widgetId])) {
+                    throw new \InvalidArgumentException(\sprintf('Preset "%s" shows "%s", which the "%s" catalogue does not ship.', $preset->id, $widgetId, $surface));
+                }
+                if (!\in_array($cols, $byWidgetId[$widgetId]->spans, true)) {
+                    throw new \InvalidArgumentException(\sprintf('Preset "%s" gives "%s" a span of %d, which that widget does not offer.', $preset->id, $widgetId, $cols));
+                }
+            }
+            $byPresetId[$preset->id] = $preset;
+        }
+
         $this->groups = $byGroupId;
         $this->widgets = $byWidgetId;
+        $this->presets = $byPresetId;
     }
 
     /**
@@ -104,6 +135,23 @@ final readonly class WidgetCatalog
     public function groups(): array
     {
         return array_values($this->groups);
+    }
+
+    /**
+     * The whole layouts this surface offers, in the order the library lists them.
+     * Empty is a perfectly good answer: presets are optional furniture.
+     *
+     * @return list<WidgetPreset>
+     */
+    public function presets(): array
+    {
+        return array_values($this->presets);
+    }
+
+    /** Null rather than a throw: the id arrives in a URL, so it is untrusted. */
+    public function preset(string $id): ?WidgetPreset
+    {
+        return $this->presets[$id] ?? null;
     }
 
     /**

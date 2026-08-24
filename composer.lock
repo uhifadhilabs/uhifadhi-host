@@ -8352,12 +8352,12 @@
             "source": {
                 "type": "git",
                 "url": "git@github.com:uhifadhilabs/seeder-module.git",
-                "reference": "270b1ae5da36782a1d351c60e4a82c2b144b4672"
+                "reference": "5935b5fba6ddb309cb9d968a985361196f140aba"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/uhifadhilabs/seeder-module/zipball/270b1ae5da36782a1d351c60e4a82c2b144b4672",
-                "reference": "270b1ae5da36782a1d351c60e4a82c2b144b4672",
+                "url": "https://api.github.com/repos/uhifadhilabs/seeder-module/zipball/5935b5fba6ddb309cb9d968a985361196f140aba",
+                "reference": "5935b5fba6ddb309cb9d968a985361196f140aba",
                 "shasum": ""
             },
             "require": {
@@ -8434,7 +8434,7 @@
                 "source": "https://github.com/uhifadhilabs/seeder-module/tree/main",
                 "issues": "https://github.com/uhifadhilabs/seeder-module/issues"
             },
-            "time": "2026-08-23T18:56:02+00:00"
+            "time": "2026-08-24T17:14:45+00:00"
         },
         {
             "name": "webmozart/assert",

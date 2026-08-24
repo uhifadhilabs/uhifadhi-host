@@ -1818,6 +1818,73 @@ table.tbl tr.newrow .dash { font-size: 11px; }
 /* A trailing dashed tile in the .w-grid linking to the surface's library —
    editing never happens on the dashboard, but the door to it must be visible
    where the gap is felt. */
-.w-addtile{display:flex;align-items:center;justify-content:center;gap:8px;min-height:64px;border:1px dashed rgb(var(--c-ln2));border-radius:10px;color:rgb(var(--c-dim));font-size:12.5px;text-decoration:none;transition:color .15s,border-color .15s}
+.w-addtile{display:flex;align-items:center;justify-content:center;gap:8px;min-height:64px;border:1px dashed var(--c-ln2);border-radius:10px;color:rgb(var(--c-dim));font-size:12.5px;text-decoration:none;transition:color .15s,border-color .15s}
 .w-addtile:hover{color:rgb(var(--c-acc));border-color:rgb(var(--c-acc))}
 .w-addtile svg{width:16px;height:16px}
+
+/* ---- widget library · preset strip -------------------------------------- */
+/* "Start from a design": the whole layouts a surface offers (WidgetPreset), one
+   compact card each, above the per-widget sections. A card is a name, a tiny
+   schematic OF THAT LAYOUT, the design's trade-off line and one Apply button.
+
+   The schematic is drawn from the preset's own spans — twelve columns like
+   .w-grid and .w-lib, so a half-width widget reads as half a row here too. It is
+   CSS blocks rather than an image or a canvas: a picture of a layout that lives
+   in a file drifts from the layout the moment a preset changes, and the strip
+   must work with JavaScript off.
+
+   CONSTRAINT (see the block banner above): no class here may spell a Tailwind
+   utility. .w-preset* are all words, and the schematic's spans are read from a
+   data attribute rather than a .w-N class for exactly that reason. */
+.w-presets { margin: 0 0 44px; }
+/* The strip's own heading and line. They read like a section's — deliberately —
+   but wear their own classes so a test (and a reader) can tell the two apart:
+   .w-section* is a group of WIDGETS, .w-preset* is a group of LAYOUTS. */
+.w-presethead {
+    font-family: var(--font-display); font-weight: 700; font-size: 17px;
+    margin: 0 0 4px;
+}
+.w-presetintro { font-size: 12.5px; color: rgb(var(--c-fog)); margin: 0 0 18px; }
+.w-presetrow {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 14px; align-items: stretch;
+}
+.w-preset {
+    display: flex; flex-direction: column; gap: 9px;
+    border: 1px solid var(--c-ln2); border-radius: 10px; padding: 14px;
+    background: rgb(var(--c-p1)); transition: border-color .15s;
+}
+.w-preset:hover { border-color: rgb(var(--c-acc)); }
+.w-presetname { font-family: var(--font-display); font-weight: 700; font-size: 13.5px; }
+/* The schematic: the preset's widgets in its order, each as wide as its span. */
+.w-presetmini {
+    display: grid; grid-template-columns: repeat(12, 1fr); gap: 4px;
+    padding: 7px; border-radius: 7px; background: rgb(var(--c-cv));
+    border: 1px solid var(--c-ln);
+}
+.w-presetcell {
+    grid-column: span 12; height: 9px; border-radius: 3px;
+    background: rgb(var(--c-acc) / .34);
+}
+.w-presetcell[data-preset-span="9"] { grid-column: span 9; }
+.w-presetcell[data-preset-span="6"] { grid-column: span 6; }
+.w-presetcell[data-preset-span="3"] { grid-column: span 3; }
+.w-presetsub { font-size: 11.5px; line-height: 1.5; color: rgb(var(--c-fog)); margin: 0; flex: 1; }
+.w-presetapply { align-self: flex-start; display: inline-flex; align-items: center; gap: 7px; }
+.w-presetapply svg { width: 14px; height: 14px; }
+/* "My presets": the same card with the management a saved layout needs — apply,
+   delete, and an inline rename box that is a plain form, not an editing mode. */
+.w-presetsave { display: flex; align-items: center; flex-wrap: wrap; gap: 9px; margin: 0 0 16px; }
+.w-presetsavelabel { font-size: 12.5px; color: rgb(var(--c-fog)); }
+.w-presetnameinput {
+    font: inherit; font-size: 12.5px; color: rgb(var(--c-tx));
+    background: rgb(var(--c-raised)); border: 1px solid var(--c-ln2);
+    border-radius: 8px; padding: 6px 10px; min-width: 0; flex: 1 1 160px; max-width: 260px;
+}
+.w-presetnameinput:focus-visible { outline: 2px solid rgb(var(--c-acc)); outline-offset: 1px; }
+.w-presetacts { display: flex; flex-wrap: wrap; gap: 8px; }
+.w-presetdel { display: inline-flex; align-items: center; gap: 7px; color: rgb(var(--c-fail)); }
+.w-presetdel svg { width: 14px; height: 14px; }
+.w-presetrename { display: flex; align-items: center; gap: 7px; }
+.w-presetrenamebtn { white-space: nowrap; }
+.w-presetempty { font-size: 12.5px; color: rgb(var(--c-fog)); margin: 0; }

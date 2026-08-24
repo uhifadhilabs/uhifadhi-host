@@ -22,6 +22,7 @@ use Uhifadhi\Entity\WidgetPreference;
 use Uhifadhi\Model\Widget;
 use Uhifadhi\Model\WidgetCatalog;
 use Uhifadhi\Model\WidgetGroup;
+use Uhifadhi\Repository\WidgetCustomPresetRepository;
 use Uhifadhi\Repository\WidgetPreferenceRepository;
 use Uhifadhi\Service\WidgetService;
 
@@ -88,13 +89,21 @@ final class WidgetPreferenceTest extends KernelTestCase
         ]);
     }
 
+    private function savedPresets(): WidgetCustomPresetRepository
+    {
+        $repository = self::getContainer()->get(WidgetCustomPresetRepository::class);
+        \assert($repository instanceof WidgetCustomPresetRepository);
+
+        return $repository;
+    }
+
     /**
      * Built here rather than fetched: nothing in the host injects it yet (the
      * first dashboard surface will), so the container inlines it away.
      */
     private function widgets(): WidgetService
     {
-        return new WidgetService($this->repository(), $this->entityManager);
+        return new WidgetService($this->repository(), $this->savedPresets(), $this->entityManager);
     }
 
     public function testTheTableCarriesBothPartialUniqueIndexes(): void

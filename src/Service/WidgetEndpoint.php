@@ -23,12 +23,14 @@ use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Component\Uid\Uuid;
 use Uhifadhi\Entity\User;
 use Uhifadhi\Exception\InvalidWidgetPreferenceException;
+use Uhifadhi\Exception\UnknownWidgetPresetException;
 use Uhifadhi\Model\WidgetCatalog;
 use Uhifadhi\Model\WidgetDom;
 
 /**
- * The two write endpoints every widget library needs, once: save a layout, throw
- * one away. A controller that owns a dashboard surface hands its catalogue in
+ * The three write endpoints every widget library needs, once: save a layout,
+ * adopt one of the surface's designs wholesale, throw a layout away.
+ * A controller that owns a dashboard surface hands its catalogue in
  * and returns what comes back — it writes no CSRF check, no user lookup and no
  * status code of its own.
  *
@@ -87,12 +89,115 @@ final readonly class WidgetEndpoint
         return new Response(status: Response::HTTP_NO_CONTENT);
     }
 
+    /**
+     * Adopt one of the surface's designs wholesale. The id is in the URL, not the
+     * body: this write has no body at all, because a preset IS the layout — which
+     * is also why the strip can be a plain form and needs no JavaScript.
+     *
+     * 204 on success, 422 for a design this surface does not name, 403 for a bad
+     * token — the same three answers as save, so a caller handles one shape.
+     */
+    public function applyPreset(Request $request, WidgetCatalog $catalog, string $presetId, ?Uuid $areaUuid = null): Response
+    {
+        $userId = $this->userId();
+        $this->denyUnlessCsrfValid($request, $catalog, $areaUuid);
+
+        try {
+            $this->widgets->applyPreset($catalog, $userId, $areaUuid, $presetId);
+        } catch (InvalidWidgetPreferenceException $invalid) {
+            return new Response($invalid->getMessage(), Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        return new Response(status: Response::HTTP_NO_CONTENT);
+    }
+
+    /**
+     * Save the dashboard as it stands under a name of the person's own. The name
+     * is a form field, because the affordance is a name box and a button and must
+     * work with no JavaScript at all.
+     *
+     * 204, 422 for an unusable name or an empty dashboard, 403 for a bad token.
+     */
+    public function createCustomPreset(Request $request, WidgetCatalog $catalog, ?Uuid $areaUuid = null): Response
+    {
+        $userId = $this->userId();
+        $this->denyUnlessCsrfValid($request, $catalog, $areaUuid);
+
+        try {
+            $this->widgets->saveCustomPreset($catalog, $userId, $areaUuid, $request->request->getString('name'));
+        } catch (InvalidWidgetPreferenceException $invalid) {
+            return new Response($invalid->getMessage(), Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        return new Response(status: Response::HTTP_NO_CONTENT);
+    }
+
+    /**
+     * Put one of the person's OWN saved layouts back on. Ownership is part of the
+     * lookup, so another person's preset answers 404 — the same answer as one
+     * that never existed, which is the only answer that leaks nothing.
+     */
+    public function applyCustomPreset(Request $request, WidgetCatalog $catalog, Uuid $presetUuid, ?Uuid $areaUuid = null): Response
+    {
+        return $this->write(
+            $request,
+            $catalog,
+            $areaUuid,
+            fn (int $userId) => $this->widgets->applyCustomPreset($catalog, $userId, $areaUuid, $presetUuid),
+        );
+    }
+
+    /** 204, 422 for an unusable or already-taken name, 404 if it is not theirs, 403 for a bad token. */
+    public function renameCustomPreset(Request $request, WidgetCatalog $catalog, Uuid $presetUuid, ?Uuid $areaUuid = null): Response
+    {
+        return $this->write(
+            $request,
+            $catalog,
+            $areaUuid,
+            fn (int $userId) => $this->widgets->renameCustomPreset($catalog, $userId, $areaUuid, $presetUuid, $request->request->getString('name')),
+        );
+    }
+
+    /** 204, or 404 if it is not theirs, or 403 for a bad token. */
+    public function deleteCustomPreset(Request $request, WidgetCatalog $catalog, Uuid $presetUuid, ?Uuid $areaUuid = null): Response
+    {
+        return $this->write(
+            $request,
+            $catalog,
+            $areaUuid,
+            fn (int $userId) => $this->widgets->deleteCustomPreset($catalog, $userId, $areaUuid, $presetUuid),
+        );
+    }
+
     /** Back to the catalogue's defaults; the row is deleted. 204, or 403 for a bad token. */
     public function reset(Request $request, WidgetCatalog $catalog, ?Uuid $areaUuid = null): Response
     {
         $userId = $this->userId();
         $this->denyUnlessCsrfValid($request, $catalog, $areaUuid);
         $this->widgets->reset($catalog, $userId, $areaUuid);
+
+        return new Response(status: Response::HTTP_NO_CONTENT);
+    }
+
+    /**
+     * The shape every custom-preset write shares: signed in, token checked, then
+     * one call whose refusals map to the same three codes — 404 for a preset that
+     * is not theirs, 422 for anything else the framework will not store.
+     *
+     * @param callable(int): void $write
+     */
+    private function write(Request $request, WidgetCatalog $catalog, ?Uuid $areaUuid, callable $write): Response
+    {
+        $userId = $this->userId();
+        $this->denyUnlessCsrfValid($request, $catalog, $areaUuid);
+
+        try {
+            $write($userId);
+        } catch (UnknownWidgetPresetException $unknown) {
+            return new Response($unknown->getMessage(), Response::HTTP_NOT_FOUND);
+        } catch (InvalidWidgetPreferenceException $invalid) {
+            return new Response($invalid->getMessage(), Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
 
         return new Response(status: Response::HTTP_NO_CONTENT);
     }
