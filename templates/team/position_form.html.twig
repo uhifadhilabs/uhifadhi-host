@@ -1,3 +1,11 @@
+{# The full create/edit screen for one position: its department, its name, its permission matrix.
+
+   DEPARTMENT IS FIELD ONE on create, and it is required — the uniqueness check runs against the
+   chosen department only, so the name field cannot be answered until it is. On EDIT the
+   department is stated and read-only: a position does not move between departments, because
+   moving it would silently re-scope its name against a set of names nobody was looking at. The
+   one exception is the unfiled holding pen, whose File… control lives on the position rows
+   themselves — where the transition is visible as a transition. #}
 {% extends 'layout.html.twig' %}
 
 {% block title %}{{ heading }} — Uhifadhi{% endblock %}
@@ -8,23 +16,54 @@
         <div class="pghead">
             <div>
                 <h1 class="pg">{{ heading }}</h1>
-                <p class="pgsub">A position is a named bundle of permissions. Tick what it grants; every Staff member assigned this
-                    position inherits exactly these — the action-level check is the <b>PermissionVoter</b>.</p>
+                <p class="pgsub">A position is a named bundle of permissions, owned by one department. Tick what it
+                    grants; every Staff member assigned this position inherits exactly these — the action-level check is
+                    the <b>PermissionVoter</b>. Its name only has to be unique <b>inside its department</b>.</p>
             </div>
         </div>
 
-        <div style="max-width:560px">
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="c tm-flash"><span class="acc">{{ label == 'error' ? '!' : '✓' }}</span> {{ message }}</div>
+            {% endfor %}
+        {% endfor %}
+
+        <div class="tm-formwrap">
             {{ form_start(form) }}
                 <div class="c">
-                    <span class="tab"><span class="idx">PL·10</span>Position<span class="src">· name + permissions</span></span>
+                    <span class="tab"><span class="idx">PL·10</span>Position<span class="src">· department + name + permissions</span></span>
 
-                    <div class="mb-0" style="margin-bottom:12px">{{ form_errors(form) }}</div>
+                    <div class="tm-formerrors">{{ form_errors(form) }}</div>
 
-                    <label class="matrix-label" for="{{ form.name.vars.id }}">Name</label>
-                    {{ form_widget(form.name, {attr: {class: 'fld', placeholder: 'e.g. Ranger'}}) }}
-                    <div class="r" style="font-size:11px;margin-top:6px">{{ form_errors(form.name) }}</div>
+                    <label class="matrix-label" for="tm-department"><span class="step">1</span>Department</label>
+                    {% if position %}
+                        {# Stated, not editable: see the banner. #}
+                        <p class="tm-deptfixed">
+                            {% if department %}
+                                <b>{{ department.name }}</b><span class="dept-via">this position’s department</span>
+                            {% else %}
+                                <b>Unfiled</b><span class="dept-via">file it from the Positions widget</span>
+                            {% endif %}
+                        </p>
+                    {% else %}
+                        <select class="fld sel" id="tm-department" name="department" required>
+                            <option value="" disabled {{ department ? '' : 'selected' }}>— choose a department —</option>
+                            {% for candidate in departments %}
+                                <option value="{{ candidate.uuidString }}" {{ department and department.uuidString == candidate.uuidString ? 'selected' }}>{{ candidate.name }}</option>
+                            {% endfor %}
+                            {# A non-empty sentinel so `required` still blocks the placeholder: the
+                               controller reads anything that is not a department uuid as unfiled. #}
+                            <option value="unfiled">Unfiled — no department yet</option>
+                        </select>
+                        <p class="tm-hint">The name below only has to be free in <b>this</b> department. Another
+                            department may already have one spelled the same way, and that is expected.</p>
+                    {% endif %}
 
-                    <label class="matrix-label" style="margin-top:18px">Permissions</label>
+                    <label class="matrix-label tm-spaced" for="{{ form.name.vars.id }}"><span class="step">2</span>Name</label>
+                    {{ form_widget(form.name, {attr: {class: 'fld', placeholder: 'e.g. Analyst'}}) }}
+                    <div class="r tm-fielderrors">{{ form_errors(form.name) }}</div>
+
+                    <label class="matrix-label tm-spaced"><span class="step">3</span>Permissions</label>
                     <div class="matrix">
                         {% for umbrella, permissions in catalogue %}
                             <div class="umb">
@@ -42,9 +81,9 @@
                         {% endfor %}
                     </div>
 
-                    <div style="display:flex;margin-top:18px;align-items:center">
-                        <a href="{{ path('app_team') }}" class="fog" style="font-size:12px;text-decoration:none">← Back to team</a>
-                        <button type="submit" class="cta" style="margin-left:auto;border:0;cursor:pointer">
+                    <div class="tm-formfoot">
+                        <a href="{{ path('app_team') }}" class="fog tm-back">← Back to team</a>
+                        <button type="submit" class="cta tm-submit">
                             {{ locked ? 'Save permissions' : 'Save position' }}
                         </button>
                     </div>

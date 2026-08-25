@@ -42,6 +42,9 @@ final class DepartmentLensWidgetTest extends KernelTestCase
 
     private const TEMPLATE = 'departments/_w_lens.html.twig';
 
+    /** Every route this widget is allowed to reach — see the note on the harness below. */
+    private const array ROUTES = ['app_department_show'];
+
     public function testItPreviewsTheFirstTwoDepartmentsThatHaveModules(): void
     {
         self::bootKernel();
@@ -119,7 +122,16 @@ final class DepartmentLensWidgetTest extends KernelTestCase
         self::assertCount(0, $crawler->filter('form'));
         self::assertCount(0, $crawler->filter('button'));
         self::assertCount(0, $crawler->filter('input'));
-        self::assertCount(0, $crawler->filter('a'));
+
+        // NAVIGATION IS NOT A CONTROL. The one link a persona card carries is the department it
+        // names, in the caption ABOVE the mock — every widget that names a department is a way
+        // into that department's record. Inside .frame nothing is a link: that is the preview,
+        // and a link in there would navigate out of the very screen being previewed.
+        self::assertSame(
+            array_fill(0, $crawler->filter('.lensc')->count(), 'dp-deptlink'),
+            $crawler->filter('a')->each(static fn (Crawler $node): string => (string) $node->attr('class')),
+        );
+        self::assertCount(0, $crawler->filter('.frame a'));
     }
 
     public function testWithoutTwoDepartmentsCarryingModulesItSaysSoHonestly(): void
@@ -203,9 +215,21 @@ final class DepartmentLensWidgetTest extends KernelTestCase
         \assert($twig instanceof Environment);
 
         $harness = new Environment($twig->getLoader(), ['strict_variables' => true]);
-        $harness->addFunction(new TwigFunction('path', static fn (string $name): string => self::fail(
-            \sprintf('The lens widget is a pure preview and must link nowhere, got a path to "%s".', $name),
-        )));
+        // THE ALLOW-LIST. The preview links to exactly one place — the department its persona
+        // card names — and nowhere else: the mock frame below it is a picture of somebody else's
+        // screen, and a link in there would navigate out of the very thing being previewed. Any
+        // other route reached from this widget fails here rather than in a browser.
+        $harness->addFunction(new TwigFunction(
+            'path',
+            /** @param array<string, mixed> $parameters */
+            static fn (string $name, array $parameters = []): string => \in_array($name, self::ROUTES, true)
+                ? '/departments/'.(\is_string($parameters['uuid'] ?? null) ? $parameters['uuid'] : '')
+                : self::fail(\sprintf(
+                    'The lens widget may only link to %s, got a path to "%s".',
+                    implode(', ', self::ROUTES),
+                    $name,
+                )),
+        ));
         $harness->addFunction(new TwigFunction(
             'ux_icon',
             static fn (string $name): string => '<svg data-icon="'.$name.'"></svg>',

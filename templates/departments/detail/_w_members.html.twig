@@ -1,0 +1,27 @@
+{# Department detail widget 'members' — everyone here, and the position that placed them.
+   Design: overview.widgets.js → "members" (DP·05). READ-ONLY by design: membership is indirect,
+   so there is no "add person to department" button anywhere in this app. #}
+<div class="c" data-w="members">
+    <span class="tab"><span class="idx">DP·05</span>Members<span class="src">· {{ members|length }} · via position</span></span>
+    {% if members|length %}
+        <table class="tbl">
+            <thead><tr><th>Member</th><th>Email</th><th>Position</th><th>Tier</th></tr></thead>
+            <tbody>
+                {% for member in members %}
+                    <tr>
+                        <td><div class="who"><span class="avatar sm">{{ (member.firstName|default('')|first ~ member.lastName|default('')|first)|upper }}</span><b>{{ member.fullName }}</b></div></td>
+                        <td class="fog mono dp-email">{{ member.email }}</td>
+                        <td>{{ member.position.name }}<span class="viaposition">via position</span></td>
+                        <td><span class="tier {{ member.teamRole.value == 'manager' ? 't-manager' : '' }}">{{ member.teamRole.label|default(member.teamRole.value) }}</span></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="use">Nobody is placed here yet. People arrive in a department by holding one of its
+            positions — never by being added to it.</p>
+    {% endif %}
+    <p class="use"><b>Membership is read-only here.</b> People are in {{ department.name }} because their
+        <b>position</b> is — move a position to another department and its holders move with it. There is
+        no “add person to department” button, by design.</p>
+</div>

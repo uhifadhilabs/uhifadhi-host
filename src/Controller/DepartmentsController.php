@@ -24,6 +24,7 @@ use Symfony\Component\Uid\Uuid;
 use Uhifadhi\Entity\Department;
 use Uhifadhi\Entity\Module;
 use Uhifadhi\Model\DepartmentsWidgets;
+use Uhifadhi\Model\WidgetDom;
 use Uhifadhi\Service\DepartmentService;
 use Uhifadhi\Service\DepartmentsSurface;
 use Uhifadhi\Service\WidgetEndpoint;
@@ -73,15 +74,53 @@ final class DepartmentsController extends AbstractController
     public function widgets(): Response
     {
         $catalog = DepartmentsWidgets::catalog();
+        $userId = $this->userId();
 
         return $this->render('departments/widgets.html.twig', [
             ...$this->surface->context(),
             'canManage' => $this->isGranted('ROLE_MANAGER'),
-            'sections' => WidgetService::sections($catalog, $this->widgets->resolve($catalog, $this->userId())),
-            'presets' => $catalog->presets(),
-            'customPresets' => $this->widgets->customPresets($catalog, $this->userId()),
+            // Everything templates/widgets/_library.html.twig needs, in one bag —
+            // the shared partial is parameterised by exactly this and by nothing
+            // that knows the word "departments".
+            'catalog' => $catalog,
+            'builtins' => $catalog->builtins(),
+            'customPresets' => $this->widgets->customPresets($catalog, $userId),
+            'active' => $this->widgets->activeRef($catalog, $userId),
+            'widgets' => $this->widgets->resolve($catalog, $userId),
+            'partial' => 'departments/_w_%s.html.twig',
+            'urls' => $this->widgetUrls(),
             'csrfToken' => $this->widgetEndpoint->csrfToken($catalog),
         ]);
+    }
+
+    /**
+     * THE LIBRARY'S WIRE, as URLs. The preset component is one client-side
+     * component over a catalogue: it draws cards that did not exist when the page
+     * was rendered, so it builds their URLs from these templates rather than
+     * reading an href off a card. A template carries WidgetDom::ID_PLACEHOLDER
+     * where the id goes — a real, requirement-satisfying literal, so path() never
+     * has to be given a fake one.
+     *
+     * An area-scoped surface builds the same map with its area in every path; the
+     * partial neither knows nor cares which it got.
+     *
+     * @return array<string, string>
+     */
+    private function widgetUrls(): array
+    {
+        $id = WidgetDom::ID_PLACEHOLDER;
+
+        return [
+            'save' => $this->generateUrl('app_departments_widgets_save'),
+            'reset' => $this->generateUrl('app_departments_widgets_reset'),
+            'preset' => $this->generateUrl('app_departments_widgets_preset', ['presetId' => $id]),
+            'copy' => $this->generateUrl('app_departments_widgets_preset_copy', ['presetId' => $id]),
+            'presets' => $this->generateUrl('app_departments_widgets_preset_create'),
+            'apply' => $this->generateUrl('app_departments_widgets_preset_apply', ['presetUuid' => $id]),
+            'rename' => $this->generateUrl('app_departments_widgets_preset_rename', ['presetUuid' => $id]),
+            'delete' => $this->generateUrl('app_departments_widgets_preset_delete', ['presetUuid' => $id]),
+            'dashboard' => $this->generateUrl('app_departments'),
+        ];
     }
 
     #[Route('/widgets/save', name: 'app_departments_widgets_save', methods: ['POST'])]
@@ -106,6 +145,21 @@ final class DepartmentsController extends AbstractController
             $this->widgetEndpoint->applyPreset($request, $catalog, $presetId),
             \sprintf('Your dashboard now follows “%s”.', $catalog->preset($presetId)?->label),
             'app_departments',
+        );
+    }
+
+    /**
+     * Make a copy of one of the shipped designs, to customize. The designs are immutable, so this
+     * is the only door from one into an editable layout — and the copy becomes active, because
+     * customizing a design you are looking at means customizing the one you are on.
+     */
+    #[Route('/widgets/preset/{presetId}/copy', name: 'app_departments_widgets_preset_copy', requirements: ['presetId' => '[a-z0-9_-]+'], methods: ['POST'])]
+    public function widgetsPresetCopy(Request $request, string $presetId): Response
+    {
+        return $this->afterPresetWrite(
+            $this->widgetEndpoint->copyPreset($request, DepartmentsWidgets::catalog(), $presetId),
+            'Copied. The copy is yours to edit, and your dashboard is on it.',
+            'app_departments_widgets',
         );
     }
 

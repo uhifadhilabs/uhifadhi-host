@@ -43,6 +43,26 @@ use Uhifadhi\Repository\WidgetPreferenceRepository;
  * ({@see WidgetCustomPreset}). Both are converted to an ordinary payload and
  * written through {@see save()} — there is exactly one path into a
  * stored row, and adopting a design is not an exception to it.
+ *
+ * THE ACTIVE-PRESET MODEL (2026-08)
+ * ---------------------------------
+ * There is NO ANONYMOUS LAYOUT. A dashboard renders exactly one preset, and the
+ * stored row names it ({@see WidgetPreference::getActiveKind()}). A person who
+ * has never chosen is active on the surface's default built-in
+ * ({@see WidgetCatalog::defaultPresetId()}), which is why a fresh dashboard is
+ * still "a preset" and the library's strip always has exactly one Active card.
+ *
+ * BUILT-INS ARE IMMUTABLE. They are the designs the product ships, so
+ * {@see save()} REFUSES a layout while one is active: the way a shipped design
+ * changes is {@see copyBuiltinPreset()}, and the copy is what gets edited.
+ * Editing while a CUSTOM preset is active WRITES THROUGH to that preset's own
+ * row — the preset is the layout, so there is nothing else to save.
+ *
+ * SOURCE COMPATIBILITY. Every method below kept the signature module bundles
+ * were already calling; the model's needs arrived as arguments appended with
+ * defaults ({@see saveCustomPreset()}) or as new methods. Behaviour changed in
+ * exactly one place, and deliberately: applying or creating a preset now also
+ * makes it active, because in this model that is what applying MEANS.
  */
 final class WidgetService
 {
@@ -65,16 +85,76 @@ final class WidgetService
      */
     public function resolve(WidgetCatalog $catalog, ?int $userId, ?Uuid $areaUuid = null): array
     {
-        $stored = null !== $userId
-            ? $this->preferences->findOneForUser($catalog->surface, $userId, $areaUuid)?->getPrefs()
+        if (null === $userId) {
+            return self::merge($catalog, null);
+        }
+
+        $row = $this->preferences->findOneForUser($catalog->surface, $userId, $areaUuid);
+        // THE ACTIVE PRESET IS THE LAYOUT. Reading it back from the preset itself
+        // rather than from the row's cached copy is what makes "editing a custom
+        // preset edits your dashboard" true with nothing to keep in step.
+        $active = $this->activePreset($catalog, $row);
+        if (null !== $active) {
+            return self::merge($catalog, self::presetPayload($catalog, $active));
+        }
+
+        // A row written before the active-preset model: it has a layout and names
+        // no preset. Honour it rather than silently rearranging their dashboard.
+        return self::merge($catalog, $row?->getPrefs());
+    }
+
+    /**
+     * WHICH PRESET this person's dashboard is showing, as {kind, id, label}.
+     * Tolerant: a reference to a preset that no longer exists (a deleted custom
+     * one, a design a release retired) falls back to the surface's default
+     * built-in, so a dashboard is never left pointing at nothing.
+     *
+     * @return array{kind: string, id: string, label: string}
+     */
+    public function activeRef(WidgetCatalog $catalog, ?int $userId, ?Uuid $areaUuid = null): array
+    {
+        $row = null !== $userId
+            ? $this->preferences->findOneForUser($catalog->surface, $userId, $areaUuid)
             : null;
 
-        return self::merge($catalog, $stored);
+        if (WidgetPreference::KIND_MINE === $row?->getActiveKind()) {
+            $mine = $this->activeCustom($catalog, $row, $areaUuid);
+            if (null !== $mine) {
+                return [
+                    'kind' => WidgetPreference::KIND_MINE,
+                    'id' => (string) $mine->getUuidString(),
+                    'label' => $mine->getName(),
+                ];
+            }
+        }
+        if (WidgetPreference::KIND_DESIGN === $row?->getActiveKind()) {
+            $design = $catalog->preset((string) $row->getActivePreset());
+            if (null !== $design) {
+                return ['kind' => WidgetPreference::KIND_DESIGN, 'id' => $design->id, 'label' => $design->label];
+            }
+        }
+
+        // A catalogue that ships no preset at all still has to answer, so the id
+        // stands on its own and the label falls back to the framework's word.
+        $fallback = $catalog->preset($catalog->defaultPresetId());
+
+        return [
+            'kind' => WidgetPreference::KIND_DESIGN,
+            'id' => $catalog->defaultPresetId(),
+            'label' => null !== $fallback ? $fallback->label : 'Default layout',
+        ];
     }
 
     /**
      * Store this person's layout, canonicalised. Throws rather than storing a
      * payload the catalogue does not recognise.
+     *
+     * WHERE IT GOES depends on what is active. On one of the person's OWN presets
+     * it writes THROUGH to that preset — the preset is the layout, it stays
+     * active, and there is nothing else to save. On a BUILT-IN it refuses: the
+     * designs the product ships are immutable, and the way to change one is
+     * {@see copyBuiltinPreset()}. The library never offers the edit at all, so a
+     * refusal here means something bypassed the screen.
      *
      * @param array<string, mixed> $payload
      *
@@ -82,12 +162,31 @@ final class WidgetService
      */
     public function save(WidgetCatalog $catalog, int $userId, array $payload, ?Uuid $areaUuid = null): void
     {
-        $prefs = self::validate($catalog, $payload);
+        $row = $this->row($catalog, $userId, $areaUuid);
 
-        $row = $this->preferences->findOneForUser($catalog->surface, $userId, $areaUuid)
-            ?? new WidgetPreference($catalog->surface, $userId, $areaUuid);
+        if (WidgetPreference::KIND_DESIGN === $row->getActiveKind()
+            || (null === $row->getActiveKind() && null === $row->getId())) {
+            throw new InvalidWidgetPreferenceException('That design is one the product ships, so it cannot be edited. Make a copy to customize it.');
+        }
+
+        $mine = WidgetPreference::KIND_MINE === $row->getActiveKind()
+            ? $this->activeCustom($catalog, $row, $areaUuid)
+            : null;
+
+        if (null !== $mine) {
+            // The canvas holds exactly the composition, so the payload IS the
+            // preset's layout; the row's own copy is then that preset read back
+            // through the catalogue, so the two can never drift.
+            $composed = self::composedLayout($catalog, $payload);
+            $mine->setLayout($composed);
+            $prefs = self::presetPayload($catalog, self::customPreset((string) $mine->getUuidString(), $mine->getName(), $composed));
+        } else {
+            // A row written before the active-preset model: it has a layout and
+            // names no preset, so the old complete-picture shape is what it means.
+            $prefs = self::validate($catalog, $payload);
+        }
+
         $row->setPrefs($prefs);
-
         $this->entityManager->persist($row);
         $this->entityManager->flush();
     }
@@ -106,12 +205,51 @@ final class WidgetService
     {
         $preset = self::presetOf($catalog, $presetId);
 
-        $this->save($catalog, $userId, self::presetPayload($catalog, $preset), $areaUuid);
+        $this->store($catalog, $userId, $areaUuid, $preset, WidgetPreference::KIND_DESIGN, $preset->id);
+    }
+
+    /**
+     * MAKE A COPY TO CUSTOMIZE — the only way a shipped design ever changes.
+     *
+     * The copy is one of the person's own presets, so it is editable, and it
+     * becomes ACTIVE immediately: you asked to customize this design, so this
+     * design (as yours) is what your dashboard shows while you do. Nothing forks
+     * behind anyone's back — this happens because a person pressed the button
+     * that says so.
+     *
+     * @param string|null $rawName what to call it; null takes the design's own name and marks it a copy
+     *
+     * @throws InvalidWidgetPreferenceException when the surface names no such design, or the name is unusable
+     */
+    public function copyBuiltinPreset(WidgetCatalog $catalog, int $userId, ?Uuid $areaUuid, string $presetId, ?string $rawName = null): WidgetCustomPreset
+    {
+        $source = self::presetOf($catalog, $presetId);
+        $name = null !== $rawName && '' !== trim($rawName)
+            ? self::presetName($rawName)
+            : $this->freeName($catalog, $userId, $areaUuid, $source->label.' — copy');
+
+        // The layout is TAKEN THROUGH the catalogue, so a copy of a design is
+        // canonical from its first moment rather than inheriting a span the
+        // catalogue has since narrowed.
+        $layout = self::captureLayout(self::merge($catalog, self::presetPayload($catalog, $source)));
+
+        $row = new WidgetCustomPreset($catalog->surface, $userId, $areaUuid, $name, $layout);
+        $this->entityManager->persist($row);
+        $this->entityManager->flush();
+
+        $this->applyCustomPreset($catalog, $userId, $areaUuid, self::uuidOf($row));
+
+        return $row;
     }
 
     /**
      * This person's own saved layouts for this surface, as presets — the strip
      * draws them beside the shipped ones with no idea which is which.
+     *
+     * Their DESCRIPTION is generated rather than empty: a card in this strip
+     * wears the same three registers as a shipped one, and the sentence a saved
+     * layout has to offer is what it holds. Stated here so the server-rendered
+     * card and the script-rendered one can never word it differently.
      *
      * @return list<WidgetPreset>
      */
@@ -125,7 +263,7 @@ final class WidgetService
             static fn (WidgetCustomPreset $row): WidgetPreset => new WidgetPreset(
                 (string) $row->getUuidString(),
                 $row->getName(),
-                '',
+                self::countLine($row->getLayout()),
                 $row->getLayout(),
             ),
             $this->savedPresets->findForUser($catalog->surface, $userId, $areaUuid),
@@ -133,7 +271,18 @@ final class WidgetService
     }
 
     /**
-     * Save the dashboard AS IT IS NOW under a name of their own.
+     * Keep a layout under a name of their own, and put it on.
+     *
+     * The layout is the one COMPOSED on the library's canvas when the caller
+     * hands one in, and the dashboard as it stands otherwise — `$layout` was
+     * appended with a default so every existing two-argument call still means
+     * "save what I am looking at". A composed one is validated through the
+     * catalogue like any other, so a payload naming a retired widget is refused
+     * before a row is touched rather than stored and dropped later.
+     *
+     * It becomes ACTIVE, because in the active-preset model that is what saving a
+     * composition means: you composed the dashboard you wanted, so that is the
+     * dashboard you get.
      *
      * Saving under a name they already used OVERWRITES that preset rather than
      * refusing: it is their own layout under their own word, two cards reading
@@ -141,21 +290,27 @@ final class WidgetService
      * first through the confirm modal. The table's unique index says the same
      * thing, so a race ends as a replacement too.
      *
+     * @param array<string, mixed>|null $layout the composed layout as a save payload; null means "the dashboard as it is"
+     *
      * @throws InvalidWidgetPreferenceException on an unusable name or an empty dashboard
      */
-    public function saveCustomPreset(WidgetCatalog $catalog, int $userId, ?Uuid $areaUuid, string $rawName): WidgetCustomPreset
+    public function saveCustomPreset(WidgetCatalog $catalog, int $userId, ?Uuid $areaUuid, string $rawName, ?array $layout = null): WidgetCustomPreset
     {
         $name = self::presetName($rawName);
-        $layout = self::captureLayout($this->resolve($catalog, $userId, $areaUuid));
+        $captured = null !== $layout
+            ? self::composedLayout($catalog, $layout)
+            : self::captureLayout($this->resolve($catalog, $userId, $areaUuid));
         // Refuses an empty dashboard, and refuses it BEFORE any row is touched.
-        self::customPreset('draft', $name, $layout);
+        self::customPreset('draft', $name, $captured);
 
         $row = $this->savedPresets->findOneNamed($catalog->surface, $userId, $areaUuid, $name)
             ?? new WidgetCustomPreset($catalog->surface, $userId, $areaUuid, $name);
-        $row->setLayout($layout);
+        $row->setLayout($captured);
 
         $this->entityManager->persist($row);
         $this->entityManager->flush();
+
+        $this->applyCustomPreset($catalog, $userId, $areaUuid, self::uuidOf($row));
 
         return $row;
     }
@@ -171,7 +326,7 @@ final class WidgetService
         $row = $this->ownedPreset($catalog, $userId, $areaUuid, $uuid);
         $preset = self::customPreset((string) $row->getUuidString(), $row->getName(), $row->getLayout());
 
-        $this->save($catalog, $userId, self::presetPayload($catalog, $preset), $areaUuid);
+        $this->store($catalog, $userId, $areaUuid, $preset, WidgetPreference::KIND_MINE, $preset->id);
     }
 
     /**
@@ -194,11 +349,25 @@ final class WidgetService
         $this->entityManager->flush();
     }
 
-    /** @throws UnknownWidgetPresetException when the preset is not theirs, or gone */
+    /**
+     * Throw one of their own layouts away. Deleting the ACTIVE one cannot leave
+     * the dashboard pointing at nothing, so the row goes back to the surface's
+     * default design — the same answer {@see activeRef()} gives a dangling
+     * reference, reached deliberately here rather than left to be tolerated.
+     *
+     * @throws UnknownWidgetPresetException when the preset is not theirs, or gone
+     */
     public function deleteCustomPreset(WidgetCatalog $catalog, int $userId, ?Uuid $areaUuid, Uuid $uuid): void
     {
-        $this->entityManager->remove($this->ownedPreset($catalog, $userId, $areaUuid, $uuid));
+        $preset = $this->ownedPreset($catalog, $userId, $areaUuid, $uuid);
+        $wasActive = $uuid->toRfc4122() === $this->activeRef($catalog, $userId, $areaUuid)['id'];
+
+        $this->entityManager->remove($preset);
         $this->entityManager->flush();
+
+        if ($wasActive) {
+            $this->reset($catalog, $userId, $areaUuid);
+        }
     }
 
     /** Back to the catalogue's layout — no row means the defaults, so reset deletes. */
@@ -356,6 +525,56 @@ final class WidgetService
     }
 
     /**
+     * A LIBRARY PAYLOAD READ AS A PRESET'S LAYOUT — the composition it states,
+     * and only that.
+     *
+     * It is not {@see captureLayout()} over {@see merge()}, and the difference
+     * matters: merge() fills a widget the payload does not mention with the
+     * CATALOGUE's answer for it, which is right for a stored preference (a row
+     * must be a complete picture) and wrong for a composition. The canvas holds
+     * exactly the composition, so a widget it does not name is OFF — filling one
+     * in would put widgets on a preset nobody added.
+     *
+     * The order is the payload's own, with anything explicitly switched on but
+     * left out of the order appended: a caller that states `on` and forgets to
+     * list it meant to include it.
+     *
+     * @param array<string, mixed> $payload
+     *
+     * @return array<string, int>
+     *
+     * @throws InvalidWidgetPreferenceException
+     */
+    public static function composedLayout(WidgetCatalog $catalog, array $payload): array
+    {
+        $validated = self::validate($catalog, $payload);
+        /** @var array<string, mixed> $rawWidgets */
+        $rawWidgets = \is_array($payload['widgets'] ?? null) ? $payload['widgets'] : [];
+        /** @var array<int, mixed> $rawOrder */
+        $rawOrder = \is_array($payload['order'] ?? null) ? $payload['order'] : [];
+
+        $named = [];
+        foreach ($rawOrder as $id) {
+            if (\is_string($id)) {
+                $named[$id] = true;
+            }
+        }
+
+        $layout = [];
+        foreach ($validated['order'] as $id) {
+            $entry = \is_array($rawWidgets[$id] ?? null) ? $rawWidgets[$id] : [];
+            $explicitlyOff = \array_key_exists('on', $entry) && !$entry['on'];
+            $explicitlyOn = \array_key_exists('on', $entry) && (bool) $entry['on'];
+            if ($explicitlyOff || (!isset($named[$id]) && !$explicitlyOn)) {
+                continue;
+            }
+            $layout[$id] = $validated['widgets'][$id]['cols'];
+        }
+
+        return $layout;
+    }
+
+    /**
      * A resolved layout read as a preset's layout: the widgets that are ON, in
      * their order, at their width. Absence IS off, exactly as in a shipped
      * preset, so "save this dashboard as a preset" and "ship this design" write
@@ -397,6 +616,20 @@ final class WidgetService
     }
 
     /**
+     * What a saved layout has to say about itself, in one line. Kept beside
+     * {@see customPresets()} because assets/widgets.js writes the same sentence
+     * for a card it draws after a save, and the two must match word for word.
+     *
+     * @param array<string, int> $layout
+     */
+    public static function countLine(array $layout): string
+    {
+        $count = \count($layout);
+
+        return \sprintf('%d widget%s, in your order and at your widths.', $count, 1 === $count ? '' : 's');
+    }
+
+    /**
      * A name a person typed: trimmed, saying something, and short enough to read
      * on a card. Untrusted input, so a refusal is a 422 and never an exception
      * page.
@@ -414,42 +647,6 @@ final class WidgetService
         }
 
         return $name;
-    }
-
-    /**
-     * A resolved layout read as the library's headed sections: the catalogue's
-     * groups in the catalogue's order, each carrying the widgets filed under it
-     * IN THE PERSON'S OWN ORDER. A group no widget lands in is not drawn — an
-     * empty heading says nothing.
-     *
-     * Grouping is a library-side reading only: the dashboard grid stays one
-     * ordered list, and a drag moves a widget across the whole surface.
-     *
-     * @param list<array{id: string, label: string, group: string, on: bool, cols: int, spans: list<int>}> $resolved
-     *
-     * @return list<array{id: string, label: string, description: string, widgets: list<array{id: string, label: string, group: string, on: bool, cols: int, spans: list<int>}>}>
-     */
-    public static function sections(WidgetCatalog $catalog, array $resolved): array
-    {
-        $sections = [];
-        foreach ($catalog->groups() as $group) {
-            $widgets = array_values(array_filter(
-                $resolved,
-                static fn (array $widget): bool => $widget['group'] === $group->id,
-            ));
-            if ([] === $widgets) {
-                continue;
-            }
-
-            $sections[] = [
-                'id' => $group->id,
-                'label' => $group->label,
-                'description' => $group->description,
-                'widgets' => $widgets,
-            ];
-        }
-
-        return $sections;
     }
 
     /**
@@ -475,6 +672,100 @@ final class WidgetService
         }
 
         return $order;
+    }
+
+    /**
+     * THE ONE WRITE that makes a preset the dashboard: its payload into the row's
+     * layout, and its identity into the row's active reference. The two are set
+     * together because they are one fact — "this is the preset you are on" — and
+     * a row that held one without the other would be exactly the anonymous layout
+     * this model does not have.
+     *
+     * Private, and not routed through {@see save()}, because save() enforces the
+     * immutability rule and APPLYING a built-in is not editing one.
+     */
+    private function store(WidgetCatalog $catalog, int $userId, ?Uuid $areaUuid, WidgetPreset $preset, string $kind, string $presetId): void
+    {
+        $row = $this->row($catalog, $userId, $areaUuid);
+        $row->setPrefs(self::validate($catalog, self::presetPayload($catalog, $preset)));
+        $row->setActive($kind, $presetId);
+
+        $this->entityManager->persist($row);
+        $this->entityManager->flush();
+    }
+
+    /** This person's row for this surface, existing or fresh; unflushed either way. */
+    private function row(WidgetCatalog $catalog, int $userId, ?Uuid $areaUuid): WidgetPreference
+    {
+        return $this->preferences->findOneForUser($catalog->surface, $userId, $areaUuid)
+            ?? new WidgetPreference($catalog->surface, $userId, $areaUuid);
+    }
+
+    /**
+     * The active preset as a value object, or null where the row names none that
+     * still exists — the caller then falls back, which is where the tolerance in
+     * this framework always lives.
+     */
+    private function activePreset(WidgetCatalog $catalog, ?WidgetPreference $row): ?WidgetPreset
+    {
+        if (null === $row) {
+            // Never chosen: the surface's own answer, which is still a preset.
+            return $catalog->preset($catalog->defaultPresetId());
+        }
+        if (WidgetPreference::KIND_DESIGN === $row->getActiveKind()) {
+            return $catalog->preset((string) $row->getActivePreset())
+                ?? $catalog->preset($catalog->defaultPresetId());
+        }
+        if (WidgetPreference::KIND_MINE === $row->getActiveKind()) {
+            $mine = $this->activeCustom($catalog, $row, $row->getAreaUuid());
+
+            return null !== $mine
+                ? self::customPreset((string) $mine->getUuidString(), $mine->getName(), $mine->getLayout())
+                : $catalog->preset($catalog->defaultPresetId());
+        }
+
+        return null;
+    }
+
+    /** The custom-preset row a 'mine' reference names, if it is still theirs. */
+    private function activeCustom(WidgetCatalog $catalog, WidgetPreference $row, ?Uuid $areaUuid): ?WidgetCustomPreset
+    {
+        $reference = $row->getActivePreset();
+        if (null === $reference || !Uuid::isValid($reference)) {
+            return null;
+        }
+
+        return $this->savedPresets->findOwned(
+            $catalog->surface,
+            $row->getUserId(),
+            $areaUuid,
+            Uuid::fromString($reference),
+        );
+    }
+
+    /**
+     * A name nothing of theirs already wears, by counting up. Copying twice must
+     * make a second card rather than replacing the first — that is the whole
+     * point of a copy, and it is the one place the overwrite-by-name rule would
+     * destroy work nobody asked to lose.
+     */
+    private function freeName(WidgetCatalog $catalog, int $userId, ?Uuid $areaUuid, string $wanted): string
+    {
+        $base = mb_substr(trim($wanted), 0, self::NAME_MAX);
+        $name = $base;
+        for ($n = 2; null !== $this->savedPresets->findOneNamed($catalog->surface, $userId, $areaUuid, $name); ++$n) {
+            $suffix = ' '.$n;
+            $name = mb_substr($base, 0, self::NAME_MAX - mb_strlen($suffix)).$suffix;
+        }
+
+        return $name;
+    }
+
+    /** The UUID a just-persisted preset was given; absent is a programming error, never input. */
+    private static function uuidOf(WidgetCustomPreset $preset): Uuid
+    {
+        return $preset->getUuid()
+            ?? throw new \LogicException('A persisted widget preset always carries a UUID.');
     }
 
     /**

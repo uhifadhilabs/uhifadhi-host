@@ -1,0 +1,46 @@
+{# The compact table the "Inside Settings" direction carries — the same zones, five columns, sized to
+   sit beside the map at half a row. No new vocabulary: it is the register with the columns a half-
+   width cell can actually hold.
+
+   → ZoneRepository::zonesFor($area). #}
+<div class="c" data-w="table">
+    <span class="tab"><span class="idx">PL·44</span>{{ zones|length }} zone{{ zones|length == 1 ? '' : 's' }}<span class="src">· non-overlapping</span></span>
+    <div class="ztblwrap ztblwrap-sm">
+        <table class="ztable">
+            <thead>
+            <tr>
+                <th>Zone</th>
+                <th style="text-align:right">km²</th>
+                <th style="text-align:right">% of AOI</th>
+                <th style="text-align:right">vertices</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for row in zones %}
+                <tr data-zone-uuid="{{ row.uuid }}">
+                    <td>
+                        <div style="display:flex;gap:9px;align-items:center">
+                            <span class="sw" style="background:{{ row.color }}"></span>
+                            <span style="font-weight:600" data-zone-name>{{ row.name }}</span>
+                            <span class="zn">{{ row.plate }}</span>
+                        </div>
+                    </td>
+                    <td class="num">{{ row.areaKm2|number_format(0) }}</td>
+                    <td class="num">{{ row.sharePct|number_format(1) }}%</td>
+                    <td class="num">{{ row.vertices }}</td>
+                    <td>
+                        <div class="acts">
+                            <a class="open-btn" href="{{ path('app_area_zone', {uuid: area.uuid, zoneUuid: row.uuid}) }}"
+                               title="Open “{{ row.name }}”">Open {{ ux_icon('lucide:chevron-right') }}</a>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="rln" style="margin-top:10px;border-bottom:0;padding-top:11px">
+        <span class="mono d" style="font-size:10.5px">{{ zonedKm2|number_format(0) }} km² · {{ coveragePct|number_format(1) }}% of the AOI covered</span>
+    </div>
+</div>

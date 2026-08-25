@@ -1,0 +1,46 @@
+{# Department detail widget 'modules' — the attached modules, which are shared, and the way to
+   attach another. Design: overview.widgets.js → "modules" (DP·01).
+   Attach/detach is ONE existing route (app_department_module_toggle): an intersection has
+   exactly one affordance. Only a manager sees the controls; everyone sees the list, because a
+   department is a lens and a lens nobody may look through explains nothing. #}
+<div class="c" data-w="modules">
+    <span class="tab"><span class="idx">DP·01</span>Modules<span class="src">· {{ department.modules|length }}</span></span>
+    <div class="dp-mlines">
+        {% for module in department.modules %}
+            {% set claimants = (departmentsByModule[module.id]|default([]))|length %}
+            <div class="mline">
+                <span class="nm">{{ module.name }}</span>
+                {% if claimants > 1 %}<span class="sh" title="one module, {{ claimants }} lenses">SHARED ·{{ claimants }}</span>{% endif %}
+                {% if canManage %}
+                    <form method="post" action="{{ path('app_department_module_toggle', {uuid: department.uuidString, moduleUuid: module.uuidString}) }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token('department_manage') }}">
+                        <button class="rmx" type="submit" title="Detach {{ module.name }} — its rows and every number in them stay exactly as they are">{{ ux_icon('lucide:x') }}</button>
+                    </form>
+                {% endif %}
+            </div>
+        {% else %}
+            <p class="use">No module attached yet — this department leads with nothing, and its people
+                still see every module on the platform.</p>
+        {% endfor %}
+    </div>
+
+    {% if canManage %}
+        {% set attachable = modules|filter(m => not department.hasModule(m)) %}
+        {% if attachable|length %}
+            <div class="chiprow dp-attachrow">
+                <span class="lbl">Attach</span>
+                {% for module in attachable|slice(0, 5) %}
+                    <form method="post" action="{{ path('app_department_module_toggle', {uuid: department.uuidString, moduleUuid: module.uuidString}) }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token('department_manage') }}">
+                        <button class="dchip ghost" type="submit" title="Start leading with {{ module.name }}. Nobody gains or loses access.">{{ module.name }}</button>
+                    </form>
+                {% endfor %}
+                {% if attachable|length > 5 %}<span class="fog mono dp-more">· {{ attachable|length - 5 }} more</span>{% endif %}
+            </div>
+        {% endif %}
+    {% endif %}
+
+    <p class="use">Attaching a module makes it <b>lead</b> for this department's people. It grants nothing
+        and hides nothing — a module claimed by two departments is one module, the same rows, listed
+        first for both.</p>
+</div>

@@ -134,7 +134,14 @@ final class DepartmentLanesWidgetTest extends KernelTestCase
 
         // The weakest editing surface by design: it is read, never edited. No add-module chip,
         // no new-position control, not even an "open" link — those live in the other widgets.
-        self::assertCount(0, $crawler->filter('a'), 'the chart carries no links');
+        // NAVIGATION IS NOT A CONTROL, and it is the one exception to this widget's rule: each
+        // lane's heading names a department, and every widget that names one is a way into its
+        // record. Nothing else in the chart is clickable — no add-module chip, no new-position
+        // control — so the allow-list is exactly one link per lane and nothing more.
+        self::assertSame(
+            array_fill(0, $crawler->filter('.dp-lanes-lane')->count(), 'dp-deptlink'),
+            $crawler->filter('a')->each(static fn (Crawler $node): string => (string) $node->attr('class')),
+        );
         self::assertCount(0, $crawler->filter('button'), 'the chart carries no controls');
         self::assertCount(0, $crawler->filter('form'), 'the chart carries no forms');
         self::assertCount(0, $crawler->filter('input'));

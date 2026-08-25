@@ -1,0 +1,122 @@
+{# THE ATOMS the five Positions directions are drawn from.
+
+   The directions differ in how a band is laid out — a table band, a filter chip, a card, a
+   qualified row, a rail pane — and in nothing else. Everything below is the "and in nothing
+   else": a permission row, the twin-name flag, a position's two actions, a create affordance.
+   Written once so five widgets can never quietly say five different things about one position.
+
+   Macros take no context (the partials are included with_context: false), so every one of them
+   is handed everything it needs. #}
+
+{# A position's permissions, as machine names. Never a sentence, never translated — a permission
+   is what the PermissionVoter checks, and a reader must be able to search for the exact string. #}
+{% macro perms(position) %}
+    <div class="permrow">
+        {% for value in position.permissionValues %}
+            <span class="perm">{{ value }}</span>
+        {% else %}
+            <span class="fog mono tm-none">no permissions</span>
+        {% endfor %}
+    </div>
+{% endmacro %}
+
+{# "There is another position with this name, and it is NOT this one."
+
+   Rendered only when the name really is held twice (TeamService::twins), because on a unique
+   name the flag is simply false. Two departments sharing a word is expected and legal — the flag
+   exists so a reader never merges the two rows, not to warn anybody off, which is why its title
+   says "different position, different permissions" rather than anything corrective. #}
+{% macro twin(position, twins) %}
+    {% if position.name|lower in twins %}
+        <span class="dupflag"
+              title="Another department also has a position named “{{ position.name }}”. Different position, different permissions.">twin name</span>
+    {% endif %}
+{% endmacro %}
+
+{# A position written department-first: "Ecology / Analyst". Used wherever the department is NOT
+   already stated by where the name sits — the roster, the assign dropdown, the flat list. Inside
+   a band, a card or a pane the department is the container, and the name is drawn bare. #}
+{% macro qualified(position) %}
+    <a class="qual{{ position.department is null ? ' un' }}" href="{{ path('app_team_position_edit', {uuid: position.uuidString}) }}"
+       title="Open {{ position.department ? position.department.name : 'Unfiled' }} / {{ position.name }}">
+        <span class="qpart"><span class="q">{{ position.department ? position.department.name : 'Unfiled' }}</span><span class="sep">/</span></span><span class="n">{{ position.name }}</span>
+    </a>
+{% endmacro %}
+
+{# The two things you can do to a position. Always visible, never revealed on hover: the whole
+   row navigates, and a row that navigates must show its action without being hovered. #}
+{% macro actions(position, canManage) %}
+    <div class="posact">
+        <a class="open-btn" href="{{ path('app_team_position_edit', {uuid: position.uuidString}) }}">Edit</a>
+        {% if canManage %}
+            <form method="post" action="{{ path('app_team_position_delete', {uuid: position.uuidString}) }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('team_position_delete_' ~ position.uuidString) }}">
+                {# The confirm sits on the TRIGGER, as the platform controller expects: it
+                   suppresses the submit, asks, and replays the activation on confirmation. #}
+                <button class="open-btn danger" type="submit"
+                        {{ stimulus_controller('confirm-modal') }}
+                        data-action="click->confirm-modal#ask"
+                        data-confirm-modal-title-value="Delete “{{ position.department ? position.department.name ~ ' / ' : 'Unfiled / ' }}{{ position.name }}”?"
+                        data-confirm-modal-message-value="Everyone holding this position is unassigned and keeps no permissions from it. This cannot be undone."
+                        data-confirm-modal-confirm-label-value="Delete position"
+                        data-confirm-modal-danger-value="true">Delete</button>
+            </form>
+        {% endif %}
+    </div>
+{% endmacro %}
+
+{# THE CREATE AFFORDANCE, and the reason it is a macro: it always carries a department.
+
+   `band.department` is posted as a hidden field, so the department is decided by WHERE this row
+   sits and can never be forgotten, mis-picked or left at whatever the select happened to show.
+   The unfiled band posts an empty department — still a choice, still explicit.
+
+   The "+ permissions" link is the same create, on the full screen, with the band's department
+   already chosen: permissions are a matrix, and a matrix is a screen, not a table cell. #}
+{% macro createRow(band, manageToken) %}
+    <tr class="newrow{{ band.department is null ? ' unfrow' }}">
+        <td class="pname">
+            <form method="post" action="{{ path('app_team_position_create') }}" class="dept-inline" id="tm-new-{{ band.key }}">
+                <input type="hidden" name="_token" value="{{ csrf_token(manageToken) }}">
+                <input type="hidden" name="department" value="{{ band.department ? band.department.uuidString : '' }}">
+                <input class="inl" name="name" required maxlength="120"
+                       placeholder="New position in {{ band.name }}…"
+                       aria-label="Name of a new position in {{ band.name }}">
+            </form>
+        </td>
+        <td>
+            <a class="softbtn dash acc" href="{{ path('app_team_position_new', band.department ? {department: band.department.uuidString} : {}) }}">
+                {{ ux_icon('lucide:plus') }} permissions
+            </a>
+        </td>
+        <td class="num fog mono tm-none">—</td>
+        <td class="num"><button class="open-btn" type="submit" form="tm-new-{{ band.key }}">Create</button></td>
+    </tr>
+{% endmacro %}
+
+{# The band head's one real action. For a real department it opens that department; for the
+   unfiled holding pen it is the only move that exists — file everything under a real one.
+   Filing is one-way on purpose: unfiled is a transition state, and moving a position BETWEEN two
+   real departments would silently re-scope its name against names nobody was looking at. #}
+{% macro fileForm(position, departments, manageToken, label) %}
+    <form method="post" action="{{ path('app_team_position_file', {uuid: position.uuidString}) }}" class="dept-inline">
+        <input type="hidden" name="_token" value="{{ csrf_token(manageToken) }}">
+        <select name="department" class="sel" required aria-label="File “{{ position.name }}” under a department">
+            <option value="" selected disabled>— choose a department —</option>
+            {% for department in departments %}
+                <option value="{{ department.uuidString }}">{{ department.name }}</option>
+            {% endfor %}
+        </select>
+        <button class="open-btn" type="submit">{{ label|default('File…') }}</button>
+    </form>
+{% endmacro %}
+
+{# What a band with nothing in it says. An empty department is a real answer — it is exactly what
+   a staffing gap looks like — never a missing row a reader has to infer. #}
+{% macro emptyBand(band, colspan) %}
+    <tr class="prow">
+        <td class="pname" colspan="{{ colspan }}">
+            <span class="fog tm-none">No positions in {{ band.name }} yet — the row below creates one, already inside it.</span>
+        </td>
+    </tr>
+{% endmacro %}

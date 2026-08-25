@@ -28,6 +28,7 @@ use Uhifadhi\Entity\Module;
 use Uhifadhi\Enum\TeamRoleEnum;
 use Uhifadhi\Factory\DepartmentFactory;
 use Uhifadhi\Factory\ModuleFactory;
+use Uhifadhi\Model\WidgetDom;
 use Uhifadhi\Repository\DepartmentRepository;
 
 /**
@@ -165,6 +166,56 @@ final class DepartmentMatrixWidgetTest extends AuthenticatedWebTestCase
 
         self::assertCount(0, $crawler->filter('.dp-matrix'));
         self::assertStringContainsString('No modules in the catalogue yet', $crawler->filter('.dp-matrix-hint')->text());
+    }
+
+    /**
+     * THE MODULE OPEN/CLOSED RULE, on this widget: installing a module grows the matrix and
+     * NOTHING is edited to make that happen.
+     *
+     * The columns are the installed catalogue ({@see \Uhifadhi\Repository\ModuleRepository::catalogue()}),
+     * never a list this template or its service knows by name — so a module scaffolded tomorrow
+     * appears here at install with zero edits, exactly as it appears in the modules tab and the
+     * permission catalogue.
+     *
+     * Deliberately driven through the REAL PAGE rather than the render harness the other tests
+     * use: the harness is handed a `modules` list, so it could only ever prove the template
+     * loops over what it is given. The claim worth pinning is that the PAGE asks the catalogue,
+     * and the only way to prove that is to add a row and ask for the page.
+     */
+    public function testAModuleAddedToTheCatalogueBecomesAColumnWithNoTemplateChange(): void
+    {
+        ModuleFactory::createOne(['name' => 'Patrols', 'slug' => 'patrols', 'position' => 1]);
+        DepartmentFactory::createOne(['name' => 'Ecology']);
+        $this->loginAs($this->client, TeamRoleEnum::Manager);
+
+        $before = $this->matrixColumns();
+        self::assertSame(['Patrols'], $before);
+
+        // The install of a module the host was never edited for. Nothing else changes.
+        ModuleFactory::createOne(['name' => 'Incidents', 'slug' => 'incidents', 'position' => 2]);
+
+        self::assertSame(
+            ['Patrols', 'Incidents'],
+            $this->matrixColumns(),
+            'A module in the catalogue must become a matrix column without anyone editing the widget.',
+        );
+    }
+
+    /**
+     * The matrix's column headings, as the widget library renders them — the library is used
+     * because the matrix is off in the board's default preset, and the library renders every
+     * widget the surface ships whatever the active layout holds.
+     *
+     * @return list<string>
+     */
+    private function matrixColumns(): array
+    {
+        $crawler = $this->client->request('GET', '/departments/widgets');
+        self::assertResponseIsSuccessful();
+
+        return $crawler
+            ->filter('['.WidgetDom::TEMPLATE.'="matrix"] .dp-matrix-rot span')
+            ->each(static fn (Crawler $node): string => trim($node->text()));
     }
 
     /**

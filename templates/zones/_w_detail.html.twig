@@ -1,0 +1,80 @@
+{# The selected zone: rename it, read it, delete it — the admin half of the split manager.
+
+   RENAME is checked against the AREA, not the org: names are unique per area (uniq_zone_area_name),
+   so two areas may each hold a "Crater" and only a local collision is an error.
+   → POST /areas/{uuid}/zones/{zoneUuid}/rename
+
+   DELETE removes the GROUPING and not one record. The consequence is spelled out in plain English
+   beside the button that causes it, and it asks first through the platform's confirm-modal
+   controller — never the browser's own dialog.
+   → POST /areas/{uuid}/zones/{zoneUuid}/delete
+
+   A reader sees the same facts and neither form: administering is Manager-and-up.
+
+   WITH NOTHING SELECTED it says so and stops. The dashboard only ever draws this widget for an
+   area that HAS zones (the surface is presence-driven), but the widget library renders every
+   widget the surface ships whatever the area holds — so an unzoned area reaches this template
+   with `selected` null, and a pane of blanks would be a worse answer than one honest sentence. #}
+{% if selected is null %}
+    <div class="c" data-w="detail">
+        <span class="tab"><span class="idx">—</span>No zone selected<span class="src">· nothing to administer</span></span>
+        <p class="zhint">{{ area.name }} has no zones, so there is none to read, rename or delete. Import a
+            zoning scheme and this pane fills with whichever zone you pick — one at a time, which is what
+            this direction is for.</p>
+    </div>
+{% else %}
+<div class="c" data-w="detail">
+    <span class="tab"><span class="idx">{{ selected.plate }}</span>{{ selected.name }}<span class="src">· {{ canManage ? 'editing' : 'selected' }}</span></span>
+
+    {% if canManage %}
+        <form method="post" class="renamer" data-zone-rename
+              action="{{ path('app_area_zone_rename', {uuid: area.uuid, zoneUuid: selected.uuid}) }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('zone_manage') }}">
+            <span class="sw" style="background:{{ selected.color }};width:16px;height:16px"></span>
+            <input class="fld" type="text" name="name" value="{{ selected.name }}" required maxlength="128"
+                   aria-label="Rename “{{ selected.name }}”">
+            <button class="cta" type="submit">Save</button>
+        </form>
+        <p class="zhint">A zone's name is <b>unique within its area</b> — {{ area.name }} cannot hold two zones called
+            “{{ selected.name }}”. Renaming re-groups every number; it moves no record.</p>
+    {% else %}
+        <div class="renamer">
+            <span class="sw" style="background:{{ selected.color }};width:16px;height:16px"></span>
+            <span style="font-weight:600">{{ selected.name }}</span>
+        </div>
+    {% endif %}
+
+    <div class="detail-k">
+        <div><b>{{ selected.areaKm2|number_format(0) }}<em> km²</em></b><span>area</span></div>
+        <div><b>{{ selected.sharePct|number_format(1) }}<em>%</em></b><span>of the AOI</span></div>
+        <div><b>{{ selected.vertices }}</b><span>vertices</span></div>
+        <div><b>{{ zones|length }}</b><span>zones in this area</span></div>
+    </div>
+
+    <div class="rln"><span>Geometry</span><span class="mono d">MultiPolygon · {{ selected.vertices }} vertices · EPSG:4326</span></div>
+    <div class="rln"><span>Address</span><span class="mono d">{{ selected.uuid }}</span></div>
+    {# The call every module makes to put a waypoint or an incident under a zone — named here so the
+       feature's actual payoff is visible from the screen that manages it. #}
+    <div class="rln"><span>Point lookup</span><span class="mono d">ZoneService::zoneOf({{ area.name|lower }}, lon, lat)</span></div>
+
+    {% if canManage %}
+        <div class="danger">
+            {{ ux_icon('lucide:trash-2') }}
+            <span><b>Delete this zone.</b> Everything it groups — patrols, incidents, every record any module
+                counted under “{{ selected.name }}” — <b>stay exactly where they are</b>. They simply stop being
+                grouped under that name.</span>
+            <form method="post" data-zone-delete
+                  action="{{ path('app_area_zone_delete', {uuid: area.uuid, zoneUuid: selected.uuid}) }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('zone_manage') }}">
+                <button class="btn" type="submit"
+                        {{ stimulus_controller('confirm-modal') }}
+                        data-action="click->confirm-modal#ask"
+                        data-confirm-modal-title-value="Delete “{{ selected.name }}”?"
+                        data-confirm-modal-message-value="The zone is removed from {{ area.name }}. No record is deleted with it — the patrols, incidents and everything else it grouped stay exactly where they are, and simply stop being grouped under this name. This cannot be undone."
+                        data-confirm-modal-confirm-label-value="Delete zone"
+                        data-confirm-modal-danger-value="true">Delete</button>
+            </form>
+        </div>
+    {% endif %}
+</div>
+{% endif %}

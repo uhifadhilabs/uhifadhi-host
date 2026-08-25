@@ -39,7 +39,7 @@
                     {% for department in departments %}
                         <tr>
                             <th class="dp-matrix-rowh" scope="row">
-                                <span class="dp-matrix-in"><span class="dp-matrix-pl">{{ 'DP·%02d'|format(loop.index) }}</span><b>{{ department.name }}</b></span>
+                                <span class="dp-matrix-in"><span class="dp-matrix-pl">{{ 'DP·%02d'|format(loop.index) }}</span><b><a class="dp-deptlink" href="{{ path('app_department_show', {uuid: department.uuidString}) }}">{{ department.name }}</a></b></span>
                             </th>
                             {% for module in modules %}
                                 {% set attached = department.hasModule(module) %}

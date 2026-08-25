@@ -1,0 +1,85 @@
+{# TEAM widget 'positions_b' — DEPARTMENT FILTER CHIPS. Design: ngoro-positions-b.html.
+
+   One department at a time, chosen by a chip row that always states the scope. Inside a
+   department a bare "Analyst" is unambiguous because you can see whose list you are in; in
+   "All" every name is written department-first instead.
+
+   THE CHIPS ARE LINKS, and the scope is the `department` query parameter — not client state. A
+   scoped list is therefore a URL somebody can send, and it survives a reload; a scope you cannot
+   link to is a scope you cannot cite in a message that says "look at this one".
+
+   Receives: members, positions, departments, bands, holders, twins, scope, rail, canManage,
+   manageToken, catalogue. #}
+{% import 'team/_positions.html.twig' as pos %}
+
+{% set chosen = null %}
+{% for band in bands|filter(b => b.key == scope) %}{% set chosen = band %}{% endfor %}
+
+<div class="c" data-positions="b" data-f="{{ chosen ? chosen.key : 'all' }}">
+    <span class="tab"><span class="idx">PL·02</span>Positions<span class="src">· {{ positions|length }} · filtered by department</span></span>
+    <p class="use tm-lead">Pick a department and the table is <b>only</b> that department — so a bare
+        <b>Analyst</b> is never ambiguous, because you can see whose list you are in. In <b>All</b>, every name is
+        written department-first: <span class="mono tm-eg">Ecology / Analyst</span>.</p>
+
+    {# The scope is a query parameter, so each chip is a plain link. #}
+    <div class="fbar">
+        <a class="fchip{{ chosen is null ? ' on' }}" href="{{ path('app_team') }}">All<span class="n">{{ positions|length }}</span></a>
+        {% for band in bands %}
+            <a class="fchip {{ band.tone }}{{ chosen and chosen.key == band.key ? ' on' }}"
+               href="{{ path('app_team', {department: band.key}) }}">
+                <i class="dot {{ band.tone }}"></i>{{ band.name }}<span class="n">{{ band.positions|length }}</span>
+            </a>
+        {% endfor %}
+    </div>
+
+    {# The scope bar always states which list you are in — and, inside one department, what the
+       uniqueness rule means here: unique in THIS department and nowhere else. #}
+    {% if chosen is null %}
+        <div class="scopebar all">
+            <div class="txt"><b>All departments.</b> Names are qualified — two departments’ <b>Analyst</b> are
+                two rows, two positions, two permission sets.</div>
+            {% if canManage %}
+                <a class="softbtn dash acc" href="{{ path('app_team_position_new') }}">{{ ux_icon('lucide:plus') }} New position</a>
+            {% endif %}
+        </div>
+    {% else %}
+        <div class="scopebar one">
+            <div class="txt"><i class="dot {{ chosen.tone }} tm-scopedot"></i><b class="scopename">{{ chosen.name }}</b> only.
+                A name here needs to be unique in <b class="scopename">{{ chosen.name }}</b> and nowhere else.</div>
+            {% if canManage %}
+                <a class="softbtn dash acc" href="{{ path('app_team_position_new', chosen.department ? {department: chosen.department.uuidString} : {}) }}">
+                    {{ ux_icon('lucide:plus') }} New position in <b class="scopename">{{ chosen.name }}</b>
+                </a>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    <table class="tbl" data-postbl>
+        <thead><tr><th>Position</th><th>Permissions</th><th class="num">Held by</th><th></th></tr></thead>
+        <tbody>
+        {% for band in (chosen ? [chosen] : bands) %}
+            {% for position in band.positions %}
+                <tr data-d="{{ band.key }}" {% if position.name|lower in twins %}data-dup="{{ position.name|lower }}"{% endif %}>
+                    <td>
+                        {# In "All" the qualifier is on the name; inside one department the scope
+                           bar carries it and the .qpart is hidden by CSS instead of being a
+                           second rendering of the same row. #}
+                        {{ pos.qualified(position) }}{{ pos.twin(position, twins) }}
+                    </td>
+                    <td>{{ pos.perms(position) }}</td>
+                    <td class="num">{{ holders[position.id]|default(0) }}</td>
+                    <td class="num">{{ pos.actions(position, canManage) }}</td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr><td colspan="4"><span class="fog tm-none">No positions yet.</span></td></tr>
+        {% endfor %}
+        {% if chosen is null and positions is empty %}
+            <tr><td colspan="4"><span class="fog tm-none">No positions yet.</span></td></tr>
+        {% endif %}
+        </tbody>
+    </table>
+
+    <p class="use"><b>Unfiled is a chip like any other</b> — drawn dashed, and the one place a position
+        without a department can be found.</p>
+</div>

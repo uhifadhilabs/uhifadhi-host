@@ -1,16 +1,11 @@
-{# The departments widget library — the ONE editing surface for this dashboard. Every card is
-   the REAL widget at full size, rendered from the same partial and the same context the
-   dashboard renders, so what you arrange here is exactly what you get.
+{# The departments widget library.
 
-   The library is drawn as the catalogue's five headed sections — the five design directions
-   departments was drawn in — each under its own one-line trade-off. A drag therefore reorders
-   within a section: which section a widget belongs to is the catalogue's statement, not a
-   person's.
-
-   Every attribute below comes from Uhifadhi\Model\WidgetDom via constant(), never retyped:
-   assets/widgets.js drives the page through exactly these names, and a mismatch would fail only
-   in a browser. Everything degrades honestly without JavaScript — the page still shows the saved
-   layout and every widget; only the editing needs the script. #}
+   The PAGE is the chrome — a crumb, a header and its two actions. Everything
+   below is templates/widgets/_library.html.twig: the preset component, which is
+   identical on every surface that ships a WidgetCatalog and is parameterised by
+   this surface's catalogue, partial name and routes. A second surface gets the
+   whole thing by writing this same twenty lines against its own catalogue; there
+   are no departments-specific widget mechanics anywhere. #}
 {% extends 'layout.html.twig' %}
 
 {% block title %}Departments · widget library — Uhifadhi{% endblock %}
@@ -24,37 +19,6 @@
     </script>
 {% endblock %}
 
-{% set DOM = {
-    root: constant('Uhifadhi\\Model\\WidgetDom::ROOT'),
-    csrfToken: constant('Uhifadhi\\Model\\WidgetDom::CSRF_TOKEN'),
-    saveUrl: constant('Uhifadhi\\Model\\WidgetDom::SAVE_URL'),
-    resetUrl: constant('Uhifadhi\\Model\\WidgetDom::RESET_URL'),
-    notice: constant('Uhifadhi\\Model\\WidgetDom::NOTICE'),
-    reset: constant('Uhifadhi\\Model\\WidgetDom::RESET'),
-    widget: constant('Uhifadhi\\Model\\WidgetDom::WIDGET'),
-    on: constant('Uhifadhi\\Model\\WidgetDom::ON'),
-    cols: constant('Uhifadhi\\Model\\WidgetDom::COLS'),
-    grip: constant('Uhifadhi\\Model\\WidgetDom::GRIP'),
-    toggle: constant('Uhifadhi\\Model\\WidgetDom::TOGGLE'),
-    toggleLabel: constant('Uhifadhi\\Model\\WidgetDom::TOGGLE_LABEL'),
-    span: constant('Uhifadhi\\Model\\WidgetDom::SPAN'),
-    chosen: constant('Uhifadhi\\Model\\WidgetDom::CHOSEN'),
-    state: constant('Uhifadhi\\Model\\WidgetDom::STATE'),
-    preview: constant('Uhifadhi\\Model\\WidgetDom::PREVIEW'),
-} %}
-
-{# The width chips read as fractions of the row, not as column counts. #}
-{% set spanLabels = {12: '1', 9: '¾', 6: '½', 3: '¼'} %}
-
-{% set widgetContext = {
-    departments: departments,
-    modules: modules,
-    departmentsByModule: departmentsByModule,
-    positionsByDepartment: positionsByDepartment,
-    usersByDepartment: usersByDepartment,
-    canManage: canManage,
-} %}
-
 {% block content %}
     <div class="page">
         <div class="crumb"><a href="{{ path('dashboard_index') }}">uhifadhi</a> / <a href="{{ path('app_departments') }}">departments</a> / widget library</div>
@@ -62,193 +26,40 @@
         <div class="pghead">
             <div>
                 <h1 class="pg">Departments · widget library</h1>
-                <p class="pgsub">The editing surface: real full-size widgets with add/remove, width control and drag-to-place.</p>
+                <p class="pgsub">Choose the layout your dashboard shows, or compose your own. Every widget is
+                    the real thing at full size, exactly as the dashboard renders it.</p>
             </div>
             <div class="pgact w-pgact">
-                {# Throwing the whole layout away asks first, through the host's reusable
-                   confirm-modal controller — never the browser's own dialog. #}
-                <button type="button" class="tgl w-act" {{ DOM.reset }}
+                {# Throwing the layout away asks first, through the host's reusable confirm-modal
+                   controller — never the browser's own dialog. #}
+                <button type="button" class="tgl w-act" {{ constant('Uhifadhi\\Model\\WidgetDom::RESET') }}
                         {{ stimulus_controller('confirm-modal') }}
                         data-action="click->confirm-modal#ask"
                         data-confirm-modal-title-value="Reset your widget layout?"
-                        data-confirm-modal-message-value="Your departments dashboard goes back to the default widgets, widths and order. Your own arrangement is discarded. This cannot be undone."
+                        data-confirm-modal-message-value="Your departments dashboard goes back to the design this surface ships with. Your own presets are kept."
                         data-confirm-modal-confirm-label-value="Reset layout"
                         data-confirm-modal-danger-value="true">{{ ux_icon('lucide:rotate-ccw') }}Reset to defaults</button>
-                <a class="cta" href="{{ path('app_departments') }}">← Back to dashboard</a>
+                <a class="cta" href="{{ path('app_departments') }}">{{ ux_icon('lucide:chevron-left') }}Back to dashboard</a>
             </div>
         </div>
 
-        <p class="pgsub w-libintro">Every widget below is the real thing at full size — add or remove it from your
-            departments dashboard; your choices are saved per user.</p>
-
-        <div {{ DOM.root }}
-             {{ DOM.saveUrl }}="{{ path('app_departments_widgets_save') }}"
-             {{ DOM.resetUrl }}="{{ path('app_departments_widgets_reset') }}"
-             {{ DOM.csrfToken }}="{{ csrfToken }}">
-            {# Saving is optimistic, so a refused save has to say so: assets/widgets.js rolls the
-               page back to the last layout the server accepted and fills this notice. Rendered
-               empty and hidden, never built in JavaScript. #}
-            <p class="w-notice" {{ DOM.notice }} role="alert" hidden></p>
-
-            {# START FROM A DESIGN — the five directions departments was drawn in, each
-               applicable whole. It sits ABOVE the sections because it is the first question
-               ("which of these screens do you want?"); the sections answer the second one
-               ("now change this one thing").
-
-               No JavaScript anywhere in here: each card is a form that posts the library's own
-               CSRF token to a route naming the preset, and the server redirects. The confirm
-               modal is progressive enhancement on top — with the script off the button simply
-               submits, which is why the copy about overwriting is also in the strip's own
-               intro line. The strip is framework furniture and OPTIONAL: a surface whose
-               catalogue names no presets renders nothing here. #}
-            {% if presets|length %}
-                <section class="w-presets" data-presets="designs">
-                    <h2 class="w-presethead">Start from a design</h2>
-                    <p class="w-presetintro">Adopt one of the five directions departments was drawn in — whole.
-                        Applying one replaces your current layout.</p>
-
-                    <div class="w-presetrow">
-                        {% for preset in presets %}
-                            <div class="w-preset" data-preset="{{ preset.id }}">
-                                <span class="w-presetname">{{ preset.label }}</span>
-                                {# The schematic is the layout itself: one block per widget, in the
-                                   preset's order, as wide as the span it gives it. Pure CSS — no
-                                   image to keep in step with the code. #}
-                                <span class="w-presetmini" aria-hidden="true">
-                                    {% for id, cols in preset.layout %}
-                                        <span class="w-presetcell" data-preset-span="{{ cols }}"></span>
-                                    {% endfor %}
-                                </span>
-                                <p class="w-presetsub">{{ preset.description }}</p>
-                                <form method="post" action="{{ path('app_departments_widgets_preset', {presetId: preset.id}) }}">
-                                    <input type="hidden" name="_token" value="{{ csrfToken }}">
-                                    <button type="submit" class="tgl w-presetapply"
-                                            {{ stimulus_controller('confirm-modal') }}
-                                            data-action="click->confirm-modal#ask"
-                                            data-confirm-modal-title-value="Apply “{{ preset.label }}”?"
-                                            data-confirm-modal-message-value="Your departments dashboard is laid out as this design: its widgets, in its order, at its widths. This OVERWRITES your current layout, and your own arrangement is discarded."
-                                            data-confirm-modal-confirm-label-value="Apply this design">{{ ux_icon('lucide:layout-template') }}Apply</button>
-                                </form>
-                            </div>
-                        {% endfor %}
-                    </div>
-                </section>
-            {% endif %}
-
-            {# MY PRESETS — the same idea with the authorship reversed: arrangements this person
-               saved, appliable in one click. Same card shape as the shipped designs, because
-               they are the same thing; the extra row is the management (rename, delete) that a
-               design you did not write does not need.
-
-               All plain forms again. Rename is an inline name box that posts — no modal and no
-               script; delete asks through the confirm modal, and with the script off submits
-               straight away, which is why the button's own words say what goes. #}
-            <section class="w-presets" data-presets="mine">
-                <h2 class="w-presethead">My presets</h2>
-                <p class="w-presetintro">Layouts you saved. Applying one replaces your current layout; deleting one leaves your dashboard alone.</p>
-
-                <form method="post" action="{{ path('app_departments_widgets_preset_create') }}" class="w-presetsave">
-                    <input type="hidden" name="_token" value="{{ csrfToken }}">
-                    <label class="w-presetsavelabel" for="w-presetname">Save the layout you have now as</label>
-                    <input class="w-presetnameinput" id="w-presetname" type="text" name="name" required
-                           maxlength="{{ constant('Uhifadhi\\Service\\WidgetService::NAME_MAX') }}"
-                           placeholder="e.g. Morning check">
-                    <button type="submit" class="tgl w-presetapply">{{ ux_icon('lucide:bookmark') }}Save as preset</button>
-                </form>
-
-                {% if customPresets|length %}
-                    <div class="w-presetrow">
-                        {% for preset in customPresets %}
-                            <div class="w-preset" data-preset="{{ preset.id }}">
-                                <span class="w-presetname">{{ preset.label }}</span>
-                                <span class="w-presetmini" aria-hidden="true">
-                                    {% for id, cols in preset.layout %}
-                                        <span class="w-presetcell" data-preset-span="{{ cols }}"></span>
-                                    {% endfor %}
-                                </span>
-                                <p class="w-presetsub">{{ preset.layout|length }} widget{{ preset.layout|length == 1 ? '' : 's' }}, in your order and at your widths.</p>
-                                <div class="w-presetacts">
-                                    <form method="post" action="{{ path('app_departments_widgets_preset_apply', {presetUuid: preset.id}) }}">
-                                        <input type="hidden" name="_token" value="{{ csrfToken }}">
-                                        <button type="submit" class="tgl w-presetapply"
-                                                {{ stimulus_controller('confirm-modal') }}
-                                                data-action="click->confirm-modal#ask"
-                                                data-confirm-modal-title-value="Apply “{{ preset.label }}”?"
-                                                data-confirm-modal-message-value="Your departments dashboard is laid out as this preset. This OVERWRITES your current layout, and your present arrangement is discarded."
-                                                data-confirm-modal-confirm-label-value="Apply this preset">{{ ux_icon('lucide:layout-template') }}Apply</button>
-                                    </form>
-                                    <form method="post" action="{{ path('app_departments_widgets_preset_delete', {presetUuid: preset.id}) }}">
-                                        <input type="hidden" name="_token" value="{{ csrfToken }}">
-                                        <button type="submit" class="tgl w-presetdel"
-                                                {{ stimulus_controller('confirm-modal') }}
-                                                data-action="click->confirm-modal#ask"
-                                                data-confirm-modal-title-value="Delete “{{ preset.label }}”?"
-                                                data-confirm-modal-message-value="This saved layout is thrown away. Your dashboard keeps whatever it shows now. This cannot be undone."
-                                                data-confirm-modal-confirm-label-value="Delete preset"
-                                                data-confirm-modal-danger-value="true">{{ ux_icon('lucide:trash-2') }}Delete</button>
-                                    </form>
-                                </div>
-                                <form method="post" action="{{ path('app_departments_widgets_preset_rename', {presetUuid: preset.id}) }}" class="w-presetrename">
-                                    <input type="hidden" name="_token" value="{{ csrfToken }}">
-                                    <input class="w-presetnameinput" type="text" name="name" value="{{ preset.label }}" required
-                                           maxlength="{{ constant('Uhifadhi\\Service\\WidgetService::NAME_MAX') }}"
-                                           aria-label="Rename “{{ preset.label }}”">
-                                    <button type="submit" class="tgl w-presetrenamebtn">Rename</button>
-                                </form>
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <p class="w-presetempty">You have not saved a layout yet — arrange the widgets below, then save the result under a name.</p>
-                {% endif %}
-            </section>
-
-            {% for section in sections %}
-                <section class="w-section">
-                    <h2 class="w-sectionhead">{{ section.label }}</h2>
-                    <p class="w-sectionsub">{{ section.description }}</p>
-
-                    <div class="w-lib">
-                        {# draggable="false" until the grip is pressed (assets/widgets.js): a card
-                           that is always draggable makes its own text unselectable. #}
-                        {% for widget in section.widgets %}
-                            <div class="w-card" draggable="false"
-                                 {{ DOM.widget }}="{{ widget.id }}"
-                                 {{ DOM.on }}="{{ widget.on ? '1' : '0' }}"
-                                 {{ DOM.cols }}="{{ widget.cols }}">
-                                <div class="w-head">
-                                    <b class="w-grip" {{ DOM.grip }} title="Drag to set the widget's place on the dashboard">{{ ux_icon('lucide:grip-vertical') }}</b>
-                                    <span class="w-name">{{ widget.label }}</span>
-                                    <span class="chip {{ widget.on ? 'ok' : 'idle' }}" {{ DOM.state }}>{{ widget.on ? 'on dashboard' : 'not shown' }}</span>
-                                    <span class="w-chips">
-                                        <span class="w-chiplabel">width</span>
-                                        {% for span in widget.spans %}
-                                            <button type="button" class="mchip w-widthchip{{ widget.cols == span ? ' on' }}"
-                                                    {{ DOM.span }}="{{ span }}"
-                                                    {{ DOM.chosen }}="{{ widget.cols == span ? 'on' : 'off' }}">{{ spanLabels[span] }}</button>
-                                        {% endfor %}
-                                    </span>
-                                    {# Both icons ship; app.css shows the one that matches
-                                       data-widget-on, so toggling needs no icon logic in JS. #}
-                                    <button type="button" class="tgl w-tgl" {{ DOM.toggle }}
-                                            title="{{ widget.on ? 'Remove from dashboard' : 'Add to dashboard' }}">
-                                        <span class="w-tglicon w-tglicon-add">{{ ux_icon('lucide:plus') }}</span>
-                                        <span class="w-tglicon w-tglicon-rm">{{ ux_icon('lucide:minus') }}</span>
-                                        <span {{ DOM.toggleLabel }}>{{ widget.on ? 'Remove from dashboard' : 'Add to dashboard' }}</span>
-                                    </button>
-                                </div>
-                                {# The CARD carries the width, so this wrapper is full-bleed inside
-                                   it and never shrinks the widget a second time. It stays as the
-                                   hook that dims a switched-off widget without dimming its own
-                                   controls. #}
-                                <div class="w-preview" {{ DOM.preview }}>
-                                    {{ include('departments/_w_' ~ widget.id ~ '.html.twig', widgetContext, with_context: false) }}
-                                </div>
-                            </div>
-                        {% endfor %}
-                    </div>
-                </section>
-            {% endfor %}
-        </div>
+        {{ include('widgets/_library.html.twig', {
+            catalog: catalog,
+            builtins: builtins,
+            customPresets: customPresets,
+            active: active,
+            widgets: widgets,
+            partial: partial,
+            widgetContext: {
+                departments: departments,
+                modules: modules,
+                departmentsByModule: departmentsByModule,
+                positionsByDepartment: positionsByDepartment,
+                usersByDepartment: usersByDepartment,
+                canManage: canManage,
+            },
+            urls: urls,
+            csrfToken: csrfToken,
+        }, with_context: false) }}
     </div>
 {% endblock %}

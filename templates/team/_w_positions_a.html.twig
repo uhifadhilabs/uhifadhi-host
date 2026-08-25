@@ -1,0 +1,85 @@
+{# TEAM widget 'positions_a' — GROUPED TABLE. Design: uhifadhi-ops/designs/ngoro-positions-a.html.
+
+   One table, banded by department. A position is never shown outside its band, so "Analyst"
+   under Ecology and "Analyst" under Protection Service can only ever be read as two rows in two
+   different places — the department is stated by WHERE the row is, not by a column.
+
+   And that is why this is the direction a fresh person opens on: creating a position happens
+   INSIDE a band, so the create row's department is decided by where you typed. There is no
+   select to leave unset and nothing to forget.
+
+   Receives: members, positions, departments, bands, holders, twins, scope, rail, canManage,
+   manageToken, catalogue. #}
+{% import 'team/_positions.html.twig' as pos %}
+
+<div class="c" data-positions="a">
+    <span class="tab"><span class="idx">PL·02</span>Positions<span class="src">· {{ positions|length }} · grouped by department</span></span>
+    <p class="use tm-lead">One table, banded by department. A position is never shown outside its band, so
+        <b>Analyst</b> under one department and <b>Analyst</b> under another can only be read as two rows in two
+        different places. Creating a position happens <b>inside a band</b> — the department is chosen by where you type.</p>
+
+    {% if bands is empty %}
+        <p class="use">No departments and no positions yet. Create a department first — a position’s name is
+            unique inside its department, so a position needs one to be unique in.</p>
+    {% else %}
+        <table class="tbl">
+            <thead><tr><th>Position</th><th>Permissions</th><th class="num">Held by</th><th></th></tr></thead>
+            <tbody>
+            {% for band in bands %}
+                {# ---- the band head: the department, and its one real action ---- #}
+                <tr class="gh{{ band.department is null ? ' unf' }}">
+                    <td colspan="3">
+                        <div class="ghead">
+                            <i class="dot {{ band.tone }}"></i>
+                            {% if band.department %}
+                                <a href="{{ path('app_departments') }}" title="Open {{ band.department.name }}"><b>{{ band.department.name }}</b></a>
+                            {% else %}
+                                <b>Unfiled — no department yet</b>
+                            {% endif %}
+                            <span class="gmeta">{{ band.positions|length }} position{{ band.positions|length == 1 ? '' : 's' }} · {{ band.holders }} holder{{ band.holders == 1 ? '' : 's' }}</span>
+                            {% if band.department is null %}
+                                <span class="gnote">these grant permissions but belong to no department. File them.</span>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td class="num">
+                        {% if band.department %}
+                            <a class="open-btn" href="{{ path('app_departments') }}">Open {{ ux_icon('lucide:chevron-right') }}</a>
+                        {% endif %}
+                    </td>
+                </tr>
+
+                {# ---- the band's positions, drawn bare: the band already said the department ---- #}
+                {% for position in band.positions %}
+                    <tr class="prow{{ band.department is null ? ' unfrow' }}"
+                        {% if position.name|lower in twins %}data-dup="{{ position.name|lower }}"{% endif %}>
+                        <td class="pname">
+                            <a href="{{ path('app_team_position_edit', {uuid: position.uuidString}) }}">{{ position.name }}</a>{{ pos.twin(position, twins) }}
+                        </td>
+                        <td>{{ pos.perms(position) }}</td>
+                        <td class="num">{{ holders[position.id]|default(0) }}</td>
+                        <td class="num">
+                            {% if band.department is null and departments is not empty and canManage %}
+                                {# The holding pen's one real action, on the row itself. #}
+                                <div class="posact">{{ pos.fileForm(position, departments, manageToken, 'File…') }}{{ pos.actions(position, canManage) }}</div>
+                            {% else %}
+                                {{ pos.actions(position, canManage) }}
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% else %}
+                    {{ pos.emptyBand(band, 4) }}
+                {% endfor %}
+
+                {# ---- the create row, INSIDE the band whose department it will carry ---- #}
+                {% if canManage %}
+                    {{ pos.createRow(band, manageToken) }}
+                {% endif %}
+            {% endfor %}
+            </tbody>
+        </table>
+
+        <p class="use"><b>Unfiled is a transition state, not a department.</b> It sorts last, is drawn dashed,
+            and its only real action is <em>File…</em> — which moves a position into a real department, holders and all.</p>
+    {% endif %}
+</div>

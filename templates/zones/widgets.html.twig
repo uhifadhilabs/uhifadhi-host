@@ -1,0 +1,80 @@
+{# The ZONES widget library.
+
+   The PAGE is the chrome — a crumb, a header and its two actions. Everything below is
+   templates/widgets/_library.html.twig: the preset component, identical on every surface that
+   ships a WidgetCatalog and parameterised by this surface's catalogue, partial name and routes.
+   There are no zone-specific widget mechanics anywhere.
+
+   AREA-SCOPED: every URL the component is handed names this area, so arranging Ngorongoro's zone
+   dashboard leaves Pololeti's alone. #}
+{% extends 'layout.html.twig' %}
+
+{% block title %}{{ area.name }} · Zones · widget library — Uhifadhi{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('leaflet/leaflet.css') }}">
+{% endblock %}
+
+{% block javascripts %}
+    <script src="{{ asset('leaflet/leaflet.js') }}"></script>
+    {{ parent() }}
+    {# type="module" is deferred by definition, so the library is armed after the DOM exists. #}
+    <script type="module">
+        import { initWidgetLibrary } from 'uhifadhi/widgets';
+        initWidgetLibrary();
+    </script>
+{% endblock %}
+
+{% block content %}
+    <div class="page">
+        <div class="crumb"><a href="{{ path('dashboard_index') }}">uhifadhi</a> / <a href="{{ path('dashboard_area_show', {uuid: area.uuid}) }}">{{ area.name|lower }}</a> / <a href="{{ path('app_area_zones', {uuid: area.uuid}) }}">zones</a> / widget library</div>
+
+        <div class="pghead">
+            <div>
+                <h1 class="pg">{{ area.name }} · Zones · widget library</h1>
+                <p class="pgsub">Choose the layout this area's zone dashboard shows, or compose your own. Every
+                    widget below is the real thing at full size, exactly as the dashboard renders it.</p>
+            </div>
+            <div class="pgact w-pgact">
+                {# Throwing the whole layout away asks first, through the host's reusable confirm-modal
+                   controller — never the browser's own dialog. #}
+                <button type="button" class="tgl w-act" {{ constant('Uhifadhi\\Model\\WidgetDom::RESET') }}
+                        {{ stimulus_controller('confirm-modal') }}
+                        data-action="click->confirm-modal#ask"
+                        data-confirm-modal-title-value="Reset your widget layout?"
+                        data-confirm-modal-message-value="This area's zone dashboard goes back to the design this surface ships with — “Split manager”. Your own presets are kept, and your other areas are untouched."
+                        data-confirm-modal-confirm-label-value="Reset layout"
+                        data-confirm-modal-danger-value="true">{{ ux_icon('lucide:rotate-ccw') }}Reset to defaults</button>
+                <a class="cta" href="{{ path('app_area_zones', {uuid: area.uuid}) }}">{{ ux_icon('lucide:chevron-left') }}Back to zones</a>
+            </div>
+        </div>
+
+        <p class="pgsub w-libintro">Your choices are saved per user <b>and per area</b>: arranging {{ area.name }}
+            leaves every other area's zone dashboard exactly as it was.</p>
+
+        {{ include('widgets/_library.html.twig', {
+            catalog: catalog,
+            builtins: builtins,
+            customPresets: customPresets,
+            active: active,
+            widgets: widgets,
+            partial: partial,
+            widgetContext: {
+                area: area,
+                zones: zones,
+                selected: selected,
+                areaKm2: areaKm2,
+                zonedKm2: zonedKm2,
+                coveragePct: coveragePct,
+                canManage: canManage,
+                geojsonUrl: geojsonUrl,
+                viewBox: viewBox,
+                aoiPath: aoiPath,
+                aoiColor: aoiColor,
+            },
+            urls: urls,
+            csrfToken: csrfToken,
+        }, with_context: false) }}
+    </div>
+{% endblock %}

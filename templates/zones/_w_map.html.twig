@@ -1,0 +1,40 @@
+{# Every zone of the area drawn at once, tinted and labelled, with the AOI boundary ABOVE them and
+   everything outside it dimmed.
+
+   Leaflet over the platform's own map modules — `uhifadhi/basemaps` for the imagery, `uhifadhi/boundary`
+   for the AOI line and its scrim, `uhifadhi/map-chrome` for zoom, DIM, the base-layer menu and
+   fullscreen — so this map is the SAME instrument the area map and every module map wear, pointed
+   at different data. The zones themselves arrive as GeoJSON from
+   GET /areas/{uuid}/zones.geojson, colours included, so the legend below and the polygons above can
+   never disagree.
+
+   EVERY LAYER SHIPS A LEGEND: one swatch per zone, plus the boundary and the dim. #}
+{# Raw attributes rather than stimulus_controller(): the boundary is ALREADY a GeoJSON string on the
+   entity, and handing it to the helper would json_encode a string that is json. #}
+<div class="c" id="map" data-w="map"
+     data-controller="zone-map"
+     data-zone-map-geojson-url-value="{{ geojsonUrl }}"
+     data-zone-map-boundary-value="{{ area.geom|e('html_attr') }}"
+     data-zone-map-selected-value="{{ selected ? selected.uuid : '' }}">
+    <span class="tab"><span class="idx">PL·45</span>Zones on the map<span class="src">· boundary above the zones</span></span>
+    <span class="lib">leaflet in-app</span>
+
+    {# The whole frame is what goes fullscreen, so the legend under it comes along. #}
+    <div class="map-frame" data-zone-map-target="frame">
+        <div class="viewer" style="height:min(46vh,470px)">
+            <div data-zone-map-target="canvas" style="position:absolute;inset:0"></div>
+            <span class="ol" style="left:10px;bottom:10px">{{ zones|length }} zone{{ zones|length == 1 ? '' : 's' }} · {{ coveragePct|number_format(1) }}% covered</span>
+        </div>
+
+        <div class="zlegend">
+            {% for row in zones %}
+                <span><i style="background:{{ row.color }}"></i>{{ row.name }} <em>{{ row.areaKm2|number_format(0) }} km²</em></span>
+            {% endfor %}
+            <span class="aoi"><i></i>{{ area.name }} boundary <em>{{ areaKm2|number_format(0) }} km²</em></span>
+            <span><i style="background:#060a08;border-color:rgba(255,255,255,.18)"></i>outside the AOI <em>dimmed</em></span>
+        </div>
+    </div>
+
+    <p class="zrule">Zones <b>never overlap</b> — two of them may run along a shared edge, and a stretch of the area
+        may belong to no zone at all. Both are legal; only shared interior is not.</p>
+</div>

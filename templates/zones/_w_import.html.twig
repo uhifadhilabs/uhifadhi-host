@@ -1,0 +1,53 @@
+{# The whole set, replaced in one move, or not at all.
+
+   → POST /areas/{uuid}/zones/import → ZoneImportService::importFeatureCollection(), which parses
+     through ZoneFeatureParser (a missing or repeated `name`, a non-polygon geometry) and rejects an
+     overlap with ZoneOverlapException::betweenNames(). ONE transaction: a rejected file leaves the
+     area exactly as it was.
+
+   The design's per-feature verdict rows (✓ Karatu · valid · 237 km² — ✗ Eyasi · overlaps Naiyobi)
+   are a PREVIEW of a file the server has parsed but not committed. The model layer ships no
+   dry-run: importFeatureCollection() either writes the set or throws on the FIRST problem it meets.
+   So what ships is that same message, verbatim, in the page's flash — which names the zone, the
+   reason and (for an overlap) the zone it collided with — plus the all-or-nothing note that a
+   single-message failure cannot say for itself. When a dry-run lands on the service, this panel
+   grows the .vrow list and nothing else changes.
+
+   "Draw a zone" is rendered and inert on purpose: it is the flow that comes later, and the app
+   shows an unbuilt affordance rather than hiding it. It must not grow a route here. #}
+<div class="c" id="import" data-w="import">
+    <span class="tab"><span class="idx">PL·46</span>Import zones<span class="src">· GeoJSON FeatureCollection</span></span>
+
+    {% if canManage %}
+        <form method="post" enctype="multipart/form-data" data-zone-import
+              action="{{ path('app_area_zones_import', {uuid: area.uuid}) }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('zone_manage') }}">
+            <div class="dropz">
+                {{ ux_icon('lucide:upload') }}
+                <span class="filechip">One feature per zone · a <b>name</b> property on each · WGS84</span>
+                <input type="file" name="zones" accept=".geojson,.json,application/geo+json,application/json"
+                       class="fld" aria-label="Zones GeoJSON file" required>
+                <button class="cta" type="submit">{{ ux_icon('lucide:upload') }}Import this file</button>
+            </div>
+        </form>
+    {% else %}
+        <div class="dropz">
+            {{ ux_icon('lucide:upload') }}
+            <span>Importing a zoning scheme is a manager's job. Ask one — or run it from a terminal.</span>
+        </div>
+    {% endif %}
+
+    <div class="allnone">
+        {{ ux_icon('lucide:triangle-alert') }}
+        <span><b>All-or-nothing.</b> If one feature fails validation — an overlap, a missing or repeated
+            <b>name</b>, a geometry that is not a polygon — <b>nothing is imported</b> and the existing zones are
+            untouched. Fix the source file and upload it again.</span>
+    </div>
+
+    <div class="rln" style="margin-top:12px;border-bottom:0">
+        <span>Same import, from a terminal</span>
+        <span class="mono d">app:zone:import {{ area.uuid }} zones.geojson</span>
+    </div>
+
+    {{ include('zones/_draw_soon.html.twig') }}
+</div>

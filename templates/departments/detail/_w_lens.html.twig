@@ -1,0 +1,54 @@
+{# Department detail widget 'lens' — the payoff, previewed.
+   Design: overview.widgets.js → "lens" (DP·01, preview). This is the ONLY widget that shows what
+   a department DOES, so it renders the real Modules tab ordering through the real service
+   (Uhifadhi\Service\DepartmentLens, asked in the controller with an actual member as the
+   persona) — a preview computed a second way would eventually disagree with the page it claims
+   to preview. Nothing is removed from the list: the department's modules lead, everyone else
+   follows in their existing order. #}
+<div class="c lens-w" data-w="lens">
+    <span class="tab"><span class="idx">DP·01</span>The {{ department.name }} lens<span class="src">· preview · modules</span></span>
+    <div class="lens-pair">
+        <div class="lensc">
+            {% if lensPersona %}
+                <div class="persona">
+                    <span class="avatar">{{ (lensPersona.firstName|default('')|first ~ lensPersona.lastName|default('')|first)|upper }}</span>
+                    <span class="pi"><b>{{ lensPersona.fullName }}</b><em>{{ lensPersona.position.name }} · {{ department.name }}</em></span>
+                </div>
+            {% else %}
+                <div class="persona"><span class="pi"><b>Nobody placed here yet</b><em>the lens has no one to lead for</em></span></div>
+            {% endif %}
+
+            <div class="frame">
+                <div class="divlbl">{{ department.name }} leads with</div>
+                <div class="mmg">
+                    {% for module in department.modules %}
+                        {% set claimants = (departmentsByModule[module.id]|default([]))|length %}
+                        <span class="mmc lead"><span class="nm">{{ module.name }}{% if claimants > 1 %}<span class="bo">shared</span>{% endif %}</span><span class="ss">{{ module.slug }}</span></span>
+                    {% else %}
+                        <span class="fog dp-none">nothing — so the page is simply the page</span>
+                    {% endfor %}
+                </div>
+                <div class="divlbl">Everything else — one click away, never hidden</div>
+                <div class="chiprow">
+                    {% for module in lensOrder|filter(m => not department.hasModule(m)) %}
+                        <span class="dchip ghost">{{ module.name }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="lensc">
+            <span class="lbl">What this preview is</span>
+            <p class="use">Exactly what the ordering service does on the real Modules tab:
+                {{ department.name }}'s attached modules first, everyone else in their existing order
+                behind them. <b>Nothing is removed from the page.</b></p>
+            <div class="lens-foot">
+                <span class="lbl">Where its modules run</span>
+                <div class="chiprow">
+                    {% for areaName in footprint|keys %}<span class="dchip mine">{{ areaName }}</span>
+                    {% else %}<span class="fog dp-none">no area yet</span>{% endfor %}
+                </div>
+                <p class="use">Where a lens has nothing to lead with, the page is simply the page.</p>
+            </div>
+        </div>
+    </div>
+</div>

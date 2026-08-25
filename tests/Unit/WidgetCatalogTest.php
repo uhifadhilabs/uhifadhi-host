@@ -17,6 +17,7 @@ use PHPUnit\Framework\TestCase;
 use Uhifadhi\Model\Widget;
 use Uhifadhi\Model\WidgetCatalog;
 use Uhifadhi\Model\WidgetGroup;
+use Uhifadhi\Model\WidgetPreset;
 
 /**
  * The catalogue is the contract a dashboard surface registers: its widgets, the
@@ -155,5 +156,77 @@ final class WidgetCatalogTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
 
         new Widget('tree', 'Department tree', 'shape', cols: 6, spans: [3, 6, 9]);
+    }
+    /* ---- the active-preset model: every layout is a preset ---------------- */
+
+    public function testTheCompositionTheSurfaceShipsLeadsTheStripAsAPresetOfItsOwn(): void
+    {
+        // THERE IS NO ANONYMOUS LAYOUT. The catalogue's own composition is what a
+        // fresh person sees, so it has to be nameable, previewable and
+        // applicable like everything else in the strip.
+        $catalog = new WidgetCatalog('demo', [new WidgetGroup('top', 'At a glance', 'The numbers.')], [
+            new Widget('kpis', 'KPI strip', 'top'),
+            new Widget('map', 'Map', 'top', cols: 6, spans: [12, 6]),
+            new Widget('log', 'Log', 'top', on: false),
+        ], [
+            new WidgetPreset('wide', 'Wide', 'Everything at full width.', ['kpis' => 12, 'log' => 12]),
+        ], defaultLabel: 'The demo board', defaultDescription: 'What this surface ships with.');
+
+        $builtins = $catalog->builtins();
+
+        self::assertSame(['default', 'wide'], array_column($builtins, 'id'));
+        self::assertSame('The demo board', $builtins[0]->label);
+        self::assertSame(['kpis' => 12, 'map' => 6], $builtins[0]->layout, 'a widget that is off by default is not in it');
+        // And it answers to preset() like any other, so applying it is not a
+        // special case anywhere downstream.
+        self::assertSame($builtins[0], $catalog->preset('default'));
+        self::assertSame('default', $catalog->defaultPresetId());
+    }
+
+    public function testACatalogueWhoseOwnCompositionIsAlreadyADesignDoesNotNameItTwice(): void
+    {
+        $catalog = new WidgetCatalog('demo', [new WidgetGroup('top', 'At a glance', 'The numbers.')], [
+            new Widget('kpis', 'KPI strip', 'top'),
+        ], [
+            new WidgetPreset('just-kpis', 'Just the numbers', 'One plate.', ['kpis' => 12]),
+        ]);
+
+        // Two cards saying the same thing would be worse than none.
+        self::assertSame(['just-kpis'], array_column($catalog->builtins(), 'id'));
+        self::assertSame('just-kpis', $catalog->defaultPresetId());
+    }
+
+    public function testTheSurfacesNamedDefaultWinsAndARetiredOneFallsBack(): void
+    {
+        $catalog = new WidgetCatalog('demo', [new WidgetGroup('top', 'At a glance', 'The numbers.')], [
+            new Widget('kpis', 'KPI strip', 'top'),
+            new Widget('map', 'Map', 'top'),
+        ], [
+            new WidgetPreset('wide', 'Wide', 'Everything at full width.', ['kpis' => 12]),
+        ], defaultPreset: 'wide');
+
+        self::assertSame('wide', $catalog->defaultPresetId());
+
+        // A design a release retired must never leave a dashboard blank: the
+        // surface's answer falls back to the first built-in, exactly as a stored
+        // reference to a deleted preset does.
+        $retired = new WidgetCatalog('demo', [new WidgetGroup('top', 'At a glance', 'The numbers.')], [
+            new Widget('kpis', 'KPI strip', 'top'),
+        ], defaultPreset: 'gone-in-3-0');
+
+        self::assertSame('default', $retired->defaultPresetId());
+    }
+
+    public function testAWidgetsPickerLineIsOptionalAndCarriedOnTheDefinition(): void
+    {
+        $catalog = new WidgetCatalog('demo', [new WidgetGroup('top', 'At a glance', 'The numbers.')], [
+            new Widget('kpis', 'KPI strip', 'top', note: 'Four counts, across the top.'),
+            new Widget('map', 'Map', 'top'),
+        ]);
+
+        self::assertSame('Four counts, across the top.', $catalog->get('kpis')->note);
+        // A widget without one shows no line — the picker renders the widget
+        // itself, which is the answer the line only summarises.
+        self::assertNull($catalog->get('map')->note);
     }
 }

@@ -1,0 +1,191 @@
+{# ONE department, at its own address — GET /departments/{uuid} (app_department_show).
+
+   Design: departments/ecology/index.html. Four tabs: Overview · Performance · People & Positions ·
+   Settings. Two of them are WIDGET SURFACES, so the panels below are the person's own resolved
+   layout, in their own order, with the widgets they switched off simply absent.
+
+   ONE LAYOUT, EVERY DEPARTMENT: both grids resolve a layout stored per USER GLOBALLY (null area,
+   and the department is not part of the key) — see Uhifadhi\Model\DepartmentDetailWidgets. The
+   uuid in the URL changes the data in these widgets and never their arrangement.
+
+   Tabs are in-page panels rather than four routes (v1): the tab strip is real anchors, so a link
+   to #settings lands on Settings and the browser's back button works, and the two surfaces are
+   resolved together in one request. #}
+{% extends 'layout.html.twig' %}
+
+{% block title %}{{ department.name }} — department — Uhifadhi{% endblock %}
+
+{% set widgetContext = {
+    department: department,
+    canManage: canManage,
+    positions: positions,
+    members: members,
+    modules: modules,
+    departmentsByModule: departmentsByModule,
+    footprint: footprint,
+    lensPersona: lensPersona,
+    lensOrder: lensOrder,
+    kpis: kpis,
+    kpisByArea: kpisByArea,
+    goals: goals,
+    now: now,
+} %}
+
+{% block content %}
+    <div class="page">
+        <div class="crumb"><a href="{{ path('dashboard_index') }}">uhifadhi</a> /
+            <a href="{{ path('app_departments') }}">departments</a> / {{ department.name }}</div>
+
+        <div class="pghead">
+            <div class="dpthead">
+                <span class="mark">{{ department.name|split(' ')|map(w => w|first)|join|slice(0, 2)|upper }}</span>
+                <div>
+                    <h1 class="pg">{{ department.name }}</h1>
+                    <p class="pgsub">An <b>org-wide</b> department. It attaches the modules its people lead
+                        with, owns the positions they hold, and shapes emphasis — never access.</p>
+                </div>
+            </div>
+            <div class="pgact w-pgact">
+                {# The record's address, stated where the record is named. Not a link: the uuid IS
+                   the page. #}
+                <span class="idplate"><b>DP</b>org-wide</span>
+                <span class="uuid dp-uuidplate">{{ department.uuidString }}</span>
+            </div>
+        </div>
+
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="c dp-flash"><span class="acc">{{ label == 'error' ? '!' : '✓' }}</span> {{ message }}</div>
+            {% endfor %}
+        {% endfor %}
+
+        {# Real anchors, not buttons: with no JavaScript at all every panel is on the page and the
+           tab strip is a jump list, which degrades to something honest rather than to nothing. #}
+        <div class="atabs dp-tabs">
+            <a href="#overview" class="on">Overview</a>
+            <a href="#performance">Performance</a>
+            <a href="#people">People &amp; Positions</a>
+            <a href="#settings">Settings</a>
+        </div>
+
+        <section id="overview" class="dp-panel">
+            <div class="pghead">
+                <p class="pgsub">The record, composed. Everything below is a widget you can move, resize
+                    or switch off — the department is not one screen someone drew.</p>
+                <div class="pgact w-pgact">
+                    <a class="tgl w-act" href="{{ path('app_department_widgets', {uuid: department.uuidString}) }}">{{ ux_icon('lucide:layout-grid') }} Widget library</a>
+                </div>
+            </div>
+
+            <div class="w-grid">
+                {% for widget in detailWidgets|filter(w => w.on) %}
+                    {# w-span-N, never w-N: a bare `w-12` is Tailwind's width utility. #}
+                    <div class="w-cell w-span-{{ widget.cols }}" data-widget-id="{{ widget.id }}" data-widget-cols="{{ widget.cols }}">
+                        <div class="w-inner">
+                            {{ include('departments/detail/_w_' ~ widget.id ~ '.html.twig', widgetContext, with_context: false) }}
+                        </div>
+                    </div>
+                {% endfor %}
+                <a class="w-cell w-span-12 w-addtile" href="{{ path('app_department_widgets', {uuid: department.uuidString}) }}">
+                    {{ ux_icon('lucide:plus') }}<span>Add widgets — open the library</span>
+                </a>
+            </div>
+        </section>
+
+        <section id="performance" class="dp-panel">
+            <div class="pghead">
+                <p class="pgsub">The executive read of this department: <b>what its modules produced this
+                    month</b>, how that moved against last month, and whether its <b>goals</b> are being met.
+                    Rosters and permissions live on the other tabs — this one is the scorecard.</p>
+                <div class="pgact w-pgact">
+                    <a class="tgl w-act" href="{{ path('app_departments_performance') }}">{{ ux_icon('lucide:chart-column') }} Performance board</a>
+                    <a class="tgl w-act" href="{{ path('app_department_performance_widgets', {uuid: department.uuidString}) }}">{{ ux_icon('lucide:layout-grid') }} Widget library</a>
+                </div>
+            </div>
+
+            <div class="w-grid">
+                {% for widget in performanceWidgets|filter(w => w.on) %}
+                    <div class="w-cell w-span-{{ widget.cols }}" data-widget-id="{{ widget.id }}" data-widget-cols="{{ widget.cols }}">
+                        <div class="w-inner">
+                            {{ include('departments/detail/_p_' ~ widget.id ~ '.html.twig', widgetContext, with_context: false) }}
+                        </div>
+                    </div>
+                {% endfor %}
+                <a class="w-cell w-span-12 w-addtile" href="{{ path('app_department_performance_widgets', {uuid: department.uuidString}) }}">
+                    {{ ux_icon('lucide:plus') }}<span>Add widgets — open the library</span>
+                </a>
+            </div>
+        </section>
+
+        {# NOT a widget surface: the two panels below are the record's fixed reading and its writes.
+           A roster you can switch off is a roster somebody loses. #}
+        <section id="people" class="dp-panel">
+            <div class="scoperule">
+                {{ ux_icon('lucide:triangle-alert') }}
+                <div><b>A position belongs to one department.</b> Another department may have a position
+                    spelled the same — a <em>different</em> position, with different permissions. Renaming or
+                    re-permissioning this one does not touch it, and nobody holds both by holding one. People
+                    are in {{ department.name }} only through the position they hold; there is no “add person
+                    to department” button, by design.</div>
+            </div>
+
+            <div class="grid">{{ include('departments/detail/_w_positions.html.twig', widgetContext, with_context: false) }}</div>
+            <div class="grid">{{ include('departments/detail/_w_members.html.twig', widgetContext, with_context: false) }}</div>
+        </section>
+
+        <section id="settings" class="dp-panel">
+            <div class="grid g2">
+                {{ include('departments/detail/_w_rename.html.twig', widgetContext, with_context: false) }}
+                {{ include('departments/detail/_w_attachments.html.twig', widgetContext, with_context: false) }}
+            </div>
+
+            {# GOALS live here: declaring what a department commits to is configuration, not
+               telemetry, so it sits beside the name and the attachments rather than on the
+               scorecard that reads it. The same form is also an (off-by-default) performance
+               widget, through the same route. #}
+            <div class="grid g2">
+                {{ include('departments/detail/_p_goal-declare.html.twig', widgetContext, with_context: false) }}
+
+                <div class="c">
+                    <span class="tab"><span class="idx">DP·S4</span>Goals declared<span class="src">· {{ goals|length }}</span></span>
+                    {% if goals|length %}
+                        <table class="tbl">
+                            <thead><tr><th>Goal</th><th>Target</th><th>Owner</th><th>State</th><th></th></tr></thead>
+                            <tbody>
+                                {% for scored in goals %}
+                                    <tr>
+                                        <td><b>{{ scored.goal.statement }}</b><br><span class="mono d dp-sub">{{ scored.goal.kpiRef }} · per {{ scored.goal.period }}</span></td>
+                                        <td class="mono">{{ scored.goal.targetLabel }}</td>
+                                        <td>{{ scored.goal.owningPosition ? scored.goal.owningPosition.name : '—' }}</td>
+                                        <td><span class="chip g-{{ scored.state }}">{{ scored.label }}</span></td>
+                                        <td class="num">
+                                            {% if canManage %}
+                                                <form method="post" action="{{ path('app_department_goal_delete', {uuid: department.uuidString, goalUuid: scored.goal.uuidString}) }}">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('department_manage') }}">
+                                                    <button class="rmx" type="submit"
+                                                            {{ stimulus_controller('confirm-modal') }}
+                                                            data-action="click->confirm-modal#ask"
+                                                            data-confirm-modal-title-value="Withdraw this goal?"
+                                                            data-confirm-modal-message-value="Only the declaration goes. Every module figure it was scored from is a module's row and is untouched."
+                                                            data-confirm-modal-confirm-label-value="Withdraw goal"
+                                                            data-confirm-modal-danger-value="true"
+                                                            title="Withdraw this goal">{{ ux_icon('lucide:x') }}</button>
+                                                </form>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <p class="use">Nothing declared yet. Without a goal this department's figures are
+                            measured against nothing — which is a statement about its commitments, not about
+                            its work.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="grid">{{ include('departments/detail/_w_delete.html.twig', widgetContext, with_context: false) }}</div>
+        </section>
+    </div>
+{% endblock %}

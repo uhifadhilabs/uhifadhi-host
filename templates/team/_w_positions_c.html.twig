@@ -1,0 +1,83 @@
+{# TEAM widget 'positions_c' — DEPARTMENT CARDS. Design: ngoro-positions-c.html.
+
+   The section stops being a list of positions and becomes a list of DEPARTMENTS THAT OWN
+   POSITIONS. A card is a boundary you can see: two cards, two Analysts, nothing a reader can
+   merge — which is what this direction buys, and the vertical space is what it costs.
+
+   The add button already knows its department; that is the card's whole point.
+
+   Receives: members, positions, departments, bands, holders, twins, scope, rail, canManage,
+   manageToken, catalogue. #}
+{% import 'team/_positions.html.twig' as pos %}
+
+<div class="c" data-positions="c">
+    <span class="tab"><span class="idx">PL·02</span>Positions<span class="src">· department-first</span></span>
+    <p class="use tm-lead">The section stops being a list of positions and becomes a list of
+        <b>departments that own positions</b>. A card is a boundary you can see: two cards, two Analysts,
+        no possible confusion — and adding a position is a button that already knows which department it belongs to.</p>
+
+    {% if bands is empty %}
+        <p class="use">No departments and no positions yet.</p>
+    {% else %}
+        <div class="tm-cardgrid">
+            {% for band in bands %}
+                <div class="dcard {{ band.tone }}">
+                    <div class="dhead">
+                        <div class="dh-l">
+                            <i class="dot {{ band.tone }}"></i>
+                            {% if band.department %}
+                                <a href="{{ path('app_departments') }}" title="Open {{ band.department.name }}"><b>{{ band.department.name }}</b></a>
+                            {% else %}
+                                <b>Unfiled</b>
+                            {% endif %}
+                        </div>
+                        <div class="dh-r">
+                            <span class="dmeta">{{ band.positions|length }} position{{ band.positions|length == 1 ? '' : 's' }} · {{ band.holders }} holder{{ band.holders == 1 ? '' : 's' }}</span>
+                            {% if band.department %}
+                                <a class="open-btn" href="{{ path('app_departments') }}">Open {{ ux_icon('lucide:chevron-right') }}</a>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% if band.department is null %}
+                        <p class="dnote">No department yet. Everything here still grants its permissions — it just has
+                            no home. File one and every holder moves with it.</p>
+                    {% endif %}
+
+                    <div class="plist">
+                        {% for position in band.positions %}
+                            <div class="pitem" {% if position.name|lower in twins %}data-dup="{{ position.name|lower }}"{% endif %}>
+                                <div class="pline">
+                                    {# Bare inside its card — the card IS the department. #}
+                                    <span class="pn"><a href="{{ path('app_team_position_edit', {uuid: position.uuidString}) }}">{{ position.name }}</a></span>
+                                    {{ pos.twin(position, twins) }}
+                                    <span class="held">{{ holders[position.id]|default(0) }} holder{{ (holders[position.id]|default(0)) == 1 ? '' : 's' }}</span>
+                                </div>
+                                {{ pos.perms(position) }}
+                                <div class="pacts">
+                                    {% if band.department is null and departments is not empty and canManage %}
+                                        {{ pos.fileForm(position, departments, manageToken, 'File…') }}
+                                    {% endif %}
+                                    {{ pos.actions(position, canManage) }}
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="pitem"><span class="fog tm-none">No positions in {{ band.name }} yet.</span></div>
+                        {% endfor %}
+                    </div>
+
+                    {# The add button already knows its department — that is the card's point. #}
+                    {% if canManage %}
+                        <form method="post" action="{{ path('app_team_position_create') }}" class="addpos">
+                            <input type="hidden" name="_token" value="{{ csrf_token(manageToken) }}">
+                            <input type="hidden" name="department" value="{{ band.department ? band.department.uuidString : '' }}">
+                            <input class="inl" name="name" required maxlength="120"
+                                   placeholder="Name…" aria-label="Name of a new position in {{ band.name }}">
+                            <button type="submit">{{ ux_icon('lucide:plus') }} Add a position to <b>{{ band.name }}</b></button>
+                        </form>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>

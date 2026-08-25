@@ -1,0 +1,48 @@
+{# Department performance widget 'areas' — the same month, split by area.
+   Design: performance.widgets.js → the "Per area" group (area-comparison and its small multiples).
+   The split is the MODULE'S: a provider may return one figure per area beside its total
+   (Uhifadhi\Module\DepartmentKpi::$areaName). A module that cannot split by area returns totals
+   only, and this widget SAYS SO rather than dividing a total by the number of areas — an invented
+   split is worse than no split, because it looks like data. #}
+<div class="c" data-w="areas">
+    <span class="tab"><span class="idx">DP·07</span>Per area<span class="src">· where the month happened</span></span>
+    {% if kpisByArea|length %}
+        <table class="tbl">
+            <thead>
+                <tr><th>Area</th>{% for kpi in kpis %}<th class="num">{{ kpi.label }}</th>{% endfor %}</tr>
+            </thead>
+            <tbody>
+                {% for areaName, areaKpis in kpisByArea %}
+                    <tr>
+                        <td><b>{{ areaName }}</b></td>
+                        {% for kpi in kpis %}
+                            {% set here = areaKpis|filter(a => a.key == kpi.key)|first %}
+                            <td class="num {{ here ? '' : 'd' }}">
+                                {% if here and here.isKnown %}{{ here.display }}{{ here.unit == '%' ? '%' : (here.unit ? ' ' ~ here.unit : '') }}
+                                {% else %}—{% endif %}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+                <tr class="dp-total">
+                    <td><b>Department total</b></td>
+                    {% for kpi in kpis %}
+                        <td class="num"><b>{{ kpi.display }}{{ kpi.unit == '%' ? '%' : (kpi.unit ? ' ' ~ kpi.unit : '') }}</b></td>
+                    {% endfor %}
+                </tr>
+            </tbody>
+        </table>
+        <p class="use">A dash is a module that does not split THAT figure by area — coverage over two
+            areas is not the sum of two coverages, and nothing here pretends otherwise.</p>
+    {% else %}
+        <p class="use"><b>No module splits its figures by area for this department.</b>
+            {% if footprint|length %}
+                Its modules run in {{ footprint|keys|join(', ') }}, but each reports one total rather
+                than a per-area breakdown.
+            {% else %}
+                No area runs this department's modules yet.
+            {% endif %}
+            The split is a module's to give; a total divided by the number of areas would look like
+            data and be nothing of the kind.</p>
+    {% endif %}
+</div>

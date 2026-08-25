@@ -25,8 +25,33 @@ use Uhifadhi\Repository\PositionRepository;
  * positions and ticks their permissions; every Staff user assigned a position inherits them.
  * Super Admin / Admin / Manager ignore positions — they hold everything by tier — so no
  * position is ever "locked" in practice; {@see $locked} is reserved for that future need.
+ *
+ * A POSITION IS DEPARTMENT-SCOPED. Its name is unique INSIDE its department and nowhere else:
+ * Ecology and Protection Service may each own an "Analyst", and the two share a word and
+ * nothing at all besides — different permissions, different holders, different rows. An
+ * org-wide unique name would have forced one of those two units to rename a job it has always
+ * had, which is why every surface writes a position department-first ("Ecology / Analyst")
+ * wherever the department is not already stated by context.
  */
 #[ORM\Entity(repositoryClass: PositionRepository::class)]
+#[ORM\Table(name: 'position')]
+// Unique per (department, name) — but Postgres treats NULLs as distinct, so a single
+// two-column index would quietly stop guarding the UNFILED positions, which are exactly the
+// ones most likely to collide (everything created before departments existed still sits
+// there). It therefore takes TWO partial unique indexes covering the two disjoint cases, the
+// same shape WidgetPreference uses for its org-wide/area-scoped rows. Declared with `fields`
+// so the host's naming strategy still owns the column names; the WHERE clauses name the
+// column because that is what Postgres reads.
+#[ORM\UniqueConstraint(
+    name: 'uniq_position_department_name',
+    fields: ['department', 'name'],
+    options: ['where' => '(department_id IS NOT NULL)'],
+)]
+#[ORM\UniqueConstraint(
+    name: 'uniq_position_unfiled_name',
+    fields: ['name'],
+    options: ['where' => '(department_id IS NULL)'],
+)]
 #[ORM\HasLifecycleCallbacks]
 class Position
 {
@@ -56,6 +81,11 @@ class Position
     /**
      * The department this position sits in, if any — how a user's department is derived. Purely
      * organizational: it re-orders what its holders see and grants nothing (permissions above do).
+     *
+     * It also SCOPES THE NAME (see the class banner). Nullable is a transition state, not a
+     * department: "Unfiled" is a holding pen for positions that predate departments, it sorts
+     * last, is drawn dashed everywhere, and its one real action is being filed under a real
+     * department — holders and all.
      */
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]

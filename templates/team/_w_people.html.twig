@@ -1,0 +1,94 @@
+{# TEAM widget 'people' — the roster, and the one control that changes what a person may do:
+   their position. Design: uhifadhi-web/team/team.widgets.js → people.
+
+   A person's TIER is set on their own account; managing tiers hold everything by tier and
+   therefore hold no position at all. A person's DEPARTMENT is read-only here — it follows their
+   position, so moving a position moves every holder with it.
+
+   Every position is written DEPARTMENT-FIRST, in the cell and in the dropdown, because a bare
+   "Analyst" names two different positions with two different permission sets.
+
+   Receives: members, positions, departments, bands, holders, twins, scope, rail, canManage,
+   manageToken, catalogue. #}
+{% import 'team/_positions.html.twig' as pos %}
+
+<div class="c" data-people>
+    <span class="tab"><span class="idx">PL·01</span>People<span class="src">· {{ members|length }} member{{ members|length == 1 ? '' : 's' }}</span></span>
+
+    <table class="tbl">
+        <thead>
+        <tr>
+            <th>Member</th><th>Email</th><th>Tier</th><th>Position</th>
+            <th class="dept-col">Department</th>
+            {% if canManage %}<th>Assign</th>{% endif %}
+        </tr>
+        </thead>
+        <tbody>
+        {% for member in members %}
+            <tr>
+                <td>
+                    <div class="who">
+                        <span class="avatar sm">{{ (member.firstName|default('')|first ~ member.lastName|default('')|first)|upper }}</span>
+                        <b>{{ member.fullName }}</b>
+                    </div>
+                </td>
+                <td class="fog mono email">{{ member.email }}</td>
+                <td><span class="tier t-{{ member.teamRole.value }}">{{ member.teamRole.label }}</span></td>
+
+                <td>
+                    {% if member.teamRole.canManageContent %}
+                        <span class="fog mono tm-none">— by tier</span>
+                    {% elseif member.position %}
+                        {{ pos.qualified(member.position) }}{{ pos.twin(member.position, twins) }}
+                    {% else %}
+                        <span class="fog mono tm-none">unassigned</span>
+                    {% endif %}
+                </td>
+
+                {# Read-only: a person's department is their position's department, always. #}
+                <td class="dept-col">
+                    {% if member.teamRole.canManageContent %}
+                        <span class="fog mono tm-none">— all departments</span>
+                    {% elseif member.position and member.position.department %}
+                        <b>{{ member.position.department.name }}</b><span class="dept-via">via position</span>
+                    {% else %}
+                        <span class="fog mono tm-none">—</span>
+                    {% endif %}
+                </td>
+
+                {% if canManage %}
+                    <td>
+                        {% if member.teamRole.canManageContent %}
+                            <span class="fog mono tm-none">—</span>
+                        {% else %}
+                            <form method="post" action="{{ path('app_team_member_assign', {uuid: member.uuidString}) }}" class="assign">
+                                <input type="hidden" name="_token" value="{{ csrf_token('team_member_assign_' ~ member.uuidString) }}">
+                                {# Department-first here too: two departments' "Analyst" can never
+                                   be picked for each other from a dropdown that writes both the
+                                   same way. The list is in band order, so a department's
+                                   positions arrive together. #}
+                                <select name="position" class="fld sel" aria-label="Position of {{ member.fullName }}">
+                                    <option value="">— unassigned —</option>
+                                    {% for position in positions %}
+                                        <option value="{{ position.uuidString }}" {{ member.position and member.position.uuidString == position.uuidString ? 'selected' }}>
+                                            {{ position.department ? position.department.name : 'Unfiled' }} / {{ position.name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                <button class="open-btn" type="submit">Set</button>
+                            </form>
+                        {% endif %}
+                    </td>
+                {% endif %}
+            </tr>
+        {% else %}
+            <tr><td colspan="6"><span class="fog tm-none">Nobody on the team yet.</span></td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <p class="use"><b>Department is read-only here</b> — it follows the position. Move a position to
+        another department and every holder moves with it. A position is always written
+        department-first, here and in the dropdown, so two departments’ <b>Analyst</b> can never be
+        picked for each other.</p>
+</div>

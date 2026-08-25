@@ -1,0 +1,155 @@
+{# Performance board widget 'board' — every department as a row, against the same KPIs.
+   Design: departments/performance.html → DP·01. Receives the board context (see
+   Uhifadhi\Controller\PerformanceBoardController::context).
+
+   FOUR THINGS THIS WIDGET MUST NOT DO, all of which would be easy:
+     · hide a department with nothing to show — every department is a row, including those;
+     · print 0 where a module reports nothing — a labelled dashed slot means "nothing here
+       measures that", and it says WHICH of the two emptinesses it is: no KPI yet, or no module;
+     · collapse "attached but computing nothing" into "not reporting" — they are different facts;
+     · read as a league table — the tint is standing WITHIN A COLUMN, and the sentence under the
+       heading says so in the design's own words.
+
+   The search, the buckets and the sort are LINKS AND A FORM, never script: each is a query
+   parameter the controller resolves. #}
+<div class="c" data-w="board">
+    <span class="tab"><span class="idx">DP·01</span>Department board<span class="src">· same KPIs, same period</span></span>
+    <p class="use"><b>Rows are departments, columns are the KPIs of the module they share.</b>
+        The tint is a department's rank <em>within its column</em>, not a verdict — a department with
+        fewer people, fewer areas or one module is <b>smaller, not worse</b>. Read a row against its own
+        goals before you read it against another row.</p>
+
+    {# Search and the filters that answer "how much of this board is empty?", with counts that
+       follow the search — so a bucket never promises rows the search has already removed. #}
+    <div class="perf-tools">
+        <form class="perf-search" method="get" action="{{ path('app_departments_performance') }}" role="search">
+            {% for key, value in query|filter((v, k) => v is not empty and k != 'q') %}
+                <input type="hidden" name="{{ key }}" value="{{ value }}">
+            {% endfor %}
+            {{ ux_icon('lucide:search') }}
+            <input class="fld" type="search" name="q" value="{{ query.q }}"
+                   placeholder="Search departments or modules…"
+                   aria-label="Search departments or modules">
+        </form>
+        <span class="subnav perf-filters">
+            {% for bucket, label in {all: 'All', reporting: 'Reporting', awaiting: 'Awaiting a module', unattached: 'No module attached'} %}
+                <a class="{{ query.show == bucket ? 'on' : '' }}"
+                   href="{{ path('app_departments_performance', query|merge({show: bucket})|filter(v => v is not empty)) }}">{{ label }} <b>{{ counts[bucket] }}</b></a>
+            {% endfor %}
+        </span>
+        {% set sortedLabel = query.sort == 'name' ? 'Department' : (query.sort == 'rank' ? 'Rank' : (columns|filter(c => c.key == query.sort)|first).label) %}
+        <span class="perf-sortnote"><span class="chip acc">sort: {{ sortedLabel|lower }} {{ query.dir == 'desc' ? '↓' : '↑' }}</span></span>
+    </div>
+
+    {# overflow-x:auto forces overflow-y to compute to auto, which would leave a stray vertical
+       scrollbar on the wrapper — .hscroll hides the bars in both engines and the page body itself
+       never scrolls sideways. #}
+    <div class="hscroll">
+        <table class="tbl heat">
+            <thead>
+                <tr>
+                    {# One header per sortable key. A header is a LINK: it sorts on the server, it
+                       is reachable by keyboard because it is a link, and it says which way it is
+                       sorted through aria-sort rather than through a glyph alone. #}
+                    {% for head in [{key: 'name', label: 'Department', num: false, title: 'Sort by department name'},
+                                    {key: 'rank', label: 'Rank', num: true, title: 'Sort by rank'}]
+                                   |merge(columns|map(c => {key: c.key, label: c.label, num: true, title: 'Sort by ' ~ c.label|lower ~ ' — ' ~ c.moduleName ~ ' module'})) %}
+                        {% set on = query.sort == head.key %}
+                        <th class="{{ head.num ? 'num ' : '' }}sortable{{ on ? ' on' : '' }}{{ on and query.dir == 'desc' ? ' desc' : '' }}"
+                            data-sort="{{ head.key }}" role="columnheader"
+                            aria-sort="{{ on ? (query.dir == 'desc' ? 'descending' : 'ascending') : 'none' }}">
+                            <a href="{{ path('app_departments_performance', query|merge({sort: head.key, dir: on and query.dir == 'asc' ? 'desc' : 'asc'})|filter(v => v is not empty)) }}"
+                               title="{{ head.title }}">{{ head.label }}<i class="sortmark"></i></a>
+                        </th>
+                    {% endfor %}
+                    <th class="perf-openhead"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in visibleRows %}
+                    {% set on = selected and selected.department.id == row.department.id %}
+                    <tr class="perf-row{{ on ? ' on' : '' }}" data-uuid="{{ row.department.uuidString }}"
+                        {% if on %}aria-current="true"{% endif %}>
+                        <td>
+                            {# Selecting a row IS a navigation: it re-renders the drill-in below for
+                               that department and moves nothing else on the page. #}
+                            <a class="dept{{ on ? ' on' : '' }}"
+                               href="{{ path('app_departments_performance', query|merge({selected: row.department.uuidString})|filter(v => v is not empty)) }}#drill"
+                               aria-label="Show {{ row.department.name }} in the drill-in below">
+                                <span class="mk">{{ row.code }}</span>
+                                <div>
+                                    <b>{{ row.department.name }}</b>
+                                    <span>{% if row.moduleCount %}{{ row.moduleCount }} module{{ row.moduleCount == 1 ? '' : 's' }} ·
+                                        {{ row.areas|length ? row.areas|length ~ ' area' ~ (row.areas|length == 1 ? '' : 's') : 'no area' }}
+                                        {%- else %}no module attached{% endif %}</span>
+                                </div>
+                            </a>
+                        </td>
+                        <td class="num">
+                            <span class="rank">
+                                {%- if row.rank is null -%}
+                                    <span class="eq">—</span>
+                                {%- else -%}
+                                    {{ row.rank }}
+                                    {%- if row.shift is null or row.shift == 0 %}<span class="eq">–</span>
+                                    {%- elseif row.shift > 0 %}<span class="up">{{ ux_icon('lucide:arrow-up-right') }}</span>
+                                    {%- else %}<span class="dn">{{ ux_icon('lucide:arrow-down-right') }}</span>{% endif -%}
+                                {%- endif -%}
+                            </span>
+                        </td>
+                        {% for cell in row.cells %}
+                            <td class="hc">
+                                {% if cell.kpi and cell.kpi.isKnown %}
+                                    <div class="hcell {{ cell.heat }}">
+                                        <b>{{ cell.kpi.display }}{% if cell.kpi.unit %}<em>{{ cell.kpi.unit }}</em>{% endif %}</b>
+                                        <div class="r2">
+                                            {% if cell.kpi.deltaLabel %}
+                                                <span class="delta {{ cell.kpi.direction ?: 'flat' }}">
+                                                    {{ ux_icon(cell.kpi.direction == 'bad' ? 'lucide:arrow-down-right' : 'lucide:arrow-up-right') }}{{ cell.kpi.deltaLabel }}
+                                                </span>
+                                            {% else %}
+                                                <span class="delta flat">no earlier reading</span>
+                                            {% endif %}
+                                            {% set points = cell.kpi.sparkPoints(70, 18) %}
+                                            {% if points %}
+                                                <svg class="spark" viewBox="0 0 70 18" preserveAspectRatio="none" aria-hidden="true"><polyline points="{{ points }}" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                {% else %}
+                                    {# NOT a zero, and it says which emptiness it is. #}
+                                    <div class="hcell h0 blank"
+                                         title="No attached module reports {{ columns[loop.index0].label|lower }} for {{ row.department.name }} — this is not a zero">
+                                        <span class="mono d">{{ row.moduleCount ? 'no KPI yet' : 'no module' }}</span>
+                                    </div>
+                                {% endif %}
+                            </td>
+                        {% endfor %}
+                        <td class="num perf-open">
+                            <a class="open-btn" href="{{ path('app_department_show', {uuid: row.department.uuidString}) }}">Open {{ ux_icon('lucide:chevron-right') }}</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+
+                {% if departments is empty %}
+                    <tr><td colspan="3" class="fog">No department exists yet, so there is nothing to compare.
+                        Create one on the departments page and it appears here the moment it exists —
+                        empty, like every other department with nothing to show.</td></tr>
+                {% elseif columns is empty and visibleRows|length %}
+                    <tr><td colspan="3" class="fog">No installed module reports a department KPI yet, so the
+                        board has no columns. Every department is still listed — the board is honest about
+                        being empty rather than absent.</td></tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+    <p class="perf-empty"{{ visibleRows|length or departments is empty ? ' hidden' : '' }}>No department matches that search.</p>
+
+    <div class="legend">
+        <span><i class="h-lead"></i>leads the column</span>
+        <span><i class="h-mid"></i>mid</span>
+        <span><i class="h-trail"></i>trails the column</span>
+        <span><i class="h-dashed"></i>no KPI yet — not a zero</span>
+        <span class="d">Rank = {{ rankColumn ? rankColumn.label|lower : 'distance patrolled' }}, period over period</span>
+    </div>
+</div>

@@ -29,6 +29,9 @@
                         <button class="cta" type="submit">{{ ux_icon('lucide:plus') }}Add</button>
                     </form>
                 {% endif %}
+                {# The comparison across all of them — every department as a row, including the
+                   ones with nothing to show yet. #}
+                <a class="tgl w-act" href="{{ path('app_departments_performance') }}">{{ ux_icon('lucide:bar-chart-3') }}Performance board</a>
                 <a class="tgl w-act" href="{{ path('app_departments_widgets') }}">{{ ux_icon('lucide:layout-grid') }}Widget library</a>
             </div>
         </div>

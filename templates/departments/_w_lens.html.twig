@@ -30,7 +30,11 @@
             {% endif %}
             <span class="pi">
                 <b>{{ member ? member.fullName : 'A member of ' ~ department.name }}</b>
-                <em>{% if position %}{{ position.name }} · {% endif %}{{ department.name }}</em>
+                {# The persona CAPTION is outside the mock frame below, so naming the department
+                   here is a label on this card and not a link inside somebody else's screen —
+                   and it wears the same way in as every other widget that names a department.
+                   Nothing inside .frame is ever a link: that is the preview. #}
+                <em>{% if position %}{{ position.name }} · {% endif %}<a class="dp-deptlink" href="{{ path('app_department_show', {uuid: department.uuidString}) }}">{{ department.name }}</a></em>
             </span>
             <span class="pl">{{ code }}</span>
         </div>

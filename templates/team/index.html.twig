@@ -1,3 +1,10 @@
+{# The org-wide TEAM dashboard (settled design: uhifadhi-web/team/index.html; the Positions half
+   drawn five ways in uhifadhi-ops/designs/ngoro-positions-{a..e}.html, all five shipped as
+   widgets). Everything below the header is the platform widget framework: the person's own
+   resolved layout, in their own order, with the widgets they switched off simply absent.
+
+   Every widget is a partial in this folder and receives exactly the surface's context — see
+   Uhifadhi\Service\TeamService::context(). #}
 {% extends 'layout.html.twig' %}
 
 {% block title %}Team — Uhifadhi{% endblock %}
@@ -5,117 +12,61 @@
 {% block content %}
     <div class="page">
         <div class="crumb"><a href="{{ path('dashboard_index') }}">uhifadhi</a> / team</div>
+
         <div class="pghead">
             <div>
                 <h1 class="pg">Team</h1>
-                <p class="pgsub">People and the positions that grant them permissions. Managers and up administer the team;
-                    a <b>Staff</b> member holds exactly their position's permissions, while managers and admins hold everything by tier.</p>
+                <p class="pgsub">People, the positions that grant them permissions, and the departments those
+                    positions belong to. A <b>Staff</b> member holds exactly their position’s permissions; managers and
+                    admins hold everything by tier. A position is written department-first —
+                    <span class="mono tm-eg">Ecology / Analyst</span> — because its name is unique only
+                    <b>inside</b> its department.</p>
             </div>
-            <div class="pgact"><a class="cta" href="{{ path('app_team_position_new') }}">{{ ux_icon('lucide:plus') }}New position</a></div>
+            <div class="pgact w-pgact">
+                <a class="tgl w-act" href="{{ path('app_team_position_new') }}">{{ ux_icon('lucide:plus') }}New position</a>
+                <a class="tgl w-act" href="{{ path('app_team_widgets') }}">{{ ux_icon('lucide:layout-grid') }}Widget library</a>
+            </div>
         </div>
 
         {% for label, messages in app.flashes %}
             {% for message in messages %}
-                <div class="c" style="padding:12px 16px;margin-bottom:16px"><span class="acc">✓</span> {{ message }}</div>
+                <div class="c tm-flash"><span class="acc">{{ label == 'error' ? '!' : '✓' }}</span> {{ message }}</div>
             {% endfor %}
         {% endfor %}
 
-        <div class="grid" style="gap:34px">
-            {# ---------- People ---------- #}
-            <div class="c">
-                <span class="tab"><span class="idx">PL·01</span>People<span class="src">· {{ members|length }} member{{ members|length == 1 ? '' : 's' }}</span></span>
-                <table class="tbl">
-                    <thead><tr><th>Member</th><th>Email</th><th>Tier</th><th>Position</th><th>Department</th></tr></thead>
-                    <tbody>
-                    {% for m in members %}
-                        <tr>
-                            <td><div class="who"><span class="avatar sm">{{ (m.firstName|first ~ m.lastName|first)|upper }}</span><b>{{ m.fullName }}</b></div></td>
-                            <td class="fog mono email">{{ m.email }}</td>
-                            <td><span class="tier t-{{ m.teamRole.value }}">{{ m.teamRole.label }}</span></td>
-                            <td>
-                                {% if m.teamRole.canManageContent %}
-                                    <span class="fog mono" style="font-size:11px">— by tier</span>
-                                {% else %}
-                                    <form method="post" action="{{ path('app_team_member_assign', {uuid: m.uuidString}) }}" class="assign">
-                                        <input type="hidden" name="_token" value="{{ csrf_token('team_member_assign_' ~ m.uuidString) }}">
-                                        <select name="position" class="fld sel">
-                                            <option value="">— unassigned —</option>
-                                            {% for p in positions %}
-                                                <option value="{{ p.uuidString }}" {{ m.position and m.position.uuidString == p.uuidString ? 'selected' }}>{{ p.name }}</option>
-                                            {% endfor %}
-                                        </select>
-                                        <button class="open-btn" type="submit">Set</button>
-                                    </form>
-                                {% endif %}
-                            </td>
-                            {# Department is read-only here — it follows the position. Move a
-                               position to another department and every holder moves with it. #}
-                            <td>
-                                {% if m.teamRole.canManageContent %}
-                                    <span class="fog mono" style="font-size:11px">— all departments</span>
-                                {% elseif m.position and m.position.department %}
-                                    <b>{{ m.position.department.name }}</b><span class="dept-via">via position</span>
-                                {% else %}
-                                    <span class="fog mono" style="font-size:11px">—</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+        {# EXACTLY what a partial receives, stated once. with_context: false so the contract is
+           the contract: a partial that reaches for a variable this map does not name fails here,
+           on the surface that owns it, rather than on whichever screen borrows it next. #}
+        {% set widgetContext = {
+            members: members,
+            positions: positions,
+            departments: departments,
+            bands: bands,
+            holders: holders,
+            twins: twins,
+            scope: scope,
+            rail: rail,
+            canManage: canManage,
+            manageToken: manageToken,
+            catalogue: catalogue,
+        } %}
 
-            {# ---------- Positions ---------- #}
-            <div class="c">
-                <span class="tab"><span class="idx">PL·02</span>Positions<span class="src">· {{ positions|length }}</span></span>
-                {% if positions is empty %}
-                    <p class="fog" style="font-size:13px;margin:6px 2px 4px">No positions yet — create one to grant a Staff member a bundle of permissions.</p>
-                {% else %}
-                    <table class="tbl">
-                        <thead><tr><th>Position</th><th class="dept-col">Department</th><th>Permissions</th><th class="num">Held by</th><th></th></tr></thead>
-                        <tbody>
-                        {% for p in positions %}
-                            <tr>
-                                <td><a href="{{ path('app_team_position_edit', {uuid: p.uuidString}) }}">{{ p.name }}</a></td>
-                                {# The one place a department is set: the position carries it, and
-                                   its holders inherit it. Organizational only — it grants nothing,
-                                   which is why it sits beside the permissions rather than in them. #}
-                                <td class="dept-col">
-                                    {% if departments is empty %}
-                                        <span class="fog mono" style="font-size:11px">— no departments —</span>
-                                    {% else %}
-                                        <form method="post" action="{{ path('app_team_position_department', {uuid: p.uuidString}) }}" class="assign">
-                                            <input type="hidden" name="_token" value="{{ csrf_token('team_position_department_' ~ p.uuidString) }}">
-                                            <select name="department" class="fld sel" aria-label="Department of {{ p.name }}">
-                                                <option value="">— none —</option>
-                                                {% for d in departments %}
-                                                    <option value="{{ d.uuidString }}" {{ p.department and p.department.uuidString == d.uuidString ? 'selected' }}>{{ d.name }}</option>
-                                                {% endfor %}
-                                            </select>
-                                            <button class="open-btn" type="submit">Set</button>
-                                        </form>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% for value in p.permissionValues %}<span class="perm">{{ value }}</span> {% else %}<span class="fog mono" style="font-size:11px">no permissions</span>{% endfor %}
-                                </td>
-                                <td class="num">{{ members|filter(u => u.position and u.position.uuidString == p.uuidString)|length }}</td>
-                                <td class="num">
-                                    <div class="pos-actions">
-                                        <a class="open-btn" href="{{ path('app_team_position_edit', {uuid: p.uuidString}) }}">Edit</a>
-                                        <form method="post" action="{{ path('app_team_position_delete', {uuid: p.uuidString}) }}"
-                                              data-turbo-confirm="Delete “{{ p.name }}”? Its holders will be unassigned.">
-                                            <input type="hidden" name="_token" value="{{ csrf_token('team_position_delete_' ~ p.uuidString) }}">
-                                            <button class="open-btn danger" type="submit">Delete</button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                {% endif %}
-            </div>
+        <div class="w-grid">
+            {# A switched-off widget is simply absent — not hidden, not an empty cell. #}
+            {% for widget in widgets|filter(w => w.on) %}
+                {# w-span-N, never w-N: a bare `w-12` is Tailwind's width utility and would
+                   render this cell 48px wide (see the widget-framework block in app.css). #}
+                <div class="w-cell w-span-{{ widget.cols }}" data-widget-id="{{ widget.id }}" data-widget-cols="{{ widget.cols }}">
+                    <div class="w-inner">
+                        {{ include('team/_w_' ~ widget.id ~ '.html.twig', widgetContext, with_context: false) }}
+                    </div>
+                </div>
+            {% endfor %}
+            {# The door to editing, in the grid itself — adding/removing/arranging happens in the
+               LIBRARY; this tile makes that reachable from where you notice a widget is missing. #}
+            <a class="w-cell w-span-12 w-addtile" href="{{ path('app_team_widgets') }}">
+                {{ ux_icon('lucide:plus') }}<span>Add widgets — open the library</span>
+            </a>
         </div>
     </div>
 {% endblock %}

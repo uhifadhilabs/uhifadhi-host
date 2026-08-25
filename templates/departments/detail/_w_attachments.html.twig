@@ -1,0 +1,36 @@
+{# Department detail widget 'attachments' — each attached module in full.
+   Design: overview.widgets.js → "attachments" (DP·06). The same writes as the 'modules' widget,
+   spelled out in a table: who else claims it, where it runs, how to detach it. #}
+<div class="c" data-w="attachments">
+    <span class="tab"><span class="idx">DP·06</span>Attachments, in full</span>
+    <table class="tbl mtbl">
+        <thead><tr><th>Module</th><th>Also attached to</th><th class="num">Areas active in</th><th></th></tr></thead>
+        <tbody>
+            {% for module in department.modules %}
+                {% set others = (departmentsByModule[module.id]|default([]))|filter(d => d.id != department.id) %}
+                {% set areasWithIt = footprint|filter(mods => mods|filter(m => m.id == module.id)|length > 0)|length %}
+                <tr>
+                    <td><div class="dp-modname"><span class="nm">{{ module.name }}</span><span class="ds">{{ module.slug }}</span></div></td>
+                    <td>
+                        {% for other in others %}
+                            <a class="dchip shared" href="{{ path('app_department_show', {uuid: other.uuidString}) }}" title="One module, two lenses">{{ other.name }}<i>·shared</i></a>
+                        {% else %}
+                            <span class="fog mono dp-only">— this department only</span>
+                        {% endfor %}
+                    </td>
+                    <td class="num">{{ areasWithIt }}</td>
+                    <td class="num">
+                        {% if canManage %}
+                            <form method="post" action="{{ path('app_department_module_toggle', {uuid: department.uuidString, moduleUuid: module.uuidString}) }}">
+                                <input type="hidden" name="_token" value="{{ csrf_token('department_manage') }}">
+                                <button class="rmx" type="submit" title="Detach {{ module.name }} from {{ department.name }}">{{ ux_icon('lucide:x') }}</button>
+                            </form>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% else %}
+                <tr><td colspan="4" class="fog">No module attached yet.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

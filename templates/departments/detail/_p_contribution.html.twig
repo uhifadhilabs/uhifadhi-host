@@ -1,0 +1,29 @@
+{# Department performance widget 'contribution' — what produced these numbers.
+   Design: performance.widgets.js → "contribution" (DP·08). Every figure on the page has exactly
+   one owner, and this table names it. A module that feeds nothing says 0 rather than being left
+   out: that IS the finding. #}
+<div class="c" data-w="contribution">
+    <span class="tab"><span class="idx">DP·08</span>What produced these numbers<span class="src">· module contribution</span></span>
+    <table class="tbl">
+        <thead><tr><th>Module</th><th class="num">KPIs it feeds</th><th class="num">Areas</th></tr></thead>
+        <tbody>
+            {% for module in department.modules %}
+                {% set fed = kpis|filter(k => k.moduleSlug == module.slug)|length %}
+                {% set claimants = (departmentsByModule[module.id]|default([]))|length %}
+                {% set areasWithIt = footprint|filter(mods => mods|filter(m => m.id == module.id)|length > 0)|length %}
+                <tr>
+                    <td>
+                        {% if fed %}<b>{{ module.name }}</b>{% else %}<span class="fog">{{ module.name }}</span>{% endif %}
+                        <br><span class="mono d dp-sub">{{ claimants > 1 ? 'shared with ' ~ (claimants - 1) ~ ' other department' ~ (claimants > 2 ? 's' : '') : 'this department only' }}</span>
+                    </td>
+                    <td class="num {{ fed ? '' : 'd' }}">{{ fed }}</td>
+                    <td class="num {{ areasWithIt ? '' : 'd' }}">{{ areasWithIt ?: '—' }}</td>
+                </tr>
+            {% else %}
+                <tr><td colspan="3" class="fog">No module attached — so no figure on this page has an owner, and there is no figure.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <p class="use"><b>Every number on this page has one owner.</b> Attach a module and this page grows
+        plates; detach one and they disappear — no orphan metrics, and nothing invented to fill a gap.</p>
+</div>

@@ -80,6 +80,31 @@ class WidgetPreference
     #[ORM\Column(type: Types::JSON)]
     private array $prefs = [];
 
+    /**
+     * WHICH PRESET THIS LAYOUT IS. There is no anonymous layout: a dashboard
+     * always renders exactly one preset, so the row names it — 'design' for one
+     * the surface ships (the id is a {@see \Uhifadhi\Model\WidgetPreset} id) or
+     * 'mine' for one the person saved (the id is a
+     * {@see WidgetCustomPreset}'s UUID string).
+     *
+     * Nullable because a row written before this column existed has a layout and
+     * no reference, and because absence is already the answer for a person who
+     * never chose. Reading is TOLERANT for the same reason every other read here
+     * is: an unreadable or retired reference falls back to the surface's default
+     * built-in rather than showing nothing.
+     */
+    #[ORM\Column(length: 8, nullable: true)]
+    private ?string $activeKind = null;
+
+    #[ORM\Column(length: 64, nullable: true)]
+    private ?string $activePreset = null;
+
+    /** A built-in the surface ships. */
+    public const string KIND_DESIGN = 'design';
+
+    /** One of the person's own saved presets. */
+    public const string KIND_MINE = 'mine';
+
     /** @param array<string, mixed> $prefs */
     public function __construct(string $surface, int $userId, ?Uuid $areaUuid = null, array $prefs = [])
     {
@@ -121,6 +146,40 @@ class WidgetPreference
     public function setPrefs(array $prefs): static
     {
         $this->prefs = $prefs;
+
+        return $this;
+    }
+
+    /** Null until this person has chosen — see the property's own note. */
+    public function getActiveKind(): ?string
+    {
+        return $this->activeKind;
+    }
+
+    public function getActivePreset(): ?string
+    {
+        return $this->activePreset;
+    }
+
+    /**
+     * Name the preset this layout is. The pair moves together — a kind without an
+     * id is not a reference — so one setter writes both, and null clears it back
+     * to "this person has not chosen".
+     */
+    public function setActive(?string $kind, ?string $presetId): static
+    {
+        if (null === $kind || null === $presetId || '' === $presetId) {
+            $this->activeKind = null;
+            $this->activePreset = null;
+
+            return $this;
+        }
+        if (self::KIND_DESIGN !== $kind && self::KIND_MINE !== $kind) {
+            throw new \InvalidArgumentException(\sprintf('A widget preference is active on a "%s" or a "%s" preset, never a "%s" one.', self::KIND_DESIGN, self::KIND_MINE, $kind));
+        }
+
+        $this->activeKind = $kind;
+        $this->activePreset = $presetId;
 
         return $this;
     }

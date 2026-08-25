@@ -1,0 +1,87 @@
+{# The widget library for ONE of a department record's two surfaces — the Overview tab
+   (app_department_widgets) or the Performance tab (app_department_performance_widgets). One
+   template for both: `tab` says which, and the catalogue, the partial name and the routes the
+   controller hands over are the only things that differ.
+
+   The PAGE is the chrome — a crumb, a header and its two actions. Everything below is
+   templates/widgets/_library.html.twig: the preset component, identical on every surface that
+   ships a WidgetCatalog. There are no department-specific widget mechanics anywhere.
+
+   WHAT YOU ARE ARRANGING IS EVERY DEPARTMENT. The layout is stored per user and NOT per
+   department, so a change here follows you to every department record you open. The intro line
+   says so, because a person who arranged Ecology and then found Tourism rearranged would
+   reasonably call that a bug. #}
+{% extends 'layout.html.twig' %}
+
+{% block title %}{{ department.name }} · widget library — Uhifadhi{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {# type="module" is deferred by definition, so the library is armed after the DOM exists. #}
+    <script type="module">
+        import { initWidgetLibrary } from 'uhifadhi/widgets';
+        initWidgetLibrary();
+    </script>
+{% endblock %}
+
+{% set isPerformance = tab == 'performance' %}
+
+{% block content %}
+    <div class="page">
+        <div class="crumb"><a href="{{ path('dashboard_index') }}">uhifadhi</a> /
+            <a href="{{ path('app_departments') }}">departments</a> /
+            <a href="{{ path('app_department_show', {uuid: department.uuidString}) }}">{{ department.name }}</a> /
+            {{ isPerformance ? 'performance · widget library' : 'widget library' }}</div>
+
+        <div class="pghead">
+            <div>
+                <h1 class="pg">{{ isPerformance ? 'Department performance' : 'The department record' }} · widget library</h1>
+                <p class="pgsub">Choose the layout this surface shows, or compose your own. Every widget is
+                    the real thing at full size, exactly as the tab renders it.</p>
+            </div>
+            <div class="pgact w-pgact">
+                {# Throwing the layout away asks first, through the host's reusable confirm-modal
+                   controller — never the browser's own dialog. #}
+                <button type="button" class="tgl w-act" {{ constant('Uhifadhi\\Model\\WidgetDom::RESET') }}
+                        {{ stimulus_controller('confirm-modal') }}
+                        data-action="click->confirm-modal#ask"
+                        data-confirm-modal-title-value="Reset your widget layout?"
+                        data-confirm-modal-message-value="This surface goes back to the design it ships with — on every department, not only this one. Your own presets are kept."
+                        data-confirm-modal-confirm-label-value="Reset layout"
+                        data-confirm-modal-danger-value="true">{{ ux_icon('lucide:rotate-ccw') }}Reset to defaults</button>
+                <a class="cta" href="{{ path('app_department_show', {uuid: department.uuidString}) }}{{ isPerformance ? '#performance' : '' }}">{{ ux_icon('lucide:chevron-left') }}Back to {{ department.name }}</a>
+            </div>
+        </div>
+
+        <p class="pgsub w-libintro">Every widget below is the real thing at full size, filled with
+            <b>{{ department.name }}</b>'s own data. Your choices are saved per user and apply to
+            <b>every department you open</b> — the widgets are the shape of the record, not of one
+            department.</p>
+
+        {{ include('widgets/_library.html.twig', {
+            catalog: catalog,
+            builtins: builtins,
+            customPresets: customPresets,
+            active: active,
+            widgets: widgets,
+            partial: partial,
+            widgetContext: {
+                department: department,
+                canManage: canManage,
+                positions: positions,
+                members: members,
+                modules: modules,
+                departmentsByModule: departmentsByModule,
+                footprint: footprint,
+                lensPersona: lensPersona,
+                lensOrder: lensOrder,
+                kpis: kpis,
+                kpisByArea: kpisByArea,
+                goals: goals,
+                now: now,
+            },
+            urls: urls,
+            csrfToken: csrfToken,
+        }, with_context: false) }}
+    </div>
+{% endblock %}

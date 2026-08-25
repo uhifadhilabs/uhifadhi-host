@@ -1,0 +1,146 @@
+{# Performance board widget 'drill' — ONE department in full, without leaving the board.
+   Design: departments/performance.html → DP·04 "Drill-in".
+
+   ONE department, not a stack of them: the selection is `?selected={uuid}` and the rows above are
+   links into it, so it is server-rendered, bookmarkable and works with no script. When nothing was
+   asked for, the panel picks the first department with something to show and says it is a
+   selection rather than pretending it was chosen.
+
+   THE BOARD NEVER DRILLS INTO A FENCE. Selecting a department narrows what is SHOWN, not what is
+   permitted: a department is a lens, never a gate, and every person who can open this board can
+   open every department on it. The panel is therefore plain markup with no access check of its
+   own — there would be nothing for one to do.
+
+   THE EMPTY STATE IS THE POINT and is designed, not blank: it names WHICH emptiness it is looking
+   at, because "attached but computing nothing" and "nothing attached" are different facts. #}
+<div class="c" id="drill" data-w="drill">
+    <span class="tab"><span class="idx">DP·04</span>Drill-in<span class="src" data-drill-src>{{ selected ? '· ' ~ selected.department.name : '· nothing to drill into' }}</span></span>
+
+    <div data-drill aria-live="polite">
+        {% if selected %}
+            {% set scored = goalsByDepartment[selected.department.id]|default([]) %}
+            {% set reported = (kpisByDepartment[selected.department.id]|default([]))|map(k => k.moduleSlug) %}
+
+            <div class="drillhead">
+                <div class="dept on">
+                    <span class="mk">{{ selected.code }}</span>
+                    <div>
+                        <b>{{ selected.department.name }}</b>
+                        <span>selected from the board above</span>
+                    </div>
+                </div>
+                <span class="chiprow drillchips">
+                    {% for module in selected.department.modules %}
+                        {% set claimants = (departmentsByModule[module.id]|default([]))|length %}
+                        <span class="dchip{{ claimants > 1 ? ' shared' : '' }}{{ module.slug in reported ? '' : ' soon' }}">{{ module.name }}{% if claimants > 1 %}<i>·shared</i>{% endif %}{{ module.slug in reported ? '' : ' · coming' }}</span>
+                    {% else %}
+                        <span class="dchip ghost">no module attached</span>
+                    {% endfor %}
+                </span>
+            </div>
+
+            {% if selected.reporting %}
+                <div class="sm">
+                    {% for cell in selected.cells %}
+                        <div class="smt">
+                            <span class="k">{{ columns[loop.index0].label }}</span>
+                            {% if cell.kpi and cell.kpi.isKnown %}
+                                <b>{{ cell.kpi.display }}{% if cell.kpi.unit %}<em>{{ cell.kpi.unit }}</em>{% endif %}</b>
+                                <div class="b2">
+                                    {% if cell.kpi.deltaLabel %}
+                                        <span class="delta {{ cell.kpi.direction ?: 'flat' }}">
+                                            {{ ux_icon(cell.kpi.direction == 'bad' ? 'lucide:arrow-down-right' : 'lucide:arrow-up-right') }}{{ cell.kpi.deltaLabel }}
+                                        </span>
+                                    {% else %}
+                                        <span class="delta flat">no earlier reading</span>
+                                    {% endif %}
+                                    {% set points = cell.kpi.sparkPoints(70, 18) %}
+                                    {% if points %}
+                                        <svg class="spark" viewBox="0 0 70 18" preserveAspectRatio="none" aria-hidden="true"><polyline points="{{ points }}" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>
+                                    {% endif %}
+                                </div>
+                            {% else %}
+                                <b class="d">—</b>
+                                <div class="b2"><span class="mono d">{{ selected.moduleCount ? 'no KPI yet' : 'no module' }}</span></div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="blankstate">
+                    <b>{{ selected.department.name }} has no KPI to show for this period.</b>
+                    {% if selected.moduleCount %}
+                        Its {{ selected.moduleCount }} attached module{{ selected.moduleCount == 1 ? '' : 's' }}
+                        record work, but none of them computes a KPI yet. The moment one does, this row fills
+                        itself — nothing here needs configuring.
+                    {% else %}
+                        No module is attached to it at all. Attach one on the department's own page and it
+                        joins the board.
+                    {% endif %}
+                    <span class="d">An empty row is not a zero, and a department with no module is not a
+                        department doing nothing.</span>
+                </div>
+            {% endif %}
+
+            <span class="lbl drilllbl">Goals this department declared</span>
+            {% if scored|length %}
+                <div class="goalgrid">
+                    {% for entry in scored %}
+                        {% set state = entry.state == 'met' ? 'ontrack' : entry.state %}
+                        <div class="goal {{ state }}" data-goal-state="{{ entry.state }}">
+                            <div class="gt">{{ entry.goal.statement }}</div>
+                            <div class="gnum">
+                                <b>{% if entry.kpi and entry.kpi.isKnown %}{{ entry.kpi.display }}{{ entry.kpi.unit == '%' ? '%' : (entry.kpi.unit ? ' ' ~ entry.kpi.unit : '') }}{% else %}—{% endif %}</b>
+                                <em>against {{ entry.goal.targetLabel }}</em>
+                            </div>
+                            {# Geometry, not styling: a bar's fill and its target mark are the data.
+                               A goal nothing measures gets NO bar — a 0% bar would accuse a
+                               department of failing at something nobody asked a module to compute. #}
+                            {% if entry.attainment is not null %}
+                                <div class="gbar {{ state }}">
+                                    <i style="width: {{ (entry.attainment * 100)|round }}%"></i>
+                                    <u style="left: 100%"></u>
+                                </div>
+                            {% else %}
+                                <div class="gbar empty" aria-hidden="true"></div>
+                            {% endif %}
+                            <div class="gfoot">
+                                <span class="owner">{{ ux_icon('lucide:user') }}
+                                    {{ entry.goal.owningPosition ? entry.goal.owningPosition.name : 'unowned' }}</span>
+                                <span class="chip {{ entry.state == 'met' ? 'ok' : (entry.state == 'atrisk' ? 'warn' : (entry.state == 'offtrack' ? 'fail' : 'idle')) }}">{{ entry.label }}</span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="use drill-nogoals">None declared for this period.</p>
+            {% endif %}
+
+            <div class="drillfoot">
+                <span class="lbl">Where it runs</span>
+                <span>{% if selected.areas|length %}{{ selected.areas|join(' · ') }}
+                    {%- elseif selected.moduleCount %}nowhere yet — no area has its modules switched on
+                    {%- else %}nowhere yet — no module, so no area{% endif %}</span>
+                <span class="drillmeta">{{ selected.positions }} position{{ selected.positions == 1 ? '' : 's' }}
+                    · {{ selected.members }} {{ selected.members == 1 ? 'person' : 'people' }}</span>
+                <a class="open-btn" href="{{ path('app_department_show', {uuid: selected.department.uuidString}) }}">Open the department {{ ux_icon('lucide:chevron-right') }}</a>
+            </div>
+        {% else %}
+            <div class="blankstate">
+                <b>No department exists yet, so there is nothing to drill into.</b>
+                This panel reads ONE department in full — its figures, the goals it declared and where its
+                modules run. Create a department and it appears on the board immediately, empty, and this
+                panel will say exactly what it is missing.
+                <span class="d">An empty board is not a broken one: it is an org that has not described
+                    itself yet.</span>
+            </div>
+        {% endif %}
+    </div>
+
+    <p class="use">A goal is the department's own declaration, not a number the platform invents
+        (<span class="mono">department_goal</span>: statement, target, the KPI it reads, the owning
+        <b>position</b>, the period).</p>
+    <p class="use"><b>The board never drills into a fence.</b> Selecting a department narrows what is
+        <em>shown</em>, not what is permitted — a department is a lens, never a gate, and every person who
+        can open this board can open every department on it.</p>
+</div>

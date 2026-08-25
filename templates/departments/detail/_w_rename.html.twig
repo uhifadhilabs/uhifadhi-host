@@ -1,0 +1,20 @@
+{# Department detail widget 'rename' — one field, so it is one field.
+   Design: overview.widgets.js → "rename" (DP·03). Posts to the department surface's existing
+   rename route, with the org chart's shared management token. #}
+<div class="c" data-w="rename">
+    <span class="tab"><span class="idx">DP·03</span>Identity</span>
+    {% if canManage %}
+        <form method="post" action="{{ path('app_department_rename', {uuid: department.uuidString}) }}" class="dp-renameform">
+            <input type="hidden" name="_token" value="{{ csrf_token('department_manage') }}">
+            <span class="lbl">Name</span>
+            <input class="fldsm" name="name" value="{{ department.name }}" aria-label="Department name" required>
+            <button class="softbtn" type="submit">{{ ux_icon('lucide:check') }}Save name</button>
+        </form>
+    {% else %}
+        <span class="lbl">Name</span>
+        <p class="dp-readonly">{{ department.name }}</p>
+    {% endif %}
+    <p class="use">The uuid in the URL never changes — existing links keep working.</p>
+    <div class="rln"><span>Scope</span><span class="mono">organisation</span></div>
+    <div class="rln"><span>Effect on data</span><span class="mono acc">none — emphasis only</span></div>
+</div>

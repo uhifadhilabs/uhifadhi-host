@@ -50,17 +50,24 @@ final class DepartmentsWidgets
             self::SURFACE,
             $groups,
             // Declaration order is the dashboard's default order: the numbers first, then the
-            // objects they count, then the people in them.
+            // objects they count, then the people in them. Each `note` is the ONE line the
+            // add-widget picker prints under the widget's own rendered preview.
             [
-                new Widget('kpis', 'Department KPIs', 'a', 12, [12, 6]),
-                new Widget('cards', 'Department cards', 'a', 12, [12]),
-                new Widget('registry', 'Team registry', 'b', 12, [12, 6]),
-                new Widget('matrix', 'Departments × modules', 'c', 12, [12], on: false),
-                new Widget('lanes', 'Org chart lanes', 'd', 12, [12], on: false),
-                new Widget('lens', 'Lens preview', 'e', 12, [12], on: false),
-                new Widget('shared', 'Shared modules', 'a', 12, [12, 6], on: false),
+                new Widget('kpis', 'Department KPIs', 'a', 12, [12, 6], note: 'Four counts: departments, people placed, positions, modules attached.'),
+                new Widget('cards', 'Department cards', 'a', 12, [12], note: 'One plate per department — its modules, its positions and who holds them.'),
+                new Widget('registry', 'Team registry', 'b', 12, [12, 6], note: 'Every person as a row: name, tier, position, department.'),
+                new Widget('matrix', 'Departments × modules', 'c', 12, [12], on: false, note: 'Departments down, modules across — every attachment as one dot.'),
+                new Widget('lanes', 'Org chart lanes', 'd', 12, [12], on: false, note: 'The org chart as lanes, with each department’s staffing at a glance.'),
+                new Widget('lens', 'Lens preview', 'e', 12, [12], on: false, note: 'The same area, twice, as two departments meet it.'),
+                new Widget('shared', 'Shared modules', 'a', 12, [12, 6], on: false, note: 'The modules two or more departments claim, and who claims them.'),
             ],
             $presets,
+            // The composition this surface SHIPS WITH is not one of the five directions — it takes
+            // the numbers and the plates from A and the registry from B. In the active-preset model
+            // there is no layout that is not a preset, so it leads the strip as a built-in in its
+            // own right, named here rather than left as a generic "Default layout".
+            defaultLabel: 'The departments board',
+            defaultDescription: 'What the surface ships with: the counts, the department plates, then the people in them.',
         );
     }
 

@@ -165,22 +165,27 @@ final class WidgetPreferenceTest extends KernelTestCase
     {
         $catalog = self::catalog();
 
-        // No row yet: the catalogue's own layout.
+        // No row yet: the surface's default design, which IS the catalogue's own
+        // composition — in this model there is no layout that is not a preset.
         self::assertSame(
             ['tree', 'vacancies'],
             array_column($this->widgets()->resolve($catalog, 7), 'id'),
         );
 
+        // Editing means editing a preset of your own, so composing one is the
+        // step that makes a canvas editable at all.
+        $this->onOwnPreset($catalog, 7, null, ['vacancies' => 6]);
         $this->widgets()->save($catalog, 7, [
-            'order' => ['vacancies', 'tree'],
-            'widgets' => ['tree' => ['on' => false, 'cols' => 6]],
+            'order' => ['vacancies'],
+            'widgets' => ['vacancies' => ['on' => true, 'cols' => 6], 'tree' => ['on' => false, 'cols' => 6]],
         ]);
         $this->entityManager->clear();
 
         $resolved = $this->widgets()->resolve($catalog, 7);
-        self::assertSame(['vacancies', 'tree'], array_column($resolved, 'id'));
+        self::assertSame(['vacancies', 'tree'], array_column($resolved, 'id'), 'the composition first, then what it leaves off');
+        self::assertTrue($resolved[0]['on']);
         self::assertFalse($resolved[1]['on']);
-        self::assertSame(6, $resolved[1]['cols']);
+        self::assertSame(6, $resolved[0]['cols']);
         // Another person's dashboard is untouched by it.
         self::assertSame(['tree', 'vacancies'], array_column($this->widgets()->resolve($catalog, 8), 'id'));
 
@@ -193,6 +198,7 @@ final class WidgetPreferenceTest extends KernelTestCase
     {
         $catalog = self::catalog();
 
+        $this->onOwnPreset($catalog, 7, null, ['vacancies' => 12, 'tree' => 12]);
         $this->widgets()->save($catalog, 7, ['order' => ['vacancies', 'tree'], 'widgets' => []]);
         $this->widgets()->save($catalog, 7, ['order' => ['tree', 'vacancies'], 'widgets' => []]);
 
@@ -205,7 +211,7 @@ final class WidgetPreferenceTest extends KernelTestCase
         $catalog = self::catalog();
         $area = Uuid::v7();
 
-        $this->widgets()->save($catalog, 7, ['order' => ['vacancies', 'tree'], 'widgets' => []], $area);
+        $this->onOwnPreset($catalog, 7, $area, ['vacancies' => 12, 'tree' => 12]);
 
         self::assertSame(['vacancies', 'tree'], array_column($this->widgets()->resolve($catalog, 7, $area), 'id'));
         // The org-wide layout of the same surface never learned of it.
@@ -215,8 +221,30 @@ final class WidgetPreferenceTest extends KernelTestCase
     public function testAnAnonymousRequestAlwaysGetsTheCatalogueDefaults(): void
     {
         $catalog = self::catalog();
-        $this->widgets()->save($catalog, 7, ['order' => ['vacancies', 'tree'], 'widgets' => []]);
+        $this->onOwnPreset($catalog, 7, null, ['vacancies' => 12, 'tree' => 12]);
 
         self::assertSame(['tree', 'vacancies'], array_column($this->widgets()->resolve($catalog, null), 'id'));
+    }
+
+    /**
+     * Put this person on a preset of their OWN, composed from the given layout.
+     *
+     * The model has no anonymous layout and built-ins are immutable, so this is
+     * the step every edit begins with: there is nothing editable to save into
+     * until one of your own presets is active.
+     *
+     * @param array<string, int> $layout widget id => span, in order
+     */
+    private function onOwnPreset(WidgetCatalog $catalog, int $userId, ?Uuid $areaUuid, array $layout): void
+    {
+        $widgets = [];
+        foreach ($layout as $id => $cols) {
+            $widgets[$id] = ['on' => true, 'cols' => $cols];
+        }
+
+        $this->widgets()->saveCustomPreset($catalog, $userId, $areaUuid, 'Mine', [
+            'order' => array_keys($layout),
+            'widgets' => $widgets,
+        ]);
     }
 }

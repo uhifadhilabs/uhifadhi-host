@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Uhifadhi\Tests\Functional;
 
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Cache\CacheItemPoolInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -36,6 +37,33 @@ final class ApiAuthTokenTest extends WebTestCase
     use Factories;
 
     private const string PASSCODE = 'correct horse battery';
+
+    /**
+     * EVERY TEST STARTS WITH A FULL RATE-LIMIT BUDGET.
+     *
+     * The limiters (config/packages/rate_limiter.yaml) count into `cache.rate_limiter`, which
+     * inherits cache.app — the FILESYSTEM pool — so a fixed window OUTLIVES THE PROCESS that
+     * opened it. Two suite runs inside one minute then share one budget, and these tests fail on
+     * the second for reasons that have nothing to do with the code under test: every request here
+     * comes from 127.0.0.1, and the per-IP limiter allows 20 a minute.
+     *
+     * Clearing the pool is the whole fix, and it is deliberately done HERE rather than by giving
+     * the limiter a per-process store: the filesystem pool is what production uses, and the
+     * throttling test below needs the count to survive the kernel reboot BETWEEN its six
+     * requests. An in-memory adapter would be wiped by each reboot, so the sixth attempt would
+     * never be throttled and the assertion would pass while proving nothing. The limits, the
+     * policy and the window stay exactly as configured; only the leftovers go.
+     */
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        self::bootKernel();
+        $pool = static::getContainer()->get('cache.rate_limiter');
+        \assert($pool instanceof CacheItemPoolInterface);
+        $pool->clear();
+        self::ensureKernelShutdown();
+    }
 
     public function testGoodCredentialsMintATokenInTheContractsShape(): void
     {

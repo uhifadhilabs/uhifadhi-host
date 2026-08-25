@@ -1,0 +1,43 @@
+{# One card per zone, each with its own shape — the "Card gallery" direction. The clipped mini-map is
+   the zone's geometry drawn ALONE against its siblings, which is what makes a shape memorable.
+
+   The mini is a plain inline SVG, not twelve Leaflet instances: it draws the same projected
+   coordinates the map does (ZonesController projects them once into the AOI's own bounding box), so
+   a card and the map agree on shape without twelve tile budgets. Imagery belongs to the real map.
+
+   → ZoneRepository::zonesFor($area); each card opens GET /areas/{uuid}/zones/{zoneUuid}. #}
+<div data-w="gallery">
+    <div class="zgrid">
+        {% for row in zones %}
+            <div class="c zcard" data-zone-uuid="{{ row.uuid }}">
+                <span class="tab"><span class="idx">{{ row.plate }}</span>{{ row.name }}<span class="src">· {{ row.vertices }} vertices</span></span>
+                <div class="mini">
+                    <span class="mtag">{{ row.sharePct|number_format(1) }}%&nbsp;of&nbsp;AOI</span>
+                    <svg viewBox="{{ viewBox }}" style="width:100%;height:230px;display:block" role="img" aria-label="{{ row.name }} zone">
+                        {# The siblings, dimmed: a shape is only memorable against what it is not. #}
+                        {% for other in zones|filter(z => z.uuid != row.uuid) %}
+                            <path d="{{ other.path }}" fill="rgba(10,15,12,.34)" stroke="rgba(199,214,203,.22)" stroke-width="1.2" stroke-linejoin="round"/>
+                        {% endfor %}
+                        <path d="{{ row.path }}" fill="{{ row.color }}" fill-opacity=".55" stroke="{{ row.color }}" stroke-width="4" stroke-linejoin="round"/>
+                        <path d="{{ aoiPath }}" fill="none" stroke="{{ aoiColor }}" stroke-width="2.4" stroke-linejoin="round" opacity=".9"/>
+                    </svg>
+                </div>
+                <div class="kv">
+                    <div><b>{{ row.areaKm2|number_format(0) }}<em>km²</em></b><span>area</span></div>
+                    <div><b>{{ row.sharePct|number_format(1) }}<em>%</em></b><span>of the AOI</span></div>
+                </div>
+                <div class="acts">
+                    <a class="btn" href="{{ path('app_area_zone', {uuid: area.uuid, zoneUuid: row.uuid}) }}">{{ ux_icon('lucide:chevron-right') }}Open</a>
+                </div>
+            </div>
+        {% endfor %}
+
+        {# The flow that comes later, rendered and inert — the card shape of the same "soon"
+           affordance the page header carries. NO route exists for it. #}
+        <span class="c zcard newcard off" title="Draw a zone — coming soon">
+            {{ ux_icon('lucide:pencil-ruler') }}
+            <span class="hd">Draw a zone</span>
+            <span class="sb2">Coming soon. Until then a zoning scheme arrives as a GeoJSON file, whole.</span>
+        </span>
+    </div>
+</div>

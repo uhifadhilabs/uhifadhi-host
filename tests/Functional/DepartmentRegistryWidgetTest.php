@@ -201,6 +201,8 @@ final class DepartmentRegistryWidgetTest extends KernelTestCase
                 'app_department_create' => '/departments',
                 'app_department_rename' => '/departments/'.$uuid.'/rename',
                 'app_department_delete' => '/departments/'.$uuid.'/delete',
+                // The register LISTS departments, so every row is a way into the record it names.
+                'app_department_show' => '/departments/'.$uuid,
                 default => self::fail(\sprintf('The registry widget must only use the pinned department routes, got "%s".', $name)),
             };
         }));

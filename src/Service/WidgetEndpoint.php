@@ -112,9 +112,14 @@ final readonly class WidgetEndpoint
     }
 
     /**
-     * Save the dashboard as it stands under a name of the person's own. The name
-     * is a form field, because the affordance is a name box and a button and must
-     * work with no JavaScript at all.
+     * Keep a layout under a name of the person's own, and put it on.
+     *
+     * TWO SHAPES, one route. A plain form post carries only `name` and means "the
+     * dashboard as it stands" — the affordance is a name box and a button and
+     * must work with no JavaScript at all. A JSON body carries `name` AND the
+     * composed `order`/`widgets`, which is what the library's "+ New preset"
+     * canvas posts: it was never on anyone's dashboard, so there is nothing for
+     * the server to read it from.
      *
      * 204, 422 for an unusable name or an empty dashboard, 403 for a bad token.
      */
@@ -124,12 +129,68 @@ final readonly class WidgetEndpoint
         $this->denyUnlessCsrfValid($request, $catalog, $areaUuid);
 
         try {
-            $this->widgets->saveCustomPreset($catalog, $userId, $areaUuid, $request->request->getString('name'));
+            $body = self::jsonBody($request);
+            $name = null !== $body
+                ? (\is_string($body['name'] ?? null) ? $body['name'] : '')
+                : $request->request->getString('name');
+            $layout = null !== $body && (isset($body['order']) || isset($body['widgets']))
+                ? ['order' => $body['order'] ?? [], 'widgets' => $body['widgets'] ?? []]
+                : null;
+
+            $this->widgets->saveCustomPreset($catalog, $userId, $areaUuid, $name, $layout);
+        } catch (InvalidWidgetPreferenceException|JsonException $invalid) {
+            return new Response($invalid->getMessage(), Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        return new Response(status: Response::HTTP_NO_CONTENT);
+    }
+
+    /**
+     * MAKE A COPY TO CUSTOMIZE. The designs the surface ships are immutable, so
+     * this is the only door from one into an editable layout: the copy is the
+     * person's own preset and it becomes active at once.
+     *
+     * The design's id is in the URL for the same reason {@see applyPreset()}
+     * takes it there — a preset IS the layout, so this write has no layout to
+     * carry. An optional `name` field renames the copy on the way; without one it
+     * takes the design's name and says it is a copy.
+     *
+     * 204, 422 for a design this surface does not name or a name it will not
+     * store, 403 for a bad token.
+     */
+    public function copyPreset(Request $request, WidgetCatalog $catalog, string $presetId, ?Uuid $areaUuid = null): Response
+    {
+        $userId = $this->userId();
+        $this->denyUnlessCsrfValid($request, $catalog, $areaUuid);
+
+        try {
+            $this->widgets->copyBuiltinPreset($catalog, $userId, $areaUuid, $presetId, $request->request->getString('name'));
         } catch (InvalidWidgetPreferenceException $invalid) {
             return new Response($invalid->getMessage(), Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         return new Response(status: Response::HTTP_NO_CONTENT);
+    }
+
+    /**
+     * The request's JSON body, or null where it is not a JSON request at all —
+     * so one route serves both the plain form and the library's fetch() without
+     * either having to declare which it is.
+     *
+     * @return array<string, mixed>|null
+     *
+     * @throws JsonException on a body that claims to be JSON and is not
+     */
+    private static function jsonBody(Request $request): ?array
+    {
+        if (!str_contains((string) $request->headers->get('Content-Type'), 'json')) {
+            return null;
+        }
+
+        /** @var array<string, mixed> $body */
+        $body = $request->toArray();
+
+        return $body;
     }
 
     /**

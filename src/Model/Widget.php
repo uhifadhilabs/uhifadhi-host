@@ -35,11 +35,16 @@ final readonly class Widget
     public array $spans;
 
     /**
-     * @param string    $id    stable across releases: it is what a stored preference names
-     * @param string    $group id of a {@see WidgetGroup} the same catalogue declares
-     * @param int       $cols  the span the surface's design gives it
-     * @param list<int> $spans the spans a person may choose, widest first
-     * @param bool      $on    whether a person who never opened the library sees it
+     * @param string      $id    stable across releases: it is what a stored preference names
+     * @param string      $group id of a {@see WidgetGroup} the same catalogue declares
+     * @param int         $cols  the span the surface's design gives it
+     * @param list<int>   $spans the spans a person may choose, widest first
+     * @param bool        $on    whether a person who never opened the library sees it
+     * @param string|null $note  ONE line for the add-widget picker: what this widget shows. Added
+     *                           after the fact and last, with a default, so every existing
+     *                           `new Widget(...)` call keeps compiling untouched. A widget without
+     *                           one simply shows no line — the picker renders the widget itself,
+     *                           which is the answer the line only summarises.
      */
     public function __construct(
         public string $id,
@@ -48,6 +53,7 @@ final readonly class Widget
         public int $cols = 12,
         array $spans = self::GRID_SPANS,
         public bool $on = true,
+        public ?string $note = null,
     ) {
         if ('' === $id || '' === $label || '' === $group) {
             throw new \InvalidArgumentException('A widget needs an id, a label and a group.');

@@ -47,24 +47,66 @@ final class WidgetDom
     public const string SAVE_URL = 'data-widget-save-url';
     public const string RESET_URL = 'data-widget-reset-url';
 
+    /**
+     * THE PRESET ROUTES, as URL TEMPLATES. The library is one client-side
+     * component over a catalogue, so it builds a preset's URL rather than reading
+     * one rendered per card: the strips, the toolbar and the picker are all drawn
+     * by the script from {@see CATALOG}, and a card that only exists after a
+     * click has no server-rendered href to read.
+     *
+     * A template carries {@see ID_PLACEHOLDER} where the preset's id or uuid
+     * goes — a literal the routing requirements accept, so `path()` renders a
+     * real URL and the script substitutes into it.
+     */
+    public const string PRESET_URL = 'data-widget-preset-url';
+    public const string PRESET_COPY_URL = 'data-widget-preset-copy-url';
+    public const string PRESETS_URL = 'data-widget-presets-url';
+    public const string PRESET_APPLY_URL = 'data-widget-preset-apply-url';
+    public const string PRESET_RENAME_URL = 'data-widget-preset-rename-url';
+    public const string PRESET_DELETE_URL = 'data-widget-preset-delete-url';
+
+    /**
+     * What the templates above carry where an id goes. A UUID-shaped literal, so
+     * one placeholder satisfies both a `[a-z0-9_-]+` preset id and a
+     * Requirement::UUID preset uuid and a route never has to relax its
+     * requirement to be linkable.
+     */
+    public const string ID_PLACEHOLDER = '00000000-0000-4000-8000-000000000000';
+
+    /**
+     * THE CATALOGUE, as JSON, on its own <script type="application/json">
+     * element: the widgets, the groups, every built-in and custom preset's
+     * layout, and which one is active. The library previews a preset by
+     * RE-COMPOSING the canvas client-side, so it needs every layout up front —
+     * a preview that costs a round trip is a preview nobody clicks twice.
+     */
+    public const string CATALOG = 'data-widget-catalog';
+
+    /**
+     * A <template> holding ONE widget, rendered by its own Twig partial exactly
+     * as the dashboard renders it. The canvas and the picker's stages clone these
+     * rather than re-rendering: the picture of a widget is the widget, so it can
+     * never fall out of step with what gets added.
+     */
+    public const string TEMPLATE = 'data-widget-template';
+
     /** Where a refused save says so; rendered empty and hidden by the template. */
     public const string NOTICE = 'data-widget-notice';
 
     /** The "reset to defaults" trigger, which asks through the host's confirm-modal controller. */
     public const string RESET = 'data-widget-reset';
 
-    /** On a card: the widget's id, its on/off state and its current span. */
+    /** On a card: the widget's id, that it is on, and its current span. */
     public const string WIDGET = 'data-widget-id';
     public const string ON = 'data-widget-on';
     public const string COLS = 'data-widget-cols';
 
-    /** Inside a card: the drag handle, the toggle (and its words), the width chips, the state chip. */
+    /** Inside a card: the drag handle, the remove control (and its words), and the width chips. */
     public const string GRIP = 'data-widget-grip';
     public const string TOGGLE = 'data-widget-toggle';
     public const string TOGGLE_LABEL = 'data-widget-toggle-label';
     public const string SPAN = 'data-widget-span';
     public const string CHOSEN = 'data-widget-chosen';
-    public const string STATE = 'data-widget-state';
 
     /** The card's preview of the real widget — the hook that dims a switched-off one. */
     public const string PREVIEW = 'data-widget-preview';
@@ -82,6 +124,14 @@ final class WidgetDom
             self::CSRF_TOKEN,
             self::SAVE_URL,
             self::RESET_URL,
+            self::PRESET_URL,
+            self::PRESET_COPY_URL,
+            self::PRESETS_URL,
+            self::PRESET_APPLY_URL,
+            self::PRESET_RENAME_URL,
+            self::PRESET_DELETE_URL,
+            self::CATALOG,
+            self::TEMPLATE,
             self::NOTICE,
             self::RESET,
             self::WIDGET,
@@ -92,7 +142,6 @@ final class WidgetDom
             self::TOGGLE_LABEL,
             self::SPAN,
             self::CHOSEN,
-            self::STATE,
             self::PREVIEW,
         ];
     }

@@ -1,0 +1,24 @@
+{# The map's companion list — the same rows as the picker, sized to sit beside a wide map at a
+   quarter of the row. Two facts per row is all the width allows, which is exactly the trade-off the
+   "Map hero" direction was drawn with.
+
+   → ZoneRepository::zonesFor($area). The design's second line (patrols · incidents, 90d) belongs to
+     the modules that count them; the host holds no such counts, so the row carries the two facts it
+     can answer rather than two it would have to invent. #}
+<div class="c" data-w="rail">
+    <span class="tab"><span class="idx">PL·48</span>Zone list<span class="src">· {{ zones|length }} · alphabetical</span></span>
+    <div class="railscroll">
+        {% for row in zones %}
+            <a class="zrow{{ selected and selected.uuid == row.uuid ? ' sel' }}"
+               href="{{ path('app_area_zone', {uuid: area.uuid, zoneUuid: row.uuid}) }}"
+               data-zone-uuid="{{ row.uuid }}">
+                <span class="sw" style="background:{{ row.color }}"></span>
+                <span class="zb">
+                    <span class="znm" data-zone-name>{{ row.name }}<span class="zn">{{ row.plate }}</span></span>
+                    <span class="zsub"><b>{{ row.areaKm2|number_format(0) }}</b> km² · <b>{{ row.sharePct|number_format(1) }}%</b> of the AOI<span class="l2"><b>{{ row.vertices }}</b> vertices</span></span>
+                </span>
+                <span class="go">{{ ux_icon('lucide:chevron-right') }}</span>
+            </a>
+        {% endfor %}
+    </div>
+</div>

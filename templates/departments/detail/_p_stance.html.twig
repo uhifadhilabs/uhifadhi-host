@@ -1,0 +1,35 @@
+{# Department performance widget 'stance' — who this is, the period, and how its goals stand.
+   Design: performance.widgets.js → "stance". The four counts are the four goal states, so the
+   strip cannot say "2 met" unless two goals really score as met (Uhifadhi\Entity\DepartmentGoal
+   ::state). "Awaiting module" is a first-class count, not an error: it is the honest name for a
+   commitment nothing installed can measure yet. #}
+{# `goals` arrives already scored against the module figures — see
+   DepartmentDetailController::score(). Counting states here is a tally, never a lookup. #}
+{% set states = {met: 0, atrisk: 0, offtrack: 0, awaiting: 0} %}
+{% for scored in goals %}
+    {% set states = states|merge({(scored.state): states[scored.state] + 1}) %}
+{% endfor %}
+<div class="exechead" data-w="stance">
+    <span class="mark">{{ department.name|split(' ')|map(w => w|first)|join|slice(0, 2)|upper }}</span>
+    <div class="exechead-main">
+        <h2>{{ department.name }}</h2>
+        <div class="chiprow">
+            {% for module in department.modules %}
+                {% set claimants = (departmentsByModule[module.id]|default([]))|length %}
+                <span class="dchip {{ claimants > 1 ? 'shared' : '' }}">{{ module.name }}{% if claimants > 1 %}<i>· shared</i>{% endif %}</span>
+            {% else %}
+                <span class="dchip ghost">no module attached</span>
+            {% endfor %}
+            {% for areaName in footprint|keys %}<span class="dchip">{{ areaName }}</span>{% endfor %}
+        </div>
+        <div class="exechead-period">
+            <span class="mono fog">{{ now|date('F Y') }} · compared with {{ now|date_modify('-1 month')|date('F Y') }}</span>
+        </div>
+    </div>
+    <div class="stance">
+        <div><b class="acc">{{ states.met }}</b><span>Goals met</span></div>
+        <div><b class="w">{{ states.atrisk }}</b><span>At risk</span></div>
+        <div><b class="r">{{ states.offtrack }}</b><span>Off track</span></div>
+        <div><b class="d">{{ states.awaiting }}</b><span>Awaiting module</span></div>
+    </div>
+</div>

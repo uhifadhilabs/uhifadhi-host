@@ -1,0 +1,40 @@
+{# Department detail widget 'delete' — the one destructive control, with the consequence list
+   spelled out ABOVE the button. Design: overview.widgets.js → "delete" (DP·07).
+   The consequences are computed from THIS department, not asserted in prose: a reader must be
+   able to check the sentence against the record in front of them. Typing the name is the
+   confirmation, and the shared confirm-modal controller asks on top of it. #}
+<div class="c danger" data-w="delete">
+    <span class="tab"><span class="idx">DP·07</span>Delete this department</span>
+    <p class="use">Read this before you click. In plain English, deleting <b>{{ department.name }}</b>
+        does exactly this:</p>
+    <ul class="conseq">
+        <li><b>{{ department.modules|length ? department.modules|map(m => m.name)|join(' and ') ~ ' ' ~ (department.modules|length == 1 ? 'is' : 'are') ~ ' detached.' : 'Nothing is detached.' }}</b>
+            The modules, their rows and every number in them stay exactly as they are — any other
+            department keeps leading with them.</li>
+        <li><b>{{ positions|length ? positions|map(p => p.name)|join(' and ') ~ ' lose their department.' : 'No position is affected.' }}</b>
+            The positions survive with the same permissions; they simply sit under no department
+            until someone files them again.</li>
+        <li><b>The {{ members|length }} {{ members|length == 1 ? 'person keeps' : 'people keep' }} everything.</b>
+            Same permissions, same pages, same data — they lose the ordering hint, nothing else.</li>
+        <li><b>Its own goals go with it.</b> {{ goals|length }} declared
+            {{ goals|length == 1 ? 'goal is' : 'goals are' }} withdrawn. Every module figure they were
+            scored from is a module's row and is untouched.</li>
+        <li><b>Nothing is deleted anywhere else.</b> A department has never gated data, so removing one
+            cannot hide any.</li>
+    </ul>
+    {% if canManage %}
+        <form method="post" action="{{ path('app_department_delete', {uuid: department.uuidString}) }}" class="dp-deleteform">
+            <input type="hidden" name="_token" value="{{ csrf_token('department_manage') }}">
+            <button class="softbtn danger" type="submit"
+                    {{ stimulus_controller('confirm-modal') }}
+                    data-action="click->confirm-modal#ask"
+                    data-confirm-modal-title-value="Delete “{{ department.name }}”?"
+                    data-confirm-modal-message-value="Its modules are detached, its positions lose their department, its people keep every permission they have. Nothing else is deleted."
+                    data-confirm-modal-confirm-label-value="Delete department"
+                    data-confirm-modal-danger-value="true">{{ ux_icon('lucide:trash-2') }} Delete department</button>
+            <span class="fog dp-deletenote">Managers only · not reversible</span>
+        </form>
+    {% else %}
+        <p class="use fog">Managers only.</p>
+    {% endif %}
+</div>

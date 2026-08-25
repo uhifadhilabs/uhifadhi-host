@@ -1,0 +1,22 @@
+{# The split manager's list: one row per zone, name-ordered, one of them selected.
+
+   The whole row is the way in and says so twice — the cursor, and a visible "Open →". Its swatch is
+   the SAME colour the polygon wears on the map, because both read the one value the GeoJSON serves.
+
+   → ZoneRepository::zonesFor($area) (ORDER BY z.name); a row opens
+     GET /areas/{uuid}/zones/{zoneUuid}. #}
+<div class="c" data-w="picker">
+    <span class="tab"><span class="idx">PL·47</span>Zones<span class="src">· {{ zones|length }}{{ selected ? ' · 1 selected' }}</span></span>
+    <div class="listbox">
+        {% for row in zones %}
+            <a class="zrow tight{{ selected and selected.uuid == row.uuid ? ' sel' }}"
+               href="{{ path('app_area_zone', {uuid: area.uuid, zoneUuid: row.uuid}) }}"
+               data-zone-uuid="{{ row.uuid }}">
+                <span class="sw" style="background:{{ row.color }}"></span>
+                <span class="zb"><span class="znm" data-zone-name>{{ row.name }}<span class="zn">{{ row.plate }}</span></span></span>
+                <span class="zfacts"><b>{{ row.areaKm2|number_format(0) }}</b> km² · <b>{{ row.sharePct|number_format(1) }}%</b></span>
+                <span class="go">{{ ux_icon('lucide:chevron-right') }}</span>
+            </a>
+        {% endfor %}
+    </div>
+</div>

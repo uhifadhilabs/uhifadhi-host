@@ -1,0 +1,33 @@
+{# PRESENCE — "this area has no zones yet".
+
+   An org that has never imported a zoning scheme must not meet a half-drawn zone dashboard: it
+   meets ONE plate that says what a zone is and offers the one way to make some. Nothing else on
+   the surface renders, and no zone furniture appears anywhere else in the product — no zone
+   column, no zone filter, no zone map layer — until the first import lands.
+
+   Rendered by ZonesController when ZoneRepository::zonesFor($area) is empty. #}
+<div class="c zempty">
+    <span class="zeh">This area has no zones yet</span>
+    <p class="zeb">A zone is <b>a lens, not a fence</b>: it gives every module a second way to group what it
+        already shows — “patrols by zone”, “incidents by zone” — and never hides or blocks a record.
+        Import a GeoJSON FeatureCollection, one named polygon per zone, and the whole set lands at once.</p>
+    <p class="zeb">Until then {{ area.name }} simply has none: no zone column, no zone filter, no zone map layer
+        anywhere in the product.</p>
+
+    <div class="zea">
+        {{ include('zones/_draw_soon.html.twig') }}
+        {% if canManage %}
+            {# The same all-or-nothing import the panel offers, in the one place there is nothing
+               else to offer. A reader sees the copy and no form: importing is Manager-and-up. #}
+            <form method="post" action="{{ path('app_area_zones_import', {uuid: area.uuid}) }}"
+                  enctype="multipart/form-data" data-zone-import class="zea-form">
+                <input type="hidden" name="_token" value="{{ csrf_token('zone_manage') }}">
+                <input type="file" name="zones" accept=".geojson,.json,application/geo+json,application/json"
+                       class="fld" aria-label="Zones GeoJSON file" required>
+                <button class="cta" type="submit">{{ ux_icon('lucide:upload') }}Import GeoJSON</button>
+            </form>
+        {% endif %}
+    </div>
+
+    <p class="zeb"><span class="mono d" style="font-size:10.5px">or from a terminal: app:zone:import {{ area.uuid }} zones.geojson</span></p>
+</div>

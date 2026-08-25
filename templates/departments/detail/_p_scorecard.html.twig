@@ -1,0 +1,65 @@
+{# Department performance widget 'scorecard' — the module figures.
+   Design: performance.widgets.js → kpi-patrols / kpi-distance / kpi-coverage / kpi-observations.
+   Those four are ONE widget here, drawing a plate per KPI the attached modules actually reported
+   — see Uhifadhi\Model\DepartmentPerformanceWidgets for why a host catalogue must not name
+   another module's KPIs. On a department attaching Patrols this renders exactly the design's four
+   plates.
+
+   THE DASHED SLOTS. After the real plates come two kinds of honest emptiness, never a zero:
+     · an ATTACHED module that reported no figure at all, and
+     · a declared GOAL whose KPI nothing installed measures.
+   Each is labelled with what is missing, because "we did not measure this" and "this was zero"
+   are different facts and only one of them is true. #}
+{% set reported = kpis|map(k => k.key) %}
+{% set silentModules = department.modules|filter(m => kpis|filter(k => k.moduleSlug == m.slug)|length == 0) %}
+{% set unmeasurableGoals = goals|filter(g => g.kpi is null) %}
+<div class="grid g4 dp-scorecard w-flush" data-w="scorecard">
+    {% for kpi in kpis %}
+        <div class="c kpi" data-kpi="{{ kpi.key }}">
+            <span class="tab"><span class="idx">DP·{{ '%02d'|format(loop.index) }}</span>{{ kpi.label }}<span class="src">· {{ now|date('F') }}</span></span>
+            <div class="kpi-fig">
+                <b>{{ kpi.display }}{% if kpi.unit == '%' %}<em>%</em>{% elseif kpi.unit %}<em>{{ kpi.unit }}</em>{% endif %}</b>
+                <span class="sub">
+                    {% if kpi.deltaLabel %}
+                        <span class="delta {{ kpi.direction }}">{{ kpi.deltaLabel }}</span> against {{ now|date_modify('-1 month')|date('F') }}
+                    {% else %}
+                        <span class="fog">no previous period to compare</span>
+                    {% endif %}
+                </span>
+            </div>
+            {% set points = kpi.sparkPoints() %}
+            {% if points %}
+                <div class="sparkwrap">
+                    <svg class="spark" viewBox="0 0 120 30" preserveAspectRatio="none" aria-hidden="true">
+                        <polyline points="{{ points }}" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+                    </svg>
+                </div>
+            {% endif %}
+            <span class="mtd">{{ kpi.caption ?: kpi.moduleName ~ ' module' }}</span>
+        </div>
+    {% endfor %}
+
+    {% for module in silentModules %}
+        <div class="c kpi dp-slot" data-slot="module">
+            <span class="tab"><span class="idx">DP·—</span>{{ module.name }}<span class="src">· attached</span></span>
+            <div class="kpi-fig"><b class="d">—</b><span class="sub">this module reports no department figure yet</span></div>
+            <span class="mtd">not a zero — nothing here measures it</span>
+        </div>
+    {% endfor %}
+
+    {% for scored in unmeasurableGoals %}
+        <div class="c kpi dp-slot" data-slot="goal">
+            <span class="tab"><span class="idx">DP·—</span>{{ scored.goal.kpiRef }}<span class="src">· goal declared</span></span>
+            <div class="kpi-fig"><b class="d">—</b><span class="sub">no attached module measures this</span></div>
+            <span class="mtd">awaiting a module — the slot stays empty rather than being filled with a proxy</span>
+        </div>
+    {% endfor %}
+
+    {% if kpis is empty and silentModules is empty and unmeasurableGoals is empty %}
+        <div class="c kpi dp-slot" data-slot="none">
+            <span class="tab"><span class="idx">DP·—</span>No figures<span class="src">· no module attached</span></span>
+            <div class="kpi-fig"><b class="d">—</b><span class="sub">attach a module and this page grows plates</span></div>
+            <span class="mtd">a department computes nothing of its own</span>
+        </div>
+    {% endif %}
+</div>

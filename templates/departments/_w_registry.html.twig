@@ -31,7 +31,9 @@
                                 <button class="open-btn" type="submit">Rename</button>
                             </form>
                         {% else %}
-                            <b>{{ d.name }}</b>
+                            {# The register LISTS departments, so the name is the way into the
+                               record it names — the same affordance the cards and the matrix wear. #}
+                            <b><a class="dp-deptlink" href="{{ path('app_department_show', {uuid: d.uuidString}) }}">{{ d.name }}</a></b>
                         {% endif %}
                     </div>
                 </td>
@@ -51,8 +53,11 @@
                 <td class="num">{{ position_count }}</td>
                 <td class="num">{{ member_count }}</td>
                 <td class="num">
-                    {% if can_manage %}
-                        <div class="pos-actions">
+                    <div class="pos-actions">
+                        {# A manager's name cell is a rename box, so the way INTO the record is
+                           stated here instead — the register always offers one. #}
+                        <a class="open-btn dp-deptlink" href="{{ path('app_department_show', {uuid: d.uuidString}) }}">Open →</a>
+                        {% if can_manage %}
                             <form method="post" action="{{ path('app_department_delete', {uuid: d.uuidString}) }}">
                                 <input type="hidden" name="_token" value="{{ csrf_token('department_manage') }}">
                                 <button class="open-btn danger" type="submit"
@@ -63,8 +68,8 @@
                                         data-confirm-modal-confirm-label-value="Delete department"
                                         data-confirm-modal-danger-value="true">Delete</button>
                             </form>
-                        </div>
-                    {% endif %}
+                        {% endif %}
+                    </div>
                 </td>
             </tr>
         {% endfor %}

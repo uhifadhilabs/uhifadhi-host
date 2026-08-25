@@ -45,14 +45,64 @@ final class WidgetLibraryAssetsTest extends TestCase
             $js,
             'widgets.js must send the header WidgetDom declares.',
         );
-        // Declaring it is not sending it: both writes must actually attach it.
+        // Declaring it is not sending it: every write must actually attach it.
         self::assertStringContainsString('headers[CSRF_HEADER] = csrfToken();', $js);
-        // Two CALLS (the save and the reset), not counting the declaration.
+        // Two CALL SITES, not counting the declaration: the optimistic save, and
+        // commit(), which every other write (apply, copy, create, rename, delete,
+        // reset) goes through. A write that built its own fetch() would be a
+        // seventh way to forget the header — which is how a silent 403 shipped.
+        self::assertSame(
+            3,
+            substr_count($js, 'postHeaders('),
+            'Every write must go through postHeaders(): its declaration, the save, and commit() for the rest.',
+        );
+        self::assertSame(1, substr_count($js, 'function postHeaders('), 'one declaration, so the count above is two call sites');
         self::assertSame(
             2,
-            substr_count($js, 'postHeaders({'),
-            'Both the save and the reset POST must go through postHeaders().',
+            substr_count($js, 'fetch('),
+            'Only the optimistic save and commit() may talk to the server.',
         );
+    }
+
+    public function testTheScriptBuildsPresetUrlsFromTheTemplatesTheTemplateRenders(): void
+    {
+        $js = self::widgetsJs();
+
+        // The component draws cards that did not exist when the page was
+        // rendered, so it BUILDS their URLs from the route templates on the root
+        // rather than reading an href off a card. The placeholder it substitutes
+        // into is the one PHP puts there.
+        self::assertStringContainsString('presetUrl: \''.WidgetDom::PRESET_URL."',", $js);
+        self::assertStringContainsString('presetCopyUrl: \''.WidgetDom::PRESET_COPY_URL."',", $js);
+        self::assertStringContainsString('template.replace(def.placeholder', $js);
+    }
+
+    public function testTheScriptReadsTheCatalogueAndClonesTheRenderedWidgets(): void
+    {
+        $js = self::widgetsJs();
+
+        // Previewing a preset is a client-side RE-COMPOSITION over the catalogue
+        // the page embedded — a preview that costs a round trip is a preview
+        // nobody clicks twice.
+        self::assertStringContainsString("catalog: '".WidgetDom::CATALOG."',", $js);
+        self::assertStringContainsString('JSON.parse(catalogEl.textContent)', $js);
+        // And the picture of a widget is the widget: cloned from the <template>
+        // its own Twig partial rendered, never rebuilt in JavaScript.
+        self::assertStringContainsString("template: '".WidgetDom::TEMPLATE."',", $js);
+        self::assertStringContainsString('source.content.cloneNode(true)', $js);
+    }
+
+    public function testTheScriptNeverOffersAnEditWhileABuiltInIsActive(): void
+    {
+        $js = self::widgetsJs();
+
+        // BUILT-INS ARE IMMUTABLE, and the component enforces it by not drawing
+        // the chrome at all: `editable` is true only for one of the person's own
+        // presets, or a new one being composed.
+        self::assertStringContainsString("editable: 'new' === preview.kind,", $js);
+        self::assertStringContainsString("editable: 'mine' === def.active.kind,", $js);
+        // The one door out of a shipped design.
+        self::assertStringContainsString('data-preset-copy', $js);
     }
 
     public function testTheScriptReadsTheTokenFromTheRootTheTemplateRenders(): void

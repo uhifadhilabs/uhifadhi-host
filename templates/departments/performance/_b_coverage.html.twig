@@ -1,0 +1,48 @@
+{# Performance board widget 'coverage' — who leads with what, and which of those is live.
+   Design: departments/performance.html → DP·03 "Module coverage".
+
+   A module in two rows is SHARED, and the chip says HOW MANY departments read it — both read the
+   same rows, only the lens differs. A module that is attached but computes nothing yet is marked
+   as coming, not as absent: that is the same distinction the board's cells make, and this table is
+   where a person finds out which modules are which. #}
+<div class="c" data-w="coverage">
+    <span class="tab"><span class="idx">DP·03</span>Module coverage<span class="src">· who leads with what</span></span>
+    <p class="use">Which department leads with which module, and which of those modules computes a KPI
+        today. A module in two rows is <b>shared</b> — both departments read the same rows; only the lens
+        differs.</p>
+    <div class="hscroll">
+        <table class="tbl perf-cover">
+            <thead><tr><th>Department</th><th>Modules attached</th><th class="num">Live</th></tr></thead>
+            <tbody>
+                {% for row in rows %}
+                    {% set reported = (kpisByDepartment[row.department.id]|default([]))|map(k => k.moduleSlug) %}
+                    {% set live = row.department.modules|filter(m => m.slug in reported)|length %}
+                    <tr class="perf-row{{ selected and selected.department.id == row.department.id ? ' on' : '' }}"
+                        data-uuid="{{ row.department.uuidString }}">
+                        <td>
+                            <a class="dp-deptlink"
+                               href="{{ path('app_departments_performance', query|merge({selected: row.department.uuidString})|filter(v => v is not empty)) }}#drill"
+                               aria-label="Show {{ row.department.name }} in the drill-in below">{{ row.department.name }}</a>
+                        </td>
+                        <td>
+                            <span class="chiprow">
+                                {% for module in row.department.modules %}
+                                    {% set claimants = (departmentsByModule[module.id]|default([]))|length %}
+                                    <span class="dchip{{ claimants > 1 ? ' shared' : '' }}{{ module.slug in reported ? '' : ' soon' }}"
+                                          title="{{ module.slug in reported ? 'reports a department KPI' : 'attached, but computes no department KPI yet' }}{{ claimants > 1 ? ' · read by ' ~ claimants ~ ' departments' : '' }}">{{ module.name }}{% if claimants > 1 %}<i>·{{ claimants }}</i>{% endif %}</span>
+                                {% else %}
+                                    <span class="dchip ghost">none</span>
+                                {% endfor %}
+                            </span>
+                        </td>
+                        <td class="num">{% if live %}<span class="chip ok">{{ live }}</span>{% else %}<span class="mono d">—</span>{% endif %}</td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="3" class="fog">No department exists yet, so no module is read by one.
+                        Attaching a module to a department is what puts it here — and a module attached
+                        everywhere is still one module, read through several lenses.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>

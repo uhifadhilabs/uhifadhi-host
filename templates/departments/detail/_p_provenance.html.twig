@@ -1,0 +1,23 @@
+{# Department performance widget 'provenance' — THE derivnote.
+   Design: departments/ecology/performance.widgets.js → "provenance", and the identical block at
+   the foot of departments/performance.html. It is carried VERBATIM: this paragraph is the model
+   canon in the user's own language, and every performance surface in the app repeats it word for
+   word so the answer to "where did this number come from?" is the same wherever it is asked.
+
+   ONE clause is data rather than prose — "Patrols is shared with Protection Service" — because on
+   a department with no shared module the design's own sentence would be false. It renders the
+   real shared module and the real other departments, in the design's wording, and is simply
+   absent when nothing is shared. Nothing else in this paragraph varies. #}
+{% set shared = department.modules|filter(m => (departmentsByModule[m.id]|default([]))|length > 1)|first %}
+<div class="derivnote" data-w="provenance">
+    {{ ux_icon('lucide:search') }}
+    <div><b>Where these numbers come from.</b> A department has no numbers of its own. Every figure on
+        this page is its <b>attached modules’ KPIs</b>, summed over the areas those modules are switched
+        on in, sliced to the people whose <b>position sits in this department</b>.
+        {% if shared %}
+            {% set others = (departmentsByModule[shared.id]|default([]))|filter(d => d.id != department.id)|map(d => d.name)|join(', ') %}
+            {{ shared.name }} is shared with {{ others }} — both read the same rows; the split is by
+            recording position, not by permission.
+        {% endif %}
+        <b>A department still gates nothing:</b> this page reads, it never fences.</div>
+</div>

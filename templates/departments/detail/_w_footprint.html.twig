@@ -1,0 +1,20 @@
+{# Department detail widget 'footprint' — where this department's modules actually run.
+   Design: overview.widgets.js → "footprint" (DP·02). DERIVED, and it says so: the host knows
+   area × module and the department knows what it attaches, so this is the intersection. It is
+   NOT a measure of the department's work — that is the Performance tab. #}
+<div class="c" data-w="footprint">
+    <span class="tab"><span class="idx">DP·02</span>Where they run</span>
+    <div class="foot-areas">
+        {% for areaName, areaModules in footprint %}
+            <div class="rln">
+                <span>{{ areaName }}</span>
+                <span class="chiprow">{% for module in areaModules %}<span class="dchip">{{ module.name }}</span>{% endfor %}</span>
+            </div>
+        {% else %}
+            <div class="rln"><span class="fog">No area runs this department's modules yet.</span></div>
+        {% endfor %}
+    </div>
+    <p class="use"><b>Derived, not tracked.</b> This is simply where {{ department.name }}'s modules are
+        switched on — the host knows area&nbsp;×&nbsp;module, so it can say this honestly. It is not a
+        measure of the department's work.</p>
+</div>

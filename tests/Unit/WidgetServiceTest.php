@@ -246,31 +246,67 @@ final class WidgetServiceTest extends TestCase
         self::assertSame(['cal', 'kpis', 'map', 'log', 'chweek', 'chstation'], array_column($widgets, 'id'));
     }
 
-    public function testTheLibrarysHeadedSectionsFollowThePersonsOwnOrder(): void
-    {
-        $resolved = WidgetService::merge(self::catalog(), [
-            'order' => ['cal', 'kpis'],
-            'widgets' => [],
-        ]);
-        $sections = WidgetService::sections(self::catalog(), $resolved);
+    /* ---- a composition is not a preference ------------------------------- */
 
-        self::assertSame(['top', 'detail'], array_column($sections, 'id'));
-        self::assertSame('At a glance', $sections[0]['label']);
-        self::assertSame('The numbers first.', $sections[0]['description']);
-        // "cal" was dragged first overall, so it leads its own group.
-        self::assertSame(['cal', 'log', 'chweek', 'chstation'], array_column($sections[1]['widgets'], 'id'));
-        self::assertSame(['kpis', 'map'], array_column($sections[0]['widgets'], 'id'));
+    public function testAComposedLayoutHoldsExactlyWhatTheCanvasStatedAndNothingElse(): void
+    {
+        // THE CANVAS IS THE DASHBOARD: it holds exactly the composition, so a
+        // widget it does not name is OFF. merge() would fill one in with the
+        // CATALOGUE's answer — right for a stored preference, which must be a
+        // complete picture, and wrong here: it would put widgets on a preset
+        // nobody added.
+        $catalog = self::catalog();
+
+        $layout = WidgetService::composedLayout($catalog, [
+            'order' => ['map', 'kpis'],
+            'widgets' => ['map' => ['on' => true, 'cols' => 12], 'kpis' => ['on' => true, 'cols' => 12]],
+        ]);
+
+        self::assertSame(['map' => 12, 'kpis' => 12], $layout, 'the composition, in its own order');
     }
 
-    public function testAGroupWithNoWidgetsIsNotDrawn(): void
+    public function testAComposedLayoutClampsASpanTheCatalogueNoLongerOffers(): void
     {
-        $catalog = new WidgetCatalog('demo', [
-            new WidgetGroup('top', 'At a glance', 'The numbers first.'),
-            new WidgetGroup('empty', 'Nothing yet', 'Reserved for a later release.'),
-        ], [new Widget('kpis', 'KPI strip', 'top')]);
+        $catalog = self::catalog();
 
-        $sections = WidgetService::sections($catalog, WidgetService::merge($catalog, null));
+        $layout = WidgetService::composedLayout($catalog, [
+            'order' => ['chweek'],
+            'widgets' => ['chweek' => ['on' => true, 'cols' => 12]],
+        ]);
 
-        self::assertSame(['top'], array_column($sections, 'id'));
+        // "chweek" offers [9, 6, 3]; 12 is clamped to the nearest it does offer
+        // rather than refused — a saved composition must survive the catalogue
+        // narrowing a widget.
+        self::assertSame(['chweek' => 9], $layout);
+    }
+
+    public function testAComposedLayoutDropsWhatTheCanvasSwitchedOffAndKeepsAnUnorderedOn(): void
+    {
+        $catalog = self::catalog();
+
+        $layout = WidgetService::composedLayout($catalog, [
+            'order' => ['kpis', 'map'],
+            // Explicitly off beats being listed …
+            'widgets' => ['map' => ['on' => false, 'cols' => 12], 'cal' => ['on' => true, 'cols' => 12]],
+        ]);
+
+        // … and explicitly on beats being left out of the order: a caller that
+        // said `on` and forgot to list it meant to include it.
+        self::assertSame(['kpis' => 12, 'cal' => 12], $layout);
+    }
+
+    public function testAComposedLayoutStillRefusesAWidgetTheSurfaceDoesNotShip(): void
+    {
+        $this->expectException(InvalidWidgetPreferenceException::class);
+
+        WidgetService::composedLayout(self::catalog(), ['order' => ['ghost'], 'widgets' => []]);
+    }
+
+    public function testASavedLayoutSaysWhatItHoldsInTheOneSentenceBothSidesWrite(): void
+    {
+        // assets/widgets.js writes this same line for a card it draws after a
+        // save, so the two must match word for word.
+        self::assertSame('1 widget, in your order and at your widths.', WidgetService::countLine(['kpis' => 12]));
+        self::assertSame('2 widgets, in your order and at your widths.', WidgetService::countLine(['kpis' => 12, 'map' => 12]));
     }
 }

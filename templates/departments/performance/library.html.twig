@@ -1,0 +1,80 @@
+{# The performance board's widget library (app_departments_performance_widgets).
+
+   The PAGE is the chrome — a crumb, a header and its two actions. Everything below is
+   templates/widgets/_library.html.twig: the preset component, identical on every surface that
+   ships a WidgetCatalog. Org-wide, so one layout per person. #}
+{% extends 'layout.html.twig' %}
+
+{% block title %}Performance board · widget library — Uhifadhi{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {# type="module" is deferred by definition, so the library is armed after the DOM exists. #}
+    <script type="module">
+        import { initWidgetLibrary } from 'uhifadhi/widgets';
+        initWidgetLibrary();
+    </script>
+{% endblock %}
+
+{% block content %}
+    <div class="page">
+        <div class="crumb"><a href="{{ path('dashboard_index') }}">uhifadhi</a> /
+            <a href="{{ path('app_departments') }}">departments</a> /
+            <a href="{{ path('app_departments_performance') }}">performance</a> / widget library</div>
+
+        <div class="pghead">
+            <div>
+                <h1 class="pg">Performance board · widget library</h1>
+                <p class="pgsub">Choose the layout your board shows, or compose your own. Every widget is
+                    the real thing at full size, exactly as the board renders it.</p>
+            </div>
+            <div class="pgact w-pgact">
+                <button type="button" class="tgl w-act" {{ constant('Uhifadhi\\Model\\WidgetDom::RESET') }}
+                        {{ stimulus_controller('confirm-modal') }}
+                        data-action="click->confirm-modal#ask"
+                        data-confirm-modal-title-value="Reset your widget layout?"
+                        data-confirm-modal-message-value="The performance board goes back to the design it ships with. Your own presets are kept."
+                        data-confirm-modal-confirm-label-value="Reset layout"
+                        data-confirm-modal-danger-value="true">{{ ux_icon('lucide:rotate-ccw') }}Reset to defaults</button>
+                <a class="cta" href="{{ path('app_departments_performance') }}">{{ ux_icon('lucide:chevron-left') }}Back to the board</a>
+            </div>
+        </div>
+
+        <p class="pgsub w-libintro">Every widget below is the real thing at full size, filled with the org's
+            own figures. Your choices are saved per user.</p>
+
+        {# The widgetContext below is EXACTLY what the board itself hands a partial (see
+           performance.html.twig): a preview is the real widget on the real context, with the
+           page's default period, search and selection — the controller resolves those from the
+           request and a library page sends none. A key missing there is a 500 on this page and
+           not on the board, which is the whole reason the map is written out rather than
+           inherited. #}
+        {{ include('widgets/_library.html.twig', {
+            catalog: catalog,
+            builtins: builtins,
+            customPresets: customPresets,
+            active: active,
+            widgets: widgets,
+            partial: partial,
+            widgetContext: {
+                departments: departments,
+                columns: columns,
+                rows: rows,
+                visibleRows: visibleRows,
+                counts: counts,
+                shifts: shifts,
+                selected: selected,
+                rankColumn: rankColumn,
+                departmentsByModule: departmentsByModule,
+                kpisByDepartment: kpisByDepartment,
+                goalsByDepartment: goalsByDepartment,
+                query: query,
+                period: period,
+                window: window,
+                now: now,
+            },
+            urls: urls,
+            csrfToken: csrfToken,
+        }, with_context: false) }}
+    </div>
+{% endblock %}

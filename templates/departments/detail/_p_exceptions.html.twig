@@ -1,0 +1,50 @@
+{# Department performance widget 'exceptions' — the short list an exec should act on.
+   Design: performance.widgets.js → "exceptions" (DP·06).
+   Every line is DERIVED, never written: a goal that is off track or at risk, a figure that fell
+   against last month, and the goals nothing installed can measure. A hand-written exceptions list
+   would be a list of last quarter's worries. An empty list is a real answer and says so. #}
+{% set falling = kpis|filter(k => k.direction == 'bad') %}
+{% set awaiting = goals|filter(g => g.state == 'awaiting') %}
+{% set missed = goals|filter(g => g.state in ['offtrack', 'atrisk']) %}
+<div class="c" data-w="exceptions">
+    <span class="tab"><span class="idx">DP·06</span>Exceptions<span class="src">· what an exec should look at</span></span>
+    <ul class="exc">
+        {% for scored in missed %}
+            <li class="{{ scored.state == 'offtrack' ? 'r' : 'w' }}">
+                {{ ux_icon('lucide:triangle-alert') }}
+                <div><b>{{ scored.goal.statement }} is {{ scored.label|lower }}.</b>
+                    {{ scored.kpi.label }} stands at <span class="num">{{ scored.kpi.display }}{{ scored.kpi.unit == '%' ? '%' : '' }}</span>
+                    against a target of {{ scored.goal.targetLabel }} — {{ (scored.attainment * 100)|round }}% attained.</div>
+                {% if scored.goal.owningPosition %}<span class="fog dp-owner">{{ scored.goal.owningPosition.name }}</span>{% endif %}
+            </li>
+        {% endfor %}
+
+        {% for kpi in falling %}
+            <li class="w">
+                {{ ux_icon('lucide:trending-down') }}
+                <div><b>{{ kpi.label }} fell.</b> <span class="num">{{ kpi.display }}{{ kpi.unit == '%' ? '%' : '' }}</span>
+                    this month, <span class="num">{{ kpi.deltaLabel }}</span> against last — reported by
+                    {{ kpi.moduleName }}.</div>
+            </li>
+        {% endfor %}
+
+        {% if awaiting|length %}
+            <li class="i">
+                {{ ux_icon('lucide:info') }}
+                <div><b>{{ awaiting|length }} goal{{ awaiting|length == 1 ? '' : 's' }} cannot be measured yet.</b>
+                    No attached module reports
+                    {{ awaiting|map(g => g.goal.kpiRef)|join(', ') }} — the slots stay empty rather than being
+                    filled with a proxy.</div>
+                <a class="softbtn go" href="#settings">Modules {{ ux_icon('lucide:chevron-right') }}</a>
+            </li>
+        {% endif %}
+
+        {% if missed is empty and falling is empty and awaiting is empty %}
+            <li class="i">
+                {{ ux_icon('lucide:check') }}
+                <div><b>Nothing to act on this month.</b> No declared goal is short, and no figure fell
+                    against last month.</div>
+            </li>
+        {% endif %}
+    </ul>
+</div>

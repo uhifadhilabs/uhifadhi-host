@@ -1,0 +1,43 @@
+{# Department detail widget 'positions' — every position this department owns, its permissions,
+   and who holds it. Design: overview.widgets.js → "positions" (DP·04).
+   DEPARTMENT-SCOPED READING. Editing a position (its name, its permissions) is Team's screen and
+   stays there — two places to change one thing is how they drift apart. What this widget adds
+   that Team cannot is the scope note: a position belongs to ONE department, so two departments
+   may spell a position the same and mean different things. #}
+<div class="c" data-w="positions">
+    <span class="tab"><span class="idx">DP·04</span>Positions &amp; permissions<span class="src">· department-scoped</span></span>
+    <div class="wbtabs"><span class="on">Positions <span class="mono d">{{ positions|length }}</span></span><span>Members <span class="mono d">{{ members|length }}</span></span></div>
+
+    <div class="dp-posrows">
+        {% for position in positions %}
+            {% set holders = members|filter(u => u.position and u.position.id == position.id) %}
+            <div class="posrow">
+                <span class="pn">{{ position.name }}</span>
+                <div class="pp">
+                    {% for value in position.permissionValues %}<span class="perm on">{{ value }}</span>
+                    {% else %}<span class="fog dp-none">no permissions</span>{% endfor %}
+                </div>
+                <div class="hb">
+                    <span class="astack">
+                        {% for holder in holders|slice(0, 4) %}
+                            <span class="avatar sm" title="{{ holder.fullName }}">{{ (holder.firstName|default('')|first ~ holder.lastName|default('')|first)|upper }}</span>
+                        {% endfor %}
+                        <span class="more">{{ holders|length }} hold{{ holders|length == 1 ? 's' : '' }} it</span>
+                    </span>
+                    {% if canManage %}
+                        <a class="softbtn" href="{{ path('app_team') }}">{{ ux_icon('lucide:pencil') }} Edit</a>
+                    {% endif %}
+                </div>
+            </div>
+        {% else %}
+            <div class="posrow"><span class="fog dp-none">No position is filed under this department yet.</span></div>
+        {% endfor %}
+    </div>
+
+    <div class="crossnote">
+        {{ ux_icon('lucide:triangle-alert') }}
+        <div><b>Positions belong to this department.</b> Another department may have a position spelled
+            the same — a <em>different</em> position, with different permissions. Renaming or
+            re-permissioning this one does not touch it, and nobody holds both by holding one.</div>
+    </div>
+</div>

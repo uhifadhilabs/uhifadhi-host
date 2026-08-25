@@ -1,0 +1,103 @@
+{# TEAM widget 'positions_d' — QUALIFIED NAMES. Design: ngoro-positions-d.html.
+
+   One flat, sortable list. The department becomes the FIRST IDENTITY COLUMN and the name is
+   written "Ecology / Analyst" as well, so the qualifier survives copy, paste, search and an audit
+   line — which is what this direction buys, and the repeated department column is what it costs.
+
+   Its create form is the one place the whole rule is spelled out as a form: DEPARTMENT IS FIELD
+   ONE and it is required, because the uniqueness check runs against the chosen department only.
+
+   Receives: members, positions, departments, bands, holders, twins, scope, rail, canManage,
+   manageToken, catalogue. #}
+{% import 'team/_positions.html.twig' as pos %}
+
+{# The department's tone, by band key — the flat list has no bands to read it from. #}
+{% set tones = {} %}
+{% for band in bands %}{% set tones = tones|merge({(band.key): band.tone}) %}{% endfor %}
+
+<div class="c" data-positions="d">
+    <span class="tab"><span class="idx">PL·02</span>Positions<span class="src">· {{ positions|length }} · department-qualified</span></span>
+    <p class="use tm-lead">The department becomes the <b>first identity column</b>, and every position is written
+        <span class="mono tm-eg">Ecology / Analyst</span> everywhere it appears — here, in People, in the member
+        assign dropdown, in audit lines. Sorting, searching and pasting a name all keep the department attached.</p>
+
+    <table class="tbl">
+        <thead><tr><th class="dcol">Department</th><th>Position</th><th>Permissions</th><th class="num">Held by</th><th></th></tr></thead>
+        <tbody>
+        {% for position in positions %}
+            {% set key = position.department ? position.department.uuidString : 'unfiled' %}
+            {% set tone = tones[key]|default('un') %}
+            <tr {% if position.name|lower in twins %}data-dup="{{ position.name|lower }}"{% endif %}>
+                <td class="dcell">
+                    {% if position.department %}
+                        <a class="dtag {{ tone }}" href="{{ path('app_departments') }}" title="Open {{ position.department.name }}"><i class="dot {{ tone }}"></i>{{ position.department.name }}</a>
+                    {% else %}
+                        <span class="dtag un"><i class="dot un"></i>Unfiled</span>
+                    {% endif %}
+                </td>
+                <td>{{ pos.qualified(position) }}{{ pos.twin(position, twins) }}</td>
+                <td>{{ pos.perms(position) }}</td>
+                <td class="num">{{ holders[position.id]|default(0) }}</td>
+                <td class="num">
+                    {% if position.department is null and departments is not empty and canManage %}
+                        <div class="posact">{{ pos.fileForm(position, departments, manageToken, 'File…') }}{{ pos.actions(position, canManage) }}</div>
+                    {% else %}
+                        {{ pos.actions(position, canManage) }}
+                    {% endif %}
+                </td>
+            </tr>
+        {% else %}
+            <tr><td colspan="5"><span class="fog tm-none">No positions yet — the form below creates the first one.</span></td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    {# Department is field ONE and it is required: the uniqueness check runs against the chosen
+       department only, which is exactly why it is asked before the name. #}
+    {% if canManage %}
+        <form method="post" action="{{ path('app_team_position_create') }}" class="cform">
+            <input type="hidden" name="_token" value="{{ csrf_token(manageToken) }}">
+            <span class="lbl tm-formhead">New position</span>
+
+            <div class="crow">
+                <div class="cfield">
+                    <span class="lbl"><span class="step">1</span>Department<span class="req">required</span></span>
+                    <select class="sel" name="department" required aria-label="Department of the new position">
+                        <option value="" selected disabled>— choose a department —</option>
+                        {% for department in departments %}
+                            <option value="{{ department.uuidString }}">{{ department.name }}</option>
+                        {% endfor %}
+                        {# A non-empty sentinel, so `required` still blocks the placeholder above:
+                           the controller reads anything that is not a department uuid as unfiled.
+                           Choosing the holding pen is a choice, and it is made here explicitly. #}
+                        <option value="unfiled">Unfiled — no department yet</option>
+                    </select>
+                </div>
+                <div class="cfield">
+                    <span class="lbl"><span class="step">2</span>Name<span class="req">unique in that department</span></span>
+                    <input class="inl" name="name" required maxlength="120" placeholder="e.g. Analyst" aria-label="Name of the new position">
+                </div>
+                <div class="cfield tm-permfield">
+                    <span class="lbl"><span class="step">3</span>Permissions</span>
+                    <div class="permrow tm-pboxes">
+                        {% for umbrella, permissions in catalogue %}
+                            {% for permission in permissions %}
+                                <label class="pbox" title="{{ umbrella }} · {{ permission.action }}">
+                                    <input type="checkbox" name="permissions[]" value="{{ permission.value }}">{{ permission.value }}
+                                </label>
+                            {% endfor %}
+                        {% endfor %}
+                    </div>
+                </div>
+                <button class="cta tm-create" type="submit">Create</button>
+            </div>
+
+            <div class="okline">
+                {{ ux_icon('lucide:check') }}
+                <div><b>A name only has to be free in the department you pick.</b> Another department may already
+                    have one spelled the same way; that is expected and unrelated, and it keeps its own permissions.
+                    The uniqueness check runs against the chosen department only, which is why the department is field one.</div>
+            </div>
+        </form>
+    {% endif %}
+</div>

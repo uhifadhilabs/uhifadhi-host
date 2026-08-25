@@ -1,0 +1,9 @@
+{# "Draw a zone" — the flow that comes later.
+
+   The app RENDERS the unbuilt affordance rather than hiding it: inert, saying so in its own title
+   and wearing a "soon" tag, exactly like the sidebar's own off items. There is deliberately NO
+   route behind it, and none may be invented here — drawing goes through
+   ZoneImportService::importZone() when that flow ships. #}
+<button type="button" class="btn soon" disabled title="Draw a zone — coming soon">
+    {{ ux_icon('lucide:pencil-ruler') }}Draw a zone<span class="soonlbl">soon</span>
+</button>

@@ -1,0 +1,45 @@
+{# What the plates below it count, counted once.
+
+   COVERAGE is the sum of the zones' geodesic areas over the AOI's own — and that shortcut is only
+   sound because zones never share interior, so the union's area IS the sum of the parts. It can be
+   under 100%: an area is often only partly zoned, and a gap is legal.
+
+   The design's fourth plate is "Last import" (file, date, who). The host records none of that
+   today — a Zone carries no provenance — so the plate that ships instead is the one the data can
+   actually answer: how much of the area is not in any zone. Inventing an import date would be
+   worse than not showing one.
+
+   AN UNZONED AREA still counts honestly. The dashboard only draws this widget where zones exist
+   (the surface is presence-driven), but the library renders every widget whatever the area holds:
+   with none, the counts are real zeros — nothing IS zoned — and the one plate that names a zone
+   says there is none rather than inventing one. #}
+<div data-w="kpis">
+    <div class="grid g4">
+        <div class="c kpi">
+            <span class="tab"><span class="idx">PL·43</span>Zones</span>
+            <b class="disp">{{ zones|length }}<em>defined</em></b>
+            <span class="sub">never overlapping · edges may be shared</span>
+        </div>
+        <div class="c kpi{{ coveragePct >= 99.5 ? ' hot' }}">
+            <span class="tab"><span class="idx">PL·44</span>AOI covered</span>
+            <b class="disp">{{ coveragePct|number_format(1) }}<em>%</em></b>
+            <span class="sub">{{ zonedKm2|number_format(0) }} km² of {{ areaKm2|number_format(0) }} km²</span>
+        </div>
+        {% set largest = zones|sort((a, b) => b.areaKm2 <=> a.areaKm2)|first %}
+        <div class="c kpi">
+            <span class="tab"><span class="idx">PL·45</span>Largest</span>
+            {% if largest %}
+                <b class="disp">{{ largest.name }}<em></em></b>
+                <span class="sub">{{ largest.areaKm2|number_format(0) }} km² · {{ largest.sharePct|number_format(1) }}% of AOI</span>
+            {% else %}
+                <b class="disp mono d">—<em></em></b>
+                <span class="sub">no zone to be the largest of</span>
+            {% endif %}
+        </div>
+        <div class="c kpi">
+            <span class="tab"><span class="idx">PL·46</span>Unzoned</span>
+            <b class="disp">{{ (100 - coveragePct)|number_format(1) }}<em>%</em></b>
+            <span class="sub">a gap is legal · zones need not cover the AOI</span>
+        </div>
+    </div>
+</div>

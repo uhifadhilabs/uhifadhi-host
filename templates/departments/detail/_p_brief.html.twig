@@ -1,0 +1,49 @@
+{# Department performance widget 'brief' — the month as prose.
+   Design: performance.widgets.js → the "brief" group (brief-headline and brief-five).
+   For someone who will read it and not click it, so every sentence is generated from the same
+   figures the plates show — a brief that is written by hand is a brief that disagrees with the
+   dashboard above it by the second month. #}
+{% set rising = kpis|filter(k => k.direction == 'good') %}
+{% set falling = kpis|filter(k => k.direction == 'bad') %}
+<div class="c" data-w="brief">
+    <span class="tab"><span class="idx">DP·09</span>Monthly brief<span class="src">· {{ now|date('F Y') }}</span></span>
+    <p class="dp-brief">
+        {% if kpis|length %}
+            In {{ now|date('F Y') }}, <b>{{ department.name }}</b>'s
+            {{ department.modules|length }} attached module{{ department.modules|length == 1 ? '' : 's' }}
+            reported {{ kpis|length }} figure{{ kpis|length == 1 ? '' : 's' }}
+            {% if footprint|length %}across {{ footprint|keys|join(', ') }}{% endif %}.
+            {% if rising|length %}
+                {{ rising|map(k => k.label)|join(', ') }} rose against
+                {{ now|date_modify('-1 month')|date('F') }}.
+            {% endif %}
+            {% if falling|length %}
+                {{ falling|map(k => k.label)|join(', ') }} fell.
+            {% endif %}
+            {% if goals|length %}
+                Of {{ goals|length }} declared goal{{ goals|length == 1 ? '' : 's' }},
+                {{ goals|filter(g => g.state == 'met')|length }} met target and
+                {{ goals|filter(g => g.state == 'awaiting')|length }} cannot be measured by anything
+                installed.
+            {% else %}
+                It has declared no goals, so nothing here is measured against a commitment.
+            {% endif %}
+        {% else %}
+            <b>{{ department.name }}</b> has no figures for {{ now|date('F Y') }}: no attached module
+            reports a department KPI. That is a statement about what is installed, not about what its
+            people did.
+        {% endif %}
+    </p>
+
+    {% if kpis|length %}
+        <div class="grid g4 dp-brieffive w-flush">
+            {% for kpi in kpis|slice(0, 4) %}
+                <div class="c kpi">
+                    <span class="tab">{{ kpi.label }}</span>
+                    <b class="disp">{{ kpi.display }}{{ kpi.unit == '%' ? '%' : '' }}</b>
+                    <span class="sub">{% if kpi.deltaLabel %}<span class="delta {{ kpi.direction }}">{{ kpi.deltaLabel }}</span>{% else %}first period{% endif %}</span>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>

@@ -1,0 +1,61 @@
+{# Department performance widget 'goal-declare' — the form that declares a goal.
+   Design: performance.widgets.js → "goal-declare". The SAME form the Settings tab shows, so
+   there is one way to declare a goal and one route behind it; a manager who arranged this widget
+   onto their scorecard simply has it to hand as well.
+
+   The KPI is a free string on purpose. A department may commit to something before the module
+   that measures it ships — the goal then reads "awaiting module", which is the honest answer.
+   The datalist offers what IS reported today without refusing anything else. #}
+{% if canManage %}
+    <div class="c" data-w="goal-declare">
+        <span class="tab"><span class="idx">DP·10</span>Declare a goal<span class="src">· managers</span></span>
+        <form method="post" action="{{ path('app_department_goal_create', {uuid: department.uuidString}) }}" class="dp-goalform">
+            <input type="hidden" name="_token" value="{{ csrf_token('department_manage') }}">
+
+            <label class="lbl" for="goal-statement-{{ department.id }}">What is committed to</label>
+            <input class="fldsm" id="goal-statement-{{ department.id }}" name="statement" required
+                   maxlength="240" placeholder="Coverage ≥ 60% each month">
+
+            <label class="lbl" for="goal-kpi-{{ department.id }}">Scored from the KPI</label>
+            <input class="fldsm" id="goal-kpi-{{ department.id }}" name="kpiRef" required maxlength="60"
+                   list="goal-kpis-{{ department.id }}" placeholder="coverage">
+            <datalist id="goal-kpis-{{ department.id }}">
+                {% for kpi in kpis %}<option value="{{ kpi.key }}">{{ kpi.label }} — {{ kpi.moduleName }}</option>{% endfor %}
+            </datalist>
+
+            <div class="dp-goalpair">
+                <span>
+                    <label class="lbl" for="goal-target-{{ department.id }}">Target (at least)</label>
+                    <input class="fldsm" id="goal-target-{{ department.id }}" name="targetValue" type="number" step="any" min="0" required value="0">
+                </span>
+                <span>
+                    <label class="lbl" for="goal-unit-{{ department.id }}">Unit</label>
+                    <input class="fldsm" id="goal-unit-{{ department.id }}" name="targetUnit" maxlength="24" placeholder="% or km">
+                </span>
+            </div>
+
+            <label class="lbl" for="goal-period-{{ department.id }}">Per</label>
+            <select class="fldsm" id="goal-period-{{ department.id }}" name="period">
+                {% for period in constant('Uhifadhi\\Entity\\DepartmentGoal::PERIODS') %}
+                    <option value="{{ period }}"{{ period == 'month' ? ' selected' : '' }}>{{ period }}</option>
+                {% endfor %}
+            </select>
+
+            <label class="lbl" for="goal-owner-{{ department.id }}">Owning position</label>
+            <select class="fldsm" id="goal-owner-{{ department.id }}" name="owningPosition">
+                <option value="">— unowned</option>
+                {% for position in positions %}<option value="{{ position.uuidString }}">{{ position.name }}</option>{% endfor %}
+            </select>
+
+            <button class="softbtn" type="submit">{{ ux_icon('lucide:plus') }} Declare goal</button>
+        </form>
+        <p class="use">A goal names a <b>position</b>, not a person — accountability survives whoever
+            holds the job. Only positions filed under {{ department.name }} may own its goals.</p>
+    </div>
+{% else %}
+    <div class="c" data-w="goal-declare">
+        <span class="tab"><span class="idx">DP·10</span>Declare a goal<span class="src">· managers</span></span>
+        <p class="use">Declaring a goal is a manager's write. You can read every goal this department
+            declared on its Performance tab — a department is a lens, never a fence.</p>
+    </div>
+{% endif %}

@@ -28,7 +28,7 @@
                 {% set positions = positionsByDepartment[department.id]|default([]) %}
                 <div class="c dp-card">
                     <span class="tab">
-                        <span class="idx">DP·{{ '%02d'|format(loop.index) }}</span>{{ department.name }}<span class="src">· {{ members|length }} member{{ members|length == 1 ? '' : 's' }}</span>
+                        <span class="idx">DP·{{ '%02d'|format(loop.index) }}</span><a class="dp-deptlink" href="{{ path('app_department_show', {uuid: department.uuidString}) }}">{{ department.name }}</a><span class="src">· {{ members|length }} member{{ members|length == 1 ? '' : 's' }}</span>
                     </span>
 
                     <div>

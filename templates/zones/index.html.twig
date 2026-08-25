@@ -1,0 +1,95 @@
+{# The per-area ZONES dashboard (settled design: areas/ngorongoro/zones/index.html, from the five
+   directions ngoro-zones-a … -e — all five ship as widgets).
+
+   PRESENCE decides what this page is. An area with zones gets the person's own resolved widget
+   layout; an area with none gets ONE plate that says what a zone is and offers the one way to make
+   some. There is no third rendering, and no zone furniture appears anywhere else in the product
+   until the first import lands.
+
+   Every widget is a partial in this folder and receives exactly the surface's context — see
+   Uhifadhi\Controller\ZonesController::context(). #}
+{% extends 'layout.html.twig' %}
+
+{% block title %}{{ area.name }} · Zones — Uhifadhi{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('leaflet/leaflet.css') }}">
+{% endblock %}
+
+{% block javascripts %}
+    {# Self-hosted Leaflet UMD → window.L, before the controllers that read it. #}
+    <script src="{{ asset('leaflet/leaflet.js') }}"></script>
+    {{ parent() }}
+{% endblock %}
+
+{% block content %}
+    <div class="page">
+        <div class="crumb"><a href="{{ path('dashboard_index') }}">uhifadhi</a> / <a href="{{ path('dashboard_index') }}">areas</a> / <a href="{{ path('dashboard_area_show', {uuid: area.uuid}) }}">{{ area.name|lower }}</a> / zones</div>
+
+        <div class="pghead">
+            <div>
+                <h1 class="pg">{{ area.name }} — Zones</h1>
+                <p class="pgsub">Named polygons that subdivide the conservation area. They <b>never overlap</b> — two may
+                    share an edge, and a stretch may belong to no zone at all — and every name is unique within this
+                    area. A zone shapes what leads, never what is visible.</p>
+            </div>
+            <div class="pgact w-pgact">
+                {{ include('zones/_draw_soon.html.twig') }}
+                {% if canManage and zones|length %}
+                    <a class="cta" href="#import">{{ ux_icon('lucide:upload') }}Import GeoJSON</a>
+                {% endif %}
+                {% if zones|length %}
+                    <a class="tgl w-act" href="{{ path('app_area_zones_widgets', {uuid: area.uuid}) }}">{{ ux_icon('lucide:layout-grid') }}Widget library</a>
+                {% endif %}
+            </div>
+        </div>
+
+        {{ include('dashboard/_area_tabs.html.twig', {area: area, active: 'zones'}) }}
+
+        {# An import's verdict is the whole point of the write, so it is said here in full — the
+           model layer's own words, never a shortened "something went wrong". #}
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="c zflash{{ label == 'error' ? ' zflash-bad' }}"><span class="acc">{{ label == 'error' ? '!' : '✓' }}</span> {{ message }}</div>
+            {% endfor %}
+        {% endfor %}
+
+        {% if zones|length %}
+            {# EXACTLY what a partial receives, stated once. with_context: false so the contract is
+               the contract: a partial that reaches for a variable this map does not name fails
+               here, on the surface that owns it, rather than on whichever screen borrows it next. #}
+            {% set widgetContext = {
+                area: area,
+                zones: zones,
+                selected: selected,
+                areaKm2: areaKm2,
+                zonedKm2: zonedKm2,
+                coveragePct: coveragePct,
+                canManage: canManage,
+                geojsonUrl: geojsonUrl,
+                viewBox: viewBox,
+                aoiPath: aoiPath,
+                aoiColor: aoiColor,
+            } %}
+
+            <div class="w-grid">
+                {# A switched-off widget is simply absent — not hidden, not an empty cell. #}
+                {% for widget in widgets|filter(w => w.on) %}
+                    {# w-span-N, never w-N: a bare `w-12` is Tailwind's width utility and would
+                       render this cell 48px wide (see the widget-framework block in app.css). #}
+                    <div class="w-cell w-span-{{ widget.cols }}" data-widget-id="{{ widget.id }}" data-widget-cols="{{ widget.cols }}">
+                        <div class="w-inner">
+                            {{ include('zones/_w_' ~ widget.id ~ '.html.twig', widgetContext, with_context: false) }}
+                        </div>
+                    </div>
+                {% endfor %}
+                <a class="w-cell w-span-12 w-addtile" href="{{ path('app_area_zones_widgets', {uuid: area.uuid}) }}">
+                    {{ ux_icon('lucide:plus') }}<span>Add widgets — open the library</span>
+                </a>
+            </div>
+        {% else %}
+            {{ include('zones/_empty.html.twig') }}
+        {% endif %}
+    </div>
+{% endblock %}

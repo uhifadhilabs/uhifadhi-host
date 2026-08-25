@@ -54,7 +54,7 @@
                         {% set deptModules = department.modules|sort((a, b) => a.position <=> b.position) %}
 
                         <div class="dp-lanes-lane{{ deptModules is empty ? ' dp-lanes-lane--empty' }}">
-                            <div class="dp-lanes-lh"><span class="dp-lanes-pl">{{ code }}</span><b>{{ department.name }}</b></div>
+                            <div class="dp-lanes-lh"><span class="dp-lanes-pl">{{ code }}</span><b><a class="dp-deptlink" href="{{ path('app_department_show', {uuid: department.uuidString}) }}">{{ department.name }}</a></b></div>
                             <div class="dp-lanes-lm">{{ people|length }} {{ people|length == 1 ? 'person' : 'people' }}
                                 · {{ positions|length }} position{{ positions|length == 1 ? '' : 's' }}</div>
 

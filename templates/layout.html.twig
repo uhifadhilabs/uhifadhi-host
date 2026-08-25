@@ -2,14 +2,9 @@
 
 {# National shell: collapsible Grafana-style sidebar + a main-area top header.
    Each page fills {% block content %} with its own `.page` (crumb · pghead · body). #}
-{% set _route = app.request.attributes.get('_route') %}
-{# Module screens (bundle routes like patrol_*) all live under /areas/… — match
-   the URL space, not route names, so the host stays module-blind. #}
-{% set _on_areas = _route starts with 'dashboard' or app.request.pathInfo starts with '/areas' %}
-{% set _on_team = _route starts with 'app_team' %}
-{# Both the dashboard (app_departments…) and every management write (app_department_…) share
-   this prefix, so the item stays lit wherever the surface takes you. #}
-{% set _on_departments = _route starts with 'app_department' %}
+{# The nav is built server-side, from real data: sections + the location tree under Areas.
+   See Uhifadhi\Twig\SidebarExtension — the host never names a module here. #}
+{% set _nav = sidebar_nav() %}
 
 {% block body %}
     <div class="shell">
@@ -19,19 +14,56 @@
                 <button class="collapse-btn" type="button" data-action="sidebar#toggle"
                         title="Collapse sidebar" aria-label="Collapse sidebar">{{ ux_icon('lucide:chevrons-left') }}</button>
             </div>
-            <nav class="nav">
-                <span class="nav-item off" title="Overview — coming soon">{{ ux_icon('lucide:layout-dashboard') }}<span>Overview</span></span>
-                <a class="nav-item{{ _on_areas ? ' on' }}" href="{{ path('dashboard_index') }}">{{ ux_icon('lucide:map') }}<span>Areas</span></a>
-                <span class="nav-item off" title="Alerts — coming soon">{{ ux_icon('lucide:bell') }}<span>Alerts</span></span>
-                <span class="nav-item off" title="Compare — coming soon">{{ ux_icon('lucide:columns-2') }}<span>Compare</span></span>
-                <span class="nav-item off" title="Runs — coming soon">{{ ux_icon('lucide:activity') }}<span>Runs</span></span>
-                <span class="nav-item off" title="Gallery — coming soon">{{ ux_icon('lucide:layout-grid') }}<span>Gallery</span></span>
-                {% if is_granted('ROLE_MANAGER') %}
-                    <a class="nav-item{{ _on_team ? ' on' }}" href="{{ path('app_team') }}">{{ ux_icon('lucide:users') }}<span>Team</span></a>
+            <nav class="nav" {{ stimulus_controller('sidebar-tree') }}>
+                <div class="nav-hd">Observatory</div>
+                {# Areas + its location TREE: every area is a child row, the area you are in unfolds
+                   to its real tabs, and the module you are inside nests under Modules. The caret
+                   folds; the label always navigates. #}
+                <a class="nav-item{{ _nav.onAreas ? ' on' }}{{ _nav.treeOpen ? '' : ' closed' }}" href="{{ path('dashboard_index') }}">
+                    {{ ux_icon('lucide:map') }}<span>Areas</span>
+                    <button class="chev" type="button" aria-label="Toggle areas"
+                            data-action="sidebar-tree#toggleAreas">{{ ux_icon('lucide:chevron-down') }}</button>
+                </a>
+                <div class="ntree{{ _nav.treeOpen ? '' : ' treehidden' }}">
+                    {% for area in _nav.areas %}
+                        <a class="nta{{ area.current ? ' cur' : ' closed' }}" href="{{ area.url }}">
+                            <b>{{ area.name }}</b>
+                            <button class="chev" type="button" aria-label="Toggle {{ area.name }}"
+                                    data-action="sidebar-tree#toggleArea">{{ ux_icon('lucide:chevron-down') }}</button>
+                        </a>
+                        <div class="nta-group{{ area.current ? '' : ' closed' }}">
+                            {% for tab in area.tabs %}
+                                <a class="ntt{{ tab.current ? ' on' }}{{ tab.parent ? ' par' }}" href="{{ tab.url }}">{{ tab.label }}
+                                    {%- if tab.parent %}<button class="chev" type="button" aria-label="Toggle {{ tab.label }}"
+                                            data-action="sidebar-tree#toggleSubtree">{{ ux_icon('lucide:chevron-down') }}</button>{% endif -%}
+                                </a>
+                                {% if tab.modules is not empty %}
+                                    <div class="ntgroup">
+                                        {% for module in tab.modules %}
+                                            <a class="ntm{{ module.current ? ' on' }}" href="{{ module.url }}"><i class="mdot"></i>{{ module.name }}</a>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                </div>
+                {# The board is the C-suite surface, so it sits top-level — but it is another slice
+                   of this batch, so it degrades to a named-but-unbuilt item until its route lands. #}
+                {% if _nav.performanceUrl %}
+                    <a class="nav-item{{ _nav.performance ? ' on' }}" href="{{ _nav.performanceUrl }}">{{ ux_icon('lucide:trending-up') }}<span>Performance</span></a>
+                {% else %}
+                    <span class="nav-item off" title="Performance — coming soon">{{ ux_icon('lucide:trending-up') }}<span>Performance</span></span>
                 {% endif %}
+                <div class="nav-hd">Organization</div>
                 {# Departments are a lens everyone looks through, so the item is not gated the way
                    Team is — only its management chrome is. #}
-                <a class="nav-item{{ _on_departments ? ' on' }}" href="{{ path('app_departments') }}">{{ ux_icon('lucide:building-2') }}<span>Departments</span></a>
+                <a class="nav-item{{ _nav.departments ? ' on' }}" href="{{ path('app_departments') }}">{{ ux_icon('lucide:building') }}<span>Departments</span></a>
+                {% if is_granted('ROLE_MANAGER') %}
+                    <a class="nav-item{{ _nav.team ? ' on' }}" href="{{ path('app_team') }}">{{ ux_icon('lucide:users') }}<span>Team</span></a>
+                {% endif %}
+                <div class="nav-hd">System</div>
+                <span class="nav-item off" title="Alerts — planned (workflow + audit roadmap)">{{ ux_icon('lucide:bell') }}<span>Alerts</span></span>
             </nav>
             <div class="side-foot">
                 <span class="row" style="cursor:default" title="Settings — coming soon">{{ ux_icon('lucide:settings') }}<span>Settings</span></span>

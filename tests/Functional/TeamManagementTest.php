@@ -24,23 +24,32 @@ use Uhifadhi\Factory\UserFactory;
 use Uhifadhi\Repository\PositionRepository;
 
 /**
- * The /team admin screen end to end: a Manager (team administration is Manager-and-up) creates a
- * position with ticked permissions, assigns it to a Staff member, and deleting a position unassigns
- * its holders. Staff have no access to /team at all.
+ * The writes behind /team, end to end: creating a position IN A DEPARTMENT, renaming it,
+ * deleting it, filing an unfiled one, and assigning one to a Staff member.
+ *
+ * The through-line is that THE DEPARTMENT IS ALWAYS EXPLICIT. A position's name is unique inside
+ * its department only, so there is no create path that does not name one and no inline control
+ * that quietly moves a position between two — the old "Set department" select is gone, and the
+ * one move that remains is out of the unfiled holding pen.
  */
 final class TeamManagementTest extends AuthenticatedWebTestCase
 {
-    public function testAManagerCreatesAPositionWithTickedPermissions(): void
+    public function testAManagerCreatesAPositionWithTickedPermissionsInsideADepartment(): void
     {
         $client = static::createClient();
+        $ecology = DepartmentFactory::createOne(['name' => 'Ecology']);
         $this->loginAs($client, TeamRoleEnum::Manager);
 
         $crawler = $client->request('GET', '/team/positions/new');
         self::assertResponseIsSuccessful();
 
+        // Department is field ONE of the screen, and it is required.
+        self::assertNotNull($crawler->filter('select[name="department"]')->attr('required'));
+
         $token = $crawler->filter('input[name="position[_token]"]')->attr('value');
         $client->request('POST', '/team/positions/new', [
             'position' => ['name' => 'Ranger', '_token' => $token],
+            'department' => $ecology->getUuidString(),
             'permissions' => [PermissionEnum::AreaView->value, PermissionEnum::IngestionRun->value, 'bogus.perm'],
         ]);
 
@@ -48,6 +57,7 @@ final class TeamManagementTest extends AuthenticatedWebTestCase
 
         $position = $this->positionByName('Ranger');
         self::assertInstanceOf(Position::class, $position);
+        self::assertSame('Ecology', $position->getDepartment()?->getName());
         // The unknown value is filtered out; only the two real permissions land.
         self::assertEqualsCanonicalizing(
             [PermissionEnum::AreaView, PermissionEnum::IngestionRun],
@@ -55,10 +65,127 @@ final class TeamManagementTest extends AuthenticatedWebTestCase
         );
     }
 
+    public function testABandsCreateRowCarriesItsOwnDepartment(): void
+    {
+        $client = static::createClient();
+        $ecology = DepartmentFactory::createOne(['name' => 'Ecology']);
+        $this->loginAs($client, TeamRoleEnum::Manager);
+
+        // The affordance the default direction ships: a create row inside a department band. Its
+        // department is a hidden field, so it is decided by where the row sits.
+        $crawler = $client->request('GET', '/team');
+        $token = $crawler->filter('tr.newrow input[name="_token"]')->first()->attr('value');
+
+        $client->request('POST', '/team/positions', [
+            '_token' => $token,
+            'department' => $ecology->getUuidString(),
+            'name' => 'Field Officer',
+        ]);
+
+        self::assertResponseRedirects('/team');
+        self::assertSame('Ecology', $this->positionByName('Field Officer')?->getDepartment()?->getName());
+    }
+
+    public function testTwoDepartmentsMayEachCreateAPositionCalledAnalyst(): void
+    {
+        $client = static::createClient();
+        $ecology = DepartmentFactory::createOne(['name' => 'Ecology']);
+        $protection = DepartmentFactory::createOne(['name' => 'Protection Service']);
+        $this->loginAs($client, TeamRoleEnum::Manager);
+
+        $crawler = $client->request('GET', '/team');
+        $token = $crawler->filter('tr.newrow input[name="_token"]')->first()->attr('value');
+
+        foreach ([$ecology, $protection] as $department) {
+            $client->request('POST', '/team/positions', [
+                '_token' => $token,
+                'department' => $department->getUuidString(),
+                'name' => 'Analyst',
+            ]);
+            self::assertResponseRedirects('/team');
+        }
+
+        // Two rows, two departments, one word — which is the whole ruling.
+        self::assertCount(2, $this->positions()->findBy(['name' => 'Analyst']));
+    }
+
+    public function testTheSameDepartmentIsRefusedTheSameNameTwiceInItsOwnWords(): void
+    {
+        $client = static::createClient();
+        $ecology = DepartmentFactory::createOne(['name' => 'Ecology']);
+        PositionFactory::createOne(['name' => 'Analyst', 'department' => $ecology]);
+        $this->loginAs($client, TeamRoleEnum::Manager);
+
+        $crawler = $client->request('GET', '/team');
+        $token = $crawler->filter('tr.newrow input[name="_token"]')->first()->attr('value');
+
+        $client->request('POST', '/team/positions', [
+            '_token' => $token,
+            'department' => $ecology->getUuidString(),
+            'name' => 'Analyst',
+        ]);
+
+        // A refusal on the screen, in the rule's words — never a 500 from the index behind it.
+        self::assertResponseRedirects('/team');
+        $crawler = $client->followRedirect();
+        self::assertStringContainsString('Ecology already has a position called', $crawler->filter('.tm-flash')->text());
+        self::assertCount(1, $this->positions()->findBy(['name' => 'Analyst']));
+    }
+
+    public function testThereIsNoInlineControlThatMovesAFiledPositionBetweenDepartments(): void
+    {
+        $client = static::createClient();
+        $ecology = DepartmentFactory::createOne(['name' => 'Ecology']);
+        $filed = PositionFactory::createOne(['name' => 'Ecologist', 'department' => $ecology]);
+        $this->loginAs($client, TeamRoleEnum::Manager);
+
+        $crawler = $client->request('GET', '/team');
+        self::assertResponseIsSuccessful();
+
+        // The old "Set department" select on every position row is gone: it re-scoped a name
+        // against a set of names nobody was looking at.
+        self::assertCount(0, $crawler->filter('form[action$="'.$filed->getUuidString().'/department"]'));
+
+        // And the route refuses it too, not only the template.
+        $token = $crawler->filter('tr.newrow input[name="_token"]')->first()->attr('value');
+        $other = DepartmentFactory::createOne(['name' => 'Protection Service']);
+        $client->request('POST', '/team/positions/'.$filed->getUuidString().'/department', [
+            '_token' => $token,
+            'department' => $other->getUuidString(),
+        ]);
+        self::assertResponseRedirects('/team');
+        self::assertSame('Ecology', $this->positionByName('Ecologist')?->getDepartment()?->getName());
+    }
+
+    public function testAnUnfiledPositionIsFiledUnderARealDepartmentAndItsHoldersMoveWithIt(): void
+    {
+        $client = static::createClient();
+        $ecology = DepartmentFactory::createOne(['name' => 'Ecology']);
+        $unfiled = PositionFactory::createOne(['name' => 'Park Manager', 'department' => null]);
+        $holder = UserFactory::createOne(['teamRole' => TeamRoleEnum::Staff, 'position' => $unfiled]);
+        $this->loginAs($client, TeamRoleEnum::Manager);
+
+        $crawler = $client->request('GET', '/team');
+        // The holding pen's one real action, on the row itself.
+        $form = $crawler->filter('form[action$="'.$unfiled->getUuidString().'/department"]');
+        self::assertCount(1, $form);
+
+        $client->request('POST', '/team/positions/'.$unfiled->getUuidString().'/department', [
+            '_token' => $form->filter('input[name="_token"]')->attr('value'),
+            'department' => $ecology->getUuidString(),
+        ]);
+
+        self::assertResponseRedirects('/team');
+        self::assertSame('Ecology', $this->positionByName('Park Manager')?->getDepartment()?->getName());
+        // Membership is indirect, so the holder moved without anyone touching their row.
+        self::assertSame('Ecology', $this->reload($holder)->getPosition()?->getDepartment()?->getName());
+    }
+
     public function testAManagerAssignsAPositionToAStaffMember(): void
     {
         $client = static::createClient();
-        $position = PositionFactory::createOne(['name' => 'Ranger']);
+        $ecology = DepartmentFactory::createOne(['name' => 'Ecology']);
+        $position = PositionFactory::createOne(['name' => 'Ranger', 'department' => $ecology]);
         $staff = UserFactory::createOne(['teamRole' => TeamRoleEnum::Staff]);
         $this->loginAs($client, TeamRoleEnum::Manager);
 
@@ -89,54 +216,30 @@ final class TeamManagementTest extends AuthenticatedWebTestCase
         self::assertNull($this->reload($staff)->getPosition(), 'the holder must be unassigned, not orphaned');
     }
 
-    public function testThePositionsTableCarriesADepartmentColumn(): void
+    public function testRenamingIsCheckedAgainstItsOwnDepartmentOnly(): void
     {
         $client = static::createClient();
         $ecology = DepartmentFactory::createOne(['name' => 'Ecology']);
-        $filed = PositionFactory::createOne(['name' => 'Ecologist', 'department' => $ecology]);
-        PositionFactory::createOne(['name' => 'Drifter', 'department' => null]);
-        UserFactory::createOne(['teamRole' => TeamRoleEnum::Staff, 'position' => $filed]);
+        $protection = DepartmentFactory::createOne(['name' => 'Protection Service']);
+        PositionFactory::createOne(['name' => 'Analyst', 'department' => $ecology]);
+        $ranger = PositionFactory::createOne(['name' => 'Ranger', 'department' => $protection]);
         $this->loginAs($client, TeamRoleEnum::Manager);
 
-        $crawler = $client->request('GET', '/team');
+        $crawler = $client->request('GET', '/team/positions/'.$ranger->getUuidString().'/edit');
         self::assertResponseIsSuccessful();
+        // On edit the department is stated, not editable — a position does not move.
+        self::assertCount(0, $crawler->filter('select[name="department"]'));
+        self::assertStringContainsString('Protection Service', $crawler->filter('.tm-deptfixed')->text());
 
-        // The position's own department: a select of the org-wide list, the current one chosen.
-        $select = $crawler->filter('form[action$="'.$filed->getUuidString().'/department"] select[name="department"]');
-        self::assertCount(1, $select);
-        self::assertSame('Ecology', $select->filter('option[selected]')->text());
-        self::assertStringContainsString('— none —', $select->text());
-
-        // A person's department is read-only and comes from their position.
-        $person = $crawler->filter('table.tbl tbody tr:contains("Ecologist")');
-        self::assertStringContainsString('via position', $crawler->filter('.dept-via')->text());
-        self::assertGreaterThan(0, $person->count());
-    }
-
-    public function testAManagerFilesAPositionUnderADepartmentAndUnfilesItAgain(): void
-    {
-        $client = static::createClient();
-        $ecology = DepartmentFactory::createOne(['name' => 'Ecology']);
-        $position = PositionFactory::createOne(['name' => 'Ecologist']);
-        $this->loginAs($client, TeamRoleEnum::Manager);
-
-        $crawler = $client->request('GET', '/team');
-        $token = $crawler->filter('form[action$="'.$position->getUuidString().'/department"] input[name="_token"]')->attr('value');
-
-        $client->request('POST', '/team/positions/'.$position->getUuidString().'/department', [
-            '_token' => $token,
-            'department' => $ecology->getUuidString(),
+        // Ecology's Analyst is no obstacle: the check runs against Protection Service alone.
+        $token = $crawler->filter('input[name="position[_token]"]')->attr('value');
+        $client->request('POST', '/team/positions/'.$ranger->getUuidString().'/edit', [
+            'position' => ['name' => 'Analyst', '_token' => $token],
+            'permissions' => [PermissionEnum::AreaView->value],
         ]);
-        self::assertResponseRedirects('/team');
-        self::assertSame('Ecology', $this->positionByName('Ecologist')?->getDepartment()?->getName());
 
-        // The empty option unfiles the position — the department itself is untouched.
-        $client->request('POST', '/team/positions/'.$position->getUuidString().'/department', [
-            '_token' => $token,
-            'department' => '',
-        ]);
         self::assertResponseRedirects('/team');
-        self::assertNull($this->positionByName('Ecologist')?->getDepartment());
+        self::assertCount(2, $this->positions()->findBy(['name' => 'Analyst']));
     }
 
     public function testStaffHaveNoAccessToTheTeamScreen(): void
@@ -149,12 +252,17 @@ final class TeamManagementTest extends AuthenticatedWebTestCase
         self::assertResponseStatusCodeSame(403);
     }
 
-    private function positionByName(string $name): ?Position
+    private function positions(): PositionRepository
     {
         $repo = static::getContainer()->get(PositionRepository::class);
         \assert($repo instanceof PositionRepository);
 
-        return $repo->findOneBy(['name' => $name]);
+        return $repo;
+    }
+
+    private function positionByName(string $name): ?Position
+    {
+        return $this->positions()->findOneBy(['name' => $name]);
     }
 
     private function reload(User $user): User

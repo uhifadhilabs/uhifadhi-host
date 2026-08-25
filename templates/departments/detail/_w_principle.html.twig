@@ -1,0 +1,21 @@
+{# Department detail widget 'principle' — receives the department-detail context (see
+   Uhifadhi\Controller\DepartmentDetailController::context). Design: departments/ecology
+   overview.widgets.js → "principle". The sentence that stops a department reading as a
+   permission. It names a really-shared module when there is one, so the claim is checked
+   against this department rather than asserted at it. #}
+{% set shared = department.modules|filter(m => (departmentsByModule[m.id]|default([]))|length > 1)|first %}
+<div class="dp-lensnote" data-w="principle">
+    {{ ux_icon('lucide:search') }}
+    <div><b>A lens, not a fence.</b> {{ department.name }} decides what <em>leads</em> — it never decides
+        what is visible.
+        {% if shared %}
+            {% set others = (departmentsByModule[shared.id]|default([]))|filter(d => d.id != department.id) %}
+            <b>{{ shared.name }}</b> below is attached to {{ department.name }} <em>and</em> to
+            {{ others|map(d => d.name)|join(', ') }}: one module, the same rows, the same numbers, listed
+            first for both. Detaching it here hides nothing from anyone.
+        {% else %}
+            Attaching a module makes it lead for this department's people; it grants nothing and hides
+            nothing.
+        {% endif %}
+    </div>
+</div>

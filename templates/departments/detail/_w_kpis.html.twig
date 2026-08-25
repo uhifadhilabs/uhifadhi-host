@@ -1,0 +1,14 @@
+{# Department detail widget 'kpis' — the four counts, as one four-plate strip.
+   Design: overview.widgets.js → "kpis" (DP·K1…K4). Off by default: on a small department these
+   plates count 2, 2, 3 — true, and thin at that type size. #}
+{% set sharedCount = department.modules|filter(m => (departmentsByModule[m.id]|default([]))|length > 1)|length %}
+<div class="grid g4 dp-kstrip w-flush" data-w="kpis">
+    <div class="c kpi"><span class="tab"><span class="idx">DP·K1</span>Modules attached</span>
+        <b class="disp">{{ department.modules|length }}</b><span class="sub">{{ sharedCount }} shared with another department</span></div>
+    <div class="c kpi"><span class="tab"><span class="idx">DP·K2</span>Positions</span>
+        <b class="disp">{{ positions|length }}</b><span class="sub">scoped to {{ department.name }} alone</span></div>
+    <div class="c kpi"><span class="tab"><span class="idx">DP·K3</span>People placed</span>
+        <b class="disp">{{ members|length }}</b><span class="sub">placed through their position</span></div>
+    <div class="c kpi"><span class="tab"><span class="idx">DP·K4</span>Areas its modules run in</span>
+        <b class="disp">{{ footprint|length }}</b><span class="sub">derived from area × module</span></div>
+</div>

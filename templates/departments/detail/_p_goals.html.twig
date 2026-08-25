@@ -1,0 +1,39 @@
+{# Department performance widget 'goals' — the goals rail.
+   Design: performance.widgets.js → "goals" (all declared goals as one grid: bar, target, owning
+   position, state), which the per-goal cards in that file break out one at a time. One widget
+   here for the same reason the KPI plates are one: the number of goals is data, not a catalogue
+   entry.
+
+   A goal nothing measures is drawn with NO BAR and the words "awaiting module" — not a 0% bar,
+   which would accuse a department of failing at something nobody asked a module to compute. #}
+<div class="c" data-w="goals">
+    <span class="tab"><span class="idx">DP·05</span>Goals<span class="src">· declared by this department</span></span>
+    {% if goals|length %}
+        <div class="goalgrid">
+            {% for scored in goals %}
+                <div class="goalrow" data-goal-state="{{ scored.state }}">
+                    <div class="gmeta">
+                        <b>{{ scored.goal.statement }}</b>
+                        <span class="mono d">{{ scored.goal.targetLabel }} · per {{ scored.goal.period }} · {{ scored.goal.kpiRef }}</span>
+                    </div>
+                    <div class="gbar">
+                        {% if scored.attainment is not null %}
+                            <span class="gbar-track"><i style="--attained: {{ (scored.attainment * 100)|round }}%"></i></span>
+                            <span class="mono">{{ scored.kpi.display }}{{ scored.kpi.unit == '%' ? '%' : (scored.kpi.unit ? ' ' ~ scored.kpi.unit : '') }}</span>
+                        {% else %}
+                            <span class="gbar-track empty" aria-hidden="true"></span>
+                            <span class="mono d">—</span>
+                        {% endif %}
+                    </div>
+                    <span class="gowner">{{ scored.goal.owningPosition ? scored.goal.owningPosition.name : 'unowned' }}</span>
+                    <span class="chip g-{{ scored.state }}">{{ scored.label }}</span>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="use">No goal declared yet. A goal is the department's own declaration, not a number the
+            platform invents — declare one in <a href="#settings">Settings</a>.</p>
+    {% endif %}
+    <p class="use">A goal names a <b>KPI</b> and an owning <b>position</b>, never a person: accountability
+        survives whoever holds the job today.</p>
+</div>

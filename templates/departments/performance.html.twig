@@ -1,0 +1,109 @@
+{# The org-wide comparative board — GET /departments/performance (app_departments_performance).
+
+   Design: departments/performance.html. Everything below the header is the platform widget
+   framework: the person's own resolved layout, in their own order, with the widgets they switched
+   off simply absent. Org-wide like /departments, so the layout is one per person and not one per
+   area.
+
+   EVERY CONTROL ON THIS PAGE IS A LINK. The period, the search, the buckets, the sort and the
+   selected department are query parameters resolved in the controller, so the board works with no
+   script at all — which is exactly what the design's own script comment says the app does
+   "between navigations".
+
+   Every widget is a partial in templates/departments/performance/ and receives exactly the
+   surface's context — see Uhifadhi\Controller\PerformanceBoardController::context. #}
+{% extends 'layout.html.twig' %}
+
+{% block title %}Departments — performance — Uhifadhi{% endblock %}
+
+{% set widgetContext = {
+    departments: departments,
+    columns: columns,
+    rows: rows,
+    visibleRows: visibleRows,
+    counts: counts,
+    shifts: shifts,
+    selected: selected,
+    rankColumn: rankColumn,
+    departmentsByModule: departmentsByModule,
+    kpisByDepartment: kpisByDepartment,
+    goalsByDepartment: goalsByDepartment,
+    query: query,
+    period: period,
+    window: window,
+    now: now,
+} %}
+
+{% block content %}
+    <div class="page{{ print ? ' perf-print' : '' }}">
+        <div class="crumb"><a href="{{ path('dashboard_index') }}">uhifadhi</a> /
+            <a href="{{ path('app_departments') }}">departments</a> / performance</div>
+
+        <div class="pghead">
+            <div>
+                <h1 class="pg">Departments — performance</h1>
+                <p class="pgsub">A department's performance is the <b>rollup of its attached modules'
+                    KPIs</b> across the areas those modules run in, measured against the goals the
+                    department declared. Every department is a row here — including the ones with nothing
+                    to show yet.</p>
+            </div>
+            <div class="pgact perf-pgact">
+                {# The period the whole page is read over. Every number, delta, sparkline and rank
+                   below is stated for exactly this window — so it is a NAVIGATION, not a toggle. #}
+                <span class="periodpick" role="group" aria-label="Reporting period">
+                    {% for choice in ['week', 'month', 'quarter', 'year'] %}
+                        <a class="{{ choice == period ? 'on' : '' }}"
+                           href="{{ path('app_departments_performance', query|merge({period: choice})|filter(v => v is not empty)) }}"
+                           aria-pressed="{{ choice == period ? 'true' : 'false' }}">{{ choice|capitalize }}</a>
+                    {% endfor %}
+                </span>
+                <a class="tgl perf-act" href="{{ path('app_departments_performance_export', query|filter(v => v is not empty)) }}">{{ ux_icon('lucide:printer') }} Export board</a>
+                <a class="tgl w-act" href="{{ path('app_departments_performance_widgets') }}">{{ ux_icon('lucide:layout-grid') }} Widget library</a>
+            </div>
+        </div>
+
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="c dp-flash"><span class="acc">{{ label == 'error' ? '!' : '✓' }}</span> {{ message }}</div>
+            {% endfor %}
+        {% endfor %}
+
+        {# The stance line: the size of the thing being compared, before any comparison. Counted,
+           never asserted — "reporting" is a department with at least one known figure, and
+           "module live" counts the modules that produced one, not the ones installed. #}
+        <div class="stance perf-stance" data-stance>
+            <div><b>{{ departments|length }}</b><span>Department{{ departments|length == 1 ? '' : 's' }}</span></div>
+            <div><b>{{ rows|filter(r => r.reporting)|length }}</b><span>Reporting</span></div>
+            <div><b>{{ liveModules }}</b><span>Module live</span></div>
+            <div><b>{{ coveredAreas }}</b><span>Areas</span></div>
+            <div><b data-stance-period>{{ window.label }}</b><span>Period</span></div>
+        </div>
+
+        <div class="w-grid">
+            {% for widget in widgets|filter(w => w.on) %}
+                {# w-span-N, never w-N: a bare `w-12` is Tailwind's width utility. #}
+                <div class="w-cell w-span-{{ widget.cols }}" data-widget-id="{{ widget.id }}" data-widget-cols="{{ widget.cols }}">
+                    <div class="w-inner">
+                        {{ include('departments/performance/_b_' ~ widget.id ~ '.html.twig', widgetContext, with_context: false) }}
+                    </div>
+                </div>
+            {% endfor %}
+            <a class="w-cell w-span-12 w-addtile" href="{{ path('app_departments_performance_widgets') }}">
+                {{ ux_icon('lucide:plus') }}<span>Add widgets — open the library</span>
+            </a>
+        </div>
+
+        {# THE DERIVNOTE, verbatim, on every performance surface. The board's copy names no
+           particular module because the board is every department at once — the department's own
+           scorecard names its shared module (departments/detail/_p_provenance.html.twig). #}
+        <div class="derivnote perf-deriv">
+            {{ ux_icon('lucide:search') }}
+            <div><b>Where these numbers come from.</b> A department has no numbers of its own. Every figure
+                on this page is its <b>attached modules' KPIs</b>, summed over the areas those modules are
+                switched on in, sliced to the people whose <b>position sits in this department</b>. A module
+                shared by two departments is read by both — the same rows; the split is by recording
+                position, not by permission. <b>A department still gates nothing:</b> this page reads, it
+                never fences.</div>
+        </div>
+    </div>
+{% endblock %}

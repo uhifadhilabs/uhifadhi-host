@@ -1,0 +1,69 @@
+{# The team widget library.
+
+   The PAGE is the chrome — a crumb, a header and its two actions. Everything below is
+   templates/widgets/_library.html.twig: the preset component, identical on every surface that
+   ships a WidgetCatalog and parameterised by this surface's catalogue, partial name and routes.
+   There are no team-specific widget mechanics anywhere. #}
+{% extends 'layout.html.twig' %}
+
+{% block title %}Team · widget library — Uhifadhi{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {# type="module" is deferred by definition, so the library is armed after the DOM exists. #}
+    <script type="module">
+        import { initWidgetLibrary } from 'uhifadhi/widgets';
+        initWidgetLibrary();
+    </script>
+{% endblock %}
+
+{% block content %}
+    <div class="page">
+        <div class="crumb"><a href="{{ path('dashboard_index') }}">uhifadhi</a> / <a href="{{ path('app_team') }}">team</a> / widget library</div>
+
+        <div class="pghead">
+            <div>
+                <h1 class="pg">Team · widget library</h1>
+                <p class="pgsub">Choose the layout your dashboard shows, or compose your own. Every widget is
+                    the real thing at full size, exactly as the dashboard renders it — including all five ways
+                    Positions was drawn, which are <b>alternatives</b>: keep one on.</p>
+            </div>
+            <div class="pgact w-pgact">
+                {# Throwing the layout away asks first, through the host's reusable confirm-modal
+                   controller — never the browser's own dialog. #}
+                <button type="button" class="tgl w-act" {{ constant('Uhifadhi\\Model\\WidgetDom::RESET') }}
+                        {{ stimulus_controller('confirm-modal') }}
+                        data-action="click->confirm-modal#ask"
+                        data-confirm-modal-title-value="Reset your widget layout?"
+                        data-confirm-modal-message-value="Your team dashboard goes back to the design this surface ships with — the grouped table. Your own presets are kept."
+                        data-confirm-modal-confirm-label-value="Reset layout"
+                        data-confirm-modal-danger-value="true">{{ ux_icon('lucide:rotate-ccw') }}Reset to defaults</button>
+                <a class="cta" href="{{ path('app_team') }}">{{ ux_icon('lucide:chevron-left') }}Back to dashboard</a>
+            </div>
+        </div>
+
+        {{ include('widgets/_library.html.twig', {
+            catalog: catalog,
+            builtins: builtins,
+            customPresets: customPresets,
+            active: active,
+            widgets: widgets,
+            partial: partial,
+            widgetContext: {
+                members: members,
+                positions: positions,
+                departments: departments,
+                bands: bands,
+                holders: holders,
+                twins: twins,
+                scope: scope,
+                rail: rail,
+                canManage: canManage,
+                manageToken: manageToken,
+                catalogue: catalogue,
+            },
+            urls: urls,
+            csrfToken: csrfToken,
+        }, with_context: false) }}
+    </div>
+{% endblock %}

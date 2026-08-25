@@ -1,0 +1,54 @@
+{# Performance board widget 'shifts' — what MOVED, and what has no row to fill.
+   Design: departments/performance.html → DP·02 "Rank shifts".
+
+   The design is a short, fixed list about MOVEMENT — who moved a place, who holds first, who went
+   two ways at once, and how many rows are empty — not one line per cell. The comparisons are made
+   once, in Uhifadhi\Model\PerformanceBoardView::shifts(), from the very cells the board draws, so
+   the commentary cannot disagree with the table above it; the words are here.
+
+   The last line is the one the design insists on: departments with nothing to show are SHOWN,
+   empty, never hidden. #}
+<div class="c" data-w="shifts">
+    <span class="tab"><span class="idx">DP·02</span>Rank shifts<span class="src">· vs the period before</span></span>
+    <ul class="exc">
+        {% for fact in shifts %}
+            <li class="{{ fact.tone }}">{{ ux_icon(fact.icon) }}
+                <div>
+                    {% if fact.kind == 'mover' %}
+                        <b>{{ fact.name }} moved up {{ fact.places == 1 ? 'one place' : fact.places ~ ' places' }}</b>
+                        on {{ fact.column|lower }}{% if fact.delta %} — <span class="num">{{ fact.delta }}</span>
+                        against the period before{% endif %}.
+                    {% elseif fact.kind == 'leader' %}
+                        <b>{{ fact.name }} holds first</b> on
+                        <span class="num">{{ fact.leads }}</span> of {{ fact.columns }}
+                        column{{ fact.columns == 1 ? '' : 's' }} — the standing within each column, never a
+                        verdict on the department.
+                    {% elseif fact.kind == 'divergence' %}
+                        <b>{{ fact.name }}'s {{ fact.fell|lower }} fell</b>
+                        {% if fact.fellBy %}<span class="num">{{ fact.fellBy }}</span>{% endif %}
+                        while its {{ fact.rose|lower }} rose
+                        {% if fact.roseBy %}<span class="num">{{ fact.roseBy }}</span>{% endif %} — one figure
+                        would have hidden the other.
+                    {% else %}
+                        <b>{{ fact.empty }} department{{ fact.empty == 1 ? ' has' : 's have' }} no row to fill.</b>
+                        {% if fact.awaiting %}{{ fact.awaiting == 1 ? 'One has' : fact.awaiting ~ ' have' }}
+                            modules attached that compute no KPI yet{% endif %}{% if fact.awaiting and fact.unattached %};
+                        {% endif %}{% if fact.unattached %}{{ fact.unattached == 1 ? 'one has' : fact.unattached ~ ' have' }}
+                            no module at all{% endif %}. They are shown, empty, rather than hidden.
+                    {% endif %}
+                </div>
+            </li>
+        {% else %}
+            <li class="i">{{ ux_icon('lucide:info') }}
+                <div>{% if departments is empty %}
+                        <b>No department exists yet</b>, so nothing has moved. This panel is about
+                        rank movement between two periods; it needs a first period before it can
+                        have a second.
+                    {% else %}
+                        <b>Nothing moved this period.</b> Every department holds the place it held
+                        before, and no attached module has changed what it reports.
+                    {% endif %}</div>
+            </li>
+        {% endfor %}
+    </ul>
+</div>

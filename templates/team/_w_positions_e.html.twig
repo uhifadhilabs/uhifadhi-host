@@ -1,0 +1,106 @@
+{# TEAM widget 'positions_e' — SPLIT MANAGER. Design: ngoro-positions-e.html.
+
+   Departments on the left, that department's positions on the right. You are always INSIDE
+   EXACTLY ONE DEPARTMENT and the pane head says which, so a bare "Analyst" is unambiguous by
+   construction. It scales to twenty departments without the page getting longer — and it is the
+   one direction in which you cannot see all positions at once, which is the trade.
+
+   THE RAIL IS NAVIGATION, so each item is a link and the pane beside it is that selection's
+   render: "which department am I in" lives in the `rail` query parameter and survives a reload.
+
+   Receives: members, positions, departments, bands, holders, twins, scope, rail, canManage,
+   manageToken, catalogue. #}
+{% import 'team/_positions.html.twig' as pos %}
+
+<div class="c" data-positions="e">
+    <span class="tab"><span class="idx">PL·02</span>Positions<span class="src">· split manager</span></span>
+    <p class="use tm-lead">Departments on the left, that department’s positions on the right. You are always
+        <b>inside exactly one department</b>, and the right pane says which — so a bare <b>Analyst</b> is
+        unambiguous by construction. Scales to twenty departments without the page getting longer.</p>
+
+    {% if bands is empty %}
+        <p class="use">No departments and no positions yet.</p>
+    {% else %}
+        <div class="split">
+            <div class="dept-rail">
+                <span class="lbl">Departments</span>
+                {% for band in bands|filter(b => b.department) %}
+                    <a class="rail-item {{ band.tone }}{{ rail == band.key ? ' on' }}" href="{{ path('app_team', {rail: band.key}) }}#tm-pane">
+                        <i class="dot {{ band.tone }}"></i>
+                        <span class="rn">{{ band.name }}</span>
+                        <span class="rc">{{ band.positions|length }}</span>
+                        <span class="rh">{{ band.holders }} holder{{ band.holders == 1 ? '' : 's' }}</span>
+                    </a>
+                {% endfor %}
+
+                {% for band in bands|filter(b => b.department is null) %}
+                    <div class="railsplit">
+                        <span class="lbl">Not filed</span>
+                        <a class="rail-item unf{{ rail == band.key ? ' on' }}" href="{{ path('app_team', {rail: band.key}) }}#tm-pane">
+                            <i class="dot un"></i>
+                            <span class="rn">Unfiled</span>
+                            <span class="rc">{{ band.positions|length }}</span>
+                            <span class="rh">{{ band.holders }} holder{{ band.holders == 1 ? '' : 's' }} · transition</span>
+                        </a>
+                    </div>
+                {% endfor %}
+
+                <div class="railnew">
+                    <a class="softbtn dash acc tm-railnew" href="{{ path('app_departments') }}">{{ ux_icon('lucide:plus') }} Department</a>
+                </div>
+            </div>
+
+            <div class="panes" id="tm-pane">
+                {% for band in bands|filter(b => b.key == rail) %}
+                    <div class="pane on" data-pane="{{ band.key }}">
+                        <div class="phead">
+                            <div class="ph-l">
+                                <i class="dot {{ band.tone }}"></i>
+                                {% if band.department %}
+                                    <a href="{{ path('app_departments') }}" title="Open {{ band.department.name }}"><b>{{ band.department.name }}</b></a>
+                                {% else %}
+                                    <b>Unfiled</b>
+                                {% endif %}
+                                <span class="pscope">names unique in <b>{{ band.name }}</b> only</span>
+                            </div>
+                            {% if band.department %}
+                                <a class="open-btn" href="{{ path('app_departments') }}">Open {{ ux_icon('lucide:chevron-right') }}</a>
+                            {% endif %}
+                        </div>
+
+                        {% if band.department is null %}
+                            <p class="use tm-penlead"><b>Not a department.</b> A holding pen for positions created before
+                                departments existed. <em>File…</em> moves one into a real department, holders and all.</p>
+                        {% endif %}
+
+                        <table class="tbl">
+                            <thead><tr><th>Position in <span class="thd">{{ band.name }}</span></th><th>Permissions</th><th class="num">Held by</th><th></th></tr></thead>
+                            <tbody>
+                            {% for position in band.positions %}
+                                <tr {% if position.name|lower in twins %}data-dup="{{ position.name|lower }}"{% endif %}>
+                                    {# Bare: the pane head already said which department. #}
+                                    <td><a href="{{ path('app_team_position_edit', {uuid: position.uuidString}) }}">{{ position.name }}</a>{{ pos.twin(position, twins) }}</td>
+                                    <td>{{ pos.perms(position) }}</td>
+                                    <td class="num">{{ holders[position.id]|default(0) }}</td>
+                                    <td class="num">
+                                        {% if band.department is null and departments is not empty and canManage %}
+                                            <div class="posact">{{ pos.fileForm(position, departments, manageToken, 'File…') }}{{ pos.actions(position, canManage) }}</div>
+                                        {% else %}
+                                            {{ pos.actions(position, canManage) }}
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% else %}
+                                {{ pos.emptyBand(band, 4) }}
+                            {% endfor %}
+                            {% if canManage %}
+                                {{ pos.createRow(band, manageToken) }}
+                            {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+</div>
