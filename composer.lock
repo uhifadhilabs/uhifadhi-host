@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "acf4f76fb27bf9e61bfa6aa325362392",
+    "content-hash": "bf3bbd3d279c2ac807647f53e28cc71d",
     "packages": [
         {
             "name": "api-platform/core",
@@ -8462,16 +8462,16 @@
         },
         {
             "name": "uhifadhilabs/patrol-module",
-            "version": "v0.1.0",
+            "version": "dev-main",
             "source": {
                 "type": "git",
                 "url": "git@github.com:uhifadhilabs/patrol-module.git",
-                "reference": "7744ccec26e6ce888e7a4a34560591f2055ed522"
+                "reference": "93585f506b374364f3f0afe0e38e6b1e1fc12178"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/uhifadhilabs/patrol-module/zipball/7744ccec26e6ce888e7a4a34560591f2055ed522",
-                "reference": "7744ccec26e6ce888e7a4a34560591f2055ed522",
+                "url": "https://api.github.com/repos/uhifadhilabs/patrol-module/zipball/93585f506b374364f3f0afe0e38e6b1e1fc12178",
+                "reference": "93585f506b374364f3f0afe0e38e6b1e1fc12178",
                 "shasum": ""
             },
             "require": {
@@ -8486,22 +8486,32 @@
                 "symfony/config": "^7.3 || ^8.0",
                 "symfony/console": "^7.3 || ^8.0",
                 "symfony/framework-bundle": "^7.3 || ^8.0",
+                "symfony/http-foundation": "^7.3 || ^8.0",
+                "symfony/mime": "^7.3 || ^8.0",
                 "symfony/twig-bundle": "^7.3 || ^8.0",
                 "symfony/uid": "^7.3 || ^8.0",
                 "uhifadhilabs/module-contracts": "dev-main"
             },
             "require-dev": {
+                "api-platform/core": "^4.3",
                 "friendsofphp/php-cs-fixer": "^3.95",
+                "phpdocumentor/reflection-docblock": "^6.0",
                 "phpstan/phpstan": "^2.2",
                 "phpunit/phpunit": "^13.2",
                 "symfony/browser-kit": "^7.3 || ^8.0",
                 "symfony/css-selector": "^7.3 || ^8.0",
                 "symfony/dependency-injection": "^7.3 || ^8.0",
+                "symfony/property-access": "^7.3 || ^8.0",
+                "symfony/property-info": "^7.3 || ^8.0",
                 "symfony/security-bundle": "^7.3 || ^8.0",
                 "symfony/security-core": "^7.3 || ^8.0",
                 "symfony/security-csrf": "^7.3 || ^8.0",
-                "symfony/stimulus-bundle": "^2.20 || ^2.30 || ^2.0"
+                "symfony/security-http": "^7.3 || ^8.0",
+                "symfony/serializer": "^7.3 || ^8.0",
+                "symfony/stimulus-bundle": "^2.20 || ^2.30 || ^2.0",
+                "symfony/validator": "^7.3 || ^8.0"
             },
+            "default-branch": true,
             "type": "symfony-bundle",
             "extra": {
                 "branch-alias": {
@@ -8560,10 +8570,10 @@
                 "uhifadhi"
             ],
             "support": {
-                "source": "https://github.com/uhifadhilabs/patrol-module/tree/v0.1.0",
+                "source": "https://github.com/uhifadhilabs/patrol-module/tree/main",
                 "issues": "https://github.com/uhifadhilabs/patrol-module/issues"
             },
-            "time": "2026-08-23T22:32:17+00:00"
+            "time": "2026-08-25T12:24:09+00:00"
         },
         {
             "name": "uhifadhilabs/seeder-module",
@@ -12776,6 +12786,7 @@
     "minimum-stability": "stable",
     "stability-flags": {
         "uhifadhilabs/module-contracts": 20,
+        "uhifadhilabs/patrol-module": 20,
         "uhifadhilabs/seeder-module": 20
     },
     "prefer-stable": true,
