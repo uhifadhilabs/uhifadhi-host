@@ -1,0 +1,13 @@
+# Mobile token endpoint throttling — the API twin of the web form's
+# login_throttling. Two limiters compose: per-identifier (stops a targeted
+# guess against one ranger) and per-IP (stops a spray across many).
+framework:
+    rate_limiter:
+        api_token_id:
+            policy: fixed_window
+            limit: 5
+            interval: '1 minute'
+        api_token_ip:
+            policy: fixed_window
+            limit: 20
+            interval: '1 minute'

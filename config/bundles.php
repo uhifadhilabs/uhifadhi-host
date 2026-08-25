@@ -32,4 +32,5 @@ return [
     Symfony\UX\Icons\UXIconsBundle::class => ['all' => true],
     UhifadhiLabs\Patrol\UhifadhiLabsPatrolBundle::class => ['all' => true],
     UhifadhiLabs\Seeder\UhifadhiLabsSeederBundle::class => ['all' => true],
+    ApiPlatform\Symfony\Bundle\ApiPlatformBundle::class => ['all' => true],
 ];

@@ -14,6 +14,29 @@ security:
         dev:
             pattern: ^/(_profiler|_wdt|assets|build)/
             security: false
+
+        # Sign-in for the field app. Firewall-free on purpose: a phone whose
+        # token has expired still holds it and still sends it, and that stale
+        # header must never be what stops a ranger signing in again. The
+        # endpoint checks the credentials itself.
+        api_auth:
+            pattern: ^/api/auth/token$
+            security: false
+
+        # The machine API: bearer tokens, no session, no form login, no
+        # remember-me. Stateless is not an optimisation here — the app syncs in
+        # bursts of hundreds of requests from a truck, and a session per burst
+        # would be a lie about a conversation that is not happening.
+        api:
+            pattern: ^/api
+            stateless: true
+            provider: app_user_provider
+            custom_authenticators:
+                - Uhifadhi\Security\ApiTokenAuthenticator
+            # Makes "no token at all" a 401 rather than a 403: the app shows
+            # different things for the two, so the difference has to be real.
+            entry_point: Uhifadhi\Security\ApiTokenAuthenticator
+
         main:
             lazy: true
             provider: app_user_provider
@@ -53,6 +76,15 @@ security:
     access_control:
         - { path: ^/up$, roles: PUBLIC_ACCESS } # Kamal liveness — DB-free, pre-auth
         - { path: ^/login, roles: PUBLIC_ACCESS }
+        # The OpenAPI document and its UIs — dev only (api_platform.yaml turns
+        # them off in prod, so in production these paths simply do not exist).
+        - { path: '^/api/docs', roles: PUBLIC_ACCESS }
+        - { path: '^/api/\.well-known', roles: PUBLIC_ACCESS }
+        - { path: '^/api$', roles: PUBLIC_ACCESS }
+        # Everything else under /api needs a valid token. Per-endpoint
+        # permissions (e.g. patrols.record) are checked by the modules that own
+        # those endpoints — the host does not know what they are.
+        - { path: ^/api, roles: ROLE_USER }
         - { path: ^/team, roles: ROLE_MANAGER } # team administration is manager-level and up
         - { path: ^/, roles: ROLE_USER }
 

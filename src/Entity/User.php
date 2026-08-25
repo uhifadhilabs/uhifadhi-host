@@ -51,6 +51,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $lastName = null;
 
     /**
+     * The short service number a field worker knows themselves by ("sl-0142")
+     * and types into the field app — the API contract's `rangerId`. An email
+     * address is the web sign-in identifier and is a poor one on a phone
+     * keyboard in the rain, so the two identifiers are deliberately separate.
+     * Nullable: office staff never get one, and no existing account is
+     * retro-fitted with an invented number.
+     */
+    #[ORM\Column(length: 32, unique: true, nullable: true)]
+    private ?string $rangerCode = null;
+
+    /**
      * @var list<string>
      */
     #[ORM\Column]
@@ -123,6 +134,20 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getFullName(): string
     {
         return trim(($this->firstName ?? '').' '.($this->lastName ?? ''));
+    }
+
+    public function getRangerCode(): ?string
+    {
+        return $this->rangerCode;
+    }
+
+    /** Stored lower-case: the field app must not fail sign-in over capitalisation. */
+    public function setRangerCode(?string $rangerCode): static
+    {
+        $rangerCode = null === $rangerCode ? null : strtolower(trim($rangerCode));
+        $this->rangerCode = '' === $rangerCode ? null : $rangerCode;
+
+        return $this;
     }
 
     public function getUserIdentifier(): string

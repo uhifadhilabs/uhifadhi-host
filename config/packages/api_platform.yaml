@@ -1,0 +1,36 @@
+# The single /api entry point. The HOST owns api-platform (one firewall, one
+# OpenAPI document, one error shape); MODULES own their resources — api-platform
+# auto-discovers `<bundle>/ApiResource` from kernel.bundles_metadata, exactly as
+# it auto-discovers `<bundle>/Entity`, so nothing patrol-shaped appears here.
+#
+# `mapping.paths` is deliberately UNSET: setting it disables the project-dir
+# defaults (`src/ApiResource`, `src/Entity`). See
+# vendor/api-platform/core/src/Symfony/Bundle/DependencyInjection/ApiPlatformExtension.php
+# (getResourcesToWatch / getBundlesResourcesPaths).
+api_platform:
+    title: Uhifadhi API
+    description: >-
+        Field-app seam for uhifadhi. Every record is created on the client with a
+        UUID v4 and upserted by it: a repeated POST is success with
+        "duplicate": true, never a conflict.
+    version: 1.0.0
+
+    # JSON only. The mobile client speaks application/json; JSON-LD/Hydra would
+    # add @context/@id noise the contract does not describe.
+    formats:
+        json: ['application/json']
+
+    defaults:
+        stateless: true
+        cache_headers:
+            vary: ['Content-Type', 'Authorization', 'Origin']
+
+# The OpenAPI document and its UIs are a DEVELOPMENT tool here: the only client
+# is our own field app, which is built against API-CONTRACT.md, so production
+# exposes no schema browser and no entrypoint to enumerate.
+when@prod:
+    api_platform:
+        enable_docs: false
+        enable_swagger_ui: false
+        enable_re_doc: false
+        enable_entrypoint: false
