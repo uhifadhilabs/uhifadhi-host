@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "dc14649123170944b2df0215c8b25683",
+    "content-hash": "bf3bbd3d279c2ac807647f53e28cc71d",
     "packages": [
         {
             "name": "api-platform/core",
@@ -8462,16 +8462,16 @@
         },
         {
             "name": "uhifadhilabs/patrol-module",
-            "version": "v0.2.0",
+            "version": "dev-main",
             "source": {
                 "type": "git",
                 "url": "git@github.com:uhifadhilabs/patrol-module.git",
-                "reference": "93585f506b374364f3f0afe0e38e6b1e1fc12178"
+                "reference": "1ceae7ceaf8544fe8d7c2b36c3ca77972a45509b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/uhifadhilabs/patrol-module/zipball/93585f506b374364f3f0afe0e38e6b1e1fc12178",
-                "reference": "93585f506b374364f3f0afe0e38e6b1e1fc12178",
+                "url": "https://api.github.com/repos/uhifadhilabs/patrol-module/zipball/1ceae7ceaf8544fe8d7c2b36c3ca77972a45509b",
+                "reference": "1ceae7ceaf8544fe8d7c2b36c3ca77972a45509b",
                 "shasum": ""
             },
             "require": {
@@ -8511,6 +8511,7 @@
                 "symfony/stimulus-bundle": "^2.20 || ^2.30 || ^2.0",
                 "symfony/validator": "^7.3 || ^8.0"
             },
+            "default-branch": true,
             "type": "symfony-bundle",
             "extra": {
                 "branch-alias": {
@@ -8525,7 +8526,8 @@
             "autoload-dev": {
                 "psr-4": {
                     "UhifadhiLabs\\Patrol\\Tests\\": "tests/",
-                    "Uhifadhi\\Entity\\": "tests/Fixtures/Uhifadhi/Entity/"
+                    "Uhifadhi\\Entity\\": "tests/Fixtures/Uhifadhi/Entity/",
+                    "Uhifadhi\\Module\\": "tests/Fixtures/Uhifadhi/Module/"
                 }
             },
             "scripts": {
@@ -8569,10 +8571,10 @@
                 "uhifadhi"
             ],
             "support": {
-                "source": "https://github.com/uhifadhilabs/patrol-module/tree/v0.2.0",
+                "source": "https://github.com/uhifadhilabs/patrol-module/tree/main",
                 "issues": "https://github.com/uhifadhilabs/patrol-module/issues"
             },
-            "time": "2026-08-25T12:24:09+00:00"
+            "time": "2026-08-25T18:50:37+00:00"
         },
         {
             "name": "uhifadhilabs/seeder-module",
@@ -12785,6 +12787,7 @@
     "minimum-stability": "stable",
     "stability-flags": {
         "uhifadhilabs/module-contracts": 20,
+        "uhifadhilabs/patrol-module": 20,
         "uhifadhilabs/seeder-module": 20
     },
     "prefer-stable": true,
