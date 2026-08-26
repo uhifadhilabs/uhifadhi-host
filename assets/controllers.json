@@ -13,6 +13,12 @@
                 "fetch": "eager"
             }
         },
+        "@uhifadhilabs/storage-module": {
+            "preview": {
+                "enabled": true,
+                "fetch": "eager"
+            }
+        },
         "@uhifadhilabs/patrol-module": {
             "coverage-map": {
                 "enabled": true,
