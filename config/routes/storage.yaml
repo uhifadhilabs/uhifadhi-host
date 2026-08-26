@@ -1,0 +1,16 @@
+# The ONE way stored evidence comes back out (uhifadhilabs/storage-module).
+#
+# Only the serving controller is mounted, by file rather than by directory: the
+# bundle also carries a cross-module Files hub, and mounting that is a separate
+# decision about a separate screen, not a side effect of wanting photographs to
+# appear on an observation.
+#
+# The route itself only exists where SecurityBundle is in the kernel — the bundle
+# registers no controller without it, so a deployment can never end up serving
+# field photographs from an unauthenticated endpoint.
+#
+# The whole controller directory: serving AND the Files hub (/files — the
+# cross-module registry the sidebar's "Files" entry opens).
+storage:
+    resource: '@UhifadhiLabsStorageBundle/src/Controller/'
+    type: attribute

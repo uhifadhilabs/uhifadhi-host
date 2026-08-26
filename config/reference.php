@@ -1576,8 +1576,6 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     observation_categories?: array<string, array{ // Default: {"wildlife":{"label":"Wildlife sighting"},"sign":{"label":"Sign / evidence"},"infrastructure":{"label":"Infrastructure"}}
  *         label?: scalar|Param|null,
  *     }>,
- *     photo_dir?: scalar|Param|null, // Where observation photos uploaded by the field app are stored. Outside the document root on purpose: field photographs are evidence, not public assets, and must not be reachable by guessing a URL. // Default: "%kernel.project_dir%/var/patrol/photos"
- *     photo_max_bytes?: int|Param, // Largest accepted photo. The contract expects up to ~5 MB; the phone honours a "Field 2 MP" setting but does not guarantee it, so the ceiling is generous rather than tight. // Default: 12582912
  *     gap_threshold_minutes?: float|Param, // A pause between consecutive GPX points longer than this counts as a GPS gap — flagged on import, stored with the track, never smoothed. // Default: 5.0
  * }
  * @psalm-type SeederConfig = array{
@@ -1883,6 +1881,178 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     },
  *     ...<string, mixed>
  * }
+ * @psalm-type FlysystemConfig = array{
+ *     storages?: array<string, array{ // Default: []
+ *         adapter?: scalar|Param|null, // DEPRECATED: Use the new config format instead (e.g. "local:" instead of "adapter: local")
+ *         options?: list<mixed>,
+ *         asyncaws?: array{
+ *             client?: scalar|Param|null, // The AsyncAws S3 client service name
+ *             bucket?: scalar|Param|null, // The name of the AWS S3 bucket
+ *             prefix?: scalar|Param|null, // Optional path prefix to prepend to all object keys // Default: ""
+ *         },
+ *         aws?: array{
+ *             client?: scalar|Param|null, // The AWS S3 client service name
+ *             bucket?: scalar|Param|null, // The name of the AWS S3 bucket
+ *             prefix?: scalar|Param|null, // Optional path prefix to prepend to all object keys // Default: ""
+ *             options?: list<mixed>,
+ *             streamReads?: bool|Param, // Whether to use streaming for file reads // Default: true
+ *         },
+ *         azure?: array{
+ *             client?: scalar|Param|null, // The Azure Blob Storage client service name
+ *             container?: scalar|Param|null, // The name of the Azure Blob Storage container
+ *             prefix?: scalar|Param|null, // Optional path prefix to prepend to all blob names // Default: ""
+ *         },
+ *         ftp?: array{
+ *             host?: scalar|Param|null, // FTP host
+ *             username?: scalar|Param|null, // FTP username
+ *             password?: scalar|Param|null, // FTP password
+ *             port?: int|Param, // FTP port number // Default: 21
+ *             root?: scalar|Param|null, // FTP root directory // Default: ""
+ *             passive?: bool|Param, // Use passive mode // Default: true
+ *             ssl?: bool|Param, // Use SSL/TLS encryption // Default: false
+ *             timeout?: int|Param, // Connection timeout in seconds // Default: 90
+ *             ignore_passive_address?: scalar|Param|null, // Ignore passive address // Default: null
+ *             utf8?: bool|Param, // Enable UTF8 mode // Default: false
+ *             transfer_mode?: scalar|Param|null, // Transfer mode (FTP_ASCII or FTP_BINARY constant on ftp extension) // Default: null
+ *             system_type?: null|"windows"|"unix"|Param, // FTP system type // Default: null
+ *             timestamps_on_unix_listings_enabled?: bool|Param, // Enable timestamps on Unix listings // Default: false
+ *             recurse_manually?: bool|Param, // Recurse directories manually // Default: true
+ *             use_raw_list_options?: bool|Param|null, // Use raw list options // Default: null
+ *             connectivityChecker?: scalar|Param|null, // Connectivity checker service name // Default: null
+ *             permissions?: array{ // Unix permissions configuration for files and directories
+ *                 file?: array{ // File permissions
+ *                     public?: int|Param, // Public file permissions // Default: 420
+ *                     private?: int|Param, // Private file permissions // Default: 384
+ *                 },
+ *                 dir?: array{ // Directory permissions
+ *                     public?: int|Param, // Public directory permissions // Default: 493
+ *                     private?: int|Param, // Private directory permissions // Default: 448
+ *                 },
+ *             },
+ *         },
+ *         gcloud?: array{
+ *             client?: scalar|Param|null, // The Google Cloud Storage client service name
+ *             bucket?: scalar|Param|null, // The name of the Google Cloud Storage bucket
+ *             prefix?: scalar|Param|null, // Optional path prefix to prepend to all object keys // Default: ""
+ *             visibility_handler?: scalar|Param|null, // Optional visibility handler service name // Default: null
+ *             streamReads?: bool|Param, // Whether to use streaming for file reads // Default: false
+ *         },
+ *         gridfs?: array{
+ *             bucket?: scalar|Param|null, // GridFS bucket service name (if using an existing bucket service) // Default: null
+ *             prefix?: scalar|Param|null, // Optional path prefix to prepend to all file names // Default: ""
+ *             database?: scalar|Param|null, // MongoDB database name // Default: null
+ *             doctrine_connection?: scalar|Param|null, // Doctrine MongoDB connection name (mutually exclusive with mongodb_uri)
+ *             mongodb_uri?: scalar|Param|null, // MongoDB connection URI (mutually exclusive with doctrine_connection)
+ *             mongodb_uri_options?: list<mixed>,
+ *             mongodb_driver_options?: list<mixed>,
+ *         },
+ *         lazy?: array{ // Lazy adapter for runtime storage selection
+ *             source?: scalar|Param|null, // The service name of the storage to use at runtime
+ *         },
+ *         local?: array{
+ *             directory?: scalar|Param|null, // Directory path for local storage
+ *             lock?: int|Param, // Lock flags for file operations // Default: 0
+ *             skip_links?: bool|Param, // Whether to skip symbolic links // Default: false
+ *             lazy_root_creation?: bool|Param, // Whether to create the root directory lazily // Default: false
+ *             permissions?: array{ // Unix permissions configuration for files and directories
+ *                 file?: array{ // File permissions
+ *                     public?: int|Param, // Public file permissions // Default: 420
+ *                     private?: int|Param, // Private file permissions // Default: 384
+ *                 },
+ *                 dir?: array{ // Directory permissions
+ *                     public?: int|Param, // Public directory permissions // Default: 493
+ *                     private?: int|Param, // Private directory permissions // Default: 448
+ *                 },
+ *             },
+ *         },
+ *         memory?: array<mixed>,
+ *         sftp?: array{
+ *             host?: scalar|Param|null, // SFTP host
+ *             username?: scalar|Param|null, // SFTP username
+ *             password?: scalar|Param|null, // SFTP password (optional if using private key) // Default: null
+ *             privateKey?: scalar|Param|null, // Path to private key file or private key content // Default: null
+ *             passphrase?: scalar|Param|null, // Private key passphrase // Default: null
+ *             port?: int|Param, // SFTP port number // Default: 22
+ *             timeout?: int|Param, // Connection timeout in seconds // Default: 90
+ *             hostFingerprint?: scalar|Param|null, // Host fingerprint for verification // Default: null
+ *             connectivityChecker?: scalar|Param|null, // Connectivity checker service name // Default: null
+ *             preferredAlgorithms?: list<mixed>,
+ *             root?: scalar|Param|null, // SFTP root directory // Default: ""
+ *             permissions?: array{ // Unix permissions configuration for files and directories
+ *                 file?: array{ // File permissions
+ *                     public?: int|Param, // Public file permissions // Default: 420
+ *                     private?: int|Param, // Private file permissions // Default: 384
+ *                 },
+ *                 dir?: array{ // Directory permissions
+ *                     public?: int|Param, // Public directory permissions // Default: 493
+ *                     private?: int|Param, // Private directory permissions // Default: 448
+ *                 },
+ *             },
+ *         },
+ *         webdav?: array{
+ *             client?: scalar|Param|null, // The WebDAV client service name
+ *             prefix?: scalar|Param|null, // Optional path prefix to prepend to all paths // Default: ""
+ *             visibility_handling?: "throw"|"ignore"|Param, // How to handle visibility operations // Default: "throw"
+ *             manual_copy?: bool|Param, // Whether to handle copy operations manually // Default: false
+ *             manual_move?: bool|Param, // Whether to handle move operations manually // Default: false
+ *         },
+ *         bunnycdn?: array{
+ *             client?: scalar|Param|null, // The BunnyCDN client service name
+ *             pull_zone?: scalar|Param|null, // The BunnyCDN pull zone name // Default: ""
+ *         },
+ *         service?: scalar|Param|null, // Reference to a custom adapter service (alternative to registered adapter types)
+ *         visibility?: scalar|Param|null, // Default visibility for files // Default: null
+ *         directory_visibility?: scalar|Param|null, // Default visibility for directories // Default: null
+ *         retain_visibility?: scalar|Param|null, // Keeps the original file visibility (public/private) when copying or moving. // Default: null
+ *         case_sensitive?: bool|Param, // Deprecated: The "case_sensitive" option is deprecated and will be removed in 4.0. // Default: true
+ *         disable_asserts?: bool|Param, // Deprecated: The "disable_asserts" option is deprecated and will be removed in 4.0. // Default: false
+ *         public_url?: list<scalar|Param|null>,
+ *         path_normalizer?: scalar|Param|null, // Path normalizer service name (should implement League\Flysystem\PathNormalizer) // Default: null
+ *         public_url_generator?: scalar|Param|null, // For adapter that do not provide public URLs or override adapter capabilities and public_url option, a public URL generator service name can be configured in the main Filesystem configuration (should implement League\Flysystem\UrlGeneration\PublicUrlGenerator) // Default: null
+ *         temporary_url_generator?: scalar|Param|null, // For adapter that do not provide public URLs or override adapter capabilities, a temporary URL generator service name can be configured in the main Filesystem configuration (should implement League\Flysystem\UrlGeneration\TemporaryUrlGenerator) // Default: null
+ *         read_only?: bool|Param, // Converts a file system to read-only // Default: false
+ *     }>,
+ * }
+ * @psalm-type StorageConfig = array{
+ *     files?: array{ // The Files hub — the cross-module screen at /files. It needs SecurityBundle, Twig and the host’s widget framework; where any of those is absent the screens are simply not registered.
+ *         enabled?: bool|Param, // Register the hub, the widget library, the file page and the settings page. On by default: a host that installed this bundle and a module that publishes files wants to be able to look at them. // Default: true
+ *         settings_permission?: scalar|Param|null, // What “Where files go” asks for. Seeing where files are kept is seeing something about every file at once, so it rides on the deployment’s administrator permission — set it to the host’s own Modules permission where there is one. // Default: "ROLE_ADMIN"
+ *         storage_label?: scalar|Param|null, // What an administrator calls the place files go — “Hetzner”, “This server”. The one place a proper noun is allowed, and it comes from the deployment, never from this bundle. // Default: null
+ *         storage_location?: scalar|Param|null, // Where that place physically is, as far as anybody here knows: “Falkenstein, Germany”, “the machine the site runs on”. // Default: null
+ *     },
+ *     evidence?: array{ // The private evidence storage: field photographs and anything else that must never be guessable by URL.
+ *         adapter?: "local"|"s3"|Param, // Where the bytes live. "local" for a directory on this machine, "s3" for any S3-compatible object storage (Hetzner is the production target). // Default: "local"
+ *         directory?: scalar|Param|null, // Local adapter only. Outside the document root, always — nothing here may be reachable without passing the serving route. // Default: "%kernel.project_dir%/var/storage/evidence"
+ *         max_bytes?: int|Param, // Largest file this deployment accepts as evidence. // Default: 12582912
+ *         thumbnail_long_edge?: int|Param, // Long edge, in pixels, of the single JPEG preview generated beside each original. // Default: 400
+ *         allowed_mime_types?: list<scalar|Param|null>,
+ *         s3?: array{ // S3-compatible object storage. Required when adapter is "s3".
+ *             endpoint?: scalar|Param|null, // Full URL of the S3 endpoint, e.g. https://fsn1.your-objectstorage.com // Default: null
+ *             bucket?: scalar|Param|null, // Default: null
+ *             region?: scalar|Param|null, // Default: "us-east-1"
+ *             key?: scalar|Param|null, // Default: null
+ *             secret?: scalar|Param|null, // Default: null
+ *             prefix?: scalar|Param|null, // Optional path prefix inside the bucket, so one bucket can hold several deployments. // Default: ""
+ *             path_style_endpoint?: bool|Param, // Address buckets as endpoint/bucket rather than bucket.endpoint. True by default: Hetzner and Minio both want path style, and only AWS itself really wants the other. // Default: true
+ *         },
+ *     },
+ * }
+ * @psalm-type IncidentConfig = array{
+ *     module_category?: scalar|Param|null, // Catalogue category the Incidents module is filed under in each area. // Default: "pressure"
+ *     dev_tools?: bool|Param, // Register dev-only tooling (seeders, fixtures). The recipe enables this via when@dev/when@test. // Default: false
+ *     currency?: scalar|Param|null, // ISO code the money on an incident is denominated in. One currency per deployment: an area does not collect fines in two. // Default: "TZS"
+ *     taxonomy?: array<string, array{ // Default: []
+ *         label?: scalar|Param|null,
+ *         colour?: scalar|Param|null, // One of the hues incidents.css declares: poach, hwc, comp, mort. A colour the stylesheet has never heard of renders as an invisible mark on a map.
+ *         leads?: list<scalar|Param|null>,
+ *         subcategories?: array<string, array{ // Default: []
+ *             label?: scalar|Param|null,
+ *             money?: "fine"|"compensation"|Param|null, // Which way money runs on this kind, or null for one that carries none — in which case the money block is ABSENT from the form, not greyed out. // Default: null
+ *             term_hours?: int|Param, // The term THIS kind promises. A human injury is 72 h and a construction notice is 14 days; one global SLA would be a lie about both. // Default: 72
+ *             fields?: list<scalar|Param|null>,
+ *         }>,
+ *     }>,
+ * }
  * @psalm-type ConfigType = array{
  *     imports?: ImportsConfig,
  *     parameters?: ParametersConfig,
@@ -1902,6 +2072,9 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     patrol?: PatrolConfig,
  *     seeder?: SeederConfig,
  *     api_platform?: ApiPlatformConfig,
+ *     flysystem?: FlysystemConfig,
+ *     storage?: StorageConfig,
+ *     incident?: IncidentConfig,
  *     "when@dev"?: array{
  *         imports?: ImportsConfig,
  *         parameters?: ParametersConfig,
@@ -1925,6 +2098,9 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         patrol?: PatrolConfig,
  *         seeder?: SeederConfig,
  *         api_platform?: ApiPlatformConfig,
+ *         flysystem?: FlysystemConfig,
+ *         storage?: StorageConfig,
+ *         incident?: IncidentConfig,
  *     },
  *     "when@prod"?: array{
  *         imports?: ImportsConfig,
@@ -1945,6 +2121,9 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         patrol?: PatrolConfig,
  *         seeder?: SeederConfig,
  *         api_platform?: ApiPlatformConfig,
+ *         flysystem?: FlysystemConfig,
+ *         storage?: StorageConfig,
+ *         incident?: IncidentConfig,
  *     },
  *     "when@test"?: array{
  *         imports?: ImportsConfig,
@@ -1968,6 +2147,9 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         patrol?: PatrolConfig,
  *         seeder?: SeederConfig,
  *         api_platform?: ApiPlatformConfig,
+ *         flysystem?: FlysystemConfig,
+ *         storage?: StorageConfig,
+ *         incident?: IncidentConfig,
  *     },
  *     ...<string, ExtensionType|array{ // extra keys must follow the when@%env% pattern or match an extension alias
  *         imports?: ImportsConfig,

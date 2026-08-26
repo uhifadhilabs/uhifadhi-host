@@ -63,6 +63,7 @@
                     <a class="nav-item{{ _nav.team ? ' on' }}" href="{{ path('app_team') }}">{{ ux_icon('lucide:users') }}<span>Team</span></a>
                 {% endif %}
                 <div class="nav-hd">System</div>
+                <a class="nav-item{{ app.current_route starts with 'storage_files' ? ' on' }}" href="{{ path('storage_files') }}" title="Files">{{ ux_icon('lucide:images') }}<span>Files</span></a>
                 <span class="nav-item off" title="Alerts — planned (workflow + audit roadmap)">{{ ux_icon('lucide:bell') }}<span>Alerts</span></span>
             </nav>
             <div class="side-foot">

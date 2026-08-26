@@ -1,0 +1,50 @@
+# Evidence storage (uhifadhilabs/storage-module) — where field photographs live.
+#
+# There is deliberately no flysystem.yaml beside this file: the storage bundle
+# PREPENDS its own `storage.evidence` storage, private on both visibility axes,
+# and a hand-written one would only be a second, weaker definition of it.
+#
+# The directory is `var/patrol/photos` rather than the bundle's own default
+# because that is where this deployment's photographs ALREADY are. The paths the
+# patrols module recorded before it adopted storage-module —
+# `patrol-<uuid>/<clientUuid>.jpg` — are valid evidence keys exactly as they
+# stand, so pointing the storage here means not one stored row is rewritten and
+# not one photograph goes dark. PatrolEvidenceVoter claims that legacy prefix
+# alongside the `patrol/` one new uploads use.
+#
+# Outside the document root, as it must be: nothing here is reachable without
+# passing the authenticated serving route, which asks the owning module whether
+# this reader may see this photograph.
+storage:
+    evidence:
+        adapter: local
+        directory: '%kernel.project_dir%/var/patrol/photos'
+
+# PRODUCTION (Hetzner Object Storage) — S3-compatible, so the same bundle drives
+# it with no code change. Switch by adding, in a deploy-time override:
+#
+#   composer require league/flysystem-async-aws-s3
+#
+#   storage:
+#       evidence:
+#           adapter: s3
+#           s3:
+#               endpoint: '%env(STORAGE_S3_ENDPOINT)%'   # https://fsn1.your-objectstorage.com
+#               bucket:   '%env(STORAGE_S3_BUCKET)%'     # uhifadhi-evidence
+#               region:   '%env(STORAGE_S3_REGION)%'     # fsn1 | nbg1 | hel1
+#               key:      '%env(STORAGE_S3_KEY)%'
+#               secret:   '%env(STORAGE_S3_SECRET)%'
+#               path_style_endpoint: true                # Hetzner addresses buckets as endpoint/bucket
+#
+# The bucket must be private at the bucket level too: the bundle marks every
+# object private, but a public bucket policy overrides that from outside.
+# Existing photographs are copied up first (`rclone`/`aws s3 sync` of
+# var/patrol/photos, keys unchanged) — the keys are relative precisely so that
+# move costs no database work.
+
+    files:
+        # Seeing where every file is kept is seeing something about all of them
+        # at once — gate it with the module-configuration permission.
+        settings_permission: 'module.create'
+        storage_label: 'This server'
+        storage_location: 'Local disk (dev) — Hetzner in production'

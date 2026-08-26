@@ -1,0 +1,10 @@
+# Incidents module (uhifadhilabs/incident-module). dev_tools registers the
+# incidents:seed:* commands — dev/test only, so production never grows commands
+# that fabricate incidents.
+when@dev:
+    incident:
+        dev_tools: true
+
+when@test:
+    incident:
+        dev_tools: true

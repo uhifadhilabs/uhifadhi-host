@@ -33,4 +33,7 @@ return [
     UhifadhiLabs\Patrol\UhifadhiLabsPatrolBundle::class => ['all' => true],
     UhifadhiLabs\Seeder\UhifadhiLabsSeederBundle::class => ['all' => true],
     ApiPlatform\Symfony\Bundle\ApiPlatformBundle::class => ['all' => true],
+    League\FlysystemBundle\FlysystemBundle::class => ['all' => true],
+    UhifadhiLabs\Storage\UhifadhiLabsStorageBundle::class => ['all' => true],
+    UhifadhiLabs\Incident\UhifadhiLabsIncidentBundle::class => ['all' => true],
 ];
