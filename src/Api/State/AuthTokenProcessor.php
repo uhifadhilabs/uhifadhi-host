@@ -86,6 +86,9 @@ final class AuthTokenProcessor implements ProcessorInterface
             'ranger' => [
                 'id' => ContractFormat::rangerId($user),
                 'name' => $user->getFullName(),
+                // What the app's account screen prints under the name: the held
+                // position's name, or the tier's label for the unfiled — never blank.
+                'role' => $user->getPosition()?->getName() ?? $user->getTeamRole()->label(),
             ],
         ]);
     }

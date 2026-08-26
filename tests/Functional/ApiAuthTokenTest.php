@@ -20,6 +20,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Uhifadhi\Entity\ApiToken;
 use Uhifadhi\Entity\User;
+use Uhifadhi\Factory\PositionFactory;
 use Uhifadhi\Factory\UserFactory;
 use Uhifadhi\Service\ApiTokenManager;
 use Zenstruck\Foundry\Test\Factories;
@@ -83,7 +84,9 @@ final class ApiAuthTokenTest extends WebTestCase
         self::assertIsString($body['expiresAt']);
         self::assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/', $body['expiresAt']);
 
-        self::assertSame(['id' => 'sl-0142', 'name' => 'S. Laizer'], $body['ranger']);
+        // 'role' is what the account screen prints: the position's name when one
+        // is held, the tier's label otherwise — never a blank line.
+        self::assertSame(['id' => 'sl-0142', 'name' => 'S. Laizer', 'role' => 'Staff'], $body['ranger']);
     }
 
     public function testTheTokenOutlivesAPostingRatherThanASession(): void
@@ -114,6 +117,22 @@ final class ApiAuthTokenTest extends WebTestCase
         self::assertResponseIsSuccessful();
         $ranger = $this->payload($client)['ranger'];
         self::assertSame('office@authority.go.tz', self::stringAt($ranger, 'id'));
+    }
+
+    public function testTheRoleIsThePositionsNameWhenOneIsHeld(): void
+    {
+        $client = static::createClient();
+        $user = $this->ranger($client, 'sl-0150', 'position@authority.go.tz');
+        $user->setPosition(PositionFactory::createOne(['name' => 'Ranger']));
+        $em = $client->getContainer()->get(EntityManagerInterface::class);
+        \assert($em instanceof EntityManagerInterface);
+        $em->flush();
+
+        $this->postToken($client, ['rangerId' => 'sl-0150', 'passcode' => self::PASSCODE]);
+
+        self::assertResponseIsSuccessful();
+        $ranger = $this->payload($client)['ranger'];
+        self::assertSame('Ranger', self::stringAt($ranger, 'role'));
     }
 
     public function testAWrongPasscodeIsRefusedInTheContractsErrorShape(): void
