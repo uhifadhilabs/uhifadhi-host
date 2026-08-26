@@ -34,6 +34,20 @@
                 "enabled": true,
                 "fetch": "eager"
             }
+        },
+        "@uhifadhilabs/incident-module": {
+            "incident_map": {
+                "enabled": true,
+                "fetch": "eager"
+            },
+            "incident_report": {
+                "enabled": true,
+                "fetch": "eager"
+            },
+            "incident_board": {
+                "enabled": true,
+                "fetch": "eager"
+            }
         }
     },
     "entrypoints": []
