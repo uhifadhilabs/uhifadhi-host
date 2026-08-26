@@ -327,7 +327,8 @@ body::before {
 .side.rail .nav-item,
 .side.rail .row { justify-content: center; padding-left: 0; padding-right: 0; gap: 0; }
 .side.rail .brand { justify-content: center; padding-left: 0; padding-right: 0; }
-.main { flex: 1; min-width: 0; position: relative; }
+.main { flex: 1; min-width: 0; position: relative; display: flex; flex-direction: column; }
+.main > .page:last-child { margin-top: auto; } /* the footer's wrapper: pinned to the viewport bottom on short pages */
 
 /* Main-area top header: account/utility cluster. */
 .topbar {
@@ -695,7 +696,7 @@ table.tbl tr:hover .open-btn { background: rgb(var(--c-acc)); color: rgb(var(--c
 }
 .legend i { width: 9px; height: 9px; border-radius: 2px; display: inline-block; margin-right: 5px; vertical-align: -1px; }
 .glass { background: var(--glass); backdrop-filter: blur(10px); border: 1px solid var(--c-ln2); border-radius: 10px; }
-.footer { margin-top: 44px; border-top: 1px solid var(--c-ln); padding-top: 18px; color: rgb(var(--c-dim)); font-size: 11.5px; max-width: 96ch; line-height: 1.6; }
+.footer { position: relative; z-index: 0; margin-top: 44px; border-top: 1px solid var(--c-ln); padding-top: 18px; color: rgb(var(--c-dim)); font-size: 11.5px; max-width: 96ch; line-height: 1.6; }
 
 /* ==================== MAP CONTROLS (over the satellite base) ==================== */
 /* Dark controls regardless of theme — they sit on the satellite imagery. */
