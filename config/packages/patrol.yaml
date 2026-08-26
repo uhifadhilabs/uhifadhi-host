@@ -1,6 +1,19 @@
 # Patrols module (uhifadhilabs/patrol-module). dev_tools registers the
 # patrol:seed:* commands — dev/test only, so production never grows commands
 # that fabricate patrols.
+
+# The deployment's observation vocabulary — the design's six capture chips
+# (uhifadhi-mobile flow.html), which the Doria app sends verbatim. Keys are
+# the stored wire values; labels are what the web UI shows.
+patrol:
+    observation_categories:
+        wildlife:   { label: Wildlife }
+        carcass:    { label: Carcass }
+        snare_trap: { label: 'Snare / trap' }
+        hwc_sign:   { label: 'HWC sign' }
+        livestock:  { label: Livestock }
+        human_sign: { label: 'Human sign' }
+
 when@dev:
     patrol:
         dev_tools: true
