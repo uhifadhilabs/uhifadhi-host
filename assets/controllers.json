@@ -36,15 +36,15 @@
             }
         },
         "@uhifadhilabs/incident-module": {
-            "incident_map": {
+            "incident-map": {
                 "enabled": true,
                 "fetch": "eager"
             },
-            "incident_report": {
+            "incident-board": {
                 "enabled": true,
                 "fetch": "eager"
             },
-            "incident_board": {
+            "incident-report": {
                 "enabled": true,
                 "fetch": "eager"
             }
