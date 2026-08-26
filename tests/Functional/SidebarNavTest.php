@@ -77,9 +77,85 @@ final class SidebarNavTest extends AuthenticatedWebTestCase
             $crawler->filter('.side .ntree .nta-group:not(.closed) .ntt')
                 ->each(static fn ($node): string => trim($node->text())),
         );
-        // Location, not catalogue: on the Overview tab nothing hangs under Modules.
+        // An area with no module switched on has nothing to hang under Modules, so Modules is
+        // a plain tab here — no caret, no child group.
         self::assertSelectorTextContains('.side .ntree .ntt.on', 'Overview');
         self::assertSelectorNotExists('.side .ntree .ntm');
+        self::assertSelectorNotExists('.side .ntree .ntt.par');
+    }
+
+    /**
+     * The design's own grammar (areas/ngorongoro/modules.html): on the Modules page the Modules
+     * tab is `ntt on par` — lit AND a parent — and its `.ntgroup` is open with one `.ntm` row per
+     * module the area actually has pages for.
+     */
+    public function testTheModulesPageShowsModulesAsAnOpenParentListingEveryModule(): void
+    {
+        $client = static::createClient();
+        $this->loginAs($client);
+        $area = AreaOfInterestFactory::createOne(['name' => 'Composed area']);
+        $this->compose($area, 'patrols', 'Patrols', 1);
+        $this->compose($area, 'incidents', 'Incidents', 2);
+
+        $crawler = $client->request('GET', '/areas/'.$area->getUuidString().'/modules');
+
+        self::assertResponseIsSuccessful();
+        // Lit AND a parent, with the caret that folds its children.
+        self::assertSelectorTextContains('.side .ntree .ntt.on.par', 'Modules');
+        self::assertSelectorExists('.side .ntree .ntt.par .chev[data-action*="sidebar-tree#toggleSubtree"]');
+        // The children are here and unfolded, in the area's own module order, each with its dot.
+        self::assertSelectorNotExists('.side .ntree .ntgroup.closed');
+        self::assertSelectorNotExists('.side .ntree .ntt.par.closed');
+        self::assertSame(
+            ['Patrols', 'Incidents'],
+            $crawler->filter('.side .ntree .ntgroup .ntm')->each(static fn ($node): string => trim($node->text())),
+        );
+        self::assertCount(2, $crawler->filter('.side .ntree .ntm .mdot'));
+        // You are on the grid, not in a module: no child claims the active state.
+        self::assertSelectorNotExists('.side .ntree .ntm.on');
+    }
+
+    /**
+     * Same grammar on the area Overview (areas/ngorongoro/index.html): `ntt par closed` plus a
+     * `ntgroup closed` — the children stay in the DOM so the caret can reopen them.
+     */
+    public function testTheOverviewPageKeepsModulesAParentWithItsChildrenFolded(): void
+    {
+        $client = static::createClient();
+        $this->loginAs($client);
+        $area = AreaOfInterestFactory::createOne(['name' => 'Composed area']);
+        $this->compose($area, 'patrols', 'Patrols', 1);
+
+        $crawler = $client->request('GET', '/areas/'.$area->getUuidString());
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('.side .ntree .ntt.par.closed', 'Modules');
+        self::assertSelectorExists('.side .ntree .ntgroup.closed');
+        self::assertCount(1, $crawler->filter('.side .ntree .ntgroup .ntm'));
+        self::assertSelectorTextContains('.side .ntree .ntt.on', 'Overview');
+    }
+
+    /**
+     * Inside a module the whole catalogue still hangs under Modules — only the one you are in
+     * takes `.on` (areas/ngorongoro/modules/patrols/index.html).
+     */
+    public function testOnlyTheModuleYouAreInsideIsActive(): void
+    {
+        $client = static::createClient();
+        $this->loginAs($client);
+        $area = AreaOfInterestFactory::createOne(['name' => 'Composed area']);
+        $this->compose($area, 'patrols', 'Patrols', 1);
+        $this->compose($area, 'incidents', 'Incidents', 2);
+
+        $crawler = $client->request('GET', '/areas/'.$area->getUuidString().'/modules/patrols');
+
+        self::assertResponseIsSuccessful();
+        self::assertCount(2, $crawler->filter('.side .ntree .ntm'));
+        self::assertCount(1, $crawler->filter('.side .ntree .ntm.on'));
+        self::assertSelectorTextContains('.side .ntree .ntm.on', 'Patrols');
+        // The parent shows the child; it never steals its active state.
+        self::assertSelectorTextContains('.side .ntree .ntt.par', 'Modules');
+        self::assertSelectorNotExists('.side .ntree .ntt.on');
     }
 
     public function testInsideAModuleThatModuleNestsUnderModules(): void
@@ -154,7 +230,7 @@ final class SidebarNavTest extends AuthenticatedWebTestCase
         self::assertSelectorTextContains('.side .ntree .ntt.on', 'Zones');
     }
 
-    private function compose(AreaOfInterest $area, string $slug, string $name): void
+    private function compose(AreaOfInterest $area, string $slug, string $name, int $position = 1): void
     {
         AreaModuleFactory::createOne([
             'area' => $area,
@@ -165,7 +241,7 @@ final class SidebarNavTest extends AuthenticatedWebTestCase
                 'category' => ModuleCategory::Pressure,
             ]),
             'active' => true,
-            'position' => 1,
+            'position' => $position,
         ]);
     }
 }

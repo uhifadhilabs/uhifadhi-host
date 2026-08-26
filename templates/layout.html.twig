@@ -17,8 +17,9 @@
             <nav class="nav" {{ stimulus_controller('sidebar-tree') }}>
                 <div class="nav-hd">Observatory</div>
                 {# Areas + its location TREE: every area is a child row, the area you are in unfolds
-                   to its real tabs, and the module you are inside nests under Modules. The caret
-                   folds; the label always navigates. #}
+                   to its real tabs, and that area's modules hang under Modules — on every one of
+                   its pages, folded away until you are in the Modules space. The caret folds; the
+                   label always navigates. #}
                 <a class="nav-item{{ _nav.onAreas ? ' on' }}{{ _nav.treeOpen ? '' : ' closed' }}" href="{{ path('dashboard_index') }}">
                     {{ ux_icon('lucide:map') }}<span>Areas</span>
                     <button class="chev" type="button" aria-label="Toggle areas"
@@ -33,12 +34,14 @@
                         </a>
                         <div class="nta-group{{ area.current ? '' : ' closed' }}">
                             {% for tab in area.tabs %}
-                                <a class="ntt{{ tab.current ? ' on' }}{{ tab.parent ? ' par' }}" href="{{ tab.url }}">{{ tab.label }}
+                                <a class="ntt{{ tab.current ? ' on' }}{{ tab.parent ? ' par' }}{{ tab.parent and not tab.open ? ' closed' }}" href="{{ tab.url }}">{{ tab.label }}
                                     {%- if tab.parent %}<button class="chev" type="button" aria-label="Toggle {{ tab.label }}"
                                             data-action="sidebar-tree#toggleSubtree">{{ ux_icon('lucide:chevron-down') }}</button>{% endif -%}
                                 </a>
+                                {# The children are always rendered — folding is a class, never an
+                                   omission, or the caret would have nothing to reopen. #}
                                 {% if tab.modules is not empty %}
-                                    <div class="ntgroup">
+                                    <div class="ntgroup{{ tab.open ? '' : ' closed' }}">
                                         {% for module in tab.modules %}
                                             <a class="ntm{{ module.current ? ' on' }}" href="{{ module.url }}"><i class="mdot"></i>{{ module.name }}</a>
                                         {% endfor %}
