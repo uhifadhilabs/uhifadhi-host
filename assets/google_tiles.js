@@ -31,7 +31,10 @@ const EXPIRY_MARGIN_MS = 86400 * 1000;
 export const OSM_TILES = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
 export const OSM_ATTRIBUTION = '© OpenStreetMap contributors';
 
-/* The keyless fallback: what every map used before the Map Tiles key existed. */
+/* The working imagery. Google's Map Tiles API refuses satellite for
+ * EEA-billed accounts (403 createSession), so with this deployment's key the
+ * upgrade below never fires and Esri serves everywhere — by policy, not by
+ * bug. The chain stays in place for keys Google does serve. */
 export const ESRI_TILES =
     'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
 export const ESRI_ATTRIBUTION = 'Esri, Maxar, Earthstar Geographics';
