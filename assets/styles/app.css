@@ -1,6 +1,5 @@
-/* The scrollbar's column is ALWAYS reserved (scrollbar-gutter), so moving
-   between a scrolling page and a short one never shifts the layout sideways
-   — the page-shake the user reported when navigating. */
+/* Reserve the scrollbar gutter so layout never shifts between scrolling
+   and short pages. */
 html { scrollbar-gutter: stable; }
 
 @import "tailwindcss";
