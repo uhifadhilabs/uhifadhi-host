@@ -337,7 +337,8 @@ body::before {
 .side.rail .row { justify-content: center; padding-left: 0; padding-right: 0; gap: 0; }
 .side.rail .brand { justify-content: center; padding-left: 0; padding-right: 0; }
 .main { flex: 1; min-width: 0; position: relative; display: flex; flex-direction: column; }
-.main > .page:last-child { margin-top: auto; } /* the footer's wrapper: pinned to the viewport bottom on short pages */
+.main > .page { width: 100%; }
+.main > .page:last-child { margin-top: auto; } /* footer wrapper: viewport bottom on short pages */
 
 /* Main-area top header: account/utility cluster. */
 .topbar {
