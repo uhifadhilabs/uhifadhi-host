@@ -1,0 +1,12 @@
+{# Uhifadhi masterbrand: the knockout "U" tile with the EMPTY child tile seated in the
+   cut corner (parent × 0.48 at 52,52). Geometry is the ruled system — never redraw it.
+   Paint comes from the --logo-* tokens in app.css: dark ground keeps the canvas colours
+   (#3ED9A8 tile on #0C1310); light ground swaps roles (ink tile, jade child accent).
+   Below 32px use public/icon.svg (solid-chip variant) instead. #}
+<svg class="brandmark" viewBox="0 0 100 100" width="{{ size|default(32) }}" height="{{ size|default(32) }}" role="img" aria-label="Uhifadhi">
+    <path class="bm-tile" fill-rule="evenodd" d="M18 0H82A18 18 0 0 1 100 18V64L64 100H18A18 18 0 0 1 0 82V18A18 18 0 0 1 18 0ZM23 20V50A27 27 0 0 0 77 50V20H62V50A12 12 0 0 1 38 50V20Z"/>
+    <g transform="translate(52,52) scale(0.48)">
+        <path class="bm-child" d="M18 0H82A18 18 0 0 1 100 18V64L64 100H18A18 18 0 0 1 0 82V18A18 18 0 0 1 18 0Z"/>
+        <path class="bm-ring" d="M18 0H82A18 18 0 0 1 100 18V64L64 100H18A18 18 0 0 1 0 82V18A18 18 0 0 1 18 0Z" stroke-width="11"/>
+    </g>
+</svg>

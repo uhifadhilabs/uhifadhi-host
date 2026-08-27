@@ -1,6 +1,20 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Uhifadhi">
-  <!-- Jade tile with the brand's chamfered bottom-right corner -->
-  <path d="M4 0 H28 a4 4 0 0 1 4 4 V23 L23 32 H4 a4 4 0 0 1 -4 -4 V4 a4 4 0 0 1 4 -4 Z" fill="#3ED9A8"/>
-  <!-- U -->
-  <path d="M10.5 8 v7.8 a5.5 5.5 0 0 0 11 0 V8" fill="none" stroke="#0C1310" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="Uhifadhi">
+  <!-- Below-32px rule: the child tile drops its detail and becomes a solid chip.
+       The mark always renders in the theme's accent green: canvas jade #3ED9A8 by
+       default, the light theme's deep jade #0F8A68 on a light scheme. -->
+  <style>
+    .tile { fill: #3ED9A8; }
+    .chip { fill: #3ED9A8; }
+    .ring { fill: none; stroke: #3ED9A8; }
+    @media (prefers-color-scheme: light) {
+      .tile { fill: #0F8A68; }
+      .chip { fill: #0F8A68; }
+      .ring { stroke: #0F8A68; }
+    }
+  </style>
+  <path class="tile" fill-rule="evenodd" d="M18 0H82A18 18 0 0 1 100 18V64L64 100H18A18 18 0 0 1 0 82V18A18 18 0 0 1 18 0ZM23 20V50A27 27 0 0 0 77 50V20H62V50A12 12 0 0 1 38 50V20Z"/>
+  <g transform="translate(52,52) scale(0.48)">
+    <path class="chip" d="M18 0H82A18 18 0 0 1 100 18V64L64 100H18A18 18 0 0 1 0 82V18A18 18 0 0 1 18 0Z"/>
+    <path class="ring" d="M18 0H82A18 18 0 0 1 100 18V64L64 100H18A18 18 0 0 1 0 82V18A18 18 0 0 1 18 0Z" stroke-width="11"/>
+  </g>
 </svg>

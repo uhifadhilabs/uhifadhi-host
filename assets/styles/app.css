@@ -67,6 +67,12 @@ html { scrollbar-gutter: stable; scrollbar-width: thin; scrollbar-color: color-m
     --glass: rgba(255, 255, 255, 0.85);
     --shadow: 0 6px 22px rgba(23, 38, 30, 0.10);
     --accGlow: rgba(15, 138, 104, 0.13);
+    /* Brand mark: always the theme's accent green — never black, never mint-on-white.
+       Riding the channels lands the canvas colours (#3ED9A8 on #0C1310) on dark and
+       the deep jade (#0F8A68 on #F3F2EB) on light with no per-theme override. */
+    --logo-tile: rgb(var(--c-acc));
+    --logo-child: rgb(var(--c-cv));
+    --logo-accent: rgb(var(--c-acc));
 }
 
 html.dark {
@@ -295,14 +301,11 @@ body::before {
 .side .nav { display: flex; flex-direction: column; gap: 5px; margin-top: 4px; }
 .side-top { display: flex; align-items: center; gap: 8px; padding: 2px 2px 16px; }
 .side .brand { display: flex; align-items: center; gap: 10px; flex: 1; padding: 4px; text-decoration: none; color: rgb(var(--c-tx)); overflow: hidden; }
-.side .brand i {
-    width: 26px; height: 26px; flex-shrink: 0; border-radius: 7px; font-style: normal;
-    display: grid; place-items: center; background: rgb(var(--c-acc)); color: rgb(var(--c-accT));
-    font-size: 13px; font-weight: 800; font-family: var(--font-display);
-    clip-path: polygon(0 0, 100% 0, 100% 72%, 72% 100%, 0 100%);
-}
-.side .brand .brandmark { width: 28px; height: 28px; flex-shrink: 0; display: block; }
-.side .brand b { font-family: var(--font-display); font-weight: 700; font-size: 15px; letter-spacing: -.01em; white-space: nowrap; }
+.side .brand .brandmark { width: 32px; height: 32px; flex-shrink: 0; display: block; }
+.brandmark .bm-tile { fill: var(--logo-tile); }
+.brandmark .bm-child { fill: var(--logo-child); }
+.brandmark .bm-ring { fill: none; stroke: var(--logo-accent); }
+.side .brand b { font-family: var(--font-display); font-weight: 600; font-size: 14px; letter-spacing: .1em; white-space: nowrap; }
 .collapse-btn {
     display: grid; place-items: center; width: 30px; height: 30px; flex-shrink: 0;
     border: 0; background: none; color: rgb(var(--c-fog)); border-radius: 8px; cursor: pointer;
@@ -809,8 +812,9 @@ table.tbl tr:hover .open-btn { background: rgb(var(--c-acc)); color: rgb(var(--c
    dashboard. */
 .auth { min-height: 100vh; display: grid; place-items: center; padding: 26px 22px; position: relative; z-index: 1; }
 .auth-card { width: 100%; max-width: 388px; }
-.auth-brand { display: flex; align-items: center; gap: 9px; justify-content: center; margin: 4px 0 16px; }
-.auth-brand b { font-family: var(--font-display); font-size: 19px; font-weight: 700; letter-spacing: -.01em; color: rgb(var(--c-tx)); }
+.auth-brand { display: flex; align-items: center; gap: 12px; justify-content: center; margin: 4px 0 16px; }
+.auth-brand .brandmark { display: block; flex-shrink: 0; }
+.auth-brand b { font-family: var(--font-display); font-size: 17px; font-weight: 600; letter-spacing: .1em; color: rgb(var(--c-tx)); }
 .auth-card .c { padding: 30px 22px 22px; }
 .auth-lede { color: rgb(var(--c-fog)); font-size: 13px; line-height: 1.6; margin: 2px 0 20px; }
 .auth-field { margin-bottom: 15px; }

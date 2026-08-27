@@ -10,7 +10,7 @@
     <div class="shell">
         <aside class="side" id="side" {{ stimulus_controller('sidebar') }}>
             <div class="side-top">
-                <a class="brand" href="{{ path('dashboard_index') }}"><img class="brandmark" src="{{ asset('icon.svg') }}" width="30" height="30" alt=""><b>Uhifadhi</b></a>
+                <a class="brand" href="{{ path('dashboard_index') }}">{% include '_brand_mark.html.twig' with {size: 32} only %}<b>UHIFADHI</b></a>
                 <button class="collapse-btn" type="button" data-action="sidebar#toggle"
                         title="Collapse sidebar" aria-label="Collapse sidebar">{{ ux_icon('lucide:chevrons-left') }}</button>
             </div>

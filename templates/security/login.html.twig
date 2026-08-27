@@ -7,8 +7,8 @@
         <div class="auth-card">
             <form class="c" method="post" action="{{ path('app_login') }}">
                 <div class="auth-brand">
-                    <img class="brandmark" src="{{ asset('icon.svg') }}" width="30" height="30" alt="">
-                    <b>Uhifadhi</b>
+                    {% include '_brand_mark.html.twig' with {size: 44} only %}
+                    <b>UHIFADHI</b>
                 </div>
 
                 <p class="auth-lede">Analytical observatory for protected areas. Sign in to reach the areas register and its modules.</p>
