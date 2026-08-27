@@ -8643,13 +8643,13 @@
             "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "git@github.com:uhifadhilabs/incident-module.git",
-                "reference": "8f2f30b72b4beaa5ed468294242c166fa3aa35dc"
+                "url": "https://github.com/uhifadhilabs/incident-module.git",
+                "reference": "a57f6d438592d1df8b0737539c9f7b6ccf80ef22"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/uhifadhilabs/incident-module/zipball/8f2f30b72b4beaa5ed468294242c166fa3aa35dc",
-                "reference": "8f2f30b72b4beaa5ed468294242c166fa3aa35dc",
+                "url": "https://api.github.com/repos/uhifadhilabs/incident-module/zipball/a57f6d438592d1df8b0737539c9f7b6ccf80ef22",
+                "reference": "a57f6d438592d1df8b0737539c9f7b6ccf80ef22",
                 "shasum": ""
             },
             "require": {
@@ -8680,7 +8680,11 @@
                 "symfony/security-core": "^7.3 || ^8.0",
                 "symfony/security-csrf": "^7.3 || ^8.0",
                 "symfony/security-http": "^7.3 || ^8.0",
-                "symfony/stimulus-bundle": "^2.20 || ^2.30 || ^2.0"
+                "symfony/stimulus-bundle": "^2.20 || ^2.30 || ^2.0",
+                "uhifadhilabs/storage-module": "dev-main"
+            },
+            "suggest": {
+                "uhifadhilabs/storage-module": "To put an incident’s evidence on the platform’s Files hub (/files). Register the bundle and IncidentFileSource registers itself; without it, incidents simply do not appear there."
             },
             "default-branch": true,
             "type": "symfony-bundle",
@@ -8746,7 +8750,7 @@
                 "source": "https://github.com/uhifadhilabs/incident-module/tree/main",
                 "issues": "https://github.com/uhifadhilabs/incident-module/issues"
             },
-            "time": "2026-08-26T12:08:35+00:00"
+            "time": "2026-08-27T06:52:51+00:00"
         },
         {
             "name": "uhifadhilabs/module-contracts",
@@ -8833,13 +8837,13 @@
             "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "git@github.com:uhifadhilabs/patrol-module.git",
-                "reference": "1ceae7ceaf8544fe8d7c2b36c3ca77972a45509b"
+                "url": "https://github.com/uhifadhilabs/patrol-module.git",
+                "reference": "9f7404a644062d5d0589003a60b3db52607f26ee"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/uhifadhilabs/patrol-module/zipball/1ceae7ceaf8544fe8d7c2b36c3ca77972a45509b",
-                "reference": "1ceae7ceaf8544fe8d7c2b36c3ca77972a45509b",
+                "url": "https://api.github.com/repos/uhifadhilabs/patrol-module/zipball/9f7404a644062d5d0589003a60b3db52607f26ee",
+                "reference": "9f7404a644062d5d0589003a60b3db52607f26ee",
                 "shasum": ""
             },
             "require": {
@@ -8858,7 +8862,8 @@
                 "symfony/mime": "^7.3 || ^8.0",
                 "symfony/twig-bundle": "^7.3 || ^8.0",
                 "symfony/uid": "^7.3 || ^8.0",
-                "uhifadhilabs/module-contracts": "dev-main"
+                "uhifadhilabs/module-contracts": "dev-main",
+                "uhifadhilabs/storage-module": "dev-main"
             },
             "require-dev": {
                 "api-platform/core": "^4.3",
@@ -8942,7 +8947,7 @@
                 "source": "https://github.com/uhifadhilabs/patrol-module/tree/main",
                 "issues": "https://github.com/uhifadhilabs/patrol-module/issues"
             },
-            "time": "2026-08-25T18:50:37+00:00"
+            "time": "2026-08-27T11:48:24+00:00"
         },
         {
             "name": "uhifadhilabs/seeder-module",
@@ -9039,13 +9044,13 @@
             "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "git@github.com:uhifadhilabs/storage-module.git",
-                "reference": "907f3ac35ad0b327a6688ec68a29d985ceeb0366"
+                "url": "https://github.com/uhifadhilabs/storage-module.git",
+                "reference": "89741834ad2fa5498131bc82cee984f121051edc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/uhifadhilabs/storage-module/zipball/907f3ac35ad0b327a6688ec68a29d985ceeb0366",
-                "reference": "907f3ac35ad0b327a6688ec68a29d985ceeb0366",
+                "url": "https://api.github.com/repos/uhifadhilabs/storage-module/zipball/89741834ad2fa5498131bc82cee984f121051edc",
+                "reference": "89741834ad2fa5498131bc82cee984f121051edc",
                 "shasum": ""
             },
             "require": {
@@ -9142,7 +9147,7 @@
                 "source": "https://github.com/uhifadhilabs/storage-module/tree/main",
                 "issues": "https://github.com/uhifadhilabs/storage-module/issues"
             },
-            "time": "2026-08-26T12:06:01+00:00"
+            "time": "2026-08-27T06:52:47+00:00"
         },
         {
             "name": "webmozart/assert",
