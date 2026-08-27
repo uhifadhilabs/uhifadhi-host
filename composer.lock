@@ -8644,12 +8644,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/uhifadhilabs/incident-module.git",
-                "reference": "a57f6d438592d1df8b0737539c9f7b6ccf80ef22"
+                "reference": "254fa87bc07a1a8de284cec800c36732aae58991"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/uhifadhilabs/incident-module/zipball/a57f6d438592d1df8b0737539c9f7b6ccf80ef22",
-                "reference": "a57f6d438592d1df8b0737539c9f7b6ccf80ef22",
+                "url": "https://api.github.com/repos/uhifadhilabs/incident-module/zipball/254fa87bc07a1a8de284cec800c36732aae58991",
+                "reference": "254fa87bc07a1a8de284cec800c36732aae58991",
                 "shasum": ""
             },
             "require": {
@@ -8744,13 +8744,14 @@
                 "incidents",
                 "poaching",
                 "symfony",
+                "symfony-ux",
                 "uhifadhi"
             ],
             "support": {
                 "source": "https://github.com/uhifadhilabs/incident-module/tree/main",
                 "issues": "https://github.com/uhifadhilabs/incident-module/issues"
             },
-            "time": "2026-08-27T06:52:51+00:00"
+            "time": "2026-08-27T20:11:56+00:00"
         },
         {
             "name": "uhifadhilabs/module-contracts",
@@ -8758,12 +8759,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/uhifadhilabs/module-contracts.git",
-                "reference": "de57ace23b6a260abe915ae188799ad238df2260"
+                "reference": "1d6bb3e7ddcb2c2a8fc5f0667bad360c79f783cd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/uhifadhilabs/module-contracts/zipball/de57ace23b6a260abe915ae188799ad238df2260",
-                "reference": "de57ace23b6a260abe915ae188799ad238df2260",
+                "url": "https://api.github.com/repos/uhifadhilabs/module-contracts/zipball/1d6bb3e7ddcb2c2a8fc5f0667bad360c79f783cd",
+                "reference": "1d6bb3e7ddcb2c2a8fc5f0667bad360c79f783cd",
                 "shasum": ""
             },
             "require": {
@@ -8830,7 +8831,7 @@
                 "source": "https://github.com/uhifadhilabs/module-contracts/tree/main",
                 "issues": "https://github.com/uhifadhilabs/module-contracts/issues"
             },
-            "time": "2026-08-20T20:42:32+00:00"
+            "time": "2026-08-20T21:01:50+00:00"
         },
         {
             "name": "uhifadhilabs/patrol-module",
@@ -9045,12 +9046,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/uhifadhilabs/storage-module.git",
-                "reference": "89741834ad2fa5498131bc82cee984f121051edc"
+                "reference": "20df722b4917997ed65564a0c2aa486ec534ecf9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/uhifadhilabs/storage-module/zipball/89741834ad2fa5498131bc82cee984f121051edc",
-                "reference": "89741834ad2fa5498131bc82cee984f121051edc",
+                "url": "https://api.github.com/repos/uhifadhilabs/storage-module/zipball/20df722b4917997ed65564a0c2aa486ec534ecf9",
+                "reference": "20df722b4917997ed65564a0c2aa486ec534ecf9",
                 "shasum": ""
             },
             "require": {
@@ -9140,6 +9141,7 @@
                 "s3",
                 "storage",
                 "symfony",
+                "symfony-ux",
                 "thumbnails",
                 "uhifadhi"
             ],
@@ -9147,7 +9149,7 @@
                 "source": "https://github.com/uhifadhilabs/storage-module/tree/main",
                 "issues": "https://github.com/uhifadhilabs/storage-module/issues"
             },
-            "time": "2026-08-27T06:52:47+00:00"
+            "time": "2026-08-27T20:11:54+00:00"
         },
         {
             "name": "webmozart/assert",

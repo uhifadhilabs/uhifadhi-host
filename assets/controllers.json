@@ -13,6 +13,20 @@
                 "fetch": "eager"
             }
         },
+        "@uhifadhilabs/incident-module": {
+            "incident-map": {
+                "enabled": true,
+                "fetch": "eager"
+            },
+            "incident-board": {
+                "enabled": true,
+                "fetch": "eager"
+            },
+            "incident-report": {
+                "enabled": true,
+                "fetch": "eager"
+            }
+        },
         "@uhifadhilabs/patrol-module": {
             "coverage-map": {
                 "enabled": true,
