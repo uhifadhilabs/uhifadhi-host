@@ -54,20 +54,23 @@ final class BrandMarkTest extends AuthenticatedWebTestCase
         self::assertSame(self::KNOCKOUT, $crawler->filter('.auth-brand svg.brandmark path')->first()->attr('d'));
     }
 
-    public function testTheFaviconIsTheSolidChipVariant(): void
+    public function testTheFaviconIsTheFullMasterbrandMark(): void
     {
-        // Below 32px the child tile drops its detail and becomes a solid chip —
-        // the favicon ships that variant, never a shrunk letter mark. The mark
-        // always renders in the theme's accent green: canvas jade by default,
-        // the light theme's deep jade on a light scheme — never black.
+        // The mark never degrades to a chip — the favicon carries the full
+        // masterbrand: knockout U tile with the EMPTY child tile in the cut
+        // corner, at every size. It always renders in the theme's accent
+        // green: canvas colours (#3ED9A8 on #0C1310) by default, the light
+        // theme's deep jade (#0F8A68 on #F3F2EB) on a light scheme — the
+        // accent never black, never mint-on-white.
         $icon = (string) file_get_contents(__DIR__.'/../../public/icon.svg');
 
         self::assertStringContainsString(self::KNOCKOUT, $icon);
         self::assertStringContainsString('translate(52,52) scale(0.48)', $icon);
         self::assertStringContainsString('.tile { fill: #3ED9A8; }', $icon);
+        self::assertStringContainsString('.child { fill: #0C1310; }', $icon);
         self::assertStringContainsString('prefers-color-scheme: light', $icon);
         self::assertStringContainsString('.tile { fill: #0F8A68; }', $icon);
-        self::assertStringNotContainsString('#0C1310', $icon);
+        self::assertStringContainsString('.child { fill: #F3F2EB; }', $icon);
         self::assertStringNotContainsString('<text', $icon);
     }
 }
