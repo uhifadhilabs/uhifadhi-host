@@ -23,7 +23,7 @@ import { mountMapChrome } from 'uhifadhi/map-chrome';
  */
 export default class extends Controller {
     static values = { layers: Array };
-    static targets = ['canvas', 'frame', 'pincard'];
+    static targets = ['canvas', 'frame', 'pincard', 'dock', 'dockcount'];
 
     connect() {
         const L = window.L;
@@ -77,7 +77,30 @@ export default class extends Controller {
             onResize: () => this.frame(),
         });
 
+        // THE DOCK SAYS "IN THIS VIEW", so it has to mean it.
+        if (this.hasDockTarget) {
+            this.map.on('moveend', () => this.syncDock());
+            this.syncDock();
+        }
+
         this.frame();
+    }
+
+    /* Hide the rows whose point is no longer on screen, and say how many are
+     * left. A row with no point of its own (a track, an area) always stays: the
+     * honest answer for a line that crosses the edge is that it is still here. */
+    syncDock() {
+        let shown = 0;
+        const bounds = this.map.getBounds();
+        this.dockTarget.querySelectorAll('.i-hit').forEach((row) => {
+            const lon = Number.parseFloat(row.dataset.lon);
+            const lat = Number.parseFloat(row.dataset.lat);
+            const placed = Number.isFinite(lon) && Number.isFinite(lat);
+            const inside = !placed || bounds.contains([lat, lon]);
+            row.hidden = !inside;
+            if (inside) shown += 1;
+        });
+        if (this.hasDockcountTarget) this.dockcountTarget.textContent = `${shown} in view`;
     }
 
     disconnect() {

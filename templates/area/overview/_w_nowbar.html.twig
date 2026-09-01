@@ -27,9 +27,11 @@
                     {%- if tile.live %}<span class="src">· <span class="ao-live"><i></i></span></span>{% endif -%}
                 </span>
                 <b class="disp">{{ tile.value }}{% if tile.unit %}<em>{{ tile.unit }}</em>{% endif %}</b>
+                {# THE ALARM LEADS. A person scanning six tiles reads the first few words of each
+                   subline, so the thing that is wrong cannot be the last clause of it. #}
                 <span class="sub">
+                    {%- if tile.alarm %}<span class="r">{{ tile.alarm }}</span>{{ tile.subline ? ' · ' }}{% endif -%}
                     {{- tile.subline -}}
-                    {%- if tile.alarm %}{{ tile.subline ? ' · ' }}<span class="r">{{ tile.alarm }}</span>{% endif -%}
                 </span>
             </div>
         {% endfor %}

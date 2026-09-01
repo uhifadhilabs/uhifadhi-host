@@ -98,6 +98,29 @@ final class AreaOverviewSurfaceTest extends AuthenticatedWebTestCase
         self::assertSelectorNotExists('.ao-att');
     }
 
+    public function testTheAreasOwnOutlineIsDrawnThePlatformsWayAndNotAsAGenericLayer(): void
+    {
+        $client = static::createClient();
+        $this->loginAs($client);
+        $area = AreaOfInterestFactory::createOne();
+
+        $crawler = $client->request('GET', '/areas/'.$area->getUuidString());
+
+        // Every map in the product draws a boundary the same way — a casing, a
+        // line and a scrim the DIM pill switches — and those numbers live once,
+        // in assets/map_boundary.js. A plate that asked for a generic 2px line
+        // would read differently from every other map in the app.
+        /** @var array<int, array{id: string, style: string}> $layers */
+        $layers = json_decode(
+            (string) $crawler->filter('[data-controller="overview-map"]')->attr('data-overview-map-layers-value'),
+            true,
+            flags: \JSON_THROW_ON_ERROR,
+        );
+
+        self::assertSame('boundary', $layers[0]['style']);
+        self::assertSame('host.boundary', $layers[0]['id']);
+    }
+
     public function testThePlateIsTheHostsAndEveryLayerOnItShipsALegendEntry(): void
     {
         $client = static::createClient();

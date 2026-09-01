@@ -11,7 +11,7 @@
     <span class="tab">
         <span class="idx">AO·10</span>The area
         {%- if layers|filter(l => l.live)|length %}<span class="src">· <span class="ao-live"><i></i>live</span></span>{% endif -%}
-        <span class="src">· the list follows the plate</span>
+        <span class="src">· the list follows the viewport</span>
     </span>
     {{ include('area/overview/_ao_by.html.twig', {slug: 'host', who: 'host plate · module layers'}, with_context: false) }}
 
@@ -29,15 +29,19 @@
             </div>
         </div>
         <div class="i-listcol">
-            <div class="i-listhd">In this view<span class="n">{{ drawn|reduce((c, l) => c + l.features.features|length, 0) }} drawn</span></div>
-            <div class="i-listbody">
+            <div class="i-listhd">In this view<span class="n" data-overview-map-target="dockcount">{{ drawn|reduce((c, l) => c + l.features.features|length, 0) }} drawn</span></div>
+            <div class="i-listbody" data-overview-map-target="dock">
                 {% for layer in drawn %}
                     <div class="i-listhd" style="border-top:0;border-bottom:1px dashed var(--c-ln);padding:9px 6px">
                         <i style="width:7px;height:7px;border-radius:2px;display:inline-block;background:{{ layer.swatch }}"></i>{{ layer.groupLabel }} · {{ layer.label|lower }}
                     </div>
                     {% for feature in layer.features.features %}
                         {% set p = feature.properties|default({}) %}
-                        <a class="i-hit" href="{{ p.url is defined ? p.url : '#' }}">
+                        {# The row carries its own point so the plate can say whether it is still in
+                           view — the host reads a coordinate, not a meaning. #}
+                        <a class="i-hit" href="{{ p.url is defined ? p.url : '#' }}"
+                           data-lon="{{ feature.geometry.coordinates[0]|default('') }}"
+                           data-lat="{{ feature.geometry.coordinates[1]|default('') }}">
                             <span class="r1"><span class="id">{{ p.ref is defined ? p.ref : (p.name is defined ? p.name : '—') }}</span>
                                 {%- if p.state is defined and p.state %}<span class="chip">{{ p.state }}</span>{% endif -%}
                             </span>
