@@ -8,13 +8,13 @@
     {{ include('area/overview/_ao_by.html.twig', {slug: 'host', who: 'host'}, with_context: false) }}
 
     <table class="tbl">
-        <tr><th>module</th><th>contributes here</th><th style="text-align:right">since</th></tr>
+        <tr><th>module</th><th>contributes here</th><th class="num">since</th></tr>
         {% for module in by.host.installed %}
             {% set c = contributions[module.slug]|default({widgets: 0, tiles: 0, attention: 0, layers: 0}) %}
             <tr>
                 <td><a href="{{ urls.modules }}"><i class="ao-dot {{ module.slug }}"></i>{{ module.name }}</a></td>
                 <td class="fog">{{ c.widgets }} widget{{ c.widgets == 1 ? '' : 's' }} · {{ c.tiles }} now-tile{{ c.tiles == 1 ? '' : 's' }} · {{ c.attention }} attention item{{ c.attention == 1 ? '' : 's' }} · {{ c.layers }} map layer{{ c.layers == 1 ? '' : 's' }}</td>
-                <td class="num mono" style="font-size:11px">{{ module.since ? module.since|date('M Y')|lower : '—' }}</td>
+                <td class="num mono ao-sm">{{ module.since ? module.since|date('M Y')|lower : '—' }}</td>
             </tr>
         {% else %}
             <tr><td class="d" colspan="3">No module is switched on in this area, so nothing operational is on this page.</td></tr>
@@ -24,5 +24,5 @@
     <div class="use">A module is installed <b>per area</b>. Everything it contributes appears the moment it is, and leaves
         the moment it is not — including its tiles inside the host’s own strip and its items inside the host’s own
         attention list.</div>
-    <a class="open-btn" href="{{ urls.customize }}" style="margin-top:8px">Add a module to this area →</a>
+    <a class="open-btn ao-gap" href="{{ urls.customize }}">Add a module to this area →</a>
 </div>

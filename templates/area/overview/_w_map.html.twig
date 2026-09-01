@@ -17,8 +17,8 @@
     {{ include('area/overview/_ao_by.html.twig', {slug: 'host', who: 'host plate · module layers'}, with_context: false) }}
 
     <div class="map-frame" data-overview-map-target="frame">
-        <div class="viewer" style="height:min(58vh,560px)">
-            <div data-overview-map-target="canvas" style="position:absolute;inset:0"></div>
+        <div class="viewer ao-plate">
+            <div class="ao-mapcanvas" data-overview-map-target="canvas"></div>
         </div>
     </div>
 

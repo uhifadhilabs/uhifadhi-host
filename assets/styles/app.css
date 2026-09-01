@@ -3799,6 +3799,30 @@ th.sortable.on.desc .sortmark { border-bottom: 0; border-top: 5px solid rgb(var(
 }
 .ao-legend .lay.off .tog { border-style: dashed; }
 
+/* ---- the surface's small spacing and type modifiers ----------------------
+   The design workspace wrote these inline on the plates it drew. A repeated
+   value written inline on nine partials is nine places to change it, so the
+   surface states each once. Nothing here is new: they are the same numbers. */
+/* A `.use` line that OPENS a plate rather than closing it: no top margin, and
+   it is what the plate says before it shows anything. */
+.ao-lede { margin: 0 2px 10px; }
+/* A row of the plate's own footnotes, set off from what is above it. */
+.ao-gap { margin-top: 10px; }
+/* The footnote's value: mono, one step down from the row's own size. */
+.mono.ao-sm { font-size: 11px; }
+/* A contributor's heading INSIDE the docked list — a divider, not a header. */
+.ao-layerhd { border-top: 0; border-bottom: 1px dashed var(--c-ln); padding: 9px 6px; }
+.ao-layerhd i { display: inline-block; width: 7px; height: 7px; border-radius: 2px; }
+
+/* ---- the plate's own two heights ----------------------------------------
+   Stated here rather than inline on the partials, and stated once each: the
+   fixed plate is a card on a page of cards, the docked one takes the height of
+   the screen because the dock beside it gives that height something to do. */
+.ao-plate { height: min(58vh, 560px); }
+.ao-plate-tall { height: min(70vh, 680px); }
+/* Leaflet's own container, filling the viewer it sits in. */
+.ao-mapcanvas { position: absolute; inset: 0; }
+
 /* ---- live, in a plate's tab --------------------------------------------- */
 /* The dot the top bar already uses, at plate scale. Only a widget that actually
    polls may wear it. */

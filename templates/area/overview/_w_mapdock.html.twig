@@ -15,10 +15,10 @@
     </span>
     {{ include('area/overview/_ao_by.html.twig', {slug: 'host', who: 'host plate · module layers'}, with_context: false) }}
 
-    <div class="i-split" style="margin-top:4px">
+    <div class="i-split">
         <div class="i-mapcol plate-fill" data-overview-map-target="frame">
-            <div class="viewer" style="height:min(70vh,680px)">
-                <div data-overview-map-target="canvas" style="position:absolute;inset:0"></div>
+            <div class="viewer ao-plate-tall">
+                <div class="ao-mapcanvas" data-overview-map-target="canvas"></div>
                 {# The hovered feature, named on the imagery itself, so the eye
                    does not have to leave the map to find out what it is looking
                    at. Filled from the layer's own properties — the host reads
@@ -32,8 +32,8 @@
             <div class="i-listhd">In this view<span class="n" data-overview-map-target="dockcount">{{ drawn|reduce((c, l) => c + l.features.features|length, 0) }} drawn</span></div>
             <div class="i-listbody" data-overview-map-target="dock">
                 {% for layer in drawn %}
-                    <div class="i-listhd" style="border-top:0;border-bottom:1px dashed var(--c-ln);padding:9px 6px">
-                        <i style="width:7px;height:7px;border-radius:2px;display:inline-block;background:{{ layer.swatch }}"></i>{{ layer.groupLabel }} · {{ layer.label|lower }}
+                    <div class="i-listhd ao-layerhd">
+                        <i style="background:{{ layer.swatch }}"></i>{{ layer.groupLabel }} · {{ layer.label|lower }}
                     </div>
                     {% for feature in layer.features.features %}
                         {% set p = feature.properties|default({}) %}

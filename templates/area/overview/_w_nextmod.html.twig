@@ -14,7 +14,7 @@
         <div class="use">Every module the catalogue holds is switched on in this area. When a new one is added to the
             catalogue it appears here first, before anybody installs it.</div>
     {% else %}
-        <div class="use" style="margin:0 2px 12px">Nothing below is drawn with invented data, because there is none. Only
+        <div class="use ao-lede">Nothing below is drawn with invented data, because there is none. Only
             an installed module’s provider can say what it would put on this page, and these have not been asked.</div>
         <div class="ao-slot">
             {% for module in by.next.absent %}
@@ -27,13 +27,13 @@
         </div>
     {% endif %}
 
-    <div class="rln" style="margin-top:12px">
+    <div class="rln ao-gap">
         <span class="fog">What installing one changes on this page</span>
-        <span class="mono" style="font-size:11px">a headed section in the library · nothing else</span>
+        <span class="mono ao-sm">a headed section in the library · nothing else</span>
     </div>
     <div class="rln">
         <span class="fog">What it changes in the host</span>
-        <span class="mono acc" style="font-size:11px">nothing — new tagged provider classes only</span>
+        <span class="mono acc ao-sm">nothing — new tagged provider classes only</span>
     </div>
-    <a class="open-btn" href="{{ urls.customize }}" style="margin-top:10px">Add a module to this area →</a>
+    <a class="open-btn ao-gap" href="{{ urls.customize }}">Add a module to this area →</a>
 </div>

@@ -15,7 +15,7 @@
         <div class="use">Nothing is asking for you. A good day is allowed to look like one — this list is built from
             what every installed module says is wrong right now, so an empty list is an answer and not a gap.</div>
     {% else %}
-        <div class="use" style="margin:0 2px 8px">Sorted by urgency, not by module. An item leaves this list when the
+        <div class="use ao-lede">Sorted by urgency, not by module. An item leaves this list when the
             thing that raised it is dealt with — nobody dismisses one by hand, because the host did not raise it.</div>
         {% for item in attention %}
             <a class="ao-att {{ item.severity.cssClass }}" href="{{ item.url }}">
@@ -30,9 +30,9 @@
                 <span class="age">{{ item.ageLabel }}</span>
             </a>
         {% endfor %}
-        <div class="rln" style="margin-top:8px">
+        <div class="rln ao-gap">
             <span class="fog">If a module is uninstalled</span>
-            <span class="mono" style="font-size:11px">its items leave this list the same day — nothing is orphaned</span>
+            <span class="mono ao-sm">its items leave this list the same day — nothing is orphaned</span>
         </div>
     {% endif %}
 </div>

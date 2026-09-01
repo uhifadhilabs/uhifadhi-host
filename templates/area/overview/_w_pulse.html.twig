@@ -13,13 +13,28 @@
         <div class="use">Nothing moved in this window. The pulse shows what happened while you were away, so an empty
             stream is a quiet night rather than a missing feed.</div>
     {% else %}
-        <div class="use" style="margin:0 2px 6px">Every module writes the same kind of row — a move, a time, a person.
+        <div class="use ao-lede">Every module writes the same kind of row — a move, a time, a person.
             That is why one component draws all of them, and why a new module needs no work here.</div>
         {% for day in pulse %}
-            <div class="i-day"><b>{{ day.day|date('D j M')|lower }}</b><span class="cnt">{{ day.events|length }} event{{ day.events|length == 1 ? '' : 's' }}</span></div>
+            {# The day's own count, and what it is made of. The host counts by CONTRIBUTOR, because
+               that is the only breakdown it can make without knowing what any module's moves mean. #}
+            {% set byModule = {} %}
+            {% for event in day.events %}
+                {% set byModule = byModule|merge({(event.moduleLabel): (byModule[event.moduleLabel]|default(0)) + 1}) %}
+            {% endfor %}
+            <div class="i-day">
+                <b>{{ day.day|date('D j M')|lower }}</b>
+                <span class="cnt">{{ day.events|length }} event{{ day.events|length == 1 ? '' : 's' }}{% for label, n in byModule %} · {{ n }} {{ label|lower }}{% endfor %}</span>
+            </div>
             {% for event in day.events %}
                 <a class="i-feed" href="{{ event.url }}">
-                    <span class="gut"><span class="hm">{{ event.at|date('H:i') }}</span></span>
+                    {# THE AGE IS WHY THE STREAM READS AS "WHILE YOU WERE AWAY". A clock time alone
+                       makes a person do the subtraction. #}
+                    {% set mins = ((now.timestamp - event.at.timestamp) / 60)|round(0, 'floor') %}
+                    <span class="gut">
+                        <span class="hm">{{ event.at|date('H:i') }}</span>
+                        <span class="ago">{{ mins < 60 ? mins ~ ' min' : (mins < 1440 ? (mins // 60) ~ ' h' : (mins // 1440) ~ ' d') }}</span>
+                    </span>
                     <span class="mark"><i style="background:{{ event.swatch }}"></i></span>
                     <span class="bd">
                         <span class="hl">
