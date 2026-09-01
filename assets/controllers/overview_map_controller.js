@@ -30,12 +30,32 @@ export default class extends Controller {
             console.error('[overview-map] window.L (Leaflet) is not loaded — check the <script> tag');
             return;
         }
-        // A widget can be rendered into a zero-size stage (the library's preview
-        // cards), and a vector renderer with no bounds never draws. Wait for
-        // layout rather than building a map into nothing.
+        // A cached Turbo snapshot is not a page: building a map into one leaves a
+        // map that is thrown away and a container Leaflet then refuses to reuse.
         if (this.element.closest('[data-turbo-preview]')) return;
         this.L = L;
 
+        // THE LIBRARY RENDERS EVERY WIDGET, including this one, into a stage that
+        // is scaled and may have no size at all when the controller connects. A
+        // vector renderer with no bounds never draws and Leaflet throws on the
+        // deferred layer queue, so the build waits for layout rather than
+        // happening into nothing.
+        if (this.canvasTarget.offsetWidth && this.canvasTarget.offsetHeight) {
+            this.build();
+
+            return;
+        }
+        this.observer = new ResizeObserver(() => {
+            if (!this.canvasTarget.offsetWidth || !this.canvasTarget.offsetHeight) return;
+            this.observer.disconnect();
+            this.observer = null;
+            this.build();
+        });
+        this.observer.observe(this.canvasTarget);
+    }
+
+    build() {
+        const L = this.L;
         this.map = L.map(this.canvasTarget, { zoomControl: false });
         this.canvasTarget.classList.add('map-chrome-host');
         this.map.setView([0, 0], 2); // a view before any vector layer: Leaflet 1.9 needs one
@@ -56,9 +76,12 @@ export default class extends Controller {
     }
 
     disconnect() {
+        this.observer?.disconnect();
+        this.observer = null;
         this.chrome?.destroy();
         this.chrome = null;
         this.layers?.clear();
+        this.layers = null;
         if (this.map) {
             this.map.stop();
             this.map.remove();
@@ -140,7 +163,7 @@ export default class extends Controller {
     toggle(event) {
         event.preventDefault();
         const entry = event.currentTarget;
-        const layer = this.layers.get(entry.dataset.layerId);
+        const layer = this.layers?.get(entry.dataset.layerId);
         if (!layer) return;
 
         const on = !entry.classList.contains('off');
@@ -155,6 +178,7 @@ export default class extends Controller {
     /* Frame the area on whatever is drawn, so the plate opens on the place
      * rather than on the world. */
     frame() {
+        if (!this.map) return;
         let bounds = null;
         this.layers.forEach((layer) => {
             if (!this.map.hasLayer(layer)) return;
