@@ -48,9 +48,17 @@ final class AreaOverviewPresets
     public const string SHIPPED_DESCRIPTION = 'What the host ships: the identity band, the right-now strip, what needs attention, the operational map, and one card from each installed module. Direction-neutral on purpose — adopt one of the five below to lead with something sharper.';
 
     /**
-     * Letter => [label, the compare index's trade-off line, the layout].
+     * Letter => [label, the compare index's trade-off line, the layout, the
+     * widget ids that MAKE it that direction].
      *
-     * @return array<string, array{string, string, array<string, int>}>
+     * THE LAST ELEMENT IS WHAT KEEPS A TRIMMED DESIGN HONEST. A layout trimmed
+     * to what an area has can survive with its thesis gone — "the page is
+     * literally the sum of its modules" with no module column left is a card
+     * that promises something it cannot draw. So each direction names the
+     * widgets it IS, and {@see \Uhifadhi\Service\AreaOverviewCatalogue} drops it
+     * when none of them survives rather than offering an empty promise.
+     *
+     * @return array<string, array{string, string, array<string, int>, list<string>}>
      */
     public static function directions(): array
     {
@@ -59,26 +67,35 @@ final class AreaOverviewPresets
                 'Pulse first',
                 'The morning read as one column, newest at the top: the live strip, then what needs you, then the stream of everything that happened while you were away, and only then the map. Fastest way to find out what changed overnight; the weakest at answering “where”, and a quiet week reads as an empty page.',
                 ['ident' => 12, 'nowbar' => 12, 'attention' => 12, 'pulse' => 12, 'map' => 12, 'presence' => 6, 'in_flow' => 6],
+                ['pulse'],
             ],
             'b' => [
                 'Map as ground',
                 'The area IS the map: it takes the height of the screen and everything else docks to it, so “where” is answered before “what”. Unbeatable for spotting a cluster, a stranded patrol or an unwatched corner; worst for money, paperwork and anything that has no coordinates.',
                 ['ident' => 12, 'mapdock' => 12, 'nowbar' => 12, 'attention' => 6, 'presence' => 6],
+                ['mapdock'],
             ],
             'c' => [
                 'Module columns',
                 'After a thin host band the page is literally the sum of its modules — one column each, under its own heading, contributed whole. The only direction where the architecture is visible to the person using it and a new module needs no layout decision; it repeats a heading three times and wastes the top-left corner on a column that may be quiet today.',
                 ['ident' => 12, 'nowbar' => 12, 'pl_column' => 6, 'in_column' => 6, 'nextmod' => 12],
+                // Any module column at all. With none, this is not "the sum of
+                // its modules" — it is a band and an empty slot.
+                ['pl_column', 'in_column'],
             ],
             'd' => [
                 'Duty board',
                 'A control-room wall: every number the area has, at once, dense, legible across a room, every tile a link into the list behind it. Nothing needs scrolling and nothing is prose. Superb for a shift start and for a screen nobody sits at; it tells you a count is wrong and never what happened.',
                 ['ident' => 12, 'board' => 12, 'attention' => 6, 'pl_now' => 6, 'in_flow' => 6, 'presence' => 6, 'map' => 12],
+                ['board'],
             ],
             'e' => [
                 'Attention queue',
                 'A worklist, not a report. The page opens on the things that go wrong if nobody touches them today — with an owner and an age on every one — then the two queues that feed it, then the map, and the identity facts sink to a footer band. The most honest about the morning; it hides a good day, and a manager who wants a number has to go and find it.',
                 ['attention' => 12, 'pl_obsq' => 12, 'in_flow' => 6, 'pl_gaps' => 6, 'map' => 12, 'ident' => 12],
+                // The worklist is the direction; the queues that feed it are
+                // what a module adds to it.
+                ['attention'],
             ],
         ];
     }

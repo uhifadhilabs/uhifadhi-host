@@ -197,11 +197,9 @@ final class AreaOverviewCatalogueTest extends TestCase
         $catalog = self::catalogue()->for([]);
 
         self::assertNotNull($catalog->preset('a'), 'Pulse first is all host widgets and survives alone.');
-        self::assertSame(
-            ['ident', 'nowbar', 'nextmod'],
-            $catalog->preset('c')?->ids(),
-            'What is left of Module columns is the host band and the honest empty slot.',
-        );
+        // "The page is literally the sum of its modules" with no module column
+        // left would be a band and an empty slot under a thesis it cannot draw.
+        self::assertNull($catalog->preset('c'));
     }
 
     public function testEveryWidgetIsRenderedByItsOwnContributorsTemplate(): void

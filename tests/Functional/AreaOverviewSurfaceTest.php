@@ -158,9 +158,14 @@ final class AreaOverviewSurfaceTest extends AuthenticatedWebTestCase
         self::assertSelectorTextContains('.w-presetflag-active', 'Active');
         $labels = $crawler->filter('.w-presetname')->each(static fn ($n): string => trim($n->text()));
         self::assertContains('The area overview', $labels);
-        foreach (['Pulse first', 'Map as ground', 'Module columns', 'Duty board', 'Attention queue'] as $direction) {
+        foreach (['Pulse first', 'Map as ground', 'Duty board', 'Attention queue'] as $direction) {
             self::assertContains($direction, $labels, $direction.' ships as a preset, not as a parallel page.');
         }
+        // A DESIGN WITHOUT ITS THESIS IS NOT THAT DESIGN. This area has no module
+        // installed, so "Module columns" — whose whole conviction is that the page
+        // is the sum of its modules — has no column to draw and is not offered.
+        // A card promising a layout it cannot produce is worse than no card.
+        self::assertNotContains('Module columns', $labels);
         // THE HEADED SECTIONS ARE CONTRIBUTORS on this surface, and the page
         // says so rather than leaving it to the code.
         self::assertSelectorTextContains('.w-galnote', 'a contributor, not a direction');

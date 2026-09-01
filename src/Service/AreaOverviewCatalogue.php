@@ -182,13 +182,20 @@ final readonly class AreaOverviewCatalogue
     private static function presetsFor(array $available): array
     {
         $presets = [];
-        foreach (AreaOverviewPresets::directions() as $id => [$label, $description, $layout]) {
+        foreach (AreaOverviewPresets::directions() as $id => [$label, $description, $layout, $defining]) {
             $trimmed = array_filter(
                 $layout,
                 static fn (string $widgetId): bool => \in_array($widgetId, $available, true),
                 \ARRAY_FILTER_USE_KEY,
             );
             if ([] === $trimmed) {
+                continue;
+            }
+            // A DESIGN WITHOUT ITS THESIS IS NOT THAT DESIGN. "The page is
+            // literally the sum of its modules" with every module column trimmed
+            // away is a card promising something it cannot draw — worse than no
+            // card, because a person adopts it and then wonders what broke.
+            if ([] === array_intersect($defining, array_keys($trimmed))) {
                 continue;
             }
             $presets[] = new WidgetPreset($id, $label, $description, $trimmed);
