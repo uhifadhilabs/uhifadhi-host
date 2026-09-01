@@ -847,9 +847,17 @@ table.tbl tr:hover .open-btn { background: rgb(var(--c-acc)); color: rgb(var(--c
 .impersonation-banner a { margin-left: auto; color: rgb(var(--c-accT)); text-decoration: underline; font-weight: 700; }
 
 /* ==================== TEAM (positions + permissions) ==================== */
-/* Member cell: small avatar beside the name. */
-.who { display: flex; align-items: center; gap: 9px; }
-.who b { font-size: 13px; font-weight: 600; color: rgb(var(--c-tx)); }
+/* Member cell: small avatar beside the name.
+
+   div.who, NOT .who. This stylesheet is loaded on every page in the product,
+   including the pages a module bundle renders, and `who` is too short a word to
+   own outright: a module writes <span class="who">S. Laizer</span> for a name
+   INSIDE A SENTENCE, and a bare `.who { display: flex }` turned that span into a
+   block and broke the sentence in two. Three modules had patched it at their own
+   callers; the fix belongs with the rule. The host's member cell is a <div>
+   everywhere it is drawn, so the rule says so. */
+div.who { display: flex; align-items: center; gap: 9px; }
+div.who b { font-size: 13px; font-weight: 600; color: rgb(var(--c-tx)); }
 .avatar.sm { width: 26px; height: 26px; font-size: 10.5px; border-radius: 7px; }
 
 /* Tier tag in the roster — jade for the top tier, fading to dim for Staff. */
@@ -2673,6 +2681,70 @@ table.tbl td.dcell + td { white-space: nowrap; }
     border: 1px solid color-mix(in srgb, var(--z-paper) 22%, transparent);
     border-radius: 6px; padding: 4px 8px;
 }
+
+/* ---- the docked map split ---------------------------------------------
+   THE MAP PLATE IS THE HOST'S, AND SO IS THE SPLIT AROUND IT. The incidents
+   module drew this first — a map with its results docked beside it, scrolling
+   independently so panning never loses your place — and the area overview draws
+   the same split. Two surfaces means it is not a module's vocabulary, and the
+   copy that stayed in the module had already drifted from itself: a second
+   `.i-listcol` further down that file capped the column at 520px and put the
+   scrollbar back, so the same markup rendered differently depending on which
+   rule the cascade reached last. One copy, here, beside .viewer.
+
+   A module adds map CONTENT — its tracks, its pins, its legend entry. It never
+   ships a second plate and never a second split. */
+.i-split { display: grid; grid-template-columns: minmax(0, 1fr) 388px; gap: 18px; align-items: stretch; }
+@media (max-width: 1100px) {
+    .i-split { grid-template-columns: 1fr; }
+}
+.i-split > .i-mapcol { min-width: 0; display: flex; flex-direction: column; }
+/* The map's height must exist BEFORE Leaflet builds: a zero-height container
+   gives the vector renderer no bounds and the layer never draws. */
+.i-split > .i-mapcol .viewer { flex: 1; min-height: 460px; display: grid; }
+.i-split > .i-mapcol .viewer > svg { width: 100%; height: 100%; }
+.i-listcol {
+    display: flex; flex-direction: column; min-height: 0;
+    border: 1px solid var(--c-ln); border-radius: 14px;
+    background: linear-gradient(180deg, rgb(var(--c-p1)), rgb(var(--c-p2)));
+    box-shadow: var(--shadow); overflow: hidden;
+}
+.i-listhd {
+    padding: 12px 15px; border-bottom: 1px solid var(--c-ln);
+    display: flex; align-items: center; gap: 9px;
+    font: 600 9.5px var(--font-mono); letter-spacing: .14em; text-transform: uppercase;
+    color: rgb(var(--c-fog));
+}
+.i-listhd .n { margin-left: auto; color: rgb(var(--c-acc)); letter-spacing: .04em; }
+.i-listbody { overflow-y: auto; max-height: min(64vh, 620px); padding: 4px 8px 8px; }
+.i-hit {
+    display: block; padding: 11px 8px;
+    border-bottom: 1px dashed color-mix(in srgb, rgb(var(--c-fog)) 16%, transparent);
+    text-decoration: none; color: rgb(var(--c-tx));
+    border-left: 2px solid transparent; cursor: pointer;
+}
+.i-hit:last-child { border-bottom: 0; }
+.i-hit:hover { background: color-mix(in srgb, rgb(var(--c-acc)) 5%, transparent); text-decoration: none; }
+.i-hit.on { background: color-mix(in srgb, rgb(var(--c-acc)) 9%, transparent); border-left-color: rgb(var(--c-acc)); }
+.i-hit .r1 { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap; }
+.i-hit .id { font: 700 10.5px var(--font-mono); color: rgb(var(--c-acc)); }
+.i-hit .r2 { font-size: 12.5px; line-height: 1.5; color: rgb(var(--c-tx)); }
+.i-hit .r3 {
+    display: flex; align-items: center; gap: 9px; margin-top: 6px; flex-wrap: wrap;
+    font: 400 9.5px var(--font-mono); color: rgb(var(--c-dim));
+}
+/* The hovered pin's card, floating ON the imagery — so its colours are the map
+   chrome's fixed ones, for the reason stated at the top of this block. */
+.i-pincard {
+    position: absolute; z-index: 500; left: 12px; bottom: 12px; width: 262px;
+    padding: 12px 13px; border-radius: 11px;
+    background: color-mix(in srgb, var(--z-ink) 90%, transparent);
+    border: 1px solid color-mix(in srgb, var(--z-paper) 20%, transparent);
+    color: var(--z-paper);
+}
+.i-pincard .id { display: block; font: 700 10px var(--font-mono); color: var(--z-aoi); margin-bottom: 5px; }
+.i-pincard .tt { display: block; font-size: 12px; line-height: 1.5; margin-bottom: 7px; }
+.i-pincard .mt { display: block; font: 400 9px var(--font-mono); color: color-mix(in srgb, var(--z-paper) 62%, transparent); }
 
 /* The permanent zone name on its own polygon — a halo, so it survives imagery. */
 .zone-label, .leaflet-tooltip.zone-label {
