@@ -8644,12 +8644,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/uhifadhilabs/incident-module.git",
-                "reference": "4174e0804eaba0578b513f371336262cd2765e69"
+                "reference": "19b75c0387c1d318568950333188829af51c686a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/uhifadhilabs/incident-module/zipball/4174e0804eaba0578b513f371336262cd2765e69",
-                "reference": "4174e0804eaba0578b513f371336262cd2765e69",
+                "url": "https://api.github.com/repos/uhifadhilabs/incident-module/zipball/19b75c0387c1d318568950333188829af51c686a",
+                "reference": "19b75c0387c1d318568950333188829af51c686a",
                 "shasum": ""
             },
             "require": {
@@ -8705,6 +8705,7 @@
                     "Uhifadhi\\Exception\\": "tests/Fixtures/Uhifadhi/Exception/",
                     "Uhifadhi\\Model\\": "tests/Fixtures/Uhifadhi/Model/",
                     "Uhifadhi\\Module\\": "tests/Fixtures/Uhifadhi/Module/",
+                    "Uhifadhi\\Overview\\": "tests/Fixtures/Uhifadhi/Overview/",
                     "Uhifadhi\\Repository\\": "tests/Fixtures/Uhifadhi/Repository/",
                     "Uhifadhi\\Service\\": "tests/Fixtures/Uhifadhi/Service/"
                 }
@@ -8751,7 +8752,7 @@
                 "source": "https://github.com/uhifadhilabs/incident-module/tree/main",
                 "issues": "https://github.com/uhifadhilabs/incident-module/issues"
             },
-            "time": "2026-08-28T04:52:01+00:00"
+            "time": "2026-09-01T21:05:10+00:00"
         },
         {
             "name": "uhifadhilabs/module-contracts",
@@ -8839,12 +8840,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/uhifadhilabs/patrol-module.git",
-                "reference": "941ad48dc2a2800fe63d6c166ebe044497490de7"
+                "reference": "efe21fdef96e2acdbb65f2e83b3bfef3e5b0c896"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/uhifadhilabs/patrol-module/zipball/941ad48dc2a2800fe63d6c166ebe044497490de7",
-                "reference": "941ad48dc2a2800fe63d6c166ebe044497490de7",
+                "url": "https://api.github.com/repos/uhifadhilabs/patrol-module/zipball/efe21fdef96e2acdbb65f2e83b3bfef3e5b0c896",
+                "reference": "efe21fdef96e2acdbb65f2e83b3bfef3e5b0c896",
                 "shasum": ""
             },
             "require": {
@@ -8905,6 +8906,7 @@
                     "Uhifadhi\\Exception\\": "tests/Fixtures/Uhifadhi/Exception/",
                     "Uhifadhi\\Model\\": "tests/Fixtures/Uhifadhi/Model/",
                     "Uhifadhi\\Module\\": "tests/Fixtures/Uhifadhi/Module/",
+                    "Uhifadhi\\Overview\\": "tests/Fixtures/Uhifadhi/Overview/",
                     "Uhifadhi\\Repository\\": "tests/Fixtures/Uhifadhi/Repository/",
                     "Uhifadhi\\Service\\": "tests/Fixtures/Uhifadhi/Service/"
                 }
@@ -8953,7 +8955,7 @@
                 "source": "https://github.com/uhifadhilabs/patrol-module/tree/main",
                 "issues": "https://github.com/uhifadhilabs/patrol-module/issues"
             },
-            "time": "2026-09-01T12:44:43+00:00"
+            "time": "2026-09-01T21:00:06+00:00"
         },
         {
             "name": "uhifadhilabs/seeder-module",
