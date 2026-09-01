@@ -81,14 +81,19 @@ final readonly class NextModulesContributor implements OverviewContributorInterf
     public function context(AreaOfInterest $area, \DateTimeImmutable $now): array
     {
         $installed = [];
-        foreach ($this->areaModules->forArea($area) as $areaModule) {
-            if ($areaModule->isActive() && null !== $areaModule->getModule()?->getSlug()) {
-                $installed[] = $areaModule->getModule()->getSlug();
+        foreach ($this->areaModules->activeForArea($area) as $areaModule) {
+            $slug = $areaModule->getModule()?->getSlug();
+            if (null !== $slug) {
+                $installed[] = $slug;
             }
         }
 
+        // READ ONCE. The catalogue is a whole table, and this method used to walk
+        // it to build the list and then walk it again to count it.
+        $catalogue = $this->modules->findAll();
+
         $absent = [];
-        foreach ($this->modules->findAll() as $module) {
+        foreach ($catalogue as $module) {
             $slug = $module->getSlug();
             if (null === $slug || \in_array($slug, $installed, true)) {
                 continue;
@@ -105,7 +110,7 @@ final readonly class NextModulesContributor implements OverviewContributorInterf
 
         return [
             'absent' => $absent,
-            'catalogueCount' => \count($this->modules->findAll()),
+            'catalogueCount' => \count($catalogue),
             'installedCount' => \count($installed),
         ];
     }

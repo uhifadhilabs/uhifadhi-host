@@ -87,21 +87,35 @@ final class AreaOverviewController extends AbstractController
      *
      * The strip comes back as ITS OWN MARKUP rather than as numbers, so a
      * refreshed tile cannot be drawn differently from a rendered one.
+     *
+     * IT ASKS FOR ONLY WHAT IT ANSWERS WITH. Building the whole page's context
+     * here — every contributor's reading of the day, the attention list, the
+     * pulse, the legend, four generated URLs — and then throwing all of it away
+     * to render one strip would make the cheap endpoint the expensive one, every
+     * thirty seconds, for as long as the tab is open.
      */
     #[Route('/overview/now', name: 'app_area_overview_now', methods: ['GET'], priority: 2)]
     public function now(#[MapEntity(mapping: ['uuid' => 'uuid'])] AreaOfInterest $area): Response
     {
         $installed = $this->installedSlugs($area);
+        $now = new \DateTimeImmutable();
 
         $layers = [];
-        foreach ($this->composer->mapLayers($area, $installed, new \DateTimeImmutable()) as $layer) {
+        foreach ($this->composer->mapLayers($area, $installed, $now) as $layer) {
             if ($layer->live) {
                 $layers[] = ['id' => $layer->id, 'features' => $layer->features];
             }
         }
 
+        $attention = $this->composer->attention($area, $installed, $now);
+
         return $this->json([
-            'strip' => $this->renderView('area/overview/_w_nowbar.html.twig', $this->widgetContext($area, $installed)),
+            'strip' => $this->renderView('area/overview/_w_nowbar.html.twig', [
+                'tiles' => [
+                    ...$this->composer->nowTiles($area, $installed, $now),
+                    ...$this->composer->hostSummaryTiles($attention, $this->generateUrl('dashboard_area_show', ['uuid' => $area->getUuidString()])),
+                ],
+            ]),
             'layers' => $layers,
         ]);
     }

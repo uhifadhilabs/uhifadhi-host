@@ -107,7 +107,7 @@ final readonly class HostOverviewContributor implements OverviewContributorInter
             'established' => $area->getEstablishedYear(),
             'centroid' => $centroid,
             'installed' => $this->installed($area),
-            'catalogueCount' => \count($this->modules->findAll()),
+            'catalogueCount' => $this->modules->count([]),
         ];
     }
 
