@@ -36,9 +36,11 @@
 
         <div class="pghead">
             <div>
-                <h1 class="pg">{{ area.name }} · widget library</h1>
-                <p class="pgsub">Choose the layout this area’s overview shows, or compose your own. Every widget below is
-                    the real thing at full size, exactly as the page renders it.</p>
+                <h1 class="pg">{{ area.name }} · overview · widget library</h1>
+                <p class="pgsub">Adopt one of the designs this page ships, or compose your own. Every widget is the real
+                    thing at full size, exactly as the overview renders it — and <b>the headed sections are the
+                    contributors</b>, not design directions: the host, then every module installed in this area, then
+                    what the catalogue holds and this area does not.</p>
             </div>
             <div class="pgact w-pgact">
                 <button type="button" class="tgl w-act" {{ constant('Uhifadhi\\Model\\WidgetDom::RESET') }}
@@ -47,8 +49,8 @@
                         data-confirm-modal-title-value="Reset your widget layout?"
                         data-confirm-modal-message-value="This area's overview goes back to the composition the host ships — “The area overview”. Your own presets are kept, and your other areas are untouched."
                         data-confirm-modal-confirm-label-value="Reset layout"
-                        data-confirm-modal-danger-value="true">{{ ux_icon('lucide:rotate-ccw') }}Reset to defaults</button>
-                <a class="cta" href="{{ path('dashboard_area_show', {uuid: area.uuid}) }}">{{ ux_icon('lucide:chevron-left') }}Back to the area</a>
+                        data-confirm-modal-danger-value="true">{{ ux_icon('lucide:rotate-ccw') }}Reset to the shipped overview</button>
+                <a class="cta" href="{{ path('dashboard_area_show', {uuid: area.uuid}) }}">{{ ux_icon('lucide:chevron-left') }}Back to the overview</a>
             </div>
         </div>
 
@@ -59,8 +61,8 @@
             <div><b>A group here is a contributor, not a direction.</b> On every other surface a headed section is one of
                 the designs it was drawn in, because one owner wrote every widget. Here the division that matters is
                 <b>who contributed the widget</b> — so that when a module is uninstalled and its cards disappear, that
-                reads as the system working rather than as a bug. The directions are still below, as presets. Your
-                choices are saved per user <b>and per area</b>.</div>
+                reads as the system working rather than as a bug. The directions are still here; they are presets, and
+                they are just not the group axis. Your choices are saved per user <b>and per area</b>.</div>
         </div>
 
         {{ include('widgets/_library.html.twig', {
