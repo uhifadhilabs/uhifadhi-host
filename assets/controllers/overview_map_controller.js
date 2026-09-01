@@ -1,5 +1,6 @@
 import { Controller } from '@hotwired/stimulus';
 import { satelliteLayer, streetLayer } from 'uhifadhi/basemaps';
+import { drawBoundary } from 'uhifadhi/boundary';
 import { mountMapChrome } from 'uhifadhi/map-chrome';
 
 /*
@@ -66,8 +67,12 @@ export default class extends Controller {
         this.layers = new Map();
         this.drawLayers();
 
+        // The DIM pill needs the scrim the boundary layer built, so the chrome
+        // goes on after the layers rather than before them.
         this.chrome = mountMapChrome(L, this.map, this.canvasTarget.parentElement, {
             bases: this.bases,
+            scrim: this.scrim,
+            scrimOn: Boolean(this.scrim) && this.map.hasLayer(this.scrim),
             fullscreenTarget: this.hasFrameTarget ? this.frameTarget : this.canvasTarget.parentElement,
             onResize: () => this.frame(),
         });
@@ -96,6 +101,22 @@ export default class extends Controller {
     }
 
     addLayer(def) {
+        // THE AREA'S OWN OUTLINE IS NOT A GENERIC LAYER. It goes through the
+        // platform's one boundary definition — white casing, jade line, and the
+        // scrim that turns the area into figure and the rest of the world into
+        // ground — so this plate reads exactly like every other map in the
+        // product rather than drawing its own 2px line.
+        if (def.style === 'boundary') {
+            const boundary = drawBoundary(this.L, this.map, def.features, { scrim: def.on });
+            if (boundary) {
+                this.layers.set(def.id, boundary);
+                this.scrim = boundary.scrimLayer;
+                if (!def.on) this.map.removeLayer(boundary);
+            }
+
+            return;
+        }
+
         {
             const line = def.style === 'line';
             const layer = this.L.geoJSON(def.features, {

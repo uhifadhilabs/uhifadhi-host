@@ -82,7 +82,7 @@ final readonly class HostMapLayers implements MapLayerProviderInterface
                     'geometry' => json_decode($boundary, true),
                     'properties' => ['name' => $area->getName()],
                 ]]),
-                MapLayer::STYLE_LINE,
+                MapLayer::STYLE_BOUNDARY,
             ),
             new MapLayer(
                 'host.zones',

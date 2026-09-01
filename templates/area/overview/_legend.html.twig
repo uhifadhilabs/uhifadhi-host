@@ -10,7 +10,9 @@
                 <a class="lay{{ layer.on ? '' : ' off' }}" href="#"
                    data-layer-id="{{ layer.id }}"
                    data-action="click->overview-map#toggle">
-                    <span class="sw{{ layer.style == 'line' ? ' ln' }}" style="{{ layer.style == 'line' ? 'color' : 'background' }}:{{ layer.swatch }}"></span>
+                    {# A rule for a line or the boundary, a block for a shape or a pin. #}
+                    {% set rule = layer.style in ['line', 'boundary'] %}
+                    <span class="sw{{ rule ? ' ln' }}" style="{{ rule ? 'color' : 'background' }}:{{ layer.swatch }}"></span>
                     {{ layer.label }}{% if layer.count is not null %} · {{ layer.count }}{% endif %}
                     <span class="tog">{{ layer.on ? 'on' : 'off' }}</span>
                 </a>

@@ -39,6 +39,16 @@ final readonly class MapLayer
     public const string STYLE_LINE = 'line';
     /** A filled shape or a point: the swatch is a block. */
     public const string STYLE_FILL = 'fill';
+    /**
+     * THE AREA'S OWN OUTLINE, drawn the platform's one way: a white casing under
+     * a jade line, with everything outside it dimmed by a scrim the map's DIM
+     * control switches. Those numbers live once, in assets/map_boundary.js, and
+     * every map in the product reads them from there — so a layer that IS the
+     * boundary says so rather than asking for a 2px line and quietly reading
+     * differently from every other plate. Only the host declares one: a module
+     * does not own where the area ends.
+     */
+    public const string STYLE_BOUNDARY = 'boundary';
 
     /**
      * @param string               $id       unique across the plate; `<module>.<layer>` by convention
@@ -64,7 +74,7 @@ final readonly class MapLayer
         if ('' === $id || '' === $label || '' === $groupLabel) {
             throw new \InvalidArgumentException('A map layer needs an id, a label and the group its legend sits under.');
         }
-        if (!\in_array($style, [self::STYLE_LINE, self::STYLE_FILL], true)) {
+        if (!\in_array($style, [self::STYLE_LINE, self::STYLE_FILL, self::STYLE_BOUNDARY], true)) {
             throw new \InvalidArgumentException(\sprintf('Map layer "%s" asks for the swatch style "%s", which the legend does not draw.', $id, $style));
         }
         if ('FeatureCollection' !== ($features['type'] ?? null)) {
