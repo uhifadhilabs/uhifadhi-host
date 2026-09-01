@@ -18,7 +18,10 @@
 {% else %}
     <div class="grid w-flush dp-kstrip">
         {% for tile in tiles %}
-            <div class="c kpi{{ tile.tone == 'hot' ? ' hot' }}{{ tile.tone == 'bad' ? ' bad' }}">
+            {# The strip has one emphasis (.hot) and one alarm, and the alarm is
+               the WORDS — a red number with no sentence beside it tells a person
+               that something is wrong and never what. #}
+            <div class="c kpi{{ tile.tone == 'hot' ? ' hot' }}">
                 <span class="tab">
                     <span class="idx">{{ tile.index }}</span>{{ tile.label }}
                     {%- if tile.live %}<span class="src">· <span class="ao-live"><i></i></span></span>{% endif -%}
