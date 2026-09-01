@@ -93,12 +93,26 @@ export default class extends Controller {
                     const p = feature.properties || {};
                     const title = p.ref || p.title || p.name;
                     if (title) leafletLayer.bindTooltip(p.detail ? `${title} · ${p.detail}` : String(title));
+                    // The docked plate names the hovered feature ON the imagery,
+                    // from the layer's own properties. Nothing here knows what a
+                    // patrol or an incident is.
+                    if (!this.hasPincardTarget) return;
+                    leafletLayer.on('mouseover', () => this.showPin(p, def));
+                    leafletLayer.on('mouseout', () => { this.pincardTarget.hidden = true; });
                 },
             });
 
             this.layers.set(def.id, layer);
             if (def.on) layer.addTo(this.map);
         });
+    }
+
+    showPin(p, def) {
+        const card = this.pincardTarget;
+        card.querySelector('.id').textContent = p.ref || p.name || def.id;
+        card.querySelector('.tt').textContent = p.title || '';
+        card.querySelector('.mt').textContent = [p.place, p.when, p.detail].filter(Boolean).join(' · ');
+        card.hidden = false;
     }
 
     /* The legend IS the switch. → the `lay` entries in _legend.html.twig */

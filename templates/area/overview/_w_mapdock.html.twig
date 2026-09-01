@@ -18,6 +18,13 @@
         <div class="i-mapcol plate-fill" data-overview-map-target="frame">
             <div class="viewer" style="height:min(70vh,680px)">
                 <div data-overview-map-target="canvas" style="position:absolute;inset:0"></div>
+                {# The hovered feature, named on the imagery itself, so the eye
+                   does not have to leave the map to find out what it is looking
+                   at. Filled from the layer's own properties — the host reads
+                   them and interprets none of them. #}
+                <div class="i-pincard" data-overview-map-target="pincard" hidden>
+                    <span class="id"></span><span class="tt"></span><span class="mt"></span>
+                </div>
             </div>
         </div>
         <div class="i-listcol">
