@@ -140,7 +140,7 @@ final class AreaOverviewSurfaceTest extends AuthenticatedWebTestCase
         }
         // THE HEADED SECTIONS ARE CONTRIBUTORS on this surface, and the page
         // says so rather than leaving it to the code.
-        self::assertSelectorTextContains('.w-libintro', 'a contributor, not a direction');
+        self::assertSelectorTextContains('.w-galnote', 'a contributor, not a direction');
         // …and the picker's rail is those sections: the host, then each
         // installed module, then the catalogue's uninstalled ones last.
         self::assertSame(

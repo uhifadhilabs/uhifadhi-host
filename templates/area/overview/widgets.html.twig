@@ -52,11 +52,16 @@
             </div>
         </div>
 
-        <p class="pgsub w-libintro"><b>A group here is a contributor, not a direction.</b> On every other surface a headed
-            section is one of the five designs it was drawn in, because one owner wrote every widget. Here the division
-            that matters is <b>who contributed the widget</b> — so that when a module is uninstalled and its cards
-            disappear, that reads as the system working. The five directions are still below, as presets. Your choices
-            are saved per user <b>and per area</b>.</p>
+        {# THE ONE THING THIS SURFACE HAS TO SAY BEFORE THE COMPONENT STARTS, and it is said in the
+           product rather than only in the code. #}
+        <div class="w-galnote">
+            {{ ux_icon('lucide:search') }}
+            <div><b>A group here is a contributor, not a direction.</b> On every other surface a headed section is one of
+                the designs it was drawn in, because one owner wrote every widget. Here the division that matters is
+                <b>who contributed the widget</b> — so that when a module is uninstalled and its cards disappear, that
+                reads as the system working rather than as a bug. The directions are still below, as presets. Your
+                choices are saved per user <b>and per area</b>.</div>
+        </div>
 
         {{ include('widgets/_library.html.twig', {
             catalog: catalog,

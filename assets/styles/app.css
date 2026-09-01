@@ -3572,6 +3572,21 @@ th.sortable.on.desc .sortmark { border-bottom: 0; border-top: 5px solid rgb(var(
     .dp-goalpair { grid-template-columns: 1fr; }
 }
 
+/* ---- a library page's own note ------------------------------------------
+   .w-galnote — the card a library page uses to say something about the whole
+   surface before the component below it starts. Dashed and tinted so it can
+   never read as one of the widgets. The icon is sized HERE, not left to the
+   markup: a component that owns a slot owns the size of what goes in it. */
+.w-galnote {
+    display: flex; gap: 12px; align-items: flex-start;
+    border: 1px dashed color-mix(in srgb, rgb(var(--c-acc)) 42%, transparent); border-radius: 12px;
+    padding: 13px 16px; margin: 0 0 22px;
+    background: color-mix(in srgb, rgb(var(--c-acc)) 5%, transparent);
+    color: rgb(var(--c-fog)); font-size: 12.5px; line-height: 1.6;
+}
+.w-galnote svg { flex: none; width: 17px; height: 17px; color: rgb(var(--c-acc)); margin-top: 2px; }
+.w-galnote b { color: rgb(var(--c-tx)); }
+
 /* ============================================================================
    AREA OVERVIEW — the surface's own vocabulary
    ----------------------------------------------------------------------------
