@@ -2746,6 +2746,53 @@ table.tbl td.dcell + td { white-space: nowrap; }
 .i-pincard .tt { display: block; font-size: 12px; line-height: 1.5; margin-bottom: 7px; }
 .i-pincard .mt { display: block; font: 400 9px var(--font-mono); color: color-mix(in srgb, var(--z-paper) 62%, transparent); }
 
+/* A plate whose map takes the height it is given rather than a fixed one — what
+   the map-led compositions put the plate inside. */
+.plate-fill { display: flex; flex-direction: column; }
+.plate-fill .viewer { flex: 1; min-height: 0; display: grid; }
+
+/* ---- the day-grouped feed ----------------------------------------------
+   THE SECOND VOCABULARY THE INCIDENTS MODULE DREW FIRST AND THE HOST NOW OWNS.
+   The area pulse is a host widget and it is exactly this: reverse-chronological,
+   grouped by day, one row per MOVE. The module's own feed draws the same rows,
+   so like the docked split it cannot live in a module's stylesheet — the same
+   row must render identically in both. A day is a sticky header carrying its own
+   count, so scrolling never loses the date. */
+.i-day {
+    position: sticky; top: 56px; z-index: 4; display: flex; align-items: center; gap: 12px;
+    padding: 9px 2px; margin: 22px 0 4px;
+    background: color-mix(in srgb, rgb(var(--c-cv)) 92%, transparent); backdrop-filter: blur(8px);
+}
+.i-day b { font: 700 10.5px var(--font-mono); letter-spacing: .18em; text-transform: uppercase; color: rgb(var(--c-tx)); }
+.i-day .cnt { font: 400 9.5px var(--font-mono); color: rgb(var(--c-dim)); }
+.i-day::after { content: ""; flex: 1; height: 1px; background: var(--c-ln2); }
+.i-feed {
+    display: flex; gap: 14px; padding: 14px 2px;
+    border-bottom: 1px dashed color-mix(in srgb, rgb(var(--c-fog)) 18%, transparent);
+    align-items: flex-start; text-decoration: none; color: rgb(var(--c-tx));
+}
+.i-feed:hover { background: color-mix(in srgb, rgb(var(--c-acc)) 4%, transparent); text-decoration: none; }
+.i-feed .gut { width: 56px; flex: none; text-align: right; padding-top: 2px; }
+.i-feed .gut .hm { display: block; font: 700 11px var(--font-mono); color: rgb(var(--c-tx)); }
+.i-feed .gut .ago { display: block; font: 400 8.5px var(--font-mono); color: rgb(var(--c-dim)); margin-top: 3px; }
+.i-feed .mark { width: 11px; flex: none; position: relative; align-self: stretch; }
+.i-feed .mark i { position: absolute; left: 1px; top: 5px; width: 9px; height: 9px; border-radius: 2px; font-style: normal; }
+.i-feed .bd { flex: 1; min-width: 0; }
+.i-feed .bd .hl { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
+.i-feed .bd .id { font: 700 10.5px var(--font-mono); color: rgb(var(--c-acc)); }
+.i-feed .bd .tt { font-size: 13px; line-height: 1.55; }
+.i-feed .bd .mt {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 7px;
+    font: 400 9.5px var(--font-mono); color: rgb(var(--c-dim));
+}
+/* WHAT MOVED, in the module's own words. The host prints it and never
+   interprets it; a module may colour its own states from its own stylesheet,
+   the way it colours its contributor dot. */
+.ao-move {
+    font: 600 9px var(--font-mono); letter-spacing: .1em; text-transform: uppercase;
+    color: rgb(var(--c-fog)); border: 1px solid var(--c-ln2); border-radius: 5px; padding: 2px 7px;
+}
+
 /* The permanent zone name on its own polygon — a halo, so it survives imagery. */
 .zone-label, .leaflet-tooltip.zone-label {
     background: none; border: 0; box-shadow: none; padding: 0;

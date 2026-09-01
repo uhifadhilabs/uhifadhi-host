@@ -65,7 +65,9 @@ final class HostVocabularyStylesheetTest extends TestCase
 
         // The split, the docked list and the hovered-pin card: the map plate's
         // own vocabulary, beside .viewer, which the host already owns.
-        foreach (['.i-split {', '.i-split > .i-mapcol {', '.i-listcol {', '.i-listhd {', '.i-listbody {', '.i-hit {', '.i-pincard {'] as $rule) {
+        // The docked split, and the day-grouped feed the area pulse and the
+        // incidents module's own feed both draw.
+        foreach (['.i-split {', '.i-split > .i-mapcol {', '.i-listcol {', '.i-listhd {', '.i-listbody {', '.i-hit {', '.i-pincard {', '.i-day {', '.i-feed {'] as $rule) {
             // At the start of a line: the same selector indented inside a media
             // query is the same one copy, responding.
             self::assertSame(

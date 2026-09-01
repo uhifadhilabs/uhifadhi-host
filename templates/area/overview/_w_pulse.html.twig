@@ -24,8 +24,7 @@
                     <span class="bd">
                         <span class="hl">
                             <span class="id">{{ event.recordRef }}</span>
-                            {%- if event.state %}<span class="i-st {{ event.stateClass }}">{{ event.move }}</span>
-                            {%- else %}<span class="i-sub">{{ event.move }}</span>{% endif -%}
+                            <span class="ao-move{{ event.stateClass ? ' ' ~ event.stateClass }}">{{ event.move }}</span>
                         </span>
                         <span class="tt">{{ event.summary }}</span>
                         <span class="mt"><span>{{ event.moduleLabel|lower }}</span>{% for fact in event.meta %}<span>{{ fact }}</span>{% endfor %}</span>
