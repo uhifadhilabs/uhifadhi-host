@@ -1576,6 +1576,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     observation_categories?: array<string, array{ // Default: {"wildlife":{"label":"Wildlife sighting"},"sign":{"label":"Sign / evidence"},"infrastructure":{"label":"Infrastructure"}}
  *         label?: scalar|Param|null,
  *     }>,
+ *     discard_retention_days?: int|Param, // How long a DISCARDED patrol is kept before patrol:purge-discarded deletes it and its photographs. Measured from the discard, and stopped entirely while the patrol is held for review. // Default: 90
  *     gap_threshold_minutes?: float|Param, // A pause between consecutive GPX points longer than this counts as a GPS gap — flagged on import, stored with the track, never smoothed. // Default: 5.0
  * }
  * @psalm-type SeederConfig = array{
