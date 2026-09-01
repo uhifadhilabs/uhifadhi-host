@@ -74,6 +74,37 @@ final class AreaOverviewController extends AbstractController
         ]);
     }
 
+    /**
+     * THE SURFACE'S ONE POLLING ENDPOINT, and the only one it will ever have.
+     *
+     * An overview with six independent pollers is a load test. So exactly one
+     * route refreshes exactly what wears the live dot: the right-now strip, and
+     * the map layers whose owner said they move. A layer that does not move —
+     * the boundary, the zones, a coverage buffer — is not in the answer, because
+     * re-fetching a polygon that has not changed since it was gazetted is the
+     * clearest possible waste.
+     *
+     * The strip comes back as ITS OWN MARKUP rather than as numbers, so a
+     * refreshed tile cannot be drawn differently from a rendered one.
+     */
+    #[Route('/overview/now', name: 'app_area_overview_now', methods: ['GET'], priority: 2)]
+    public function now(#[MapEntity(mapping: ['uuid' => 'uuid'])] AreaOfInterest $area): Response
+    {
+        $installed = $this->installedSlugs($area);
+
+        $layers = [];
+        foreach ($this->composer->mapLayers($area, $installed, new \DateTimeImmutable()) as $layer) {
+            if ($layer->live) {
+                $layers[] = ['id' => $layer->id, 'features' => $layer->features];
+            }
+        }
+
+        return $this->json([
+            'strip' => $this->renderView('area/overview/_w_nowbar.html.twig', $this->widgetContext($area, $installed)),
+            'layers' => $layers,
+        ]);
+    }
+
     // ── The widget library: the preset component, on this surface ──────────────
 
     #[Route('/overview/widgets', name: 'app_area_overview_widgets', methods: ['GET'], priority: 2)]

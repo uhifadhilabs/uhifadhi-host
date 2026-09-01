@@ -57,7 +57,11 @@
             {% endfor %}
         {% endfor %}
 
-        <div class="w-grid">
+        {# ONE POLLER, ON THE GRID. It refreshes the right-now strip and the map layers whose owning
+           module said they move, and nothing else on this page fetches anything.
+           → AreaOverviewController::now #}
+        <div class="w-grid"
+             {{ stimulus_controller('overview-live', {url: path('app_area_overview_now', {uuid: area.uuid})}) }}>
             {# A switched-off widget is simply absent — not hidden, not an empty cell. #}
             {% for widget in widgets|filter(w => w.on) %}
                 {# w-span-N, never w-N: a bare `w-12` is Tailwind's width utility and would render

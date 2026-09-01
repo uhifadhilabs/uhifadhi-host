@@ -69,7 +69,11 @@ export default class extends Controller {
     /* One Leaflet layer per contributed layer, kept by id so the legend can
      * switch exactly one of them without re-reading anything. */
     drawLayers() {
-        this.layersValue.forEach((def) => {
+        this.layersValue.forEach((def) => this.addLayer(def));
+    }
+
+    addLayer(def) {
+        {
             const line = def.style === 'line';
             const layer = this.L.geoJSON(def.features, {
                 style: () => ({
@@ -104,6 +108,23 @@ export default class extends Controller {
 
             this.layers.set(def.id, layer);
             if (def.on) layer.addTo(this.map);
+        }
+    }
+
+    /* THE ONE POLLER HANDS THE MAP ITS LIVE LAYERS. The map redraws exactly the
+     * layers it was given, keeping each one's on/off state, and knows nothing
+     * about who fetched them or how often.
+     * → overview_live_controller.js, event `overview:layers` */
+    adopt(event) {
+        if (!this.map) return;
+        (event.detail?.layers || []).forEach((fresh) => {
+            const def = this.layersValue.find((l) => l.id === fresh.id);
+            const old = this.layers.get(fresh.id);
+            if (!def || !old) return;
+            const wasOn = this.map.hasLayer(old);
+            this.map.removeLayer(old);
+            this.layers.delete(fresh.id);
+            this.addLayer({ ...def, features: fresh.features, on: wasOn });
         });
     }
 

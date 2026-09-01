@@ -205,6 +205,41 @@ final class AreaOverviewSurfaceTest extends AuthenticatedWebTestCase
         self::assertSelectorNotExists('.ao-pres');
     }
 
+    public function testTheSurfaceHasExactlyOnePollingEndpointAndItRefreshesOnlyWhatWearsTheLiveDot(): void
+    {
+        $client = static::createClient();
+        $this->loginAs($client);
+        $area = AreaOfInterestFactory::createOne();
+
+        $client->request('GET', '/areas/'.$area->getUuidString().'/overview/now');
+
+        self::assertResponseIsSuccessful();
+        self::assertResponseHeaderSame('Content-Type', 'application/json');
+        /** @var array{strip: string, layers: array<string, mixed>} $payload */
+        $payload = json_decode((string) $client->getResponse()->getContent(), true, flags: \JSON_THROW_ON_ERROR);
+
+        // The strip comes back as its own markup, so the refresh cannot draw a
+        // tile differently from the render.
+        self::assertArrayHasKey('strip', $payload);
+        // ONLY WHAT POLLS. The host's two layers are the boundary and the zones,
+        // and neither of them moves — refreshing them every ten seconds would be
+        // a load test rather than a live map.
+        self::assertSame([], $payload['layers']);
+
+        // And there is exactly one such endpoint on the surface: an overview with
+        // six independent pollers is a load test too.
+        self::bootKernel();
+        /** @var \Symfony\Component\Routing\RouterInterface $router */
+        $router = static::getContainer()->get('router');
+        $polling = [];
+        foreach ($router->getRouteCollection() as $route) {
+            if (str_contains($route->getPath(), '/overview/') && str_ends_with($route->getPath(), '/now')) {
+                $polling[] = $route->getPath();
+            }
+        }
+        self::assertSame(['/areas/{uuid}/overview/now'], $polling);
+    }
+
     public function testAreasAreAddressedByUuidNotSequentialId(): void
     {
         $client = static::createClient();

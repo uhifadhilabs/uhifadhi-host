@@ -7,7 +7,8 @@
    WHAT IS ON BY DEFAULT IS OPERATIONAL. What is off by default is scientific, and it is in the
    legend with its own entry: demoted, never deleted, one click away exactly where it was.
    → Uhifadhi\Overview\MapLayerProviderInterface #}
-<div class="c" {{ stimulus_controller('overview-map', {layers: layers|map(l => {id: l.id, swatch: l.swatch, style: l.style, on: l.on, features: l.features})}) }}>
+<div class="c" {{ stimulus_controller('overview-map', {layers: layers|map(l => {id: l.id, swatch: l.swatch, style: l.style, on: l.on, features: l.features})}) }}
+     data-action="overview:layers->overview-map#adopt">
     <span class="tab">
         <span class="idx">AO·03</span>Where
         {%- if layers|filter(l => l.live)|length %}<span class="src">· <span class="ao-live"><i></i>live</span></span>{% endif -%}
