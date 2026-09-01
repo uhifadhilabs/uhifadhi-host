@@ -1175,6 +1175,10 @@ table.tbl tr:hover .open-btn.danger { background: rgb(var(--c-fail)); color: rgb
 .w-grid > .w-cell.w-span-12 { grid-column: span 12; }
 .w-grid > .w-cell.w-span-9 { grid-column: span 9; }
 .w-grid > .w-cell.w-span-6 { grid-column: span 6; }
+/* A THIRD. Added for a surface composed of one column per module: three columns
+   have no expression in 12/9/6/3, and four quarters are too narrow for the KPI
+   pair a column carries. It is the grid's vocabulary, so every surface has it. */
+.w-grid > .w-cell.w-span-4 { grid-column: span 4; }
 .w-grid > .w-cell.w-span-3 { grid-column: span 3; }
 .w-grid > .w-cell .w-inner { height: 100%; display: flex; flex-direction: column; min-height: 0; }
 .w-grid > .w-cell .w-inner > .c,
@@ -1201,6 +1205,7 @@ table.tbl tr:hover .open-btn.danger { background: rgb(var(--c-fail)); color: rgb
 .w-card { grid-column: span 12; min-width: 0; }
 .w-card[data-widget-cols="9"] { grid-column: span 9; }
 .w-card[data-widget-cols="6"] { grid-column: span 6; }
+.w-card[data-widget-cols="4"] { grid-column: span 4; }
 .w-card[data-widget-cols="3"] { grid-column: span 3; }
 /* The notice speaks for the whole library, never for one column of it. */
 .w-notice { grid-column: span 12; }

@@ -75,8 +75,9 @@ final class WidgetServiceTest extends TestCase
     {
         $spans = array_column(WidgetService::merge(self::catalog(), null), 'spans', 'id');
 
-        self::assertSame([12, 9, 6, 3], $spans['map']);
-        self::assertSame([12, 9, 6, 3], $spans['cal']);
+        // The grid's whole vocabulary, because neither declares a subset.
+        self::assertSame([12, 9, 6, 4, 3], $spans['map']);
+        self::assertSame([12, 9, 6, 4, 3], $spans['cal']);
         self::assertSame([9, 6, 3], $spans['chweek']);
     }
 

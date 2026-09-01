@@ -62,15 +62,42 @@ final class WidgetCatalogTest extends TestCase
         $tree = self::catalog()->get('tree');
 
         self::assertSame(12, $tree->cols);
-        self::assertSame([12, 9, 6, 3], $tree->spans);
+        self::assertSame([12, 9, 6, 4, 3], $tree->spans);
         self::assertTrue($tree->on);
+    }
+
+    public function testTheGridOffersAThirdOfTheRow(): void
+    {
+        // A THIRD is part of the vocabulary because a surface may be composed of
+        // three module columns (the area overview's "Module columns" design), and
+        // three columns have no expression in 12/9/6/3: two halves are two
+        // columns, and four quarters are too narrow for a KPI pair.
+        self::assertSame([12, 9, 6, 4, 3], Widget::GRID_SPANS);
+
+        $third = new Widget('column', 'A module column', 'shape', cols: 4, spans: [12, 6, 4]);
+
+        self::assertSame(4, $third->cols);
+        self::assertSame([12, 6, 4], $third->spans);
+    }
+
+    public function testAPresetMayLayAWidgetOutAtAThirdOfTheRow(): void
+    {
+        $catalog = new WidgetCatalog(
+            'area-overview',
+            [new WidgetGroup('shape', 'The shape of the org', 'Who reports to whom.')],
+            [new Widget('column', 'A module column', 'shape', cols: 4, spans: [12, 6, 4])],
+            [new WidgetPreset('columns', 'Module columns', 'One column per module.', ['column' => 4])],
+        );
+
+        self::assertSame(4, $catalog->preset('columns')?->cols('column'));
+        self::assertSame(4, $catalog->clamp('column', 4));
     }
 
     public function testAWidgetOffersOnlyTheSpansItDeclares(): void
     {
         $catalog = self::catalog();
 
-        self::assertSame([12, 9, 6, 3], $catalog->spans('tree'));
+        self::assertSame([12, 9, 6, 4, 3], $catalog->spans('tree'));
         // A half-width plate is never offered the full row.
         self::assertSame([9, 6, 3], $catalog->spans('vacancies'));
     }

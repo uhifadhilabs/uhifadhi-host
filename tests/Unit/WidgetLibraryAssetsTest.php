@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Uhifadhi\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
+use Uhifadhi\Model\Widget;
 use Uhifadhi\Model\WidgetDom;
 
 /**
@@ -182,6 +183,39 @@ final class WidgetLibraryAssetsTest extends TestCase
 
         self::assertSame([], array_values(array_unique($matches[1])));
         self::assertStringContainsString('.w-grid > .w-cell.w-span-12 {', $block);
+    }
+
+    public function testEverySpanTheGridOffersHasARuleAndAChipLabel(): void
+    {
+        // THE SPAN VOCABULARY IS SPLIT ACROSS THREE FILES: the model says which
+        // spans exist, app.css lays each of them out on the dashboard, in the
+        // library and on the canvas, and widgets.js draws the width chip that
+        // picks one. A span added to the model alone would be offered by the
+        // chips and then laid out as a full row.
+        $css = (string) file_get_contents(\dirname(__DIR__, 2).'/assets/styles/app.css');
+        $js = self::widgetsJs();
+
+        foreach (Widget::GRID_SPANS as $span) {
+            self::assertStringContainsString(
+                \sprintf('.w-grid > .w-cell.w-span-%d { grid-column: span %d; }', $span, $span),
+                $css,
+                \sprintf('The dashboard grid must lay out a span of %d.', $span),
+            );
+            // The library card's own base rule IS the full row, so only the
+            // narrower spans get an attribute-scoped rule of their own.
+            if (12 !== $span) {
+                self::assertStringContainsString(
+                    \sprintf('.w-card[data-widget-cols="%d"] { grid-column: span %d; }', $span, $span),
+                    $css,
+                    \sprintf('The library must lay a card out at a span of %d.', $span),
+                );
+            }
+            self::assertMatchesRegularExpression(
+                \sprintf('/SPAN_LABELS = \{[^}]*\b%d:/', $span),
+                $js,
+                \sprintf('The width chips must have a label for a span of %d.', $span),
+            );
+        }
     }
 
     public function testTheScriptIsExposedUnderItsBareSpecifier(): void

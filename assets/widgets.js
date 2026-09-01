@@ -83,7 +83,7 @@ const NAME_MAX = 60;
 const PICK_STAGE_WIDTH = 1180;
 
 /* The width chips read as fractions of the row, not as column counts. */
-const SPAN_LABELS = { 12: '1', 9: '¾', 6: '½', 3: '¼' };
+const SPAN_LABELS = { 12: '1', 9: '¾', 6: '½', 4: '⅓', 3: '¼' };
 
 /* Roots already armed. Held here rather than in an attribute on the element:
  * the attribute contract above is the WIRE to the server, and a private
