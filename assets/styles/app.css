@@ -3639,6 +3639,13 @@ th.sortable.on.desc .sortmark { border-bottom: 0; border-top: 5px solid rgb(var(
 .ao-by.next { border-style: dashed; }
 .ao-by.next i { background: none; border: 1px solid rgb(var(--c-dim)); }
 
+/* A contributor's dot, wherever one is named outside a plate's own tab strip.
+   Fog by default; the module paints its own. */
+.ao-dot {
+    display: inline-block; width: 7px; height: 7px; border-radius: 2px;
+    margin-right: 7px; background: rgb(var(--c-fog)); font-style: normal;
+}
+
 /* ---- needs attention ---------------------------------------------------- */
 /* The host owns the list; a module owns the item. That is why the row has a
    module dot and no module-specific markup anywhere in it. */

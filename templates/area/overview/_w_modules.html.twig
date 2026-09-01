@@ -12,7 +12,7 @@
         {% for module in by.host.installed %}
             {% set c = contributions[module.slug]|default({widgets: 0, tiles: 0, attention: 0, layers: 0}) %}
             <tr>
-                <td><a href="{{ urls.modules }}"><i style="display:inline-block;width:7px;height:7px;border-radius:2px;background:var(--c-ln2);margin-right:7px" class="mdot-{{ module.slug }}"></i>{{ module.name }}</a></td>
+                <td><a href="{{ urls.modules }}"><i class="ao-dot {{ module.slug }}"></i>{{ module.name }}</a></td>
                 <td class="fog">{{ c.widgets }} widget{{ c.widgets == 1 ? '' : 's' }} · {{ c.tiles }} now-tile{{ c.tiles == 1 ? '' : 's' }} · {{ c.attention }} attention item{{ c.attention == 1 ? '' : 's' }} · {{ c.layers }} map layer{{ c.layers == 1 ? '' : 's' }}</td>
                 <td class="num mono" style="font-size:11px">{{ module.since ? module.since|date('M Y')|lower : '—' }}</td>
             </tr>
