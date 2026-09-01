@@ -38,10 +38,16 @@
                     {% for feature in layer.features.features %}
                         {% set p = feature.properties|default({}) %}
                         {# The row carries its own point so the plate can say whether it is still in
-                           view — the host reads a coordinate, not a meaning. #}
+                           view — the host reads a coordinate, not a meaning. A Point speaks for
+                           itself; a track answers with its newest position. #}
+                        {% set pt = feature.geometry.type == 'Point'
+                            ? feature.geometry.coordinates
+                            : (feature.geometry.type == 'MultiLineString'
+                                ? feature.geometry.coordinates|last|last
+                                : feature.geometry.coordinates|last) %}
                         <a class="i-hit" href="{{ p.url is defined ? p.url : '#' }}"
-                           data-lon="{{ feature.geometry.coordinates[0]|default('') }}"
-                           data-lat="{{ feature.geometry.coordinates[1]|default('') }}">
+                           data-lon="{{ pt[0]|default('') }}"
+                           data-lat="{{ pt[1]|default('') }}">
                             <span class="r1"><span class="id">{{ p.ref is defined ? p.ref : (p.name is defined ? p.name : '—') }}</span>
                                 {%- if p.state is defined and p.state %}<span class="chip">{{ p.state }}</span>{% endif -%}
                             </span>
