@@ -70,6 +70,7 @@ final class AreaOverviewController extends AbstractController
             'area' => $area,
             'widgets' => $this->widgets->resolve($catalog, $this->userId(), $area->getUuid()),
             'partials' => $this->catalogue->partialsFor($installed),
+            'stylesheets' => $this->catalogue->stylesheetsFor($installed),
             'widgetContext' => $this->widgetContext($area, $installed),
         ]);
     }
@@ -123,6 +124,7 @@ final class AreaOverviewController extends AbstractController
             'active' => $this->widgets->activeRef($catalog, $userId, $areaUuid),
             'widgets' => $this->widgets->resolve($catalog, $userId, $areaUuid),
             'partial' => $this->catalogue->partialsFor($installed),
+            'stylesheets' => $this->catalogue->stylesheetsFor($installed),
             'widgetContext' => $this->widgetContext($area, $installed),
             'urls' => $this->widgetUrls($area),
             'csrfToken' => $this->widgetEndpoint->csrfToken($catalog, $areaUuid),

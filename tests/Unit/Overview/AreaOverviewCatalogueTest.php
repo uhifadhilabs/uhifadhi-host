@@ -18,6 +18,7 @@ use Uhifadhi\Entity\AreaOfInterest;
 use Uhifadhi\Model\Widget;
 use Uhifadhi\Model\WidgetCatalog;
 use Uhifadhi\Model\WidgetGroup;
+use Uhifadhi\Overview\ContributesStylesheetInterface;
 use Uhifadhi\Overview\OverviewContributorInterface;
 use Uhifadhi\Service\AreaOverviewCatalogue;
 
@@ -32,6 +33,55 @@ use Uhifadhi\Service\AreaOverviewCatalogue;
  */
 final class AreaOverviewCatalogueTest extends TestCase
 {
+    /**
+     * A contributor that also ships a stylesheet.
+     *
+     * @param list<Widget> $widgets
+     */
+    private static function styledContributor(string $slug, string $label, string $stylesheet, array $widgets): OverviewContributorInterface
+    {
+        return new class($slug, $label, $stylesheet, $widgets) implements OverviewContributorInterface, ContributesStylesheetInterface {
+            /** @param list<Widget> $widgets */
+            public function __construct(
+                private string $slug,
+                private string $label,
+                private string $stylesheet,
+                private array $widgets,
+            ) {
+            }
+
+            public function moduleSlug(): string
+            {
+                return $this->slug;
+            }
+
+            public function group(): WidgetGroup
+            {
+                return new WidgetGroup($this->slug, $this->label, 'What this contributor puts on the page.');
+            }
+
+            public function widgets(): array
+            {
+                return $this->widgets;
+            }
+
+            public function partialPattern(): string
+            {
+                return \sprintf('@%s/overview/_w_%%s.html.twig', ucfirst($this->slug));
+            }
+
+            public function context(AreaOfInterest $area, \DateTimeImmutable $now): array
+            {
+                return ['slug' => $this->slug];
+            }
+
+            public function stylesheet(): string
+            {
+                return $this->stylesheet;
+            }
+        };
+    }
+
     /** @param list<Widget> $widgets */
     private static function contributor(string $slug, string $label, array $widgets): OverviewContributorInterface
     {
@@ -92,7 +142,7 @@ final class AreaOverviewCatalogueTest extends TestCase
                 new Widget('mapdock', 'Map + dock', $host, 12, [12, 9], on: false),
                 new Widget('board', 'Duty board', $host, 12, [12, 9], on: false),
             ]),
-            self::contributor('patrols', 'Patrols', [
+            self::styledContributor('patrols', 'Patrols', 'bundles/patrols/patrols.css', [
                 new Widget('pl_now', 'Out right now', 'patrols', 6, [12, 9, 6]),
                 new Widget('pl_gaps', 'Where nobody has been', 'patrols', 6, [12, 9, 6], on: false),
                 new Widget('pl_obsq', 'Observations awaiting action', 'patrols', 12, [12, 9, 6], on: false),
@@ -163,6 +213,25 @@ final class AreaOverviewCatalogueTest extends TestCase
         self::assertSame('@Host/overview/_w_ident.html.twig', $partials['ident'] ?? null);
         self::assertSame('@Patrols/overview/_w_pl_now.html.twig', $partials['pl_now'] ?? null);
         self::assertArrayNotHasKey('in_flow', $partials);
+    }
+
+    public function testAContributorThatWearsItsOwnVocabularyIsAskedForItsStylesheet(): void
+    {
+        // A MODULE'S WIDGETS WEAR THE MODULE'S OWN VOCABULARY. Everywhere else
+        // that is free, because a module's pages extend the module's own layout.
+        // Here they do not: the host renders them, so the host has to load each
+        // installed module's stylesheet or every one of its chips renders naked.
+        //
+        // An OPTIONAL second interface rather than a method on the first: a
+        // contributor with no stylesheet of its own — the host's, the seam's —
+        // must not have to answer a question it has no answer to.
+        $catalogue = self::catalogue();
+
+        self::assertSame(
+            ['bundles/patrols/patrols.css'],
+            $catalogue->stylesheetsFor(['patrols']),
+        );
+        self::assertSame([], $catalogue->stylesheetsFor([]));
     }
 
     public function testTheCompositionTheHostShipsLeadsTheStripAndIsNoneOfTheFive(): void

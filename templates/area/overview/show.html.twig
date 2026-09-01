@@ -21,6 +21,13 @@
 {% block stylesheets %}
     {{ parent() }}
     <link rel="stylesheet" href="{{ asset('leaflet/leaflet.css') }}">
+    {# THE HOST LOADS EVERY INSTALLED MODULE'S STYLESHEET. A module's widgets wear the module's own
+       vocabulary, and this is the one surface where somebody else renders them — without this every
+       chip on a contributed plate renders naked. A third module adds a third link and nothing else.
+       → Uhifadhi\Overview\ContributesStylesheetInterface #}
+    {% for stylesheet in stylesheets %}
+        <link rel="stylesheet" href="{{ asset(stylesheet) }}">
+    {% endfor %}
 {% endblock %}
 
 {% block javascripts %}

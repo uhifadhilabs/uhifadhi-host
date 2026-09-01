@@ -17,6 +17,7 @@ use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 use Uhifadhi\Model\AreaOverviewPresets;
 use Uhifadhi\Model\WidgetCatalog;
 use Uhifadhi\Model\WidgetPreset;
+use Uhifadhi\Overview\ContributesStylesheetInterface;
 use Uhifadhi\Overview\OverviewContributorInterface;
 
 /**
@@ -144,6 +145,31 @@ final readonly class AreaOverviewCatalogue
         }
 
         return $partials;
+    }
+
+    /**
+     * The stylesheet of every installed contributor that has one, in the order
+     * the library heads them.
+     *
+     * A MODULE'S WIDGETS WEAR THE MODULE'S OWN VOCABULARY, and on this surface
+     * the host renders them — so unless the host loads each installed module's
+     * CSS, every chip on a contributed widget renders naked. Nowhere else does
+     * this arise: a module's own pages extend the module's own layout.
+     *
+     * @param list<string> $installedSlugs
+     *
+     * @return list<string>
+     */
+    public function stylesheetsFor(array $installedSlugs): array
+    {
+        $sheets = [];
+        foreach ($this->contributorsFor($installedSlugs) as $contributor) {
+            if ($contributor instanceof ContributesStylesheetInterface) {
+                $sheets[] = $contributor->stylesheet();
+            }
+        }
+
+        return array_values(array_unique($sheets));
     }
 
     /**
