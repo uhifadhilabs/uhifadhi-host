@@ -1,0 +1,51 @@
+{# AO·10 · THE SAME PLATE, AT THE HEIGHT OF THE SCREEN, WITH THE LIVE DOCK BESIDE IT.
+
+   Direction B's plate. The dock is not a second list: it is the features of the layers that are ON,
+   in the module order the legend already states, so a row can never read differently from the pin
+   it belongs to. A layer states what a feature is called through its properties — `ref`, `title`,
+   `detail`, `place`, `when` — and the host prints those and interprets none of them.
+   → Uhifadhi\Overview\MapLayer #}
+{% set drawn = layers|filter(l => l.on and l.features.features|length) %}
+<div class="c plate-fill" {{ stimulus_controller('overview-map', {layers: layers|map(l => {id: l.id, swatch: l.swatch, style: l.style, on: l.on, features: l.features})}) }}>
+    <span class="tab">
+        <span class="idx">AO·10</span>The area
+        {%- if layers|filter(l => l.live)|length %}<span class="src">· <span class="ao-live"><i></i>live</span></span>{% endif -%}
+        <span class="src">· the list follows the plate</span>
+    </span>
+    {{ include('area/overview/_ao_by.html.twig', {slug: 'host', who: 'host plate · module layers'}, with_context: false) }}
+
+    <div class="i-split" style="margin-top:4px">
+        <div class="i-mapcol plate-fill" data-overview-map-target="frame">
+            <div class="viewer" style="height:min(70vh,680px)">
+                <div data-overview-map-target="canvas" style="position:absolute;inset:0"></div>
+            </div>
+        </div>
+        <div class="i-listcol">
+            <div class="i-listhd">In this view<span class="n">{{ drawn|reduce((c, l) => c + l.features.features|length, 0) }} drawn</span></div>
+            <div class="i-listbody">
+                {% for layer in drawn %}
+                    <div class="i-listhd" style="border-top:0;border-bottom:1px dashed var(--c-ln);padding:9px 6px">
+                        <i style="width:7px;height:7px;border-radius:2px;display:inline-block;background:{{ layer.swatch }}"></i>{{ layer.groupLabel }} · {{ layer.label|lower }}
+                    </div>
+                    {% for feature in layer.features.features %}
+                        {% set p = feature.properties|default({}) %}
+                        <a class="i-hit" href="{{ p.url is defined ? p.url : '#' }}">
+                            <span class="r1"><span class="id">{{ p.ref is defined ? p.ref : (p.name is defined ? p.name : '—') }}</span>
+                                {%- if p.state is defined and p.state %}<span class="chip">{{ p.state }}</span>{% endif -%}
+                            </span>
+                            {% if p.title is defined and p.title %}<span class="r2">{{ p.title }}</span>{% endif %}
+                            <span class="r3">
+                                {%- if p.place is defined and p.place %}<span>{{ p.place }}</span>{% endif -%}
+                                {%- if p.when is defined and p.when %}<span>{{ p.when }}</span>{% endif -%}
+                            </span>
+                        </a>
+                    {% endfor %}
+                {% else %}
+                    <div class="use">Nothing is drawn on the plate right now, so there is nothing to dock beside it.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    {{ include('area/overview/_legend.html.twig', {legend: legend}, with_context: false) }}
+</div>

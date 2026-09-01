@@ -1,0 +1,33 @@
+{# AO·07 · THE DUTY BOARD — the control-room wall.
+
+   Dense on purpose: this widget is what goes on the screen nobody sits at. THE TILES ARE THE SAME
+   CONTRIBUTED NOW-TILES THE STRIP USES, drawn at board density — one set of numbers, two
+   densities, so a count cannot read one way in the strip and another on the wall. Every tile names
+   its contributor with a dot, because a wall display is exactly where a number with no provenance
+   becomes folklore. #}
+<div class="c">
+    <span class="tab">
+        <span class="idx">AO·07</span>Duty board
+        {%- if tiles|filter(t => t.live)|length %}<span class="src">· <span class="ao-live"><i></i>live</span></span>{% endif -%}
+        <span class="src">· {{ now|date('D j M H:i')|lower }}</span>
+    </span>
+    {{ include('area/overview/_ao_by.html.twig', {slug: 'host', who: 'host · module tiles'}, with_context: false) }}
+
+    {% if tiles is empty %}
+        <div class="use">A board with no numbers on it. Every tile here is contributed by a module installed in this
+            area — the host writes no tile it does not own.</div>
+    {% else %}
+        <div class="ao-board">
+            {% for tile in tiles %}
+                <a class="{{ tile.tone == 'hot' ? 'hot ' }}{{ tile.tone == 'bad' ? 'bad ' }}dot-{{ tile.moduleSlug }}" href="{{ tile.url|default('#') }}">
+                    <span class="k">{{ tile.label }}</span>
+                    <span class="n">{{ tile.value }}{% if tile.unit %}<em>{{ tile.unit }}</em>{% endif %}</span>
+                    <span class="s">{{ tile.alarm|default(tile.subline) }}</span>
+                </a>
+            {% endfor %}
+        </div>
+        <div class="use">{{ tiles|length }} tile{{ tiles|length == 1 ? '' : 's' }}, and
+            {{ tiles|filter(t => t.moduleSlug != 'host')|length }} of them came from a module. Install another and the
+            board grows a row — the host writes no tile it does not own.</div>
+    {% endif %}
+</div>

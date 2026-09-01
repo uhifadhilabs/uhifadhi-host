@@ -1,0 +1,31 @@
+{# AO·09 · THE SCIENTIFIC RECORD, DEMOTED TO A WIDGET — and, in this app, ABSENT.
+
+   The ruling was: demoted, never deleted. Forest loss and fire detections belong on this page as
+   one card that is OFF by default, because an area manager's morning question is not what the
+   canopy did in 2013 — but a design that quietly drops real data it once showed would be a design
+   that lied about its priorities rather than restating them.
+
+   THE HONEST PART: this app has no forest-loss and no fire-detection data. There is no Hansen/UMD
+   series and no VIIRS ingestion behind it — no table, no endpoint. The charts that used to sit at
+   the top of this page were drawn against a source that does not exist here, so redrawing them
+   would be worse than demoting them. The card keeps its place in the catalogue, off by default,
+   and says what it is waiting for.
+   → the ingestion for both series is unbuilt. #}
+<div class="c">
+    <span class="tab"><span class="idx">AO·09</span>The scientific record<span class="src">· Hansen/UMD · NASA FIRMS</span></span>
+    {{ include('area/overview/_ao_by.html.twig', {slug: 'host', who: 'host · off by default'}, with_context: false) }}
+    <div class="use">Tree-cover loss and fire detections are a real question a real person asks — just not at 07:00, and
+        not before “is everyone accounted for”. That is why this is one card and why it is switched off.</div>
+    <div class="rln" style="margin-top:8px">
+        <span class="fog">Tree cover loss · Hansen/UMD</span>
+        <span class="mono d" style="font-size:11px">not ingested for this area</span>
+    </div>
+    <div class="rln">
+        <span class="fog">Fire detections · VIIRS</span>
+        <span class="mono d" style="font-size:11px">not ingested for this area</span>
+    </div>
+    <div class="rln">
+        <span class="fog">The two map layers</span>
+        <span class="mono d" style="font-size:11px">absent from the legend for the same reason</span>
+    </div>
+</div>

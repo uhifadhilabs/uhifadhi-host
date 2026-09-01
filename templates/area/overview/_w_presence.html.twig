@@ -1,0 +1,28 @@
+{# AO·05 · STATIONS AND WHO IS ON.
+
+   THE HONEST ABSENT STATE. The question this card is for is not "who works here" — it is "is
+   Nainokanoka covered tonight", and answering it needs three things the app does not yet record:
+   a station as a thing with a name and a place, a roster that says who is on which shift, and the
+   handset check-in that decides whether a station is reporting at all.
+
+   The app records people, their positions and their departments; it records none of the above. So
+   this plate says exactly that and offers the page where people are managed. It does NOT show a
+   staff directory pretending to be a duty roster, and it does not show a zero: a station with no
+   roster and no handset is not a station with nobody on it.
+   → the roster/presence model is not built; see the Team surface for who exists. #}
+<div class="c">
+    <span class="tab"><span class="idx">AO·05</span>Stations &amp; who is on</span>
+    {{ include('area/overview/_ao_by.html.twig', {slug: 'host', who: 'host'}, with_context: false) }}
+    <div class="use">Presence has to be <b>derived</b> — from the roster and the last handset check-in — never typed
+        in, and this app records neither yet. Until it does, this card would have to invent the one number it exists to
+        report, so it says nothing instead.</div>
+    <div class="rln" style="margin-top:8px">
+        <span class="fog">What is recorded</span>
+        <span class="mono" style="font-size:11px">people, their positions and their departments</span>
+    </div>
+    <div class="rln">
+        <span class="fog">What is not</span>
+        <span class="mono w" style="font-size:11px">stations, shifts, handset check-in</span>
+    </div>
+    <a class="open-btn" href="{{ path('app_team') }}" style="margin-top:8px">The people of this organisation →</a>
+</div>

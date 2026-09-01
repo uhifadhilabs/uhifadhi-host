@@ -25,6 +25,9 @@
      active         {kind, id, label}   (WidgetService::activeRef)
      widgets        the resolved layout (WidgetService::resolve)
      partial        sprintf format for a widget's own template, e.g. 'departments/_w_%s.html.twig'
+                    — or, on a COMPOSED surface where each widget is rendered from the bundle that
+                    contributed it, a map of widget id => template. One owner per surface is the
+                    ordinary case; the area overview is the one where it is not.
      widgetContext  the variables every one of those partials receives
      urls           {save, reset, preset, copy, presets, apply, rename, delete, dashboard}
      csrfToken      WidgetEndpoint::csrfToken
@@ -100,7 +103,8 @@
    cost twenty renders, not sixty. #}
 {% set rendered = {} %}
 {% for id in catalog.ids %}
-    {% set rendered = rendered|merge({(id): include(partial|format(id), widgetContext, with_context: false)}) %}
+    {% set template = partial is iterable ? partial[id] : partial|format(id) %}
+    {% set rendered = rendered|merge({(id): include(template, widgetContext, with_context: false)}) %}
 {% endfor %}
 
 {% set activeKind = active.kind %}

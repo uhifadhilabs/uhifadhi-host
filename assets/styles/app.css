@@ -3524,3 +3524,227 @@ th.sortable.on.desc .sortmark { border-bottom: 0; border-top: 5px solid rgb(var(
     .posrow .hb { justify-content: flex-start; }
     .dp-goalpair { grid-template-columns: 1fr; }
 }
+
+/* ============================================================================
+   AREA OVERVIEW — the surface's own vocabulary
+   ----------------------------------------------------------------------------
+   The composed surface at /areas/{uuid}. NOTHING HERE IS A VARIANT OF A HOST
+   RULE: the plate (.c), the map (.viewer and its docked split), the KPI tile
+   (.kpi), the chip, the table and the widget grid are all the host's already and
+   are used unchanged. What is added below is only what this surface has and no
+   other does:
+
+     .ao-ident    the identity facts, demoted to a quiet band
+     .ao-by       the CONTRIBUTOR TAG every widget on this surface wears
+     .ao-att      one needs-attention row — the host's row, a module's content
+     .ao-flow     a five-state flow bar (a module draws its own states into it)
+     .ao-col      a module column header
+     .ao-board    the dense duty-board tile
+     .ao-slot     the honest not-installed-here affordance
+     .ao-legend   the operational map's legend, grouped by contributing module
+     .ao-live     the live dot, at plate scale
+
+   A CONTRIBUTOR'S COLOUR IS THE CONTRIBUTOR'S. The dots below default to the
+   quiet fog, and a module paints its own — `.ao-by.<slug> i`, `.ao-att .m
+   i.<slug>`, `.ao-legend .grp > b i.<slug>`, `.ao-board a.dot-<slug> .k::before`
+   — in its own stylesheet, which the host loads because the module is installed.
+   The host must not name a module in a rule, for exactly the reason it must not
+   name one in a template.
+   ========================================================================== */
+
+/* ---- the identity band ------------------------------------------------- */
+/* These used to be four KPI plates at the top of the page, which said an area
+   manager's first question is how big the area is. It is not. */
+.ao-ident {
+    display: flex; align-items: center; gap: 0; flex-wrap: wrap;
+    border: 1px solid var(--c-ln); border-radius: 12px;
+    background: linear-gradient(180deg, rgb(var(--c-p1)), rgb(var(--c-p2)));
+    padding: 2px 4px;
+}
+.ao-ident .f { display: flex; flex-direction: column; gap: 2px; padding: 9px 16px; position: relative; }
+.ao-ident .f + .f::before {
+    content: ""; position: absolute; left: 0; top: 11px; bottom: 11px; width: 1px; background: var(--c-ln);
+}
+.ao-ident .f .k {
+    font: 600 8.5px var(--font-mono); letter-spacing: .15em; text-transform: uppercase; color: rgb(var(--c-dim));
+}
+.ao-ident .f .v { font-size: 13px; font-weight: 600; color: rgb(var(--c-tx)); font-variant-numeric: tabular-nums; }
+.ao-ident .f .v em { font-style: normal; font-size: 10.5px; color: rgb(var(--c-fog)); margin-left: 3px; }
+.ao-ident .sp { flex: 1; }
+.ao-ident .more {
+    font: 600 9.5px var(--font-mono); letter-spacing: .1em; text-transform: uppercase;
+    color: rgb(var(--c-fog)); text-decoration: none; padding: 9px 15px;
+}
+.ao-ident .more:hover { color: rgb(var(--c-acc)); }
+
+/* ---- the contributor tag ----------------------------------------------- */
+/* THE ARCHITECTURE, VISIBLE IN THE PRODUCT. Every widget on this surface was
+   contributed by somebody and says so, in the plate's own tab strip. It is how a
+   person understands why a widget vanished when a module was uninstalled. */
+.ao-by {
+    position: absolute; top: -9px; right: 12px;
+    background: rgb(var(--c-cv)); border: 1px solid var(--c-ln2); border-radius: 7px;
+    padding: 3px 9px; display: inline-flex; align-items: center; gap: 6px;
+    font: 600 8.5px var(--font-mono); letter-spacing: .13em; text-transform: uppercase;
+    color: rgb(var(--c-dim)); white-space: nowrap;
+}
+.ao-by i { width: 6px; height: 6px; border-radius: 2px; font-style: normal; flex: none; background: rgb(var(--c-fog)); }
+.ao-by.next { border-style: dashed; }
+.ao-by.next i { background: none; border: 1px solid rgb(var(--c-dim)); }
+
+/* ---- needs attention ---------------------------------------------------- */
+/* The host owns the list; a module owns the item. That is why the row has a
+   module dot and no module-specific markup anywhere in it. */
+.ao-att {
+    display: flex; align-items: flex-start; gap: 12px; padding: 11px 2px;
+    border-bottom: 1px dashed color-mix(in srgb, rgb(var(--c-fog)) 18%, transparent);
+    text-decoration: none; color: rgb(var(--c-tx));
+}
+.ao-att:last-child { border-bottom: 0; }
+.ao-att:hover { background: color-mix(in srgb, rgb(var(--c-acc)) 4%, transparent); text-decoration: none; }
+.ao-att .sev { width: 4px; align-self: stretch; border-radius: 2px; flex: none; background: rgb(var(--c-fog)); margin-top: 2px; }
+.ao-att.now .sev { background: rgb(var(--c-fail)); }
+.ao-att.soon .sev { background: rgb(var(--c-warn)); }
+.ao-att.watch .sev { background: rgb(var(--c-fog)); opacity: .5; }
+.ao-att .bd { flex: 1; min-width: 0; }
+.ao-att .bd .t { font-size: 12.5px; line-height: 1.5; color: rgb(var(--c-tx)); }
+.ao-att .bd .t b { font-weight: 700; }
+.ao-att .bd .m {
+    display: flex; align-items: center; gap: 9px; flex-wrap: wrap; margin-top: 5px;
+    font: 400 9px var(--font-mono); color: rgb(var(--c-dim));
+}
+.ao-att .bd .m i { width: 6px; height: 6px; border-radius: 2px; font-style: normal; flex: none; background: rgb(var(--c-fog)); }
+.ao-att .age {
+    flex: none; font: 700 9.5px var(--font-mono); color: rgb(var(--c-fog));
+    padding-top: 2px; text-align: right; min-width: 64px;
+}
+.ao-att.now .age { color: rgb(var(--c-fail)); }
+.ao-att.soon .age { color: rgb(var(--c-warn)); }
+
+/* ---- a five-state flow bar ---------------------------------------------- */
+/* One bar, N segments — the module draws its OWN states into it, in its own
+   order, because a state machine may not read differently in two places. */
+.ao-flow { display: flex; gap: 5px; margin: 8px 0 4px; }
+.ao-flow a {
+    flex: 1; text-decoration: none; display: flex; flex-direction: column; gap: 6px;
+    padding: 11px 10px 10px; border-radius: 10px; border: 1px solid var(--c-ln);
+    background: rgb(var(--c-raised)); min-width: 0;
+}
+.ao-flow a:hover { border-color: rgb(var(--c-acc)); text-decoration: none; }
+.ao-flow a .n {
+    font-family: var(--font-display); font-size: 22px; font-weight: 700; letter-spacing: -.03em;
+    color: rgb(var(--c-tx)); line-height: 1; font-variant-numeric: tabular-nums;
+}
+.ao-flow a .s {
+    font: 600 8.5px var(--font-mono); letter-spacing: .1em; text-transform: uppercase;
+    color: rgb(var(--c-fog)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.ao-flow a .b { height: 3px; border-radius: 2px; background: rgb(var(--c-acc)); opacity: .75; }
+.ao-flow a.s1 .b { opacity: .95; }
+.ao-flow a.s2 .b { opacity: .78; }
+.ao-flow a.s3 .b { opacity: .6; }
+.ao-flow a.s4 .b { opacity: .42; }
+.ao-flow a.s5 .b { opacity: .26; }
+.ao-flow a.late { border-color: color-mix(in srgb, rgb(var(--c-fail)) 48%, transparent); }
+.ao-flow a.late .n { color: rgb(var(--c-fail)); }
+.ao-flow a.late .b { background: rgb(var(--c-fail)); }
+
+/* ---- a module column ---------------------------------------------------- */
+/* The "Module columns" design only: a heading over a stack of one module's
+   widgets, so the seam between two modules is a thing you can point at. */
+.ao-col { display: flex; align-items: center; gap: 10px; margin: 0 2px 12px; }
+.ao-col i { width: 9px; height: 9px; border-radius: 3px; font-style: normal; flex: none; background: rgb(var(--c-fog)); }
+.ao-col b { font: 700 10px var(--font-mono); letter-spacing: .16em; text-transform: uppercase; color: rgb(var(--c-tx)); }
+.ao-col .n { margin-left: auto; font: 400 9.5px var(--font-mono); color: rgb(var(--c-dim)); }
+.ao-col a { font: 400 9.5px var(--font-mono); color: rgb(var(--c-acc)); text-decoration: none; }
+.ao-colstack { display: flex; flex-direction: column; gap: 20px; }
+
+/* ---- the duty-board tile ------------------------------------------------ */
+/* Denser than a .kpi plate and deliberately unlovely: a control-room wall wants
+   twelve numbers legible from three metres, not four with air around them. */
+.ao-board {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(126px, 1fr)); gap: 1px;
+    background: var(--c-ln); border: 1px solid var(--c-ln); border-radius: 12px; overflow: hidden;
+}
+.ao-board a {
+    background: rgb(var(--c-p1)); padding: 12px 13px 11px; text-decoration: none;
+    display: flex; flex-direction: column; gap: 5px; min-width: 0;
+}
+.ao-board a:hover { background: color-mix(in srgb, rgb(var(--c-acc)) 7%, transparent); text-decoration: none; }
+.ao-board .k {
+    font: 600 8.5px var(--font-mono); letter-spacing: .13em; text-transform: uppercase;
+    color: rgb(var(--c-dim)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.ao-board .n {
+    font-family: var(--font-display); font-size: 23px; font-weight: 700; letter-spacing: -.035em;
+    color: rgb(var(--c-tx)); line-height: 1; font-variant-numeric: tabular-nums;
+}
+.ao-board .n em { font-style: normal; font-size: 11px; color: rgb(var(--c-fog)); font-weight: 500; margin-left: 3px; }
+.ao-board .s { font: 400 8.5px var(--font-mono); color: rgb(var(--c-fog)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ao-board a.hot .n { color: rgb(var(--c-acc)); }
+.ao-board a.bad .n { color: rgb(var(--c-fail)); }
+.ao-board a[class*="dot-"] .k::before {
+    content: ""; display: inline-block; width: 5px; height: 5px; border-radius: 2px;
+    margin-right: 6px; vertical-align: 1px; background: rgb(var(--c-fog));
+}
+
+/* ---- the not-installed-here slot ---------------------------------------- */
+/* THE HONEST AFFORDANCE, NOT A FAKE MODULE. It draws no data it does not have. */
+.ao-slot { border: 1px dashed var(--c-ln2); border-radius: 12px; padding: 14px 16px; background: none; }
+.ao-slotrow {
+    display: flex; align-items: center; gap: 12px; padding: 9px 0;
+    border-bottom: 1px dashed color-mix(in srgb, rgb(var(--c-fog)) 14%, transparent);
+}
+.ao-slotrow:last-child { border-bottom: 0; }
+.ao-slotrow .nm { font-size: 12.5px; font-weight: 600; color: rgb(var(--c-tx)); min-width: 112px; }
+.ao-slotrow .wd { flex: 1; font-size: 11.5px; color: rgb(var(--c-fog)); line-height: 1.5; }
+.ao-slotrow .st {
+    font: 600 8.5px var(--font-mono); letter-spacing: .12em; text-transform: uppercase;
+    color: rgb(var(--c-dim)); border: 1px dashed var(--c-ln2); border-radius: 6px; padding: 3px 8px; flex: none;
+}
+
+/* ---- the operational map's legend --------------------------------------- */
+/* EVERY LAYER SHIPS A LEGEND, and here the legend is grouped by the module that
+   contributed the layer, because that is what makes the plate composable. The
+   entry is also the switch, so what the legend says and what the map draws
+   cannot drift. The scientific layers are in the list and switched OFF. */
+.ao-legend { display: flex; gap: 22px; flex-wrap: wrap; margin-top: 12px; }
+.ao-legend .grp { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.ao-legend .grp > b {
+    font: 700 8.5px var(--font-mono); letter-spacing: .14em; text-transform: uppercase;
+    color: rgb(var(--c-dim)); display: flex; align-items: center; gap: 6px;
+}
+.ao-legend .grp > b i { width: 6px; height: 6px; border-radius: 2px; font-style: normal; background: rgb(var(--c-fog)); }
+.ao-legend .lay {
+    display: flex; align-items: center; gap: 7px;
+    font: 400 9.5px var(--font-mono); color: rgb(var(--c-fog)); text-decoration: none; cursor: pointer;
+}
+.ao-legend .lay:hover { color: rgb(var(--c-tx)); text-decoration: none; }
+.ao-legend .lay .sw { width: 16px; height: 8px; border-radius: 2px; flex: none; }
+.ao-legend .lay .sw.ln { height: 0; border-top: 2.2px solid currentColor; }
+.ao-legend .lay.off { color: rgb(var(--c-dim)); }
+.ao-legend .lay.off .sw { opacity: .35; }
+.ao-legend .lay .tog {
+    font-size: 8px; letter-spacing: .1em; color: rgb(var(--c-dim));
+    border: 1px solid var(--c-ln2); border-radius: 4px; padding: 1px 5px;
+}
+.ao-legend .lay.off .tog { border-style: dashed; }
+
+/* ---- live, in a plate's tab --------------------------------------------- */
+/* The dot the top bar already uses, at plate scale. Only a widget that actually
+   polls may wear it. */
+.ao-live { display: inline-flex; align-items: center; gap: 5px; color: rgb(var(--c-acc)); font-weight: 700; }
+.ao-live i {
+    width: 6px; height: 6px; border-radius: 50%; background: rgb(var(--c-acc));
+    font-style: normal; animation: ao-blink 2.4s ease-in-out infinite;
+}
+@keyframes ao-blink { 0%, 100% { opacity: 1; } 50% { opacity: .28; } }
+@media (prefers-reduced-motion: reduce) {
+    .ao-live i { animation: none; }
+}
+
+@media (max-width: 900px) {
+    .ao-flow { flex-wrap: wrap; }
+    .ao-flow a { flex: 1 1 30%; }
+    .ao-ident .f + .f::before { display: none; }
+}

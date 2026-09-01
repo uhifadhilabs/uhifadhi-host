@@ -1,0 +1,18 @@
+{# AO · THE IDENTITY FACTS, DEMOTED.
+
+   These used to be four KPI plates at the top of this page, which told an area manager that the
+   first question of the morning is how many square kilometres the area has. It is not, and it has
+   not changed since it was gazetted. One quiet band, one line, and the link to where the facts are
+   managed — and it is a widget like any other, which is why "Attention queue" is allowed to sink
+   it to the foot of the page.
+
+   A fact the app does not record is simply not a field here. #}
+<div class="ao-ident">
+    <span class="f"><span class="k">Area</span><span class="v">{{ by.host.areaKm2|number_format }}<em>km²</em></span></span>
+    <span class="f"><span class="k">Zones</span><span class="v">{{ by.host.zoneCount }}<em>{{ by.host.zoneCount ? 'presence-driven' : 'none yet' }}</em></span></span>
+    {% if by.host.iucn %}<span class="f"><span class="k">IUCN</span><span class="v">{{ by.host.iucn }}</span></span>{% endif %}
+    {% if by.host.established %}<span class="f"><span class="k">Established</span><span class="v">{{ by.host.established }}</span></span>{% endif %}
+    {% if by.host.centroid %}<span class="f"><span class="k">Centroid</span><span class="v">{{ by.host.centroid }}</span></span>{% endif %}
+    <span class="sp"></span>
+    <a class="more" href="{{ urls.settings }}">Area settings →</a>
+</div>

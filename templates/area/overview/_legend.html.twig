@@ -1,0 +1,20 @@
+{# THE MAP-LEGEND CONTRACT — every layer ships a legend, grouped by the module that contributed
+   the layer. That grouping is not cosmetic: it is the only way a person can tell why a layer
+   vanished. The entries are the switches, so what the legend says and what the map draws cannot
+   drift apart. #}
+<div class="ao-legend">
+    {% for group in legend %}
+        <div class="grp">
+            <b><i class="{{ group.moduleSlug }}"></i>{{ group.label }}</b>
+            {% for layer in group.layers %}
+                <a class="lay{{ layer.on ? '' : ' off' }}" href="#"
+                   data-layer-id="{{ layer.id }}"
+                   data-action="click->overview-map#toggle">
+                    <span class="sw{{ layer.style == 'line' ? ' ln' }}" style="{{ layer.style == 'line' ? 'color' : 'background' }}:{{ layer.swatch }}"></span>
+                    {{ layer.label }}{% if layer.count is not null %} · {{ layer.count }}{% endif %}
+                    <span class="tog">{{ layer.on ? 'on' : 'off' }}</span>
+                </a>
+            {% endfor %}
+        </div>
+    {% endfor %}
+</div>

@@ -1,0 +1,39 @@
+{# NX·01 · THE HONEST FUTURE-MODULE SLOT.
+
+   IT INVENTS NOTHING, because there is nothing to invent: a module that is not installed in this
+   area has contributed no widget, no tile, no item and no layer, and a card that drew its figures
+   would be a fake module rather than an honest affordance. What it names is what the catalogue
+   holds and the rule that installing one adds a headed section to the library — and nothing else
+   on this page changes, and no preset is invalidated, because a preset that never named the new
+   widgets simply does not show them. #}
+<div class="c">
+    <span class="tab"><span class="idx">NX·01</span>Not installed in this area<span class="src">· {{ by.next.catalogueCount }} in the catalogue · {{ by.next.absent|length }} not here</span></span>
+    {{ include('area/overview/_ao_by.html.twig', {slug: 'next', who: 'the seam'}, with_context: false) }}
+
+    {% if by.next.absent is empty %}
+        <div class="use">Every module the catalogue holds is switched on in this area. When a new one is added to the
+            catalogue it appears here first, before anybody installs it.</div>
+    {% else %}
+        <div class="use" style="margin:0 2px 12px">Nothing below is drawn with invented data, because there is none. Only
+            an installed module’s provider can say what it would put on this page, and these have not been asked.</div>
+        <div class="ao-slot">
+            {% for module in by.next.absent %}
+                <div class="ao-slotrow">
+                    <span class="nm">{{ module.name }}</span>
+                    <span class="wd">{{ module.source|default('No description in the catalogue.') }}</span>
+                    <span class="st">in the catalogue</span>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="rln" style="margin-top:12px">
+        <span class="fog">What installing one changes on this page</span>
+        <span class="mono" style="font-size:11px">a headed section in the library · nothing else</span>
+    </div>
+    <div class="rln">
+        <span class="fog">What it changes in the host</span>
+        <span class="mono acc" style="font-size:11px">nothing — new tagged provider classes only</span>
+    </div>
+    <a class="open-btn" href="{{ urls.customize }}" style="margin-top:10px">Add a module to this area →</a>
+</div>

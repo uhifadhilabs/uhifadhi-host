@@ -119,32 +119,6 @@ final class AreaController extends AbstractController
         return $this->render('dashboard/new.html.twig', ['form' => $form]);
     }
 
-    #[Route('/areas/{uuid}', name: 'dashboard_area_show', requirements: ['uuid' => Requirement::UUID], methods: ['GET'])]
-    public function show(
-        #[MapEntity(mapping: ['uuid' => 'uuid'])] AreaOfInterest $area,
-        AreaOfInterestRepository $areas,
-        AreaModuleRepository $areaModules,
-    ): Response {
-        $geom = $area->getGeom();
-        $boundary = [
-            'type' => 'FeatureCollection',
-            'features' => null === $geom ? [] : [[
-                'type' => 'Feature',
-                'properties' => ['name' => $area->getName()],
-                'geometry' => json_decode($geom, true, 512, \JSON_THROW_ON_ERROR),
-            ]],
-        ];
-
-        return $this->render('dashboard/show.html.twig', [
-            'area' => $area,
-            'boundary' => $boundary,
-            'stats' => [
-                'areaKm2' => (int) round($areas->stAreaKm2(['id' => $area->getId()])),
-                'modules' => $areaModules->count(['area' => $area, 'active' => true]),
-            ],
-        ]);
-    }
-
     #[Route('/areas/{uuid}/settings', name: 'dashboard_area_settings', requirements: ['uuid' => Requirement::UUID], methods: ['GET'])]
     #[IsGranted('area.edit')]
     public function settings(

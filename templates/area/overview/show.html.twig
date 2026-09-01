@@ -1,0 +1,76 @@
+{# THE AREA OVERVIEW — /areas/{uuid}.
+
+   THE PAGE IS COMPOSED, NOT AUTHORED. Everything below the tab strip is resolved from the
+   person's active preset over the catalogue the host assembled from every module this area has
+   switched on. This template contains NO widget markup, names no module and knows no module's
+   numbers: each plate is rendered from the bundle that contributed it, through the `partials`
+   map. Uninstall a module and its widgets leave the library, its tiles leave the "Right now"
+   strip, its items leave "Needs attention" and its layers leave the map — and the saved preset
+   that named them degrades rather than breaking.
+
+   WHAT THIS PAGE IS FOR, IN ONE LINE: an area manager's first five minutes, in the order those
+   questions arrive — what is happening now, where, how the work is going, who is on, and only
+   then what the area is. The identity facts are a widget like any other, which is why direction E
+   is allowed to sink them to the foot of the page.
+
+   → Uhifadhi\Controller\AreaOverviewController::show #}
+{% extends 'layout.html.twig' %}
+
+{% block title %}{{ area.name }} — Uhifadhi{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('leaflet/leaflet.css') }}">
+{% endblock %}
+
+{% block javascripts %}
+    {# Self-hosted Leaflet UMD → window.L, before the controllers that read it. #}
+    <script src="{{ asset('leaflet/leaflet.js') }}"></script>
+    {{ parent() }}
+{% endblock %}
+
+{% block content %}
+    <div class="page">
+        <div class="crumb"><a href="{{ path('dashboard_index') }}">uhifadhi</a> / <a href="{{ path('dashboard_index') }}">areas</a> / {{ area.name|lower }}</div>
+
+        <div class="pghead">
+            <div>
+                <h1 class="pg">{{ area.name }}</h1>
+                <p class="pgsub">What is happening in this area right now — composed from every module installed here.
+                    Each module’s own dashboard is a click away on the Modules tab.</p>
+            </div>
+            <div class="pgact w-pgact">
+                {# The library is where a direction is adopted and a composition is edited. Same
+                   control, same place, on every widget surface. #}
+                <a class="tgl w-act" href="{{ path('app_area_overview_widgets', {uuid: area.uuid}) }}">{{ ux_icon('lucide:layout-grid') }}Widgets</a>
+                {% if is_granted('module.view') %}
+                    <a class="cta" href="{{ path('dashboard_area_modules', {uuid: area.uuid}) }}">{{ ux_icon('lucide:plus') }}Add module</a>
+                {% endif %}
+            </div>
+        </div>
+
+        {{ include('dashboard/_area_tabs.html.twig', {area: area, active: 'overview'}) }}
+
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="c zflash{{ label == 'error' ? ' zflash-bad' }}"><span class="acc">{{ label == 'error' ? '!' : '✓' }}</span> {{ message }}</div>
+            {% endfor %}
+        {% endfor %}
+
+        <div class="w-grid">
+            {# A switched-off widget is simply absent — not hidden, not an empty cell. #}
+            {% for widget in widgets|filter(w => w.on) %}
+                {# w-span-N, never w-N: a bare `w-12` is Tailwind's width utility and would render
+                   this cell 48px wide (see the widget-framework block in app.css). #}
+                <div class="w-cell w-span-{{ widget.cols }}" data-widget-id="{{ widget.id }}" data-widget-cols="{{ widget.cols }}">
+                    <div class="w-inner">
+                        {{ include(partials[widget.id], widgetContext, with_context: false) }}
+                    </div>
+                </div>
+            {% endfor %}
+            <a class="w-cell w-span-12 w-addtile" href="{{ path('app_area_overview_widgets', {uuid: area.uuid}) }}">
+                {{ ux_icon('lucide:plus') }}<span>Add widgets — open the library</span>
+            </a>
+        </div>
+    </div>
+{% endblock %}

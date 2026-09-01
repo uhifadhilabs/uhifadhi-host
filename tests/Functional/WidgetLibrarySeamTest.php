@@ -57,6 +57,11 @@ final class WidgetLibrarySeamTest extends AuthenticatedWebTestCase
         yield 'department record' => ['/departments/{department}/widgets', '/departments/{department}/widgets'];
         yield 'department scorecard' => ['/departments/{department}/performance/widgets', '/departments/{department}/performance/widgets'];
         yield 'zones' => ['/areas/{area}/zones/widgets', '/areas/{area}/zones/widgets'];
+        // The COMPOSED surface. Its catalogue is assembled per area rather than
+        // declared, and it still hands the component exactly the same contract —
+        // which is the point: a surface whose widgets come from three owners is
+        // not a special case of the framework.
+        yield 'area overview' => ['/areas/{area}/overview/widgets', '/areas/{area}/overview/widgets'];
     }
 
     #[\PHPUnit\Framework\Attributes\DataProvider('libraries')]

@@ -1,0 +1,38 @@
+{# AO·04 · NEEDS ATTENTION — the host owns the list, a module owns the item.
+
+   Every row below was returned by a module as an AttentionItem — a severity, an age, a line of
+   text, a link — and the host merged, sorted and drew them. The host does not know what a snare
+   line is and must not: that is the whole point of the seam. The dot names the contributor.
+
+   Sorted by urgency, never by module. Nothing is stored, so nobody dismisses a row by hand: an
+   item leaves this list when the thing that raised it is dealt with.
+   → Uhifadhi\Service\AreaOverviewComposer::attention #}
+<div class="c">
+    <span class="tab"><span class="idx">AO·04</span>Needs attention<span class="src">· {{ attention|length }} item{{ attention|length == 1 ? '' : 's' }} · every installed module</span></span>
+    {{ include('area/overview/_ao_by.html.twig', {slug: 'host', who: 'host · module items'}, with_context: false) }}
+
+    {% if attention is empty %}
+        <div class="use">Nothing is asking for you. A good day is allowed to look like one — this list is built from
+            what every installed module says is wrong right now, so an empty list is an answer and not a gap.</div>
+    {% else %}
+        <div class="use" style="margin:0 2px 8px">Sorted by urgency, not by module. An item leaves this list when the
+            thing that raised it is dealt with — nobody dismisses one by hand, because the host did not raise it.</div>
+        {% for item in attention %}
+            <a class="ao-att {{ item.severity.cssClass }}" href="{{ item.url }}">
+                <span class="sev"></span>
+                <span class="bd">
+                    <span class="t"><b>{{ item.headline }}</b>{% if item.detail %} {{ item.detail }}{% endif %}</span>
+                    <span class="m">
+                        <i class="{{ item.moduleSlug }}"></i>{{ item.moduleLabel|lower }} · {{ item.kind }}
+                        {%- for fact in item.meta %}<span>{{ fact }}</span>{% endfor -%}
+                    </span>
+                </span>
+                <span class="age">{{ item.ageLabel }}</span>
+            </a>
+        {% endfor %}
+        <div class="rln" style="margin-top:8px">
+            <span class="fog">If a module is uninstalled</span>
+            <span class="mono" style="font-size:11px">its items leave this list the same day — nothing is orphaned</span>
+        </div>
+    {% endif %}
+</div>

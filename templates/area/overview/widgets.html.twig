@@ -1,0 +1,73 @@
+{# THE AREA OVERVIEW'S WIDGET LIBRARY.
+
+   The PAGE is the chrome — a crumb, a header and its two actions. Everything below is
+   templates/widgets/_library.html.twig: the preset component, identical on every surface that
+   ships a WidgetCatalog. There are no overview-specific widget mechanics anywhere.
+
+   ITS HEADED SECTIONS ARE CONTRIBUTORS, NOT DIRECTIONS — the one surface where that is true, and
+   the reason is said on the page rather than only in the code: when Patrols is uninstalled and
+   "Out right now" disappears, that has to read as the system working rather than as a bug. The
+   five directions the page was drawn in are still here; they are presets.
+
+   AREA-SCOPED: every URL the component is handed names this area, so arranging Ngorongoro's
+   overview leaves Pololeti's alone. #}
+{% extends 'layout.html.twig' %}
+
+{% block title %}{{ area.name }} · widget library — Uhifadhi{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('leaflet/leaflet.css') }}">
+{% endblock %}
+
+{% block javascripts %}
+    <script src="{{ asset('leaflet/leaflet.js') }}"></script>
+    {{ parent() }}
+    {# type="module" is deferred by definition, so the library is armed after the DOM exists. #}
+    <script type="module">
+        import { initWidgetLibrary } from 'uhifadhi/widgets';
+        initWidgetLibrary();
+    </script>
+{% endblock %}
+
+{% block content %}
+    <div class="page">
+        <div class="crumb"><a href="{{ path('dashboard_index') }}">uhifadhi</a> / <a href="{{ path('dashboard_index') }}">areas</a> / <a href="{{ path('dashboard_area_show', {uuid: area.uuid}) }}">{{ area.name|lower }}</a> / widget library</div>
+
+        <div class="pghead">
+            <div>
+                <h1 class="pg">{{ area.name }} · widget library</h1>
+                <p class="pgsub">Choose the layout this area’s overview shows, or compose your own. Every widget below is
+                    the real thing at full size, exactly as the page renders it.</p>
+            </div>
+            <div class="pgact w-pgact">
+                <button type="button" class="tgl w-act" {{ constant('Uhifadhi\\Model\\WidgetDom::RESET') }}
+                        {{ stimulus_controller('confirm-modal') }}
+                        data-action="click->confirm-modal#ask"
+                        data-confirm-modal-title-value="Reset your widget layout?"
+                        data-confirm-modal-message-value="This area's overview goes back to the composition the host ships — “The area overview”. Your own presets are kept, and your other areas are untouched."
+                        data-confirm-modal-confirm-label-value="Reset layout"
+                        data-confirm-modal-danger-value="true">{{ ux_icon('lucide:rotate-ccw') }}Reset to defaults</button>
+                <a class="cta" href="{{ path('dashboard_area_show', {uuid: area.uuid}) }}">{{ ux_icon('lucide:chevron-left') }}Back to the area</a>
+            </div>
+        </div>
+
+        <p class="pgsub w-libintro"><b>A group here is a contributor, not a direction.</b> On every other surface a headed
+            section is one of the five designs it was drawn in, because one owner wrote every widget. Here the division
+            that matters is <b>who contributed the widget</b> — so that when a module is uninstalled and its cards
+            disappear, that reads as the system working. The five directions are still below, as presets. Your choices
+            are saved per user <b>and per area</b>.</p>
+
+        {{ include('widgets/_library.html.twig', {
+            catalog: catalog,
+            builtins: builtins,
+            customPresets: customPresets,
+            active: active,
+            widgets: widgets,
+            partial: partial,
+            widgetContext: widgetContext,
+            urls: urls,
+            csrfToken: csrfToken,
+        }, with_context: false) }}
+    </div>
+{% endblock %}

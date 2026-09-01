@@ -1,0 +1,37 @@
+{# AO·06 · THE AREA PULSE — one stream, every module.
+
+   The pulse is not a log of records: it is a log of MOVES — a patrol opened, an incident changed
+   state, an observation logged. Every module already keeps one, and they all have the same shape,
+   which is why one component draws all of them and why a new module needs no work here.
+   → Uhifadhi\Overview\PulseProviderInterface #}
+{% set total = pulse|reduce((c, day) => c + day.events|length, 0) %}
+<div class="c">
+    <span class="tab"><span class="idx">AO·06</span>Area pulse<span class="src">· since {{ now|date_modify(constant('Uhifadhi\\Service\\AreaOverviewComposer::PULSE_SINCE'))|date('j M H:i') }} · {{ total }} event{{ total == 1 ? '' : 's' }}</span></span>
+    {{ include('area/overview/_ao_by.html.twig', {slug: 'host', who: 'host · the move log'}, with_context: false) }}
+
+    {% if total == 0 %}
+        <div class="use">Nothing moved in this window. The pulse shows what happened while you were away, so an empty
+            stream is a quiet night rather than a missing feed.</div>
+    {% else %}
+        <div class="use" style="margin:0 2px 6px">Every module writes the same kind of row — a move, a time, a person.
+            That is why one component draws all of them, and why a new module needs no work here.</div>
+        {% for day in pulse %}
+            <div class="i-day"><b>{{ day.day|date('D j M')|lower }}</b><span class="cnt">{{ day.events|length }} event{{ day.events|length == 1 ? '' : 's' }}</span></div>
+            {% for event in day.events %}
+                <a class="i-feed" href="{{ event.url }}">
+                    <span class="gut"><span class="hm">{{ event.at|date('H:i') }}</span></span>
+                    <span class="mark"><i style="background:{{ event.swatch }}"></i></span>
+                    <span class="bd">
+                        <span class="hl">
+                            <span class="id">{{ event.recordRef }}</span>
+                            {%- if event.state %}<span class="i-st {{ event.stateClass }}">{{ event.move }}</span>
+                            {%- else %}<span class="i-sub">{{ event.move }}</span>{% endif -%}
+                        </span>
+                        <span class="tt">{{ event.summary }}</span>
+                        <span class="mt"><span>{{ event.moduleLabel|lower }}</span>{% for fact in event.meta %}<span>{{ fact }}</span>{% endfor %}</span>
+                    </span>
+                </a>
+            {% endfor %}
+        {% endfor %}
+    {% endif %}
+</div>

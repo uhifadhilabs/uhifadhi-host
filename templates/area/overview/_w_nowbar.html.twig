@@ -1,0 +1,34 @@
+{# AO · THE RIGHT-NOW STRIP — and the clearest place the seam shows.
+
+   The host draws no tile of its own except the summary of its own attention list: every other
+   tile was returned by an installed module's provider, and the index prefix says which. Install a
+   module and its tiles join the row; uninstall it and they leave. Nothing here is a hard-coded
+   list.
+
+   A module with nothing to say contributes no tile — ABSENT IS NOT ZERO. When no module has
+   anything to say at all, the strip says so in one line rather than drawing an empty row.
+   → Uhifadhi\Service\AreaOverviewComposer::nowTiles #}
+{% if tiles is empty %}
+    <div class="c">
+        <span class="tab"><span class="idx">AO·02</span>Right now</span>
+        {{ include('area/overview/_ao_by.html.twig', {slug: 'host', who: 'host · module tiles'}, with_context: false) }}
+        <div class="use">Nothing is reporting into this strip. Every tile on it is contributed by a module installed in
+            this area — so an empty strip means either a quiet morning or no module that measures one.</div>
+    </div>
+{% else %}
+    <div class="grid w-flush dp-kstrip">
+        {% for tile in tiles %}
+            <div class="c kpi{{ tile.tone == 'hot' ? ' hot' }}{{ tile.tone == 'bad' ? ' bad' }}">
+                <span class="tab">
+                    <span class="idx">{{ tile.index }}</span>{{ tile.label }}
+                    {%- if tile.live %}<span class="src">· <span class="ao-live"><i></i></span></span>{% endif -%}
+                </span>
+                <b class="disp">{{ tile.value }}{% if tile.unit %}<em>{{ tile.unit }}</em>{% endif %}</b>
+                <span class="sub">
+                    {{- tile.subline -}}
+                    {%- if tile.alarm %}{{ tile.subline ? ' · ' }}<span class="r">{{ tile.alarm }}</span>{% endif -%}
+                </span>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}

@@ -1,0 +1,28 @@
+{# AO·08 · THE SEAM, AS A CARD. What is installed here, what each contributed to THIS page, and
+   the honest way to add another.
+
+   The contribution counts are not a description — they are counted from what each module actually
+   returned on this render, so a module whose provider went quiet says so here. #}
+<div class="c">
+    <span class="tab"><span class="idx">AO·08</span>Modules in this area<span class="src">· {{ by.host.installed|length }} installed · {{ by.host.catalogueCount }} in the catalogue</span></span>
+    {{ include('area/overview/_ao_by.html.twig', {slug: 'host', who: 'host'}, with_context: false) }}
+
+    <table class="tbl">
+        <tr><th>module</th><th>contributes here</th><th style="text-align:right">since</th></tr>
+        {% for module in by.host.installed %}
+            {% set c = contributions[module.slug]|default({widgets: 0, tiles: 0, attention: 0, layers: 0}) %}
+            <tr>
+                <td><a href="{{ urls.modules }}"><i style="display:inline-block;width:7px;height:7px;border-radius:2px;background:var(--c-ln2);margin-right:7px" class="mdot-{{ module.slug }}"></i>{{ module.name }}</a></td>
+                <td class="fog">{{ c.widgets }} widget{{ c.widgets == 1 ? '' : 's' }} · {{ c.tiles }} now-tile{{ c.tiles == 1 ? '' : 's' }} · {{ c.attention }} attention item{{ c.attention == 1 ? '' : 's' }} · {{ c.layers }} map layer{{ c.layers == 1 ? '' : 's' }}</td>
+                <td class="num mono" style="font-size:11px">{{ module.since ? module.since|date('M Y')|lower : '—' }}</td>
+            </tr>
+        {% else %}
+            <tr><td class="d" colspan="3">No module is switched on in this area, so nothing operational is on this page.</td></tr>
+        {% endfor %}
+    </table>
+
+    <div class="use">A module is installed <b>per area</b>. Everything it contributes appears the moment it is, and leaves
+        the moment it is not — including its tiles inside the host’s own strip and its items inside the host’s own
+        attention list.</div>
+    <a class="open-btn" href="{{ urls.customize }}" style="margin-top:8px">Add a module to this area →</a>
+</div>
