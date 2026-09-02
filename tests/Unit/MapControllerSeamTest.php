@@ -21,7 +21,7 @@ use PHPUnit\Framework\TestCase;
  * The basemap seam itself — the session cache, the three-state reader, the
  * provider payload — left this repository with the asset, and its test went with
  * it: a defect of that file must fail where someone would edit it
- * (uhifadhilabs/map-module, tests/Unit/Assets/BasemapSeamAssetsTest).
+ * (uhifadhi/map-module, tests/Unit/Assets/BasemapSeamAssetsTest).
  *
  * What CANNOT move is the obligation on the host's OWN map controllers, because
  * those controllers are here. Two of them, and both are the kind of defect no
@@ -111,7 +111,7 @@ final class MapControllerSeamTest extends TestCase
     {
         foreach (self::controllers() as $file) {
             self::assertStringNotContainsString(
-                '@uhifadhilabs/map-module',
+                '@uhifadhi/map-module',
                 (string) file_get_contents($file),
                 \sprintf('%s must import uhifadhi/basemaps et al by name; the path is importmap.php\'s business.', basename($file)),
             );

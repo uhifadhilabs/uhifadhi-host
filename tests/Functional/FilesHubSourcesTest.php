@@ -23,7 +23,7 @@ use UhifadhiLabs\Patrol\Entity\Patrol;
 /**
  * THE FILES HUB IS STOCKED BY THE MODULES, and this is the host's proof of it.
  *
- * /files ships in uhifadhilabs/storage-module and knows nothing about
+ * /files ships in uhifadhi/storage-module and knows nothing about
  * observations or incidents: everything on it was handed over by a module
  * through a service tagged "storage.file_source". That seam is invisible when it
  * breaks — an untagged source is indistinguishable from a module nobody

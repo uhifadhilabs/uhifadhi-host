@@ -1,4 +1,5 @@
 {
+    "name": "uhifadhi/uhifadhi",
     "type": "project",
     "license": "AGPL-3.0-or-later",
     "minimum-stability": "stable",
@@ -49,12 +50,12 @@
         "symfonycasts/tailwind-bundle": "^1.0",
         "twig/extra-bundle": "^2.12|^3.0",
         "twig/twig": "^2.12|^3.0",
-        "uhifadhilabs/incident-module": "dev-main",
-        "uhifadhilabs/map-module": "dev-main",
-        "uhifadhilabs/module-contracts": "dev-main",
-        "uhifadhilabs/patrol-module": "dev-main",
-        "uhifadhilabs/seeder-module": "dev-main",
-        "uhifadhilabs/storage-module": "dev-main"
+        "uhifadhi/incident-module": "dev-main",
+        "uhifadhi/map-module": "dev-main",
+        "uhifadhi/module-contracts": "dev-main",
+        "uhifadhi/patrol-module": "dev-main",
+        "uhifadhi/fixtures-module": "dev-main",
+        "uhifadhi/storage-module": "dev-main"
     },
     "config": {
         "allow-plugins": {
@@ -159,8 +160,8 @@
         },
         {
             "type": "vcs",
-            "name": "seeder-module",
-            "url": "https://github.com/uhifadhilabs/seeder-module"
+            "name": "fixtures-module",
+            "url": "https://github.com/uhifadhilabs/fixtures-module"
         },
         {
             "type": "vcs",

@@ -1,4 +1,4 @@
-# The ONE way stored evidence comes back out (uhifadhilabs/storage-module).
+# The ONE way stored evidence comes back out (uhifadhi/storage-module).
 #
 # Only the serving controller is mounted, by file rather than by directory: the
 # bundle also carries a cross-module Files hub, and mounting that is a separate

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c3fea9821ac828a76dbebe30dd4c311e",
+    "content-hash": "5afe33254151f01b6875e7c92f4e40ef",
     "packages": [
         {
             "name": "api-platform/core",
@@ -8639,17 +8639,107 @@
             "time": "2026-07-03T20:44:34+00:00"
         },
         {
-            "name": "uhifadhilabs/incident-module",
+            "name": "uhifadhi/fixtures-module",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "git@github.com:uhifadhilabs/fixtures-module.git",
+                "reference": "56a168d9040d95c553118d554694f39c458d8f08"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/uhifadhilabs/fixtures-module/zipball/56a168d9040d95c553118d554694f39c458d8f08",
+                "reference": "56a168d9040d95c553118d554694f39c458d8f08",
+                "shasum": ""
+            },
+            "require": {
+                "doctrine/orm": "^3.5",
+                "php": ">=8.4",
+                "symfony/config": "^7.3 || ^8.0",
+                "symfony/console": "^7.3 || ^8.0",
+                "symfony/dependency-injection": "^7.3 || ^8.0",
+                "symfony/framework-bundle": "^7.3 || ^8.0",
+                "symfony/http-kernel": "^7.3 || ^8.0",
+                "symfony/password-hasher": "^7.3 || ^8.0"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.95",
+                "phpstan/phpstan": "^2.2",
+                "phpunit/phpunit": "^13.2",
+                "symfony/security-core": "^7.3 || ^8.0"
+            },
+            "default-branch": true,
+            "type": "symfony-bundle",
+            "extra": {
+                "branch-alias": {
+                    "dev-main": "0.1-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "UhifadhiLabs\\Fixtures\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "UhifadhiLabs\\Fixtures\\Tests\\": "tests/",
+                    "Uhifadhi\\": "tests/Fixtures/Uhifadhi/"
+                }
+            },
+            "scripts": {
+                "cs:fix": [
+                    "php-cs-fixer fix"
+                ],
+                "cs:check": [
+                    "php-cs-fixer fix --dry-run --diff"
+                ],
+                "phpstan": [
+                    "phpstan analyse --no-progress --memory-limit=1G"
+                ],
+                "test": [
+                    "phpunit"
+                ],
+                "check": [
+                    "@cs:check",
+                    "@phpstan",
+                    "@test"
+                ]
+            },
+            "license": [
+                "AGPL-3.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Ezekiel Mjema",
+                    "homepage": "https://github.com/eemjema"
+                }
+            ],
+            "description": "Fixtures: dev/demo data seeding for uhifadhi hosts — demo accounts + positions, fixed-uuid area from a GeoJSON boundary, and the one-shot baseline orchestrator.",
+            "keywords": [
+                "demo",
+                "fixtures",
+                "seeding",
+                "symfony",
+                "uhifadhi"
+            ],
+            "support": {
+                "source": "https://github.com/uhifadhilabs/fixtures-module/tree/main",
+                "issues": "https://github.com/uhifadhilabs/fixtures-module/issues"
+            },
+            "time": "2026-09-02T19:44:49+00:00"
+        },
+        {
+            "name": "uhifadhi/incident-module",
             "version": "dev-main",
             "source": {
                 "type": "git",
                 "url": "https://github.com/uhifadhilabs/incident-module.git",
-                "reference": "93d96d688614087bfc6a9960a1b8cff488e7d07a"
+                "reference": "cd8a554bae8f42a65666756c109ac3a826aac565"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/uhifadhilabs/incident-module/zipball/93d96d688614087bfc6a9960a1b8cff488e7d07a",
-                "reference": "93d96d688614087bfc6a9960a1b8cff488e7d07a",
+                "url": "https://api.github.com/repos/uhifadhilabs/incident-module/zipball/cd8a554bae8f42a65666756c109ac3a826aac565",
+                "reference": "cd8a554bae8f42a65666756c109ac3a826aac565",
                 "shasum": ""
             },
             "require": {
@@ -8668,7 +8758,8 @@
                 "symfony/twig-bundle": "^7.3 || ^8.0",
                 "symfony/uid": "^7.3 || ^8.0",
                 "symfony/ux-icons": "^3.4",
-                "uhifadhilabs/module-contracts": "dev-main"
+                "uhifadhi/map-module": "dev-main",
+                "uhifadhi/module-contracts": "dev-main"
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^3.95",
@@ -8681,10 +8772,10 @@
                 "symfony/security-csrf": "^7.3 || ^8.0",
                 "symfony/security-http": "^7.3 || ^8.0",
                 "symfony/stimulus-bundle": "^2.20 || ^2.30 || ^2.0",
-                "uhifadhilabs/storage-module": "dev-main"
+                "uhifadhi/storage-module": "dev-main"
             },
             "suggest": {
-                "uhifadhilabs/storage-module": "To put an incident’s evidence on the platform’s Files hub (/files). Register the bundle and IncidentFileSource registers itself; without it, incidents simply do not appear there."
+                "uhifadhi/storage-module": "To put an incident’s evidence on the platform’s Files hub (/files). Register the bundle and IncidentFileSource registers itself; without it, incidents simply do not appear there."
             },
             "default-branch": true,
             "type": "symfony-bundle",
@@ -8730,7 +8821,7 @@
                 ]
             },
             "license": [
-                "proprietary"
+                "AGPL-3.0-or-later"
             ],
             "authors": [
                 {
@@ -8752,20 +8843,20 @@
                 "source": "https://github.com/uhifadhilabs/incident-module/tree/main",
                 "issues": "https://github.com/uhifadhilabs/incident-module/issues"
             },
-            "time": "2026-09-02T11:02:29+00:00"
+            "time": "2026-09-02T20:10:54+00:00"
         },
         {
-            "name": "uhifadhilabs/map-module",
+            "name": "uhifadhi/map-module",
             "version": "dev-main",
             "source": {
                 "type": "git",
                 "url": "git@github.com:uhifadhilabs/map-module.git",
-                "reference": "d4eed783f2386842454d7b9eb5669beb23abb99d"
+                "reference": "90d1006e666b9653bf21bb0d1e6dd04256ab7da2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/uhifadhilabs/map-module/zipball/d4eed783f2386842454d7b9eb5669beb23abb99d",
-                "reference": "d4eed783f2386842454d7b9eb5669beb23abb99d",
+                "url": "https://api.github.com/repos/uhifadhilabs/map-module/zipball/90d1006e666b9653bf21bb0d1e6dd04256ab7da2",
+                "reference": "90d1006e666b9653bf21bb0d1e6dd04256ab7da2",
                 "shasum": ""
             },
             "require": {
@@ -8775,7 +8866,7 @@
                 "symfony/framework-bundle": "^7.3 || ^8.0",
                 "symfony/http-kernel": "^7.3 || ^8.0",
                 "twig/twig": "^3.12",
-                "uhifadhilabs/module-contracts": "dev-main"
+                "uhifadhi/module-contracts": "dev-main"
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^3.95",
@@ -8849,20 +8940,20 @@
                 "source": "https://github.com/uhifadhilabs/map-module/tree/main",
                 "issues": "https://github.com/uhifadhilabs/map-module/issues"
             },
-            "time": "2026-09-02T18:36:07+00:00"
+            "time": "2026-09-02T20:05:24+00:00"
         },
         {
-            "name": "uhifadhilabs/module-contracts",
+            "name": "uhifadhi/module-contracts",
             "version": "dev-main",
             "source": {
                 "type": "git",
                 "url": "https://github.com/uhifadhilabs/module-contracts.git",
-                "reference": "d465079c9ed62920444da5e608fcc479a251a72c"
+                "reference": "f4de4df5e89d729b59a1492ea4fb237087e5a713"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/uhifadhilabs/module-contracts/zipball/d465079c9ed62920444da5e608fcc479a251a72c",
-                "reference": "d465079c9ed62920444da5e608fcc479a251a72c",
+                "url": "https://api.github.com/repos/uhifadhilabs/module-contracts/zipball/f4de4df5e89d729b59a1492ea4fb237087e5a713",
+                "reference": "f4de4df5e89d729b59a1492ea4fb237087e5a713",
                 "shasum": ""
             },
             "require": {
@@ -8929,20 +9020,20 @@
                 "source": "https://github.com/uhifadhilabs/module-contracts/tree/main",
                 "issues": "https://github.com/uhifadhilabs/module-contracts/issues"
             },
-            "time": "2026-09-02T18:32:21+00:00"
+            "time": "2026-09-02T19:54:31+00:00"
         },
         {
-            "name": "uhifadhilabs/patrol-module",
+            "name": "uhifadhi/patrol-module",
             "version": "dev-main",
             "source": {
                 "type": "git",
                 "url": "https://github.com/uhifadhilabs/patrol-module.git",
-                "reference": "42ce1bffafdb3661ca9522259079c40a865909c9"
+                "reference": "530ba664350a353048ba89da209717ee5c1f6e5c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/uhifadhilabs/patrol-module/zipball/42ce1bffafdb3661ca9522259079c40a865909c9",
-                "reference": "42ce1bffafdb3661ca9522259079c40a865909c9",
+                "url": "https://api.github.com/repos/uhifadhilabs/patrol-module/zipball/530ba664350a353048ba89da209717ee5c1f6e5c",
+                "reference": "530ba664350a353048ba89da209717ee5c1f6e5c",
                 "shasum": ""
             },
             "require": {
@@ -8962,8 +9053,9 @@
                 "symfony/twig-bundle": "^7.3 || ^8.0",
                 "symfony/uid": "^7.3 || ^8.0",
                 "symfony/ux-icons": "^3.4",
-                "uhifadhilabs/module-contracts": "dev-main",
-                "uhifadhilabs/storage-module": "dev-main"
+                "uhifadhi/map-module": "dev-main",
+                "uhifadhi/module-contracts": "dev-main",
+                "uhifadhi/storage-module": "dev-main"
             },
             "require-dev": {
                 "api-platform/core": "^4.3",
@@ -9028,7 +9120,7 @@
                 ]
             },
             "license": [
-                "proprietary"
+                "AGPL-3.0-or-later"
             ],
             "authors": [
                 {
@@ -9052,110 +9144,20 @@
                 "source": "https://github.com/uhifadhilabs/patrol-module/tree/main",
                 "issues": "https://github.com/uhifadhilabs/patrol-module/issues"
             },
-            "time": "2026-09-02T11:02:29+00:00"
+            "time": "2026-09-02T20:10:52+00:00"
         },
         {
-            "name": "uhifadhilabs/seeder-module",
-            "version": "dev-main",
-            "source": {
-                "type": "git",
-                "url": "git@github.com:uhifadhilabs/seeder-module.git",
-                "reference": "f5faa1fd37331c18832cdd12074231b88fb27db2"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/uhifadhilabs/seeder-module/zipball/f5faa1fd37331c18832cdd12074231b88fb27db2",
-                "reference": "f5faa1fd37331c18832cdd12074231b88fb27db2",
-                "shasum": ""
-            },
-            "require": {
-                "doctrine/orm": "^3.5",
-                "php": ">=8.4",
-                "symfony/config": "^7.3 || ^8.0",
-                "symfony/console": "^7.3 || ^8.0",
-                "symfony/dependency-injection": "^7.3 || ^8.0",
-                "symfony/framework-bundle": "^7.3 || ^8.0",
-                "symfony/http-kernel": "^7.3 || ^8.0",
-                "symfony/password-hasher": "^7.3 || ^8.0"
-            },
-            "require-dev": {
-                "friendsofphp/php-cs-fixer": "^3.95",
-                "phpstan/phpstan": "^2.2",
-                "phpunit/phpunit": "^13.2",
-                "symfony/security-core": "^7.3 || ^8.0"
-            },
-            "default-branch": true,
-            "type": "symfony-bundle",
-            "extra": {
-                "branch-alias": {
-                    "dev-main": "0.1-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "UhifadhiLabs\\Seeder\\": "src/"
-                }
-            },
-            "autoload-dev": {
-                "psr-4": {
-                    "UhifadhiLabs\\Seeder\\Tests\\": "tests/",
-                    "Uhifadhi\\": "tests/Fixtures/Uhifadhi/"
-                }
-            },
-            "scripts": {
-                "cs:fix": [
-                    "php-cs-fixer fix"
-                ],
-                "cs:check": [
-                    "php-cs-fixer fix --dry-run --diff"
-                ],
-                "phpstan": [
-                    "phpstan analyse --no-progress --memory-limit=1G"
-                ],
-                "test": [
-                    "phpunit"
-                ],
-                "check": [
-                    "@cs:check",
-                    "@phpstan",
-                    "@test"
-                ]
-            },
-            "license": [
-                "proprietary"
-            ],
-            "authors": [
-                {
-                    "name": "Ezekiel Mjema",
-                    "homepage": "https://github.com/eemjema"
-                }
-            ],
-            "description": "Seeder: dev/demo data seeding for uhifadhi hosts — demo accounts + positions, fixed-uuid area from a GeoJSON boundary, and the one-shot baseline orchestrator.",
-            "keywords": [
-                "demo",
-                "fixtures",
-                "seeding",
-                "symfony",
-                "uhifadhi"
-            ],
-            "support": {
-                "source": "https://github.com/uhifadhilabs/seeder-module/tree/main",
-                "issues": "https://github.com/uhifadhilabs/seeder-module/issues"
-            },
-            "time": "2026-08-25T18:15:07+00:00"
-        },
-        {
-            "name": "uhifadhilabs/storage-module",
+            "name": "uhifadhi/storage-module",
             "version": "dev-main",
             "source": {
                 "type": "git",
                 "url": "https://github.com/uhifadhilabs/storage-module.git",
-                "reference": "20df722b4917997ed65564a0c2aa486ec534ecf9"
+                "reference": "51ccf39e000fb8ba68aa979156081e6381318282"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/uhifadhilabs/storage-module/zipball/20df722b4917997ed65564a0c2aa486ec534ecf9",
-                "reference": "20df722b4917997ed65564a0c2aa486ec534ecf9",
+                "url": "https://api.github.com/repos/uhifadhilabs/storage-module/zipball/51ccf39e000fb8ba68aa979156081e6381318282",
+                "reference": "51ccf39e000fb8ba68aa979156081e6381318282",
                 "shasum": ""
             },
             "require": {
@@ -9230,7 +9232,7 @@
                 ]
             },
             "license": [
-                "proprietary"
+                "AGPL-3.0-or-later"
             ],
             "authors": [
                 {
@@ -9253,7 +9255,7 @@
                 "source": "https://github.com/uhifadhilabs/storage-module/tree/main",
                 "issues": "https://github.com/uhifadhilabs/storage-module/issues"
             },
-            "time": "2026-08-27T20:11:54+00:00"
+            "time": "2026-09-02T20:05:26+00:00"
         },
         {
             "name": "webmozart/assert",
@@ -13375,12 +13377,12 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "uhifadhilabs/incident-module": 20,
-        "uhifadhilabs/map-module": 20,
-        "uhifadhilabs/module-contracts": 20,
-        "uhifadhilabs/patrol-module": 20,
-        "uhifadhilabs/seeder-module": 20,
-        "uhifadhilabs/storage-module": 20
+        "uhifadhi/fixtures-module": 20,
+        "uhifadhi/incident-module": 20,
+        "uhifadhi/map-module": 20,
+        "uhifadhi/module-contracts": 20,
+        "uhifadhi/patrol-module": 20,
+        "uhifadhi/storage-module": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,

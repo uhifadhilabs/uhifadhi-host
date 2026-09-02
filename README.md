@@ -5,7 +5,7 @@ The open-source observatory for nature conservation & protected areas.
 A lean Symfony (PHP 8.4) host with a flat layout (`src/Entity`, `src/Controller`,
 `src/Service`, …) that is extended by **module bundles**: each capability — patrols,
 incidents, rosters — ships as its own Symfony bundle
-(`uhifadhilabs/<name>-module`, see [docs/module-naming.md](docs/module-naming.md))
+(`uhifadhi/<name>-module`, see [docs/module-naming.md](docs/module-naming.md))
 and plugs into the host's module catalogue. The host stays module-blind: it renders
 the area shell and the catalogue; modules bring their own entities, routes, screens,
 permissions and seed commands.
@@ -14,9 +14,10 @@ permissions and seed commands.
 
 Uhifadhi is structured like the thing it protects:
 
-> **`uhifadhi/seed`** (planted once) → **`trunk-module`** (the seam runtime every
-> module registers with) → **branches** (the modules: patrol, incident, roster,
-> map, team, widget, area…) → **`canopy-module`** (the visible crown).
+> **`uhifadhi/seed`** (planted once) → **`uhifadhi/trunk-module`** (the seam
+> runtime every module registers with) → **branches** (the modules: patrol,
+> incident, roster, map, team, widget, area…) → **`uhifadhi/canopy-module`**
+> (the visible crown).
 
 The seed is the project template — copied once, so boring it never changes.
 Everything above it is a bundle, updated forever through composer: modules branch

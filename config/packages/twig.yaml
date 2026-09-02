@@ -1,7 +1,7 @@
 twig:
     file_name_pattern: '*.twig'
     # No globals. The Google Map Tiles key used to live here and be published on
-    # <body> by base.html.twig; it moved into uhifadhilabs/map-module, where the
+    # <body> by base.html.twig; it moved into uhifadhi/map-module, where the
     # satellite provider is configured (config/packages/map.yaml) and rendered by
     # that bundle's map_basemap_attributes(). The host no longer names anyone's
     # env var, and a page whose provider needs no key carries none.

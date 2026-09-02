@@ -1,4 +1,4 @@
-# Evidence storage (uhifadhilabs/storage-module) — where field photographs live.
+# Evidence storage (uhifadhi/storage-module) — where field photographs live.
 #
 # There is deliberately no flysystem.yaml beside this file: the storage bundle
 # PREPENDS its own `storage.evidence` storage, private on both visibility axes,

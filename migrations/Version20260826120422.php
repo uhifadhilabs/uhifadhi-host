@@ -18,7 +18,7 @@ use Doctrine\Migrations\AbstractMigration;
 
 /**
  * Observation photos gain their preview key — the patrols module's adoption of
- * uhifadhilabs/storage-module.
+ * uhifadhi/storage-module.
  *
  * NULLABLE, and it must stay so: no GD build decodes HEIC and an ImageMagick
  * without libheif cannot either, so an iPhone photograph is routinely stored

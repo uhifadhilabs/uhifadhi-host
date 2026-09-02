@@ -35,7 +35,7 @@ return [
     // this file meets the machinery before the capabilities built on it.
     UhifadhiLabs\Map\UhifadhiLabsMapBundle::class => ['all' => true],
     UhifadhiLabs\Patrol\UhifadhiLabsPatrolBundle::class => ['all' => true],
-    UhifadhiLabs\Seeder\UhifadhiLabsSeederBundle::class => ['all' => true],
+    UhifadhiLabs\Fixtures\UhifadhiLabsFixturesBundle::class => ['all' => true],
     ApiPlatform\Symfony\Bundle\ApiPlatformBundle::class => ['all' => true],
     League\FlysystemBundle\FlysystemBundle::class => ['all' => true],
     UhifadhiLabs\Storage\UhifadhiLabsStorageBundle::class => ['all' => true],

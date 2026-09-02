@@ -1,4 +1,4 @@
-# Patrols module (uhifadhilabs/patrol-module). dev_tools registers the
+# Patrols module (uhifadhi/patrol-module). dev_tools registers the
 # patrol:seed:* commands — dev/test only, so production never grows commands
 # that fabricate patrols.
 

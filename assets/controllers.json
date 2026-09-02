@@ -13,7 +13,7 @@
                 "fetch": "eager"
             }
         },
-        "@uhifadhilabs/incident-module": {
+        "@uhifadhi/incident-module": {
             "incident-map": {
                 "enabled": true,
                 "fetch": "eager"
@@ -27,7 +27,7 @@
                 "fetch": "eager"
             }
         },
-        "@uhifadhilabs/patrol-module": {
+        "@uhifadhi/patrol-module": {
             "coverage-map": {
                 "enabled": true,
                 "fetch": "eager"
@@ -49,7 +49,7 @@
                 "fetch": "eager"
             }
         },
-        "@uhifadhilabs/storage-module": {
+        "@uhifadhi/storage-module": {
             "preview": {
                 "enabled": true,
                 "fetch": "eager"

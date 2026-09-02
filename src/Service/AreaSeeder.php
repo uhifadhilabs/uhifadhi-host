@@ -22,7 +22,7 @@ use Uhifadhi\Repository\AreaOfInterestRepository;
  * Idempotently ensures a demo AreaOfInterest exists with a FIXED uuid, so config
  * that addresses an area by uuid — e.g. a module bundle's area reference — keeps
  * resolving after every wipe/reseed instead of chasing a freshly generated uuid.
- * Reused by the seeder module's seeder:area command and by fixtures.
+ * Reused by the fixtures module's fixtures:area command and by fixtures.
  */
 final class AreaSeeder
 {

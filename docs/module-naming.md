@@ -14,8 +14,9 @@ stays in its own layer, and the namespace argues with nobody.
 
 | Layer | Rule | Example |
 |---|---|---|
-| Repo + composer name, uhifadhi-exclusive | `uhifadhilabs/<name>-module` | `uhifadhilabs/patrol-module` |
-| Repo + composer name, generic (any Symfony app) | `fundistadi/<name>-bundle` | `fundistadi/postgis-bundle` |
+| Composer name, uhifadhi-exclusive | `uhifadhi/<name>-module` | `uhifadhi/patrol-module` |
+| Composer name, generic (any Symfony app) | `fundistadi/<name>-bundle` | `fundistadi/postgis-bundle` |
+| Repository | `github.com/uhifadhilabs/<name>-module` | [uhifadhilabs/patrol-module](https://github.com/uhifadhilabs/patrol-module) |
 | PHP namespace | the DOMAIN, no meta-word | `UhifadhiLabs\Patrol\Entity\Patrol` |
 | Bundle class (the one Symfony plug) | `UhifadhiLabs<Name>Bundle` | `UhifadhiLabs\Patrol\UhifadhiLabsPatrolBundle` |
 | App UI / catalogue / user docs | module | the "Patrols" module tile |
@@ -23,8 +24,14 @@ stays in its own layer, and the namespace argues with nobody.
 Anything built to be used in uhifadhi exclusively ships with the `-module`
 suffix — the name says "a uhifadhi module, not a general-purpose Symfony
 package". Platform machinery extracted from the host follows the same rule
-(e.g. `uhifadhilabs/ingestion-module`) even when it contributes no catalogue
+(e.g. `uhifadhi/ingestion-module`) even when it contributes no catalogue
 tile of its own.
+
+The composer vendor is `uhifadhi/` and the GitHub organisation is
+`uhifadhilabs/`. They are separate namespaces and do not have to agree: the
+short vendor is the one people type into `composer require`, and the repository
+keeps the organisation's name. (Guzzle has published `guzzlehttp/guzzle` out of
+`github.com/guzzle` for years for the same reason.)
 
 ## Why this is consistent
 
@@ -39,5 +46,5 @@ precisely what it is.
 Package naming never affects bundle registration: Symfony Flex keys on the
 package's composer `"type": "symfony-bundle"` and registers the bundle CLASS
 in `config/bundles.php` — the package name itself is never parsed, so
-`uhifadhilabs/patrol-module` registers `UhifadhiLabsPatrolBundle` exactly like
+`uhifadhi/patrol-module` registers `UhifadhiLabsPatrolBundle` exactly like
 any `*-bundle` package would.
