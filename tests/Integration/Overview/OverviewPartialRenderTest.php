@@ -172,17 +172,31 @@ final class OverviewPartialRenderTest extends KernelTestCase
         self::assertSame($drawn, $rows->count(), 'The dock does not row every drawn feature.');
         self::assertGreaterThanOrEqual(5, $drawn);
 
+        // A ROW EITHER CARRIES A POINT OR CARRIES NONE. What it may never carry
+        // is a coordinate array: that is what shipped, twice, and what the
+        // browser read as `data-lon="Array"`.
+        $unlocated = 0;
         foreach ($rows as $row) {
             \assert($row instanceof \DOMElement);
+            $lon = $row->getAttribute('data-lon');
+            $lat = $row->getAttribute('data-lat');
             $ref = new Crawler($row)->filter('.id')->text();
-            foreach (['data-lon', 'data-lat'] as $attribute) {
-                $value = $row->getAttribute($attribute);
+
+            if ('' === $lon && '' === $lat) {
+                ++$unlocated;
+                continue;
+            }
+            foreach (['data-lon' => $lon, 'data-lat' => $lat] as $attribute => $value) {
                 self::assertTrue(
                     is_numeric($value),
                     \sprintf('%s of %s is "%s" — a coordinate array reached the markup instead of one number.', $attribute, $ref, $value),
                 );
             }
         }
+
+        // Exactly the two features that have no point of their own: the
+        // unlocated one and the GeometryCollection.
+        self::assertSame(2, $unlocated, 'A feature with a geometry was docked without its point.');
 
         // The dock's own count reads the same features the rows do.
         self::assertStringContainsString($drawn.' drawn', $html);
@@ -326,6 +340,19 @@ final class OverviewPartialRenderTest extends KernelTestCase
             new MapLayer('incidents.open', 'incidents', 'Incidents', 'Open', '#b4472f', $this->collection([
                 ['Point', [35.22, -3.19], ['ref' => 'INC-0316', 'title' => 'Snaring on the forest edge', 'place' => 'Endulen', 'when' => '3 h ago', 'state' => 'verified', 'url' => '/incidents/INC-0316']],
             ]), count: 1, live: true),
+            // A FEATURE WITH NO POINT OF ITS OWN. GeoJSON allows an unlocated
+            // feature (`"geometry": null`), and a GeometryCollection carries
+            // `geometries` rather than `coordinates` — so neither can be asked
+            // for a coordinate. The plate already knows what to do with a row
+            // that has no point: it keeps it, exactly as it keeps a line that
+            // crosses the edge of the viewport.
+            new MapLayer('incidents.unlocated', 'incidents', 'Incidents', 'Reported without a place', '#c98a2f', [
+                'type' => 'FeatureCollection',
+                'features' => [
+                    ['type' => 'Feature', 'geometry' => null, 'properties' => ['ref' => 'INC-0317', 'title' => 'Reported by radio, place not given']],
+                    ['type' => 'Feature', 'geometry' => ['type' => 'GeometryCollection', 'geometries' => [['type' => 'Point', 'coordinates' => [35.2, -3.2]]]], 'properties' => ['ref' => 'INC-0318', 'title' => 'A sighting and the track that found it']],
+                ],
+            ], count: 2),
             // NOTHING TO DRAW, AND STILL IN THE LEGEND.
             new MapLayer('incidents.closed', 'incidents', 'Incidents', 'Closed this week', '#8a8a8a', $this->collection([]), count: 0, on: false),
         ];

@@ -39,8 +39,13 @@
                         {% set p = feature.properties|default({}) %}
                         {# The row carries its own point so the plate can say whether it is still in
                            view — the host reads a coordinate, not a meaning. A Point speaks for
-                           itself; a track answers with its newest position. #}
-                        {% set pt = feature.geometry.coordinates %}
+                           itself; a track answers with its newest position; and a feature that has
+                           no point at all — GeoJSON's unlocated `"geometry": null`, or a
+                           GeometryCollection, which carries `geometries` and no coordinates — docks
+                           without one. That is not a special case: the plate already keeps a row
+                           with no point of its own, exactly as it keeps a line that crosses the
+                           edge of the viewport. → overview_map_controller#syncDock #}
+                        {% set pt = feature.geometry.coordinates|default([]) %}
                         {% if pt|first is iterable %}{% set pt = pt|last %}{% endif %}
                         {% if pt|first is iterable %}{% set pt = pt|last %}{% endif %}
                         {% if pt|first is iterable %}{% set pt = pt|last %}{% endif %}
