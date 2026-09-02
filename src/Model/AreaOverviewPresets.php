@@ -71,7 +71,13 @@ final class AreaOverviewPresets
             ],
             'b' => [
                 'Map as ground',
-                'The area IS the map: it takes the height of the screen and everything else docks to it, so “where” is answered before “what”. Unbeatable for spotting a cluster, a stranded patrol or an unwatched corner; worst for money, paperwork and anything that has no coordinates.',
+                // THE MIDDLE OF THIS LINE IS CONTRIBUTED. "A stranded patrol"
+                // is the patrols module's phrase, not the host's, and an area
+                // without that module must not be sold the direction on it —
+                // AreaOverviewCatalogue composes the sentence through
+                // \Uhifadhi\Service\OverviewCopy. What stands here is the
+                // thesis with nothing installed.
+                'The area IS the map: it takes the height of the screen and everything else docks to it, so “where” is answered before “what”. Unbeatable for spotting a cluster; worst for money, paperwork and anything that has no coordinates.',
                 ['ident' => 12, 'mapdock' => 12, 'nowbar' => 12, 'attention' => 6, 'presence' => 6],
                 ['mapdock'],
             ],

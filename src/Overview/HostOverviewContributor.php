@@ -74,7 +74,11 @@ final readonly class HostOverviewContributor implements OverviewContributorInter
             new Widget('ident', 'Identity band', $host, 12, [12], note: 'Size, zones, IUCN category, established, coordinates — one quiet line, never a row of plates.'),
             new Widget('nowbar', 'Right now', $host, 12, [12], note: 'The live strip. Each tile is contributed by a module; the host only lays them out and orders them.'),
             new Widget('attention', 'Needs attention', $host, 12, [12, 9, 6], note: 'One list, every module. The host sorts by urgency; the items come from the modules.'),
-            new Widget('map', 'Operational map', $host, 12, [12, 9], note: 'Boundary, stations, today’s tracks and open incidents. Scientific layers are in the legend, switched off.'),
+            // WHAT THE HOST ALONE DRAWS. The layers the modules contribute are
+            // named by the modules: AreaOverviewCatalogue composes the full line
+            // from their phrases as it assembles this area's list, so an area
+            // without incidents is never promised open incidents.
+            new Widget('map', 'Operational map', $host, 12, [12, 9], note: 'Boundary and stations. Scientific layers are in the legend, switched off.'),
             new Widget('presence', 'Stations &amp; who is on', $host, 6, [12, 9, 6], note: 'Each station, whether it is reporting, and who is on it right now.'),
             new Widget('modules', 'Modules in this area', $host, 6, [12, 9, 6], note: 'What is installed here, what each contributed to this page, and the way to add another.'),
             new Widget('mapdock', 'Operational map + dock', $host, 12, [12, 9], on: false, note: 'The same plate at full height with the live dock beside it — one viewport, one list, no scrolling away from the map.'),

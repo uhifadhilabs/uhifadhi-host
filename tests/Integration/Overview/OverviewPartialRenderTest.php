@@ -35,6 +35,7 @@ use Uhifadhi\Repository\AreaModuleRepository;
 use Uhifadhi\Service\AreaOverviewCatalogue;
 use Uhifadhi\Service\AreaOverviewComposer;
 use Uhifadhi\Service\AreaOverviewContext;
+use Uhifadhi\Service\OverviewCopy;
 use Zenstruck\Foundry\Test\Factories;
 
 /**
@@ -271,6 +272,38 @@ final class OverviewPartialRenderTest extends KernelTestCase
 
         // The header's count and the rows now describe the same catalogue.
         self::assertStringContainsString(\count($this->installed) + 1 .' in the catalogue', $html);
+    }
+
+    /**
+     * THE HOST END OF THE COPY SEAM, THROUGH A REAL CONTAINER: the catalogue
+     * does not write the plate's picker line or the map-led direction's thesis
+     * — it asks {@see OverviewCopy} for them, per area.
+     *
+     * The assertion is an IDENTITY rather than a literal on purpose. What can
+     * regress here is the catalogue quietly going back to a hard-coded string;
+     * whether the composed sentence is the design's wording is decided by the
+     * fragments, and that is pinned character by character in
+     * {@see \Uhifadhi\Tests\Unit\Overview\OverviewCopyTest} (a literal here
+     * would instead pin which module bundles this checkout's vendor happens to
+     * hold).
+     */
+    public function testThePlatesCopyComesFromTheSeamAndNotFromTheHost(): void
+    {
+        $copy = $this->service(OverviewCopy::class);
+        $catalog = $this->service(AreaOverviewCatalogue::class)->for($this->installed);
+
+        self::assertSame($copy->mapNote($this->installed), $catalog->get('map')->note);
+        self::assertSame($copy->mapGroundThesis($this->installed), $catalog->preset('b')?->description);
+
+        // AND IT IS PER AREA. An area with nothing installed gets the shorter,
+        // truer sentence — the host string it replaced said "today's tracks and
+        // open incidents" on every area in the deployment.
+        $bare = $this->service(AreaOverviewCatalogue::class)->for([]);
+        self::assertSame(
+            'Boundary and stations. Scientific layers are in the legend, switched off.',
+            $bare->get('map')->note,
+        );
+        self::assertStringContainsString('Unbeatable for spotting a cluster;', $copy->mapGroundThesis([]));
     }
 
     /**

@@ -21,6 +21,7 @@ use Uhifadhi\Model\WidgetGroup;
 use Uhifadhi\Overview\ContributesStylesheetInterface;
 use Uhifadhi\Overview\OverviewContributorInterface;
 use Uhifadhi\Service\AreaOverviewCatalogue;
+use Uhifadhi\Service\OverviewCopy;
 
 /**
  * THE COMPOSED SURFACE, PROVEN: what an area's overview library holds depends on
@@ -150,7 +151,7 @@ final class AreaOverviewCatalogueTest extends TestCase
             ]),
         ];
 
-        return new AreaOverviewCatalogue($contributors);
+        return new AreaOverviewCatalogue($contributors, new OverviewCopy([]));
     }
 
     public function testTheLibrarysHeadedSectionsAreTheHostThenTheModulesThenTheSeam(): void

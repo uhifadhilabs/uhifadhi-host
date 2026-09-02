@@ -55,11 +55,21 @@ final readonly class AreaOverviewCatalogue
     public const string SEAM_SLUG = 'next';
 
     /**
+     * The widget whose picker line names what the installed modules draw on the
+     * host's plate, and the direction whose thesis names what they let a person
+     * spot. Both are composed here rather than written out — see
+     * {@see OverviewCopy} for why prose needs a seam.
+     */
+    private const string COMPOSED_NOTE_WIDGET = 'map';
+    private const string COMPOSED_THESIS_PRESET = 'b';
+
+    /**
      * @param iterable<OverviewContributorInterface> $contributors
      */
     public function __construct(
         #[AutowireIterator(OverviewContributorInterface::TAG)]
         private iterable $contributors,
+        private OverviewCopy $copy,
     ) {
     }
 
@@ -109,7 +119,13 @@ final readonly class AreaOverviewCatalogue
         foreach ($this->contributorsFor($installedSlugs) as $contributor) {
             $groups[] = $contributor->group();
             foreach ($contributor->widgets() as $widget) {
-                $widgets[] = $widget;
+                // A CONTRIBUTOR DECLARES WHAT IT CAN SAY ALONE. The plate's own
+                // note names layers the MODULES contribute, and only here is it
+                // known which modules this area has — so the composed sentence
+                // is put on as the list is assembled.
+                $widgets[] = self::COMPOSED_NOTE_WIDGET === $widget->id
+                    ? $widget->withNote($this->copy->mapNote($installedSlugs))
+                    : $widget;
             }
         }
 
@@ -119,7 +135,7 @@ final readonly class AreaOverviewCatalogue
             self::SURFACE,
             $groups,
             $widgets,
-            self::presetsFor($available),
+            $this->presetsFor($available, $installedSlugs),
             WidgetCatalog::DEFAULT_PRESET_ID,
             AreaOverviewPresets::SHIPPED_LABEL,
             AreaOverviewPresets::SHIPPED_DESCRIPTION,
@@ -176,10 +192,11 @@ final readonly class AreaOverviewCatalogue
      * The five directions, each trimmed to what this area has.
      *
      * @param list<string> $available
+     * @param list<string> $installedSlugs
      *
      * @return list<WidgetPreset>
      */
-    private static function presetsFor(array $available): array
+    private function presetsFor(array $available, array $installedSlugs): array
     {
         $presets = [];
         foreach (AreaOverviewPresets::directions() as $id => [$label, $description, $layout, $defining]) {
@@ -197,6 +214,12 @@ final readonly class AreaOverviewCatalogue
             // card, because a person adopts it and then wonders what broke.
             if ([] === array_intersect($defining, array_keys($trimmed))) {
                 continue;
+            }
+            // The map-led direction's trade-off line names what the installed
+            // modules let a person spot, so it is composed the same way the
+            // plate's own note is.
+            if (self::COMPOSED_THESIS_PRESET === $id) {
+                $description = $this->copy->mapGroundThesis($installedSlugs);
             }
             $presets[] = new WidgetPreset($id, $label, $description, $trimmed);
         }

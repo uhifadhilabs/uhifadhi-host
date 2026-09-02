@@ -87,4 +87,21 @@ final readonly class Widget
 
         $this->spans = $spans;
     }
+
+    /**
+     * The same widget with its picker line replaced.
+     *
+     * A NOTE MAY BE COMPOSED RATHER THAN WRITTEN. On the area overview two of
+     * the host's own lines name what installed modules put on the plate, and the
+     * catalogue — the one place that knows which modules an area has — swaps in
+     * the composed sentence as it assembles the list. The declaration a
+     * contributor makes stays what the host can say ALONE, so this only ever
+     * makes a line longer and truer.
+     *
+     * @see \Uhifadhi\Service\OverviewCopy
+     */
+    public function withNote(string $note): self
+    {
+        return new self($this->id, $this->label, $this->group, $this->cols, $this->spans, $this->on, $note);
+    }
 }
