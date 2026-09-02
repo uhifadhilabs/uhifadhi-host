@@ -26,6 +26,7 @@ use Uhifadhi\Model\WidgetDom;
 use Uhifadhi\Repository\AreaModuleRepository;
 use Uhifadhi\Service\AreaOverviewCatalogue;
 use Uhifadhi\Service\AreaOverviewComposer;
+use Uhifadhi\Service\AreaOverviewContext;
 use Uhifadhi\Service\WidgetEndpoint;
 use Uhifadhi\Service\WidgetService;
 
@@ -54,6 +55,7 @@ final class AreaOverviewController extends AbstractController
     public function __construct(
         private readonly AreaOverviewCatalogue $catalogue,
         private readonly AreaOverviewComposer $composer,
+        private readonly AreaOverviewContext $context,
         private readonly AreaModuleRepository $areaModules,
         private readonly WidgetService $widgets,
         private readonly WidgetEndpoint $widgetEndpoint,
@@ -71,7 +73,7 @@ final class AreaOverviewController extends AbstractController
             'widgets' => $this->widgets->resolve($catalog, $this->userId(), $area->getUuid()),
             'partials' => $this->catalogue->partialsFor($installed),
             'stylesheets' => $this->catalogue->stylesheetsFor($installed),
-            'widgetContext' => $this->widgetContext($area, $installed),
+            'widgetContext' => $this->context->for($area, $installed),
         ]);
     }
 
@@ -139,7 +141,7 @@ final class AreaOverviewController extends AbstractController
             'widgets' => $this->widgets->resolve($catalog, $userId, $areaUuid),
             'partial' => $this->catalogue->partialsFor($installed),
             'stylesheets' => $this->catalogue->stylesheetsFor($installed),
-            'widgetContext' => $this->widgetContext($area, $installed),
+            'widgetContext' => $this->context->for($area, $installed),
             'urls' => $this->widgetUrls($area),
             'csrfToken' => $this->widgetEndpoint->csrfToken($catalog, $areaUuid),
         ]);
@@ -250,72 +252,6 @@ final class AreaOverviewController extends AbstractController
             'Deleted. This area’s overview is back on a design the surface ships.',
             'app_area_overview_widgets',
         );
-    }
-
-    /**
-     * EXACTLY what every partial on this surface receives — the dashboard's and
-     * the library's, from one call, so a plate can never read differently in the
-     * two.
-     *
-     * A CONTRIBUTOR'S OWN VARIABLES ARE UNDER ITS SLUG (`by.patrols`), which is
-     * how twenty widgets from three owners share one context without a name
-     * collision and without the host having to know what any of them mean. The
-     * merged parts — the strip's tiles, the attention list, the map's layers and
-     * legend, the pulse — are shared, because they are the host's own widgets'
-     * content.
-     *
-     * @param list<string> $installed
-     *
-     * @return array<string, mixed>
-     */
-    private function widgetContext(AreaOfInterest $area, array $installed): array
-    {
-        $now = new \DateTimeImmutable();
-
-        $by = [];
-        $contributions = [];
-        foreach ($this->catalogue->contributorsFor($installed) as $contributor) {
-            $slug = $contributor->moduleSlug();
-            $by[$slug] = $contributor->context($area, $now);
-            $contributions[$slug] = ['widgets' => \count($contributor->widgets()), 'tiles' => 0, 'attention' => 0, 'layers' => 0];
-        }
-
-        $attention = $this->composer->attention($area, $installed, $now);
-        $layers = $this->composer->mapLayers($area, $installed, $now);
-        $attentionUrl = $this->generateUrl('dashboard_area_show', ['uuid' => $area->getUuidString()]);
-        $tiles = [
-            ...$this->composer->nowTiles($area, $installed, $now),
-            ...$this->composer->hostSummaryTiles($attention, $attentionUrl),
-        ];
-
-        // WHAT EACH MODULE PUT ON THIS PAGE, COUNTED rather than described — a
-        // module whose provider went quiet says so on the "Modules in this area"
-        // card instead of still claiming three tiles it no longer returns.
-        foreach ([['tiles', $tiles], ['attention', $attention], ['layers', $layers]] as [$kind, $parts]) {
-            foreach ($parts as $part) {
-                if (isset($contributions[$part->moduleSlug])) {
-                    ++$contributions[$part->moduleSlug][$kind];
-                }
-            }
-        }
-
-        return [
-            'area' => $area,
-            'now' => $now,
-            'by' => $by,
-            'tiles' => $tiles,
-            'contributions' => $contributions,
-            'attention' => $attention,
-            'layers' => $layers,
-            'legend' => $this->composer->legend($layers),
-            'pulse' => $this->composer->pulse($area, $installed, $now),
-            'urls' => [
-                'settings' => $this->generateUrl('dashboard_area_settings', ['uuid' => $area->getUuidString()]),
-                'modules' => $this->generateUrl('dashboard_area_modules_grid', ['uuid' => $area->getUuidString()]),
-                'customize' => $this->generateUrl('dashboard_area_modules', ['uuid' => $area->getUuidString()]),
-                'zones' => $this->generateUrl('app_area_zones', ['uuid' => $area->getUuidString()]),
-            ],
-        ];
     }
 
     /**
