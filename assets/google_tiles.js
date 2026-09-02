@@ -20,6 +20,14 @@
  * NO KEY, NO PROBLEM: with an empty key, a failed createSession or an offline
  * browser, satellite silently stays on the keyless Esri layer. A map must never
  * break for want of a key.
+ *
+ * AND A REFUSAL IS AN ANSWER. Google refuses satellite outright for an
+ * EEA-billed account, and that is a settled fact rather than a blip. Only
+ * SUCCESS used to be cached, so the settled refusal was re-earned by every map
+ * on the page and again by every remount: a two-map dashboard fired two
+ * createSession calls and the console filled with 403s for an outcome this file
+ * had already accepted. Both answers are now remembered, and the attempt itself
+ * is shared — one question per document, whatever the answer turns out to be.
  */
 
 const CREATE_SESSION_URL = 'https://tile.googleapis.com/v1/createSession';
@@ -27,6 +35,15 @@ const TILE_URL = 'https://tile.googleapis.com/v1/2dtiles/{z}/{x}/{y}';
 const SESSION_STORAGE_KEY = 'uhifadhi.google_tile_session';
 /* Renew a day before Google expires the token, never trusting it to the wire. */
 const EXPIRY_MARGIN_MS = 86400 * 1000;
+/* How long a refusal is taken at its word. Long enough that a wall display does
+ * not re-ask all night, short enough that an account which gains satellite is
+ * picked up the same day rather than needing a new tab. */
+const NEGATIVE_TTL_MS = 3600 * 1000;
+
+/* The one createSession attempt for this document, shared by every map on it.
+ * A dashboard with eight map widgets asks once, and a remount — the poll cycle,
+ * a Turbo visit — awaits the answer already given rather than asking again. */
+let pendingSession = null;
 
 export const OSM_TILES = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
 export const OSM_ATTRIBUTION = '© OpenStreetMap contributors';
@@ -61,12 +78,36 @@ export async function googleTileTemplate() {
     return session ? `${TILE_URL}?session=${encodeURIComponent(session)}&key=${encodeURIComponent(key)}` : null;
 }
 
-async function sessionToken(key) {
-    const cached = readCachedSession();
-    if (cached) {
-        return cached;
-    }
+/**
+ * The session token, or null where Google will not give one. Asked at most once
+ * per document: the first caller starts the attempt and every later one awaits
+ * the same promise.
+ */
+function sessionToken(key) {
+    pendingSession ??= (async () => {
+        const cached = readCachedSession();
+        // A cached refusal is null, and null is an answer — only `undefined`
+        // means nothing is known yet and the question is worth asking.
+        if (undefined !== cached) {
+            return cached;
+        }
 
+        const granted = await requestSession(key);
+        if (granted) {
+            cacheSession(granted.session, granted.expiresAt);
+
+            return granted.session;
+        }
+        cacheSession(null, Date.now() + NEGATIVE_TTL_MS);
+
+        return null;
+    })();
+
+    return pendingSession;
+}
+
+/** `{session, expiresAt}` when Google grants one, null for every way it does not. */
+async function requestSession(key) {
     try {
         // Required body fields per the createSession reference; mapType picks the
         // satellite imagery.
@@ -76,33 +117,39 @@ async function sessionToken(key) {
             body: JSON.stringify({ mapType: 'satellite', language: 'en-US', region: 'US' }),
         });
         if (!response.ok) {
-            return null;
+            return null; // 403 for an EEA-billed account: settled, and now remembered
         }
         const payload = await response.json();
         if (typeof payload?.session !== 'string' || payload.session === '') {
             return null;
         }
-        // `expiry` is seconds-since-epoch, as a string.
-        const expiresAt = Number(payload.expiry) * 1000 - EXPIRY_MARGIN_MS;
-        cacheSession(payload.session, expiresAt);
 
-        return payload.session;
+        // `expiry` is seconds-since-epoch, as a string.
+        return { session: payload.session, expiresAt: Number(payload.expiry) * 1000 - EXPIRY_MARGIN_MS };
     } catch {
         return null; // offline, blocked key, CORS — fall back, never break
     }
 }
 
+/**
+ * A token, null for a remembered refusal, or undefined where nothing is known.
+ * Three answers, because collapsing the last two is precisely how a remembered
+ * refusal turns back into a request on the next mount.
+ */
 function readCachedSession() {
     try {
         const raw = window.sessionStorage?.getItem(SESSION_STORAGE_KEY);
         if (!raw) {
-            return null;
+            return undefined; // nothing known
         }
         const { session, expiresAt } = JSON.parse(raw);
+        if (!(Date.now() < expiresAt)) {
+            return undefined; // nothing known: it lapsed, so ask again
+        }
 
-        return typeof session === 'string' && Date.now() < expiresAt ? session : null;
+        return typeof session === 'string' ? session : null;
     } catch {
-        return null;
+        return undefined; // nothing known
     }
 }
 
