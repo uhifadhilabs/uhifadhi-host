@@ -3660,6 +3660,10 @@ th.sortable.on.desc .sortmark { border-bottom: 0; border-top: 5px solid rgb(var(
     display: inline-block; width: 7px; height: 7px; border-radius: 2px;
     margin-right: 7px; background: rgb(var(--c-fog)); font-style: normal;
 }
+/* A module the area does NOT have: the same dot, drawn as an outline. The dashed
+   border is the same vocabulary .ao-by.next already uses for the seam — filled
+   means it contributed something, hollow means it is only in the catalogue. */
+.ao-dot-absent { background: none; border: 1px dashed rgb(var(--c-dim)); }
 
 /* ---- needs attention ---------------------------------------------------- */
 /* The host owns the list; a module owns the item. That is why the row has a

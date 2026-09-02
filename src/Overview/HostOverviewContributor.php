@@ -17,11 +17,10 @@ use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 use Uhifadhi\Entity\AreaOfInterest;
 use Uhifadhi\Model\Widget;
 use Uhifadhi\Model\WidgetGroup;
-use Uhifadhi\Repository\AreaModuleRepository;
 use Uhifadhi\Repository\AreaOfInterestRepository;
-use Uhifadhi\Repository\ModuleRepository;
 use Uhifadhi\Repository\ZoneRepository;
 use Uhifadhi\Service\AreaCardService;
+use Uhifadhi\Service\AreaModuleLedger;
 use Uhifadhi\Service\AreaOverviewCatalogue;
 
 /**
@@ -45,8 +44,7 @@ final readonly class HostOverviewContributor implements OverviewContributorInter
     public function __construct(
         private AreaOfInterestRepository $areas,
         private ZoneRepository $zones,
-        private AreaModuleRepository $areaModules,
-        private ModuleRepository $modules,
+        private AreaModuleLedger $ledger,
         private AreaCardService $cards,
     ) {
     }
@@ -106,31 +104,11 @@ final readonly class HostOverviewContributor implements OverviewContributorInter
             'iucn' => $area->getIucnCategory(),
             'established' => $area->getEstablishedYear(),
             'centroid' => $centroid,
-            'installed' => $this->installed($area),
-            'catalogueCount' => $this->modules->count([]),
+            // WHAT THIS AREA HAS AND WHAT IT DOES NOT, from the one reading the
+            // seam's own card reads: AO·08 draws both halves, because a table
+            // that lists two rows under the words "8 in the catalogue" leaves a
+            // person to wonder what the other six are.
+            ...$this->ledger->for($area),
         ];
-    }
-
-    /**
-     * What this area has switched on, in its own order.
-     *
-     * @return list<array{slug: string, name: string, since: ?\DateTimeImmutable}>
-     */
-    private function installed(AreaOfInterest $area): array
-    {
-        $rows = [];
-        foreach ($this->areaModules->activeForArea($area) as $areaModule) {
-            $module = $areaModule->getModule();
-            if (null === $module || null === $module->getSlug()) {
-                continue;
-            }
-            $rows[] = [
-                'slug' => $module->getSlug(),
-                'name' => $module->getName() ?? $module->getSlug(),
-                'since' => $areaModule->getCreatedAt(),
-            ];
-        }
-
-        return $rows;
     }
 }

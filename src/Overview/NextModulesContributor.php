@@ -17,8 +17,7 @@ use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 use Uhifadhi\Entity\AreaOfInterest;
 use Uhifadhi\Model\Widget;
 use Uhifadhi\Model\WidgetGroup;
-use Uhifadhi\Repository\AreaModuleRepository;
-use Uhifadhi\Repository\ModuleRepository;
+use Uhifadhi\Service\AreaModuleLedger;
 use Uhifadhi\Service\AreaOverviewCatalogue;
 
 /**
@@ -39,8 +38,7 @@ use Uhifadhi\Service\AreaOverviewCatalogue;
 final readonly class NextModulesContributor implements OverviewContributorInterface
 {
     public function __construct(
-        private ModuleRepository $modules,
-        private AreaModuleRepository $areaModules,
+        private AreaModuleLedger $ledger,
     ) {
     }
 
@@ -80,38 +78,10 @@ final readonly class NextModulesContributor implements OverviewContributorInterf
 
     public function context(AreaOfInterest $area, \DateTimeImmutable $now): array
     {
-        $installed = [];
-        foreach ($this->areaModules->activeForArea($area) as $areaModule) {
-            $slug = $areaModule->getModule()?->getSlug();
-            if (null !== $slug) {
-                $installed[] = $slug;
-            }
-        }
-
-        // READ ONCE. The catalogue is a whole table, and this method used to walk
-        // it to build the list and then walk it again to count it.
-        $catalogue = $this->modules->findAll();
-
-        $absent = [];
-        foreach ($catalogue as $module) {
-            $slug = $module->getSlug();
-            if (null === $slug || \in_array($slug, $installed, true)) {
-                continue;
-            }
-            $absent[] = [
-                'slug' => $slug,
-                'name' => $module->getName() ?? $slug,
-                // The module's own words for what it is about. NOT a promise
-                // about what it would contribute here: only an installed
-                // module's provider can say that, and it has not been asked.
-                'source' => $module->getDataSource(),
-            ];
-        }
-
-        return [
-            'absent' => $absent,
-            'catalogueCount' => \count($catalogue),
-            'installedCount' => \count($installed),
-        ];
+        // READ ONCE, AND READ WHERE AO·08 READS. This card and the "Modules in
+        // this area" card are the two halves of one statement about the seam, so
+        // they take one reading of the catalogue rather than two that can
+        // disagree about what it holds.
+        return $this->ledger->for($area);
     }
 }

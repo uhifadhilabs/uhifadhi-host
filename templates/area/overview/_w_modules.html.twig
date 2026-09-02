@@ -19,6 +19,18 @@
         {% else %}
             <tr><td class="d" colspan="3">No module is switched on in this area, so nothing operational is on this page.</td></tr>
         {% endfor %}
+
+        {# THE OTHER HALF OF THE SEAM, AND THE REASON THIS IS A TABLE RATHER THAN A LIST. A
+           catalogue module this area has not installed gets a row of its own, muted, contributing
+           nothing — which is the honest reading of "8 in the catalogue" above two installed ones.
+           Nothing is invented for it: its catalogue name, and the fact that it is not here. #}
+        {% for module in by.host.absent %}
+            <tr>
+                <td class="d"><i class="ao-dot ao-dot-absent"></i>{{ module.name }}</td>
+                <td class="d">nothing — not installed in this area</td>
+                <td class="num d mono ao-sm">—</td>
+            </tr>
+        {% endfor %}
     </table>
 
     <div class="use">A module is installed <b>per area</b>. Everything it contributes appears the moment it is, and leaves
