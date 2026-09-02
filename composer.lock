@@ -8644,12 +8644,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/uhifadhilabs/incident-module.git",
-                "reference": "19b75c0387c1d318568950333188829af51c686a"
+                "reference": "93d96d688614087bfc6a9960a1b8cff488e7d07a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/uhifadhilabs/incident-module/zipball/19b75c0387c1d318568950333188829af51c686a",
-                "reference": "19b75c0387c1d318568950333188829af51c686a",
+                "url": "https://api.github.com/repos/uhifadhilabs/incident-module/zipball/93d96d688614087bfc6a9960a1b8cff488e7d07a",
+                "reference": "93d96d688614087bfc6a9960a1b8cff488e7d07a",
                 "shasum": ""
             },
             "require": {
@@ -8752,7 +8752,7 @@
                 "source": "https://github.com/uhifadhilabs/incident-module/tree/main",
                 "issues": "https://github.com/uhifadhilabs/incident-module/issues"
             },
-            "time": "2026-09-01T21:05:10+00:00"
+            "time": "2026-09-02T11:02:29+00:00"
         },
         {
             "name": "uhifadhilabs/module-contracts",
@@ -8840,12 +8840,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/uhifadhilabs/patrol-module.git",
-                "reference": "efe21fdef96e2acdbb65f2e83b3bfef3e5b0c896"
+                "reference": "42ce1bffafdb3661ca9522259079c40a865909c9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/uhifadhilabs/patrol-module/zipball/efe21fdef96e2acdbb65f2e83b3bfef3e5b0c896",
-                "reference": "efe21fdef96e2acdbb65f2e83b3bfef3e5b0c896",
+                "url": "https://api.github.com/repos/uhifadhilabs/patrol-module/zipball/42ce1bffafdb3661ca9522259079c40a865909c9",
+                "reference": "42ce1bffafdb3661ca9522259079c40a865909c9",
                 "shasum": ""
             },
             "require": {
@@ -8955,7 +8955,7 @@
                 "source": "https://github.com/uhifadhilabs/patrol-module/tree/main",
                 "issues": "https://github.com/uhifadhilabs/patrol-module/issues"
             },
-            "time": "2026-09-01T21:00:06+00:00"
+            "time": "2026-09-02T11:02:29+00:00"
         },
         {
             "name": "uhifadhilabs/seeder-module",
