@@ -80,9 +80,29 @@ final class ProviderCatalogueMapperTest extends TestCase
 
     public function testUnknownCategoryAndStatusFallBack(): void
     {
-        $row = new ProviderCatalogueMapper()->toRow($this->provider(category: 'operations', status: 'weird'), 0);
+        $row = new ProviderCatalogueMapper()->toRow($this->provider(category: 'hydrology', status: 'weird'), 0);
 
-        self::assertSame(ModuleCategory::Pressure, $row['category'], 'Unknown category falls back to Pressure.');
+        // OPERATIONS IS WHAT AN UNPLACED MODULE IS. This is an operations
+        // platform: a provider naming a category the host does not have is far
+        // likelier to be somebody's daily work than a reading of the ecosystem,
+        // and filing it under "pressure" would say the opposite — that the
+        // module measures what PEOPLE are doing TO the area.
+        self::assertSame(ModuleCategory::Operations, $row['category'], 'Unknown category falls back to Operations.');
         self::assertSame(ModuleStatus::Live, $row['status'], 'Unknown status falls back to Live.');
+    }
+
+    /**
+     * A MODULE MAY SAY IT IS OPERATIONAL, and until now it could not: the
+     * catalogue's three categories were all readings of the AREA (what the
+     * ecosystem is doing, what people are doing to it, what lives in it), and
+     * the rangers' own work — patrols, incidents, rosters — had nowhere to go
+     * but "pressure", which says the opposite of what it is.
+     */
+    public function testAProviderMayFileItselfUnderOperations(): void
+    {
+        $row = new ProviderCatalogueMapper()->toRow($this->provider(category: 'operations'), 0);
+
+        self::assertSame(ModuleCategory::Operations, $row['category']);
+        self::assertSame('Operations', $row['category']->label());
     }
 }

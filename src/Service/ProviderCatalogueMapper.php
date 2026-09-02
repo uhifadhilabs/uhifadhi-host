@@ -34,7 +34,7 @@ final class ProviderCatalogueMapper
         return [
             'slug' => $provider->slug(),
             'name' => $provider->name(),
-            'category' => ModuleCategory::tryFrom($provider->category()) ?? ModuleCategory::Pressure,
+            'category' => ModuleCategory::tryFrom($provider->category()) ?? ModuleCategory::Operations,
             'status' => ModuleStatus::tryFrom($provider->status()) ?? ModuleStatus::Live,
             'source' => $provider->dataSource() ?? '',
             'pinned' => $provider->pinned(),

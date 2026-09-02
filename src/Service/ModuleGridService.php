@@ -33,8 +33,16 @@ final readonly class ModuleGridService
     /** The leading group's heading — the viewer's own department's modules. */
     private const LEAD_LABEL = 'Your department leads with';
 
-    /** The zones, in reading order — flux (the ecosystem), pressure (people), then biodiversity/synthesis. */
+    /**
+     * The zones, in reading order — operations (the team's own work) first, then flux (the
+     * ecosystem), pressure (people), then biodiversity/synthesis.
+     *
+     * OPERATIONS LEADS because this is what an area manager opens the grid for: the modules their
+     * own people work in every day. The three readings of the area follow, in the order they always
+     * had.
+     */
     private const ZONES = [
+        ModuleCategory::Operations->value => 'Operations — what the team is doing',
         ModuleCategory::Flux->value => 'Flux — what the ecosystem is doing',
         ModuleCategory::Pressure->value => 'Pressure — what people are doing',
         ModuleCategory::Biodiversity->value => 'Biodiversity & synthesis',
