@@ -80,5 +80,12 @@ final readonly class MapLayer
         if ('FeatureCollection' !== ($features['type'] ?? null)) {
             throw new \InvalidArgumentException(\sprintf('Map layer "%s" must carry a GeoJSON FeatureCollection, empty if it has nothing to draw.', $id));
         }
+        // AND ITS `features` LIST, WHICH GEOJSON REQUIRES. The plate, the dock
+        // and the legend all walk it; a collection without one would not fail
+        // here, where the module built it, but inside the host's template, on
+        // the page an area manager opens at 07:00.
+        if (!\is_array($features['features'] ?? null)) {
+            throw new \InvalidArgumentException(\sprintf('Map layer "%s" must carry a GeoJSON FeatureCollection, empty if it has nothing to draw — its "features" list is missing.', $id));
+        }
     }
 }
