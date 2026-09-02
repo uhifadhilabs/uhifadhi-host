@@ -1097,6 +1097,17 @@ table.tbl tr:hover .open-btn.danger { background: rgb(var(--c-fail)); color: rgb
    ship its own copy of these, and the host must never load a module's CSS).
    Fixed dark hexes throughout: this chrome sits on satellite imagery, which is
    dark in both themes. */
+/* THE CONTAINER HOLDS ITS OWN PANES. Leaflet numbers what it builds inside the
+   map from 200 (tiles) through 700 (popups), with its own controls at 800 — and
+   a container that is merely positioned opens no stacking context, so all of
+   that competes with the chrome sitting BESIDE it and every layer of it wins.
+   The controls then paint for exactly as long as the tile pane is empty and
+   disappear with the first tile, which is the bug this rule exists for.
+   Isolating is the fix rather than a bigger number on .map-chrome: the chrome
+   shares the .page stacking context with .w-modal (200), and a zoom pill
+   floating over a dialog is the same bug pointed somewhere else. */
+.map-chrome-host { isolation: isolate; }
+
 .map-chrome { position: absolute; z-index: 6; right: 10px; top: 10px; display: flex; flex-direction: column; gap: 6px; }
 .map-chrome button {
     width: 26px; height: 26px; display: grid; place-items: center; padding: 0;

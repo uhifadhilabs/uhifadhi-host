@@ -53,6 +53,10 @@ export default class extends Controller {
             // swallow a page scroll on a widget the size of half a row.
             scrollWheelZoom: false,
         });
+        // The platform mark: it isolates Leaflet's panes so the chrome mounted beside them stays
+        // visible, and it dresses Leaflet's own scale bar, attribution and tooltips as the same
+        // overlay pills every other map wears. → the .map-chrome-host block in app.css
+        this.canvasTarget.classList.add('map-chrome-host');
         // Leaflet refuses to take a layer before it has a view, and the real framing needs the
         // boundary that is about to be drawn — so open on the world and fit once there is a shape.
         this.map.setView([0, 0], 2);

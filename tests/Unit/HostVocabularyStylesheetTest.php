@@ -16,11 +16,11 @@ namespace Uhifadhi\Tests\Unit;
 use PHPUnit\Framework\TestCase;
 
 /**
- * TWO RULES OF THE HOST STYLESHEET THAT ONLY A BROWSER USED TO CATCH.
+ * RULES OF THE HOST STYLESHEET THAT ONLY A BROWSER USED TO CATCH.
  *
  * The host's `assets/styles/app.css` is loaded on every page, INCLUDING the
  * pages a module bundle renders — so a rule written here lands on markup this
- * repository never sees. Two defects came out of exactly that, and both are the
+ * repository never sees. These defects came out of exactly that, and each is the
  * kind that no HTTP test can fail on because the server-side output is correct
  * and only the cascade is wrong:
  *
@@ -37,6 +37,23 @@ use PHPUnit\Framework\TestCase;
  *     render differently (the module's own second `.i-listcol` capped the column
  *     and re-enabled scrolling), which is precisely what the map-legend contract
  *     forbids: the same layer must render identically everywhere.
+ *
+ *  3. A STACKING CONTEXT THAT WAS NEVER OPENED. The platform map chrome — zoom ±,
+ *     DIM, the base-layer menu, fullscreen — is a SIBLING of the Leaflet
+ *     container, and Leaflet numbers its own panes from 200 (tiles) to 700
+ *     (popups) with its controls at 800. A container that is merely positioned
+ *     opens no stacking context, so those panes are not held inside it: they
+ *     compete with the chrome directly and every one of them outranks it. The
+ *     controls therefore painted for exactly as long as the tile pane was empty
+ *     and vanished the moment the first tile arrived — on page load, before any
+ *     poll, on every map in the product.
+ *
+ *     The fix is NOT a bigger number on the chrome. Raising it over Leaflet's
+ *     800 would also raise it over the app's own modal layer (`.w-modal`, 200),
+ *     which shares the `.page` stacking context — a map's zoom pill floating on
+ *     top of a dialog is the next bug. The container isolates instead, which is
+ *     what it should always have done: Leaflet's numbers are Leaflet's business
+ *     and stop at its own edge.
  */
 final class HostVocabularyStylesheetTest extends TestCase
 {
@@ -76,5 +93,75 @@ final class HostVocabularyStylesheetTest extends TestCase
                 \sprintf('%s belongs to the host, exactly once — two copies drift.', $rule),
             );
         }
+    }
+
+    /**
+     * The Leaflet container holds its own panes, so the chrome beside it survives
+     * the first tile. Without this the controls render and then disappear.
+     */
+    public function testTheLeafletContainerIsolatesItsPanesSoTheChromeIsNotBuriedByThem(): void
+    {
+        $css = self::css();
+
+        self::assertSame(
+            1,
+            preg_match('/^\.map-chrome-host \{[^}]*\bisolation:\s*isolate\b/m', $css),
+            'The Leaflet container must open its own stacking context: its panes are numbered '
+            .'200–800 and would otherwise paint over the chrome sitting beside them.',
+        );
+    }
+
+    /**
+     * And the fix stays an isolation, not a z-index arms race — the chrome must
+     * remain below the app's own overlays.
+     */
+    public function testTheMapChromeStaysBelowTheAppsModalLayer(): void
+    {
+        $css = self::css();
+
+        self::assertLessThan(
+            self::zIndexOf($css, '.w-modal'),
+            self::zIndexOf($css, '.map-chrome'),
+            'A map control must never float over a dialog: isolate the container instead of '
+            .'outbidding Leaflet with a bigger number.',
+        );
+    }
+
+    /** The z-index a top-level rule declares. */
+    private static function zIndexOf(string $css, string $selector): int
+    {
+        $pattern = '/^'.preg_quote($selector, '/').' \{[^}]*\bz-index:\s*(\d+)/m';
+        if (1 !== preg_match($pattern, $css, $match)) {
+            self::fail(\sprintf('%s must state its z-index for this rule to be checkable.', $selector));
+        }
+
+        return (int) $match[1];
+    }
+
+    /**
+     * Every map that wears the platform chrome marks its Leaflet container, or
+     * the isolation above (and the control/tooltip dressing that shares the
+     * class) never reaches it.
+     */
+    public function testEveryMapThatMountsTheChromeMarksItsLeafletContainer(): void
+    {
+        $controllers = glob(\dirname(__DIR__, 2).'/assets/controllers/*.js') ?: [];
+        self::assertNotEmpty($controllers);
+
+        $mounting = [];
+        foreach ($controllers as $file) {
+            $source = (string) file_get_contents($file);
+            if (!str_contains($source, 'mountMapChrome(')) {
+                continue;
+            }
+            $mounting[] = basename($file);
+            self::assertStringContainsString(
+                "classList.add('map-chrome-host')",
+                $source,
+                \sprintf('%s mounts the platform chrome but never marks its Leaflet container.', basename($file)),
+            );
+        }
+
+        self::assertNotEmpty($mounting, 'No controller mounts the platform map chrome — the sweep proved nothing.');
     }
 }
