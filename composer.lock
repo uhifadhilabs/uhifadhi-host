@@ -8851,12 +8851,12 @@
             "source": {
                 "type": "git",
                 "url": "git@github.com:uhifadhilabs/map-module.git",
-                "reference": "90d1006e666b9653bf21bb0d1e6dd04256ab7da2"
+                "reference": "e8e4d31a9193043ec1d1648fe9fdba787a1408bb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/uhifadhilabs/map-module/zipball/90d1006e666b9653bf21bb0d1e6dd04256ab7da2",
-                "reference": "90d1006e666b9653bf21bb0d1e6dd04256ab7da2",
+                "url": "https://api.github.com/repos/uhifadhilabs/map-module/zipball/e8e4d31a9193043ec1d1648fe9fdba787a1408bb",
+                "reference": "e8e4d31a9193043ec1d1648fe9fdba787a1408bb",
                 "shasum": ""
             },
             "require": {
@@ -8940,7 +8940,7 @@
                 "source": "https://github.com/uhifadhilabs/map-module/tree/main",
                 "issues": "https://github.com/uhifadhilabs/map-module/issues"
             },
-            "time": "2026-09-02T20:05:24+00:00"
+            "time": "2026-09-02T20:26:31+00:00"
         },
         {
             "name": "uhifadhi/module-contracts",
@@ -8948,12 +8948,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/uhifadhilabs/module-contracts.git",
-                "reference": "f4de4df5e89d729b59a1492ea4fb237087e5a713"
+                "reference": "62a48ced57fea8a3031d944fe4129eff00c77b1e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/uhifadhilabs/module-contracts/zipball/f4de4df5e89d729b59a1492ea4fb237087e5a713",
-                "reference": "f4de4df5e89d729b59a1492ea4fb237087e5a713",
+                "url": "https://api.github.com/repos/uhifadhilabs/module-contracts/zipball/62a48ced57fea8a3031d944fe4129eff00c77b1e",
+                "reference": "62a48ced57fea8a3031d944fe4129eff00c77b1e",
                 "shasum": ""
             },
             "require": {
@@ -9020,7 +9020,7 @@
                 "source": "https://github.com/uhifadhilabs/module-contracts/tree/main",
                 "issues": "https://github.com/uhifadhilabs/module-contracts/issues"
             },
-            "time": "2026-09-02T19:54:31+00:00"
+            "time": "2026-09-02T20:27:22+00:00"
         },
         {
             "name": "uhifadhi/patrol-module",
@@ -9028,12 +9028,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/uhifadhilabs/patrol-module.git",
-                "reference": "530ba664350a353048ba89da209717ee5c1f6e5c"
+                "reference": "828584e071fada6abb8e54c8139e68465b1a5598"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/uhifadhilabs/patrol-module/zipball/530ba664350a353048ba89da209717ee5c1f6e5c",
-                "reference": "530ba664350a353048ba89da209717ee5c1f6e5c",
+                "url": "https://api.github.com/repos/uhifadhilabs/patrol-module/zipball/828584e071fada6abb8e54c8139e68465b1a5598",
+                "reference": "828584e071fada6abb8e54c8139e68465b1a5598",
                 "shasum": ""
             },
             "require": {
@@ -9144,7 +9144,7 @@
                 "source": "https://github.com/uhifadhilabs/patrol-module/tree/main",
                 "issues": "https://github.com/uhifadhilabs/patrol-module/issues"
             },
-            "time": "2026-09-02T20:10:52+00:00"
+            "time": "2026-09-02T20:26:34+00:00"
         },
         {
             "name": "uhifadhi/storage-module",
@@ -9152,12 +9152,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/uhifadhilabs/storage-module.git",
-                "reference": "51ccf39e000fb8ba68aa979156081e6381318282"
+                "reference": "7cf68ca37ca871a7b720dc2e36017d56b8ad80bf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/uhifadhilabs/storage-module/zipball/51ccf39e000fb8ba68aa979156081e6381318282",
-                "reference": "51ccf39e000fb8ba68aa979156081e6381318282",
+                "url": "https://api.github.com/repos/uhifadhilabs/storage-module/zipball/7cf68ca37ca871a7b720dc2e36017d56b8ad80bf",
+                "reference": "7cf68ca37ca871a7b720dc2e36017d56b8ad80bf",
                 "shasum": ""
             },
             "require": {
@@ -9255,7 +9255,7 @@
                 "source": "https://github.com/uhifadhilabs/storage-module/tree/main",
                 "issues": "https://github.com/uhifadhilabs/storage-module/issues"
             },
-            "time": "2026-09-02T20:05:26+00:00"
+            "time": "2026-09-02T20:26:32+00:00"
         },
         {
             "name": "webmozart/assert",
