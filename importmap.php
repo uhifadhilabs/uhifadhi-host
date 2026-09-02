@@ -24,19 +24,33 @@
  */
 return [
     'app' => ['path' => './assets/app.js', 'entrypoint' => true],
-    // The platform's basemap sources (Google Map Tiles satellite + OSM street),
-    // under a bare specifier so MODULE controllers can import the same helper the
-    // host's own map controller uses — one basemap definition, every map.
-    'uhifadhi/basemaps' => ['path' => './assets/google_tiles.js'],
-    // How an area boundary is drawn, likewise under a bare specifier: the host's
-    // map controller and every module's map import the SAME casing + line style,
-    // so a boundary can never read one way on an area page and another inside a
-    // module (the "same layer renders identically everywhere" rule).
-    'uhifadhi/boundary' => ['path' => './assets/map_boundary.js'],
+    // THE MAP PLATFORM, now uhifadhilabs/map-module.
+    //
+    // These three names are unchanged and that is the point: they were written
+    // as bare specifiers rather than paths precisely so the files could move
+    // underneath them one day, and this is the day. Every importer — the host's
+    // own map controllers, patrol's plate, incident's plate — imports exactly
+    // what it imported before; only the right-hand side moved.
+    //
+    // The paths are the BUNDLE's logical paths. The bundle registers its assets/
+    // directory under the @uhifadhilabs/map-module namespace when it boots; the
+    // import NAMES have to be declared here, because importmap entries are read
+    // from this one file and AssetMapper offers no extension point for a bundle
+    // to add to it. Three lines a Flex recipe would write on install.
+    //
+    // The platform's basemap sources — the configured satellite provider (esri,
+    // google or a deployment's own source; see config/packages/map.yaml) plus
+    // the OSM street layer. One basemap definition, every map.
+    'uhifadhi/basemaps' => ['path' => '@uhifadhilabs/map-module/basemaps.js'],
+    // How an area boundary is drawn: the host's map controller and every
+    // module's map import the SAME casing + line style, so a boundary can never
+    // read one way on an area page and another inside a module (the "same layer
+    // renders identically everywhere" rule).
+    'uhifadhi/boundary' => ['path' => '@uhifadhilabs/map-module/boundary.js'],
     // The controls that sit on a map — zoom, DIM, base-layer menu, fullscreen,
     // scale, the Ctrl/⌘-scroll bargain. Built in JS rather than written into two
     // repos' templates, so an area map and a module map wear the same instrument.
-    'uhifadhi/map-chrome' => ['path' => './assets/map_chrome.js'],
+    'uhifadhi/map-chrome' => ['path' => '@uhifadhilabs/map-module/chrome.js'],
     // The widget library's editing behaviour — on/off, width, drag-to-place —
     // for ANY dashboard surface that ships a WidgetCatalog. Under a bare
     // specifier for the same reason the map helpers are: the host's own

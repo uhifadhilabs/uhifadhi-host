@@ -1567,8 +1567,22 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     },
  *     ignore_not_found?: bool|Param, // Ignore error when an icon is not found. Set to 'true' to fail silently. // Default: false
  * }
+ * @psalm-type MapConfig = array{
+ *     module_category?: scalar|Param|null, // Catalogue category the Map module is filed under in each area. // Default: "operations"
+ *     satellite?: array{ // Which imagery the Satellite base layer draws.
+ *         provider?: "esri"|"google"|"custom"|Param, // esri (keyless, the default) | google (Map Tiles API, keyed) | custom (your own XYZ/WMTS source). // Default: "esri"
+ *         max_zoom?: int|Param, // Deepest zoom the satellite layer is asked for. // Default: 19
+ *         google?: array{
+ *             api_key?: scalar|Param|null, // Google Maps API key. Public by nature (it travels in every tile URL) — restrict it by HTTP referrer at Google. // Default: ""
+ *         },
+ *         custom?: array{
+ *             url_template?: scalar|Param|null, // XYZ/WMTS template with {z}/{x}/{y} placeholders. // Default: null
+ *             attribution?: scalar|Param|null, // The credit line the source's licence requires. Shown on every map that draws it. // Default: null
+ *         },
+ *     },
+ * }
  * @psalm-type PatrolConfig = array{
- *     module_category?: scalar|Param|null, // Catalogue category the Patrols module is filed under in each area. // Default: "pressure"
+ *     module_category?: scalar|Param|null, // Catalogue category the Patrols module is filed under in each area. // Default: "operations"
  *     dev_tools?: bool|Param, // Register dev-only tooling (patrol:seed:*). Off by default; the recipe enables it via when@dev/when@test — never in prod. // Default: false
  *     types?: array<string, array{ // Default: {"foot":{"label":"Foot"},"vehicle":{"label":"Vehicle"},"drone":{"label":"Drone"}}
  *         label?: scalar|Param|null,
@@ -2039,7 +2053,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     },
  * }
  * @psalm-type IncidentConfig = array{
- *     module_category?: scalar|Param|null, // Catalogue category the Incidents module is filed under in each area. // Default: "pressure"
+ *     module_category?: scalar|Param|null, // Catalogue category the Incidents module is filed under in each area. // Default: "operations"
  *     dev_tools?: bool|Param, // Register dev-only tooling (seeders, fixtures). The recipe enables this via when@dev/when@test. // Default: false
  *     currency?: scalar|Param|null, // ISO code the money on an incident is denominated in. One currency per deployment: an area does not collect fines in two. // Default: "TZS"
  *     taxonomy?: array<string, array{ // Default: []
@@ -2070,6 +2084,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     symfonycasts_tailwind?: SymfonycastsTailwindConfig,
  *     fundi_stadi_gdal?: FundiStadiGdalConfig,
  *     ux_icons?: UxIconsConfig,
+ *     map?: MapConfig,
  *     patrol?: PatrolConfig,
  *     seeder?: SeederConfig,
  *     api_platform?: ApiPlatformConfig,
@@ -2096,6 +2111,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         zenstruck_foundry?: ZenstruckFoundryConfig,
  *         fundi_stadi_gdal?: FundiStadiGdalConfig,
  *         ux_icons?: UxIconsConfig,
+ *         map?: MapConfig,
  *         patrol?: PatrolConfig,
  *         seeder?: SeederConfig,
  *         api_platform?: ApiPlatformConfig,
@@ -2119,6 +2135,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         symfonycasts_tailwind?: SymfonycastsTailwindConfig,
  *         fundi_stadi_gdal?: FundiStadiGdalConfig,
  *         ux_icons?: UxIconsConfig,
+ *         map?: MapConfig,
  *         patrol?: PatrolConfig,
  *         seeder?: SeederConfig,
  *         api_platform?: ApiPlatformConfig,
@@ -2145,6 +2162,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         dama_doctrine_test?: DamaDoctrineTestConfig,
  *         fundi_stadi_gdal?: FundiStadiGdalConfig,
  *         ux_icons?: UxIconsConfig,
+ *         map?: MapConfig,
  *         patrol?: PatrolConfig,
  *         seeder?: SeederConfig,
  *         api_platform?: ApiPlatformConfig,

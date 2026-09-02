@@ -30,10 +30,15 @@ return [
     FundiStadi\PostGISBundle\FundiStadiPostGISBundle::class => ['all' => true],
     FundiStadi\GDALBundle\FundiStadiGDALBundle::class => ['all' => true],
     Symfony\UX\Icons\UXIconsBundle::class => ['all' => true],
+    // The map platform. First in the module list on purpose: it is the one
+    // module four other surfaces already import assets from, so a host reading
+    // this file meets the machinery before the capabilities built on it.
+    UhifadhiLabs\Map\UhifadhiLabsMapBundle::class => ['all' => true],
     UhifadhiLabs\Patrol\UhifadhiLabsPatrolBundle::class => ['all' => true],
     UhifadhiLabs\Seeder\UhifadhiLabsSeederBundle::class => ['all' => true],
     ApiPlatform\Symfony\Bundle\ApiPlatformBundle::class => ['all' => true],
     League\FlysystemBundle\FlysystemBundle::class => ['all' => true],
     UhifadhiLabs\Storage\UhifadhiLabsStorageBundle::class => ['all' => true],
     UhifadhiLabs\Incident\UhifadhiLabsIncidentBundle::class => ['all' => true],
+    UhifadhiLabs\Map\UhifadhiLabsMapBundle::class => ['all' => true],
 ];

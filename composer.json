@@ -4,15 +4,15 @@
     "minimum-stability": "stable",
     "prefer-stable": true,
     "require": {
-        "php": ">=8.4",
-        "ext-ctype": "*",
-        "ext-iconv": "*",
         "api-platform/core": "^4.3",
         "doctrine/doctrine-bundle": "^3.3",
         "doctrine/doctrine-migrations-bundle": "^4.0",
         "doctrine/orm": "3.6.7",
+        "ext-ctype": "*",
+        "ext-iconv": "*",
         "fundistadi/gdal-bundle": "^0.1",
         "fundistadi/postgis-bundle": "^0.5.1",
+        "php": ">=8.4",
         "phpdocumentor/reflection-docblock": "^6.0",
         "phpstan/phpdoc-parser": "^2.3",
         "symfony/asset": "8.1.*",
@@ -49,11 +49,12 @@
         "symfonycasts/tailwind-bundle": "^1.0",
         "twig/extra-bundle": "^2.12|^3.0",
         "twig/twig": "^2.12|^3.0",
+        "uhifadhilabs/incident-module": "dev-main",
+        "uhifadhilabs/map-module": "dev-main",
         "uhifadhilabs/module-contracts": "dev-main",
         "uhifadhilabs/patrol-module": "dev-main",
         "uhifadhilabs/seeder-module": "dev-main",
-        "uhifadhilabs/storage-module": "dev-main",
-        "uhifadhilabs/incident-module": "dev-main"
+        "uhifadhilabs/storage-module": "dev-main"
     },
     "config": {
         "allow-plugins": {
@@ -172,6 +173,11 @@
             "name": "incident-module",
             "type": "vcs",
             "url": "https://github.com/uhifadhilabs/incident-module"
+        },
+        {
+            "name": "map-module",
+            "type": "vcs",
+            "url": "https://github.com/uhifadhilabs/map-module"
         }
     ]
 }

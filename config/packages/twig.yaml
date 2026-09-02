@@ -1,13 +1,10 @@
 twig:
     file_name_pattern: '*.twig'
-    globals:
-        # The Google Map Tiles key every map's satellite layer uses. Published to
-        # the browser ONCE, as a data attribute on <body> in base.html.twig, so
-        # host maps and module maps read the same value and no module has to know
-        # about the env var. An empty value is normal (fresh dev install, CI): the
-        # maps fall back to keyless imagery. The key is public by nature — it goes
-        # in tile URLs — so it must be HTTP-referrer-restricted at Google.
-        google_maps_api_key: '%env(default::UHIFADHI_GOOGLE_MAPS_API_KEY)%'
+    # No globals. The Google Map Tiles key used to live here and be published on
+    # <body> by base.html.twig; it moved into uhifadhilabs/map-module, where the
+    # satellite provider is configured (config/packages/map.yaml) and rendered by
+    # that bundle's map_basemap_attributes(). The host no longer names anyone's
+    # env var, and a page whose provider needs no key carries none.
 
 when@test:
     twig:

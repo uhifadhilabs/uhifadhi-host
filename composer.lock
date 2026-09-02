@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0adaec793e14276fe686ef438c3df2d8",
+    "content-hash": "c3fea9821ac828a76dbebe30dd4c311e",
     "packages": [
         {
             "name": "api-platform/core",
@@ -8755,17 +8755,114 @@
             "time": "2026-09-02T11:02:29+00:00"
         },
         {
+            "name": "uhifadhilabs/map-module",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "git@github.com:uhifadhilabs/map-module.git",
+                "reference": "d4eed783f2386842454d7b9eb5669beb23abb99d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/uhifadhilabs/map-module/zipball/d4eed783f2386842454d7b9eb5669beb23abb99d",
+                "reference": "d4eed783f2386842454d7b9eb5669beb23abb99d",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.4",
+                "symfony/config": "^7.3 || ^8.0",
+                "symfony/dependency-injection": "^7.3 || ^8.0",
+                "symfony/framework-bundle": "^7.3 || ^8.0",
+                "symfony/http-kernel": "^7.3 || ^8.0",
+                "twig/twig": "^3.12",
+                "uhifadhilabs/module-contracts": "dev-main"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.95",
+                "phpstan/phpstan": "^2.2",
+                "phpunit/phpunit": "^13.2",
+                "symfony/asset": "^7.3 || ^8.0",
+                "symfony/asset-mapper": "^7.3 || ^8.0",
+                "symfony/twig-bundle": "^7.3 || ^8.0"
+            },
+            "suggest": {
+                "symfony/asset-mapper": "Required for the importmap assets (uhifadhi/basemaps, uhifadhi/boundary, uhifadhi/map-chrome) to be served.",
+                "symfony/twig-bundle": "Required for map_basemap_attributes(), which publishes the configured satellite provider to the browser."
+            },
+            "default-branch": true,
+            "type": "symfony-bundle",
+            "extra": {
+                "branch-alias": {
+                    "dev-main": "0.1-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "UhifadhiLabs\\Map\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "UhifadhiLabs\\Map\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "cs:fix": [
+                    "php-cs-fixer fix"
+                ],
+                "cs:check": [
+                    "php-cs-fixer fix --dry-run --diff"
+                ],
+                "phpstan": [
+                    "phpstan analyse --no-progress --memory-limit=1G"
+                ],
+                "test": [
+                    "phpunit"
+                ],
+                "check": [
+                    "@cs:check",
+                    "@phpstan",
+                    "@test"
+                ]
+            },
+            "license": [
+                "AGPL-3.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Ezekiel Mjema",
+                    "homepage": "https://github.com/eemjema"
+                }
+            ],
+            "description": "Map: the platform's map machinery — self-hosted Leaflet, the one basemap seam (configurable satellite provider: Esri, Google Map Tiles or a custom XYZ/WMTS source), the boundary drawing and the map chrome every map in the product wears.",
+            "keywords": [
+                "basemap",
+                "conservation",
+                "geojson",
+                "leaflet",
+                "map",
+                "symfony",
+                "tiles",
+                "uhifadhi"
+            ],
+            "support": {
+                "source": "https://github.com/uhifadhilabs/map-module/tree/main",
+                "issues": "https://github.com/uhifadhilabs/map-module/issues"
+            },
+            "time": "2026-09-02T18:36:07+00:00"
+        },
+        {
             "name": "uhifadhilabs/module-contracts",
             "version": "dev-main",
             "source": {
                 "type": "git",
                 "url": "https://github.com/uhifadhilabs/module-contracts.git",
-                "reference": "1d6bb3e7ddcb2c2a8fc5f0667bad360c79f783cd"
+                "reference": "d465079c9ed62920444da5e608fcc479a251a72c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/uhifadhilabs/module-contracts/zipball/1d6bb3e7ddcb2c2a8fc5f0667bad360c79f783cd",
-                "reference": "1d6bb3e7ddcb2c2a8fc5f0667bad360c79f783cd",
+                "url": "https://api.github.com/repos/uhifadhilabs/module-contracts/zipball/d465079c9ed62920444da5e608fcc479a251a72c",
+                "reference": "d465079c9ed62920444da5e608fcc479a251a72c",
                 "shasum": ""
             },
             "require": {
@@ -8832,7 +8929,7 @@
                 "source": "https://github.com/uhifadhilabs/module-contracts/tree/main",
                 "issues": "https://github.com/uhifadhilabs/module-contracts/issues"
             },
-            "time": "2026-08-20T21:01:50+00:00"
+            "time": "2026-09-02T18:32:21+00:00"
         },
         {
             "name": "uhifadhilabs/patrol-module",
@@ -13279,6 +13376,7 @@
     "minimum-stability": "stable",
     "stability-flags": {
         "uhifadhilabs/incident-module": 20,
+        "uhifadhilabs/map-module": 20,
         "uhifadhilabs/module-contracts": 20,
         "uhifadhilabs/patrol-module": 20,
         "uhifadhilabs/seeder-module": 20,
@@ -13287,9 +13385,9 @@
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=8.4",
         "ext-ctype": "*",
-        "ext-iconv": "*"
+        "ext-iconv": "*",
+        "php": ">=8.4"
     },
     "platform-dev": {},
     "platform-overrides": {

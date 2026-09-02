@@ -19,10 +19,21 @@ use UhifadhiLabs\ModuleContracts\ModuleProviderInterface;
 
 /**
  * Turns a module provider (a built-in module's or an installed bundle's) into a
- * catalogue row of the same shape the seed uses for its hardcoded modules. A
- * bundle module starts PARKED so an admin opts it in per area, and its
+ * catalogue row of the same shape the seed uses for its hardcoded modules. Its
  * category/status strings are coerced to the app's enums (unknown → a safe
  * default, so a bundle can never break the seed with a typo).
+ *
+ * INSTALLABLE OR CORE. An installable module starts PARKED, so an admin opts it
+ * in per area — right for a capability an area may not want. A CORE module
+ * starts active, because it is machinery other surfaces already depend on and
+ * there is no real choice to offer: the map platform is the first, and an area
+ * with it switched off would not have fewer features, it would have a blank
+ * overview map.
+ *
+ * The flag decides the INITIAL state and nothing more. The Customize page still
+ * governs an area's modules afterwards, and this seed is create-only — it never
+ * revisits a row an admin has since changed. That is the honest limit of the
+ * seam as it stands.
  */
 final class ProviderCatalogueMapper
 {
@@ -38,7 +49,9 @@ final class ProviderCatalogueMapper
             'status' => ModuleStatus::tryFrom($provider->status()) ?? ModuleStatus::Live,
             'source' => $provider->dataSource() ?? '',
             'pinned' => $provider->pinned(),
-            'active' => false, // parked by default — enabled per area from the Customize page
+            // Parked unless the module is core — an installable module is enabled
+            // per area from the Customize page.
+            'active' => $provider->core(),
             'position' => $position,
         ];
     }

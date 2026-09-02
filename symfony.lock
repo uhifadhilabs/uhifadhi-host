@@ -416,6 +416,9 @@
     "uhifadhilabs/incident-module": {
         "version": "dev-main"
     },
+    "uhifadhilabs/map-module": {
+        "version": "dev-main"
+    },
     "uhifadhilabs/patrol-bundle": {
         "version": "dev-main"
     },

@@ -30,11 +30,15 @@
         <script src="https://cdn.jsdelivr.net/npm/frankenphp-hot-reload/+esm" type="module"></script>
         {% endif %}
     </head>
-    {# One place the whole platform reads the Google Map Tiles key from — the host
-       owns it, every map controller (host or module) reads this attribute, and
-       nothing else has to know the env var exists. Empty is fine: the satellite
-       layer then falls back to keyless imagery. #}
-    <body data-google-maps-api-key="{{ google_maps_api_key|default('') }}">
+    {# One place the whole platform reads its satellite imagery from — the map
+       module's seam. Every map controller, the host's own and every module's,
+       reads this one attribute, so a layer cannot draw one way on an area page
+       and another inside a module. What it says is whatever config/packages/map.yaml
+       configured: esri, google (with its key) or a deployment's own source.
+
+       No env var is named here any more, and no key is published on a page whose
+       provider would not use one. #}
+    <body {{ map_basemap_attributes() }}>
         {% block body %}{% endblock %}
     </body>
 </html>

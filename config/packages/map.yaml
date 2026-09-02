@@ -1,0 +1,27 @@
+# The map platform (uhifadhilabs/map-module) — self-hosted Leaflet, the basemap
+# seam, the boundary drawing and the map chrome every map in the product wears.
+#
+# WHICH IMAGERY. Nothing is configured here, so every environment gets the
+# bundle's default: `esri`, the keyless World Imagery. That is a change of
+# DEFAULT, not of behaviour — Esri is what the product has actually been drawing
+# all along. Satellite was Google-first with Esri as a silent understudy, and
+# Google refuses satellite outright for this EEA-billed account (403 on
+# createSession), so the fallback drew everywhere while the console filled with
+# refusals. Defaulting to the source that works removes the question.
+#
+# Production still asks Google, because production is where the key lives and
+# where an account or region change would first be worth noticing. Nothing is
+# lost if the refusal stands: the layer stays on Esri exactly as it does today,
+# now without re-earning the 403 on every map and every remount.
+map:
+    module_category: operations
+
+when@prod:
+    map:
+        satellite:
+            provider: google
+            google:
+                # Public by nature — it travels inside every tile URL — so it is
+                # HTTP-referrer restricted at Google, like a Maps JS key. Unset
+                # is a valid state: the bundle draws Esri and asks nobody.
+                api_key: '%env(default::UHIFADHI_GOOGLE_MAPS_API_KEY)%'

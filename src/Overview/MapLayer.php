@@ -42,7 +42,7 @@ final readonly class MapLayer
     /**
      * THE AREA'S OWN OUTLINE, drawn the platform's one way: a white casing under
      * a jade line, with everything outside it dimmed by a scrim the map's DIM
-     * control switches. Those numbers live once, in assets/map_boundary.js, and
+     * control switches. Those numbers live once, in the map module's boundary.js, and
      * every map in the product reads them from there — so a layer that IS the
      * boundary says so rather than asking for a 2px line and quietly reading
      * differently from every other plate. Only the host declares one: a module

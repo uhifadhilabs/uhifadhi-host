@@ -57,11 +57,11 @@ export default class extends Controller {
         this.L = L;
 
         // Every control comes from the platform chrome module (built in JS, see
-        // assets/map_chrome.js) — the same instrument a module's maps wear.
+        // the map module's chrome.js) — the same instrument a module's maps wear.
         this.map = L.map(this.canvasTarget, { zoomControl: false });
         this.canvasTarget.classList.add('map-chrome-host');
 
-        // One definition of the two bases for the whole platform (assets/google_tiles.js):
+        // One definition of the two bases for the whole platform (the map module's basemaps.js):
         // satellite is Google's official Map Tiles API, falling back to keyless
         // Esri imagery when no UHIFADHI_GOOGLE_MAPS_API_KEY is configured.
         this.bases = {
@@ -141,7 +141,7 @@ export default class extends Controller {
             this.map.setView([-3.2, 35.5], 9);
             return;
         }
-        // The platform's ONE boundary treatment (assets/map_boundary.js): the
+        // The platform's ONE boundary treatment (the map module's boundary.js): the
         // outside-the-area scrim, a white casing and the jade line - the same
         // three things, in the same order, that every module's maps draw.
         const boundary = drawBoundary(this.L, this.map, data);

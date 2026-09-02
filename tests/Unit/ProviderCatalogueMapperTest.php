@@ -105,4 +105,46 @@ final class ProviderCatalogueMapperTest extends TestCase
         self::assertSame(ModuleCategory::Operations, $row['category']);
         self::assertSame('Operations', $row['category']->label());
     }
+
+    /**
+     * A CORE MODULE ARRIVES ON. Parking is an offer — "this area may not want
+     * this" — and there are modules the offer is meaningless for: the map
+     * platform is machinery the overview map, the zones editor and two module
+     * bundles' plates already import, so an area with it switched off has a
+     * blank map rather than one fewer capability. It is seeded active instead.
+     *
+     * The flag governs this initial state and nothing else: the seed is
+     * create-only, so an admin who later switches it off is not overruled.
+     */
+    public function testACoreModuleIsSeededActiveRatherThanParked(): void
+    {
+        $core = new class implements ModuleProviderInterface {
+            use ModuleProviderTrait;
+
+            public function slug(): string
+            {
+                return 'map';
+            }
+
+            public function name(): string
+            {
+                return 'Map';
+            }
+
+            public function category(): string
+            {
+                return 'operations';
+            }
+
+            public function core(): bool
+            {
+                return true;
+            }
+        };
+
+        $row = new ProviderCatalogueMapper()->toRow($core, 0);
+
+        self::assertTrue($row['active'], 'Machinery other surfaces depend on is not an opt-in.');
+        self::assertFalse($row['pinned'], 'Core is the initial state; pinned is the ordering. Separate questions.');
+    }
 }

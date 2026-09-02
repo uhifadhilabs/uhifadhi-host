@@ -108,7 +108,7 @@ final class AreaOverviewSurfaceTest extends AuthenticatedWebTestCase
 
         // Every map in the product draws a boundary the same way — a casing, a
         // line and a scrim the DIM pill switches — and those numbers live once,
-        // in assets/map_boundary.js. A plate that asked for a generic 2px line
+        // in the map module's boundary.js. A plate that asked for a generic 2px line
         // would read differently from every other map in the app.
         /** @var array<int, array{id: string, style: string}> $layers */
         $layers = json_decode(
