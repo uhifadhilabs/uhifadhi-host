@@ -28,6 +28,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           path-to-signatures: 'signatures/cla.json'
-          path-to-document: 'https://github.com/uhifadhilabs/uhifadhi/blob/main/CLA.md'
+          path-to-document: 'https://github.com/uhifadhilabs/uhifadhi-host/blob/main/CLA.md'
           branch: 'cla-signatures'
           allowlist: eemjema,dependabot[bot]

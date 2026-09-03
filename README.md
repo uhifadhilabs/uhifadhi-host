@@ -14,7 +14,8 @@ permissions and seed commands.
 
 Uhifadhi is structured like the thing it protects:
 
-> **`uhifadhi/seed`** (planted once) → **`uhifadhi/trunk-module`** (the seam
+> **the seed — [`uhifadhi/uhifadhi`](https://github.com/uhifadhilabs/uhifadhi)**
+> (planted once) → **`uhifadhi/trunk-module`** (the seam
 > runtime every module registers with) → **branches** (the modules: patrol,
 > incident, roster, map, team, widget, area…) → **`uhifadhi/canopy-module`**
 > (the visible crown).
