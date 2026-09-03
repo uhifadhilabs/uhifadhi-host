@@ -32,3 +32,17 @@ services:
     Uhifadhi\Seam\Service\AreaModuleLedger: '@seam.area_module_ledger'
     Uhifadhi\Seam\Service\ModuleEntryRouteResolver: '@seam.entry_routes'
     Uhifadhi\Seam\Service\ModulePermissionCatalogue: '@seam.permissions'
+
+    # THE SHELL'S SEAMS, FILLED BY THIS APPLICATION. The shell owns the nav's
+    # shape and the tab strip's shape; what goes in them needs the areas, the
+    # viewer, the permission voters and the module seam's ledger, so it is
+    # composed here and handed over as value objects.
+    #
+    # The tag is written by hand because a reusable bundle's services are not
+    # autoconfigured — which is the same reason the seam's ids are aliased above.
+    Uhifadhi\Navigation\HostNavigation:
+        tags: ['shell.nav_section']
+
+    # An ALIAS, not a tag: two things claiming to know which area you are in is
+    # exactly the disagreement the shell refuses to arbitrate.
+    shell.area_shell_source: '@Uhifadhi\Navigation\AreaShellSource'

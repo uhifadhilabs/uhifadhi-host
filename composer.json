@@ -5,15 +5,15 @@
     "minimum-stability": "stable",
     "prefer-stable": true,
     "require": {
+        "php": ">=8.4",
+        "ext-ctype": "*",
+        "ext-iconv": "*",
         "api-platform/core": "^4.3",
         "doctrine/doctrine-bundle": "^3.3",
         "doctrine/doctrine-migrations-bundle": "^4.0.1",
         "doctrine/orm": "3.6.7",
-        "ext-ctype": "*",
-        "ext-iconv": "*",
         "fundistadi/gdal-bundle": "^0.1",
         "fundistadi/postgis-bundle": "^0.5.1",
-        "php": ">=8.4",
         "phpdocumentor/reflection-docblock": "^6.0",
         "phpstan/phpdoc-parser": "^2.3",
         "symfony/asset": "8.1.*",
@@ -50,13 +50,14 @@
         "symfonycasts/tailwind-bundle": "^1.0",
         "twig/extra-bundle": "^2.12|^3.0",
         "twig/twig": "^2.12|^3.0",
+        "uhifadhi/fixtures-module": "dev-main",
         "uhifadhi/incident-module": "dev-main",
         "uhifadhi/map-module": "dev-main",
         "uhifadhi/module-contracts": "dev-main",
         "uhifadhi/patrol-module": "dev-main",
-        "uhifadhi/fixtures-module": "dev-main",
-        "uhifadhi/storage-module": "dev-main",
-        "uhifadhi/seam-module": "dev-main"
+        "uhifadhi/seam-module": "dev-main",
+        "uhifadhi/shell-module": "dev-main",
+        "uhifadhi/storage-module": "dev-main"
     },
     "config": {
         "allow-plugins": {
@@ -185,6 +186,11 @@
             "name": "map-module",
             "type": "vcs",
             "url": "https://github.com/uhifadhilabs/map-module"
+        },
+        {
+            "name": "shell-module",
+            "type": "vcs",
+            "url": "https://github.com/uhifadhilabs/shell-module"
         }
     ]
 }

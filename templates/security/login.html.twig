@@ -1,13 +1,23 @@
-{% extends 'base.html.twig' %}
+{# THE DOCUMENT RUNG, deliberately: a stranger gets the theme and the typefaces
+   and no furniture at all. There is no sidebar to navigate and no top bar to
+   act from until there is somebody to act as. #}
+{% extends '@UhifadhiShell/document.html.twig' %}
 
-{% block title %}Sign in — Uhifadhi{% endblock %}
+{% block title %}Sign in{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    {{ include('_document_head.html.twig') }}
+{% endblock %}
+
+{% block importmap %}{{ importmap('app') }}{% endblock %}
 
 {% block body %}
     <main class="auth">
         <div class="auth-card">
             <form class="c" method="post" action="{{ path('app_login') }}">
                 <div class="auth-brand">
-                    {% include '_brand_mark.html.twig' with {size: 44} only %}
+                    {% include '@UhifadhiShell/_brand_mark.html.twig' with {size: 44} only %}
                     <b>UHIFADHI</b>
                 </div>
 

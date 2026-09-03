@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0e637fed095c90b11756dfc7e934578a",
+    "content-hash": "616be4f0113211523d17060acfea3155",
     "packages": [
         {
             "name": "api-platform/core",
@@ -9247,6 +9247,101 @@
             "time": "2026-09-03T03:28:55+00:00"
         },
         {
+            "name": "uhifadhi/shell-module",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/uhifadhilabs/shell-module.git",
+                "reference": "c0150b2f856f071dafe1a75108358b9b6f9d3716"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/uhifadhilabs/shell-module/zipball/c0150b2f856f071dafe1a75108358b9b6f9d3716",
+                "reference": "c0150b2f856f071dafe1a75108358b9b6f9d3716",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.4",
+                "symfony/asset": "^7.3 || ^8.0",
+                "symfony/config": "^7.3 || ^8.0",
+                "symfony/dependency-injection": "^7.3 || ^8.0",
+                "symfony/framework-bundle": "^7.3 || ^8.0",
+                "symfony/http-kernel": "^7.3 || ^8.0",
+                "symfony/twig-bundle": "^7.3 || ^8.0",
+                "symfony/ux-icons": "^2.20 || ^3.0",
+                "twig/twig": "^3.14"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.95",
+                "phpstan/phpstan": "^2.2",
+                "phpunit/phpunit": "^13.2",
+                "symfony/css-selector": "^7.3 || ^8.0",
+                "symfony/dom-crawler": "^7.3 || ^8.0"
+            },
+            "default-branch": true,
+            "type": "symfony-bundle",
+            "extra": {
+                "branch-alias": {
+                    "dev-main": "0.1-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Uhifadhi\\Shell\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Uhifadhi\\Shell\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "cs:fix": [
+                    "php-cs-fixer fix"
+                ],
+                "cs:check": [
+                    "php-cs-fixer fix --dry-run --diff"
+                ],
+                "phpstan": [
+                    "phpstan analyse --no-progress --memory-limit=1G"
+                ],
+                "test": [
+                    "phpunit"
+                ],
+                "check": [
+                    "@cs:check",
+                    "@phpstan",
+                    "@test"
+                ]
+            },
+            "license": [
+                "AGPL-3.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Ezekiel Mjema",
+                    "homepage": "https://github.com/eemjema"
+                }
+            ],
+            "description": "The shell: what an uhifadhi installation looks like — the document, the page frame, the navigation seams and the theme every module's pages mount into.",
+            "keywords": [
+                "conservation",
+                "design-system",
+                "layout",
+                "navigation",
+                "platform",
+                "shell",
+                "symfony",
+                "theme",
+                "uhifadhi"
+            ],
+            "support": {
+                "source": "https://github.com/uhifadhilabs/shell-module/tree/main",
+                "issues": "https://github.com/uhifadhilabs/shell-module/issues"
+            },
+            "time": "2026-09-03T07:01:44+00:00"
+        },
+        {
             "name": "uhifadhi/storage-module",
             "version": "dev-main",
             "source": {
@@ -13483,14 +13578,15 @@
         "uhifadhi/module-contracts": 20,
         "uhifadhi/patrol-module": 20,
         "uhifadhi/seam-module": 20,
+        "uhifadhi/shell-module": 20,
         "uhifadhi/storage-module": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
+        "php": ">=8.4",
         "ext-ctype": "*",
-        "ext-iconv": "*",
-        "php": ">=8.4"
+        "ext-iconv": "*"
     },
     "platform-dev": {},
     "platform-overrides": {

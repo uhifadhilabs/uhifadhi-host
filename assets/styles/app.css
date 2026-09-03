@@ -1,11 +1,6 @@
 /* Layout never shifts between scrolling and short pages: the gutter is
    reserved, and the scrollbar is drawn in the app's own tokens — a thin
    thumb over a canvas-coloured track, so an empty track is invisible. */
-html { scrollbar-gutter: stable; scrollbar-width: thin; scrollbar-color: color-mix(in srgb, rgb(var(--c-fog)) 45%, transparent) transparent; }
-::-webkit-scrollbar { width: 10px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: color-mix(in srgb, rgb(var(--c-fog)) 40%, transparent); border-radius: 8px; border: 2px solid transparent; background-clip: padding-box; }
-::-webkit-scrollbar-thumb:hover { background: color-mix(in srgb, rgb(var(--c-fog)) 65%, transparent); border-radius: 8px; border: 2px solid transparent; background-clip: padding-box; }
 
 @import "tailwindcss";
 
@@ -44,55 +39,6 @@ html { scrollbar-gutter: stable; scrollbar-width: thin; scrollbar-color: color-m
     --font-display: "Archivo", "Avenir Next", ui-sans-serif, system-ui, sans-serif;
     --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
     --font-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
-}
-
-/* ==================== SURVEY-PLATE TOKENS (channels) ==================== */
-/* Light (bone paper) is the DEFAULT surface; add `.dark` to <html> (via the theme
-   Stimulus controller) to flip to the green-tinted night canvas. */
-:root {
-    --c-cv: 243 242 235;     /* canvas          */
-    --c-p1: 255 255 255;     /* plate gradient hi */
-    --c-p2: 251 250 246;     /* plate gradient lo */
-    --c-raised: 236 235 226; /* chips / fields  */
-    --c-tx: 27 38 32;        /* primary text    */
-    --c-fog: 87 100 90;      /* secondary text — darkened for light-theme legibility */
-    --c-dim: 118 132 122;    /* tertiary        */
-    --c-acc: 15 138 104;     /* jade accent     */
-    --c-accT: 255 255 255;   /* on-jade text    */
-    --c-ok: 30 122 70;
-    --c-warn: 154 107 20;
-    --c-fail: 186 66 39;
-    --c-ln: rgba(23, 38, 30, 0.11);
-    --c-ln2: rgba(23, 38, 30, 0.20);
-    --glass: rgba(255, 255, 255, 0.85);
-    --shadow: 0 6px 22px rgba(23, 38, 30, 0.10);
-    --accGlow: rgba(15, 138, 104, 0.13);
-    /* Brand mark: always the theme's accent green — never black, never mint-on-white.
-       Riding the channels lands the canvas colours (#3ED9A8 on #0C1310) on dark and
-       the deep jade (#0F8A68 on #F3F2EB) on light with no per-theme override. */
-    --logo-tile: rgb(var(--c-acc));
-    --logo-child: rgb(var(--c-cv));
-    --logo-accent: rgb(var(--c-acc));
-}
-
-html.dark {
-    --c-cv: 12 19 16;        /* canvas          */
-    --c-p1: 21 32 25;        /* plate gradient hi */
-    --c-p2: 17 26 20;        /* plate gradient lo */
-    --c-raised: 28 41 33;    /* chips / fields  */
-    --c-tx: 234 242 236;     /* primary text    */
-    --c-fog: 150 168 156;    /* secondary text — lifted so muted text isn't too dark */
-    --c-dim: 124 140 129;    /* tertiary        */
-    --c-acc: 62 217 168;     /* jade accent     */
-    --c-accT: 12 19 16;      /* on-jade text    */
-    --c-ok: 99 201 127;
-    --c-warn: 219 163 63;
-    --c-fail: 224 91 65;
-    --c-ln: rgba(216, 236, 224, 0.09);
-    --c-ln2: rgba(216, 236, 224, 0.17);
-    --glass: rgba(12, 19, 15, 0.78);
-    --shadow: 0 8px 26px rgba(0, 0, 0, 0.34);
-    --accGlow: rgba(62, 217, 168, 0.18);
 }
 
 /* ==================== LEGACY PALETTE → PLATE REMAP ====================
@@ -137,28 +83,10 @@ html.dark {
 }
 
 /* ==================== BASE ==================== */
-body {
-    background: rgb(var(--c-cv));
-    color: rgb(var(--c-tx));
-    font-family: var(--font-body);
-    -webkit-font-smoothing: antialiased;
-    position: relative;
-}
-/* faint survey grid on the canvas (identity, not an encoding) */
-body::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    opacity: 0.5;
-    z-index: 0;
-    background:
-        linear-gradient(color-mix(in srgb, rgb(var(--c-fog)) 8%, transparent) 1px, transparent 1px),
-        linear-gradient(90deg, color-mix(in srgb, rgb(var(--c-fog)) 8%, transparent) 1px, transparent 1px);
-    background-size: 72px 72px;
-}
-.font-mono, .mono { font-family: var(--font-mono); }
-.disp { font-family: var(--font-display); letter-spacing: -0.02em; }
+/* The shell owns `body`, the survey grid on the canvas and `.mono`/`.disp`
+   (uhifadhi/shell-module, public/shell.css). This alias stays because this
+   application's own markup uses the longer class name in places. */
+.font-mono { font-family: var(--font-mono); }
 
 /* ==================== TOP BAR ==================== */
 .bar {
@@ -256,16 +184,6 @@ body::before {
 }
 @keyframes pulse { 0%, 100% { opacity: 1 } 50% { opacity: .3 } }
 @media (prefers-reduced-motion: reduce) { .live i { animation: none } }
-.cta {
-    background: rgb(var(--c-acc));
-    color: rgb(var(--c-accT));
-    border-radius: 9px;
-    padding: 7px 15px;
-    font-weight: 800;
-    font-size: 12px;
-    text-decoration: none;
-    display: inline-block;
-}
 .tgl {
     border: 1px solid var(--c-ln2);
     background: none;
@@ -277,86 +195,6 @@ body::before {
     font-family: inherit;
 }
 
-/* ==================== COLLAPSIBLE SIDEBAR + TOP HEADER (app shell) ========
-   Grafana-style: left nav (full-width ⇄ .rail icon-only via the sidebar Stimulus
-   controller), a fluid main column, and a main-area top header for account/utility
-   (nav lives in the sidebar; the top-right is never empty). */
-.shell { display: flex; min-height: 100vh; }
-.side {
-    width: 236px;
-    flex-shrink: 0;
-    position: sticky;
-    top: 0;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    padding: 14px 12px;
-    border-right: 1px solid var(--c-ln);
-    background: rgb(var(--c-p2));
-    transition: width .18s ease;
-    z-index: 30;
-}
-.side.rail { width: 66px; }
-.side .nav { display: flex; flex-direction: column; gap: 5px; margin-top: 4px; }
-.side-top { display: flex; align-items: center; gap: 8px; padding: 2px 2px 16px; }
-.side .brand { display: flex; align-items: center; gap: 10px; flex: 1; padding: 4px; text-decoration: none; color: rgb(var(--c-tx)); overflow: hidden; }
-.side .brand .brandmark { width: 32px; height: 32px; flex-shrink: 0; display: block; }
-.brandmark .bm-tile { fill: var(--logo-tile); }
-.brandmark .bm-child { fill: var(--logo-child); }
-.brandmark .bm-ring { fill: none; stroke: var(--logo-accent); }
-.side .brand b { font-family: var(--font-display); font-weight: 600; font-size: 14px; letter-spacing: .1em; white-space: nowrap; }
-.collapse-btn {
-    display: grid; place-items: center; width: 30px; height: 30px; flex-shrink: 0;
-    border: 0; background: none; color: rgb(var(--c-fog)); border-radius: 8px; cursor: pointer;
-}
-.collapse-btn:hover { background: rgb(var(--c-raised)); color: rgb(var(--c-tx)); }
-.collapse-btn svg { width: 18px; height: 18px; transition: transform .18s ease; }
-.nav-item {
-    display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 9px;
-    color: rgb(var(--c-fog)); text-decoration: none; font-size: 13px; white-space: nowrap; overflow: hidden;
-}
-.nav-item svg { width: 18px; height: 18px; flex-shrink: 0; }
-.nav-item:hover { background: rgb(var(--c-raised)); color: rgb(var(--c-tx)); }
-.nav-item.on { background: rgb(var(--c-acc) / .13); color: rgb(var(--c-tx)); font-weight: 600; }
-.nav-item.on svg { color: rgb(var(--c-acc)); }
-.nav-item.off { color: rgb(var(--c-dim)); cursor: default; }
-.nav-item.off:hover { background: none; color: rgb(var(--c-dim)); }
-.side-foot { margin-top: auto; display: flex; flex-direction: column; gap: 6px; padding-top: 12px; border-top: 1px solid var(--c-ln); }
-.side .row {
-    display: flex; align-items: center; gap: 10px; padding: 7px 11px; border-radius: 9px;
-    color: rgb(var(--c-fog)); font-size: 12px; background: none; border: 0; font-family: inherit;
-    cursor: pointer; white-space: nowrap; overflow: hidden; text-align: left; width: 100%; text-decoration: none;
-}
-.side .row:hover { background: rgb(var(--c-raised)); color: rgb(var(--c-tx)); }
-.side .row svg { width: 17px; height: 17px; flex-shrink: 0; }
-/* collapsed rail: hide labels, centre glyphs, stack the top, flip the collapse chevron */
-.side.rail .brand b,
-.side.rail .nav-item span,
-.side.rail .row span { display: none; }
-.side.rail .side-top { flex-direction: column; gap: 10px; }
-.side.rail .collapse-btn svg { transform: rotate(180deg); }
-.side.rail .nav-item,
-.side.rail .row { justify-content: center; padding-left: 0; padding-right: 0; gap: 0; }
-.side.rail .brand { justify-content: center; padding-left: 0; padding-right: 0; }
-.main { flex: 1; min-width: 0; position: relative; display: flex; flex-direction: column; }
-.main > .page { width: 100%; }
-.main > .page:last-child { margin-top: auto; } /* footer wrapper: viewport bottom on short pages */
-
-/* Main-area top header: account/utility cluster. */
-.topbar {
-    display: flex; align-items: center; height: 56px; padding: 0 26px; border-bottom: 1px solid var(--c-ln);
-    background: color-mix(in srgb, rgb(var(--c-cv)) 85%, transparent); backdrop-filter: blur(10px);
-    position: sticky; top: 0; z-index: 25;
-}
-.topbar .tb-right { margin-left: auto; display: flex; align-items: center; gap: 14px; }
-.topbar .live { font-size: 11px; }
-.tb-icon {
-    position: relative; display: grid; place-items: center; width: 34px; height: 34px; border: 0;
-    background: none; color: rgb(var(--c-fog)); border-radius: 9px; cursor: pointer; font-family: inherit;
-}
-.tb-icon:hover { background: rgb(var(--c-raised)); color: rgb(var(--c-tx)); }
-.tb-icon svg { width: 18px; height: 18px; }
 .tb-icon .badge {
     position: absolute; top: 1px; right: 1px; min-width: 15px; height: 15px; padding: 0 3px; border-radius: 99px;
     background: rgb(var(--c-fail)); color: #fff; font-family: var(--font-mono); font-size: 8.5px; font-weight: 700;
@@ -372,11 +210,6 @@ body::before {
 .uinfo b { font-size: 12.5px; color: rgb(var(--c-tx)); font-weight: 600; }
 .uinfo em { font-style: normal; font-size: 10px; color: rgb(var(--c-fog)); }
 
-/* Page header row: title/sub left, optional page action right. */
-.pghead { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; }
-.pgact { flex-shrink: 0; padding-top: 4px; }
-.pgact .cta { display: inline-flex; align-items: center; gap: 7px; }
-.pgact .cta svg { width: 15px; height: 15px; }
 @media (max-width: 640px) { .uinfo { display: none; } }
 
 /* ==================== SUB-NAV (module tabs) ==================== */
@@ -397,22 +230,6 @@ body::before {
 .subnav a.on { color: rgb(var(--c-accT)); background: rgb(var(--c-acc)); border-color: rgb(var(--c-acc)); }
 .subnav span.off { color: rgb(var(--c-dim)); border-style: dashed; cursor: default; }
 
-/* Within-module tabs — underlined and left-aligned; the active tab carries the accent underline.
-   Used on a module's own pages (Overview / Dataframe / Explore / Method / Settings). */
-.atabs { display: flex; gap: 24px; border-bottom: 1px solid var(--c-ln); margin: 0 0 26px; }
-.atabs a {
-    font-size: 13.5px;
-    font-weight: 600;
-    color: rgb(var(--c-fog));
-    text-decoration: none;
-    padding: 9px 1px 12px;
-    border-bottom: 2px solid transparent;
-    margin-bottom: -1px;        /* sit the underline on the container's hairline */
-    transition: color .15s, border-color .15s;
-}
-.atabs a:hover { color: rgb(var(--c-tx)); }
-.atabs a.on { color: rgb(var(--c-tx)); border-bottom-color: rgb(var(--c-acc)); }
-
 /* "All modules" back pill — chevron + label, a subtle bordered chip that lifts on hover. */
 .backbtn {
     display: inline-flex;
@@ -431,19 +248,11 @@ body::before {
 .backbtn:hover { color: rgb(var(--c-tx)); border-color: rgb(var(--c-fog)); background: rgb(var(--c-raised)); }
 .backbtn svg { display: block; width: 15px; height: 15px; }
 
-/* Module card (Modules-tab grid) — a content-ful tile: headline metric + mini preview + source.
-   Built on .c (the card), clickable as a whole, lifting on hover. */
-.mtile { display: flex; flex-direction: column; gap: 9px; padding: 15px 16px; text-decoration: none; transition: border-color .15s, transform .12s; }
-.mtile:hover { border-color: color-mix(in srgb, rgb(var(--c-acc)) 45%, transparent); transform: translateY(-1px); }
-.mtile-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-.mtile-title { font-weight: 700; font-size: 14px; color: rgb(var(--c-tx)); }
 .mtile-stat { display: flex; align-items: baseline; gap: 6px; }
 .mtile-stat .val { font-size: 21px; font-weight: 700; color: rgb(var(--c-tx)); line-height: 1; }
 .mtile-stat .sub { font-size: 10.5px; }
 .mtile-spark { margin: 1px 0 2px; min-height: 22px; }
 .mtile-summary { font-size: 11.5px; line-height: 1.35; }
-.mtile-source { margin-top: auto; padding-top: 5px; }
-.mtile-source .mono { font-size: 9px; letter-spacing: .06em; color: rgb(var(--c-dim)); }
 
 /* ── describe() / summary table ─────────────────────────────────────── */
 .dtable { width: 100%; border-collapse: collapse; font-size: 12px; }
@@ -485,53 +294,7 @@ body::before {
 .rdf th.num, .rdf td.num { text-align: right; }
 .rdf td.idx, .rdf th.idx { color: rgb(var(--c-dim)); text-align: right; width: 36px; padding-right: 10px; user-select: none; font-size: 11px; }
 
-/* ==================== PAGE SCAFFOLD ==================== */
-.page { position: relative; z-index: 1; max-width: 1280px; margin: 0 auto; padding: 26px 22px 90px; }
-.crumb {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    letter-spacing: .14em;
-    text-transform: uppercase;
-    color: rgb(var(--c-fog));
-    margin: 2px 0 6px;
-}
-.crumb a { color: rgb(var(--c-acc)); text-decoration: none; }
-h1.pg { font-family: var(--font-display); font-size: 27px; font-weight: 700; letter-spacing: -.02em; margin: 0 0 4px; }
-.pgsub { color: rgb(var(--c-fog)); font-size: 14.5px; margin: 0 0 22px; max-width: 96ch; line-height: 1.6; }
-.pgsub b { color: rgb(var(--c-tx)); }
-h2.zone {
-    font-family: var(--font-mono);
-    font-size: 10.5px;
-    font-weight: 600;
-    letter-spacing: .22em;
-    text-transform: uppercase;
-    color: rgb(var(--c-fog));
-    margin: 38px 0 22px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-h2.zone::after { content: ""; flex: 1; height: 1px; background: var(--c-ln2); }
-
-.grid { display: grid; gap: 20px; margin-bottom: 20px; }
-.g2 { grid-template-columns: 1fr 1fr; }
-.g3 { grid-template-columns: 1fr 1fr 1fr; }
-.g4 { grid-template-columns: repeat(4, 1fr); }
-.g32 { grid-template-columns: 1.5fr 1fr; }
-@media (max-width: 980px) {
-    .g2, .g3, .g32 { grid-template-columns: 1fr; }
-    .g4 { grid-template-columns: 1fr 1fr; }
-}
-
 /* ==================== PLATE (the survey-plate card) ==================== */
-.c {
-    background: linear-gradient(180deg, rgb(var(--c-p1)), rgb(var(--c-p2)));
-    border: 1px solid var(--c-ln);
-    border-radius: 14px;
-    padding: 24px 16px 14px;
-    position: relative;
-    box-shadow: var(--shadow);
-}
 .c .tab {
     position: absolute;
     top: -9px;
@@ -595,23 +358,6 @@ h2.zone::after { content: ""; flex: 1; height: 1px; background: var(--c-ln2); }
 .kpi .sub { font-family: var(--font-mono); font-size: 9.5px; color: rgb(var(--c-dim)); margin-top: 8px; display: flex; align-items: center; gap: 9px; }
 .kpi.hot b { color: rgb(var(--c-acc)); }
 
-/* ==================== CHIPS ==================== */
-.chip {
-    font-family: var(--font-mono);
-    font-size: 10px;
-    font-weight: 700;
-    border-radius: 6px;
-    padding: 2.5px 9px;
-    border: 1px solid;
-    white-space: nowrap;
-    display: inline-block;
-}
-.chip.ok { color: rgb(var(--c-ok)); border-color: color-mix(in srgb, rgb(var(--c-ok)) 40%, transparent); }
-.chip.warn { color: rgb(var(--c-warn)); border-color: color-mix(in srgb, rgb(var(--c-warn)) 40%, transparent); }
-.chip.fail { color: rgb(var(--c-fail)); border-color: color-mix(in srgb, rgb(var(--c-fail)) 40%, transparent); }
-.chip.idle { color: rgb(var(--c-dim)); border: 1px dashed color-mix(in srgb, rgb(var(--c-fog)) 45%, transparent); font-weight: 600; }
-.chip.acc { color: rgb(var(--c-acc)); border-color: color-mix(in srgb, rgb(var(--c-acc)) 45%, transparent); }
-
 /* ==================== TABLE (the register) ==================== */
 table.tbl { width: 100%; border-collapse: collapse; font-size: 13.5px; }
 table.tbl th {
@@ -654,8 +400,6 @@ table.tbl tr:hover .open-btn { background: rgb(var(--c-acc)); color: rgb(var(--c
 .w { color: rgb(var(--c-warn)); }
 .r { color: rgb(var(--c-fail)); }
 .d { color: rgb(var(--c-dim)); }
-.fog { color: rgb(var(--c-fog)); }
-.acc { color: rgb(var(--c-acc)); }
 .fld {
     background: rgb(var(--c-raised));
     border: 1px solid var(--c-ln2);
@@ -709,8 +453,6 @@ table.tbl tr:hover .open-btn { background: rgb(var(--c-acc)); color: rgb(var(--c
 }
 .legend i { width: 9px; height: 9px; border-radius: 2px; display: inline-block; margin-right: 5px; vertical-align: -1px; }
 .glass { background: var(--glass); backdrop-filter: blur(10px); border: 1px solid var(--c-ln2); border-radius: 10px; }
-.footer { position: relative; z-index: 0; margin-top: 44px; border-top: 1px solid var(--c-ln); padding-top: 18px; color: rgb(var(--c-dim)); font-size: 11.5px; max-width: 96ch; line-height: 1.6; }
-
 /* ==================== MAP CONTROLS (over the satellite base) ==================== */
 /* Dark controls regardless of theme — they sit on the satellite imagery. */
 .map-toggle { display: flex; border-radius: 8px; overflow: hidden; border: 1px solid rgba(245, 247, 243, .25); }
@@ -1769,18 +1511,6 @@ button.dp-matrix-dot:hover, button.dp-matrix-dot:focus-visible { border-color: r
 .lens-w .lens-empty { padding: 16px 4px 8px; font-size: 12.5px; color: rgb(var(--c-fog)); line-height: 1.65; }
 .lens-w .lens-empty b { color: rgb(var(--c-tx)); }
 
-/* ---- area modules: department lens ---- */
-/* The marker on the leading group of the area's Modules tab — subtle, and only ever rendered
-   when a department really did lead (a viewer with no department sees no marker at all). */
-.lens-led {
-    display: inline-flex; align-items: center; gap: 5px; margin-left: 10px;
-    font-family: var(--font-mono); font-size: 9px; font-weight: 700; letter-spacing: .12em;
-    text-transform: uppercase; line-height: 1; padding: 4px 9px 3px;
-    border: 1px solid color-mix(in srgb, rgb(var(--c-acc)) 45%, transparent); border-radius: 999px;
-    color: rgb(var(--c-acc)); background: color-mix(in srgb, rgb(var(--c-acc)) 7%, transparent);
-}
-.lens-led svg { width: 11px; height: 11px; }
-
 /* ---- departments widget: registry ---- */
 /* The table of record on the Departments screen: departments down the rows, the
    modules each claims as chips, and (for someone who may administer them) the
@@ -2188,82 +1918,6 @@ table.tbl tr.newrow .dash { font-size: 11px; }
     .w-pickrow-wide { grid-column: span 1; }
     .w-pickstage { height: 170px; }
 }
-
-/* ==================== SIDEBAR: SECTIONS + LOCATION TREE (design ruling F) ====
-   Ported from designs/nav.css onto the survey-plate tokens. Two parts:
-
-   1. Section labels group the org level — mono, tracked, muted. They group; they
-      never compete with the items under them.
-   2. The location TREE under Areas. ONE line grammar applied at THREE levels: a
-      rail drops out of the bottom of a parent row at that parent's ICON CENTRE
-      and ticks sideways into each child —
-          Areas ─┐ an area ─┐ its tabs ─┐ the module you are inside.
-      The indent steps 12px per level and the rail always sits at the previous
-      level's content centre (21 → 33 → 45 for rails; 38 → 50 → 62 for content),
-      which is what makes the three levels read as the same drawing. Only module
-      entries carry a colour dot; whichever node shows children takes the parent
-      affordance (weight + caret).
-   Both are meaningless in the icon rail, where a word has nowhere to go. */
-.nav-hd {
-    font-family: var(--font-mono); font-size: 9.5px; font-weight: 600; letter-spacing: .14em;
-    text-transform: uppercase; color: rgb(var(--c-dim));
-    padding: 10px 12px 3px; white-space: nowrap; overflow: hidden;
-}
-.nav .nav-hd:first-child { padding-top: 2px; }
-.side.rail .nav-hd,
-.side.rail .ntree { display: none; }
-
-.ntree { position: relative; margin: 1px 0 4px; }
-.ntree.treehidden { display: none; }
-.ntree a {
-    display: flex; align-items: center; gap: 8px; position: relative;
-    text-decoration: none; border-left: 2px solid transparent;
-}
-/* Level 1 — an area. */
-.ntree .nta { padding: 6px 12px 6px 38px; font-size: 12.5px; color: rgb(var(--c-tx)); }
-.ntree .nta b { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.ntree .nta::before { content: ""; position: absolute; left: 21px; top: -4px; bottom: 50%; width: 1px; background: var(--c-ln2); }
-.ntree .nta::after { content: ""; position: absolute; left: 21px; top: 50%; width: 9px; height: 1px; background: var(--c-ln2); }
-.ntree .nta:hover { background: rgb(var(--c-raised)); }
-.ntree .nta.cur { color: rgb(var(--c-tx)); }
-.nta-group.closed { display: none; }
-/* Level 2 — the area's real tab row (Overview · Modules · Zones · Settings). */
-.ntree .ntt { padding: 5px 12px 5px 50px; font-size: 11.5px; color: rgb(var(--c-fog)); }
-.ntree .ntt::before { content: ""; position: absolute; left: 33px; top: 0; bottom: 0; width: 1px; background: var(--c-ln2); }
-.ntree .ntt:last-child::before { bottom: auto; height: 50%; }
-.ntree .ntt::after { content: ""; position: absolute; left: 33px; top: 50%; width: 9px; height: 1px; background: var(--c-ln2); }
-.ntree .ntt:hover { color: rgb(var(--c-tx)); }
-.ntree .ntt.par { color: rgb(var(--c-tx)); font-weight: 500; }
-.ntree .ntt.on,
-.ntree .ntm.on {
-    color: rgb(var(--c-acc)); font-weight: 600;
-    background: rgb(var(--c-acc) / .10); border-left-color: rgb(var(--c-acc));
-}
-/* Level 3 — the module you are inside, and only then. The tab rail has to pass
-   straight THROUGH this row on its way to the tabs below, so it is painted as a
-   background line; the pseudo-elements draw this row's own tick out of Modules. */
-.ntree .ntm {
-    padding: 4.5px 12px 4.5px 62px; font-size: 11px; color: rgb(var(--c-fog));
-    background-image: linear-gradient(var(--c-ln2), var(--c-ln2));
-    background-size: 1px 100%; background-position: 33px 0; background-repeat: no-repeat;
-}
-.ntree .ntm:hover { color: rgb(var(--c-tx)); }
-.ntree .ntm::before { content: ""; position: absolute; left: 45px; top: -3px; bottom: 50%; width: 1px; background: var(--c-ln2); }
-.ntree .ntm::after { content: ""; position: absolute; left: 45px; top: 50%; width: 9px; height: 1px; background: var(--c-ln2); }
-.ntree .ntm .mdot { width: 6px; height: 6px; border-radius: 2px; background: rgb(var(--c-acc)); flex: none; }
-.ntgroup.closed { display: none; }
-/* Carets: every node with children carries one, it only ever folds (the label
-   navigates), and a folded caret points at what it would reveal. */
-.nav .chev {
-    margin-left: auto; display: flex; align-items: center; padding: 2px; border: 0; background: none;
-    color: rgb(var(--c-dim)); cursor: pointer; transition: transform .15s ease;
-}
-.nav .chev svg { width: 13px; height: 13px; }
-.nav .chev:hover { color: rgb(var(--c-tx)); }
-.nav .nav-item.closed > .chev,
-.nav .nta.closed > .chev,
-.nav .ntt.par.closed > .chev { transform: rotate(-90deg); }
-.side.rail .nav .chev { display: none; }
 
 /* ============================================================================
    TEAM · POSITIONS — the vocabulary the six team widgets are drawn in.

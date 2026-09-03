@@ -2072,6 +2072,12 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     default_category?: scalar|Param|null, // Catalogue category an unrecognised provider category is coerced to. // Default: "operations"
  *     dev_tools?: bool|Param, // Register dev-only tooling (seeders, fixtures). The recipe enables this via when@dev/when@test. // Default: false
  * }
+ * @psalm-type ShellConfig = array{
+ *     brand_name?: scalar|Param|null, // The wordmark rendered beside the brand tile in the sidebar. // Default: "Uhifadhi"
+ *     home_route?: scalar|Param|null, // Route the brand tile links to. The shell is installed by an application and cannot know its route names. // Default: "dashboard_index"
+ *     default_theme?: "light"|"dark"|"system"|Param, // Theme a visitor who has never chosen one gets: light, dark, or the operating system's preference. // Default: "light"
+ *     dev_tools?: bool|Param, // Register the socket gallery — every block and every token on one page. The recipe enables this via when@dev/when@test. // Default: false
+ * }
  * @psalm-type ConfigType = array{
  *     imports?: ImportsConfig,
  *     parameters?: ParametersConfig,
@@ -2096,6 +2102,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     storage?: StorageConfig,
  *     incident?: IncidentConfig,
  *     seam?: SeamConfig,
+ *     shell?: ShellConfig,
  *     "when@dev"?: array{
  *         imports?: ImportsConfig,
  *         parameters?: ParametersConfig,
@@ -2124,6 +2131,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         storage?: StorageConfig,
  *         incident?: IncidentConfig,
  *         seam?: SeamConfig,
+ *         shell?: ShellConfig,
  *     },
  *     "when@prod"?: array{
  *         imports?: ImportsConfig,
@@ -2149,6 +2157,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         storage?: StorageConfig,
  *         incident?: IncidentConfig,
  *         seam?: SeamConfig,
+ *         shell?: ShellConfig,
  *     },
  *     "when@test"?: array{
  *         imports?: ImportsConfig,
@@ -2177,6 +2186,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         storage?: StorageConfig,
  *         incident?: IncidentConfig,
  *         seam?: SeamConfig,
+ *         shell?: ShellConfig,
  *     },
  *     ...<string, ExtensionType|array{ // extra keys must follow the when@%env% pattern or match an extension alias
  *         imports?: ImportsConfig,

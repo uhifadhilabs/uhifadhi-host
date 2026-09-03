@@ -38,4 +38,5 @@ return [
     Uhifadhi\Storage\UhifadhiStorageBundle::class => ['all' => true],
     Uhifadhi\Incident\UhifadhiIncidentBundle::class => ['all' => true],
     Uhifadhi\Seam\UhifadhiSeamBundle::class => ['all' => true],
+    Uhifadhi\Shell\UhifadhiShellBundle::class => ['all' => true],
 ];

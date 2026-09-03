@@ -1,108 +1,70 @@
-{% extends 'base.html.twig' %}
+{# THE APPLICATION'S SHELL: the platform's, plus what only this application knows.
 
-{# National shell: collapsible Grafana-style sidebar + a main-area top header.
-   Each page fills {% block content %} with its own `.page` (crumb · pghead · body). #}
-{# The nav is built server-side, from real data: sections + the location tree under Areas.
-   See Uhifadhi\Twig\SidebarExtension — the host never names a module here. #}
-{% set _nav = sidebar_nav() %}
+   Everything structural — the document, the sidebar, the location tree, the top
+   bar, the page frame, the theme — comes from uhifadhi/shell-module. What is
+   left here is exactly the set of things a layout cannot know and an application
+   can: who is signed in, whether this response is an impersonation, and this
+   deployment's own importmap.
 
-{% block body %}
-    <div class="shell">
-        <aside class="side" id="side" {{ stimulus_controller('sidebar') }}>
-            <div class="side-top">
-                <a class="brand" href="{{ path('dashboard_index') }}">{% include '_brand_mark.html.twig' with {size: 32} only %}<b>UHIFADHI</b></a>
-                <button class="collapse-btn" type="button" data-action="sidebar#toggle"
-                        title="Collapse sidebar" aria-label="Collapse sidebar">{{ ux_icon('lucide:chevrons-left') }}</button>
-            </div>
-            <nav class="nav" {{ stimulus_controller('sidebar-tree') }}>
-                <div class="nav-hd">Observatory</div>
-                {# Areas + its location TREE: every area is a child row, the area you are in unfolds
-                   to its real tabs, and that area's modules hang under Modules — on every one of
-                   its pages, folded away until you are in the Modules space. The caret folds; the
-                   label always navigates. #}
-                <a class="nav-item{{ _nav.onAreas ? ' on' }}{{ _nav.treeOpen ? '' : ' closed' }}" href="{{ path('dashboard_index') }}">
-                    {{ ux_icon('lucide:map') }}<span>Areas</span>
-                    <button class="chev" type="button" aria-label="Toggle areas"
-                            data-action="sidebar-tree#toggleAreas">{{ ux_icon('lucide:chevron-down') }}</button>
-                </a>
-                <div class="ntree{{ _nav.treeOpen ? '' : ' treehidden' }}">
-                    {% for area in _nav.areas %}
-                        <a class="nta{{ area.current ? ' cur' : ' closed' }}" href="{{ area.url }}">
-                            <b>{{ area.name }}</b>
-                            <button class="chev" type="button" aria-label="Toggle {{ area.name }}"
-                                    data-action="sidebar-tree#toggleArea">{{ ux_icon('lucide:chevron-down') }}</button>
-                        </a>
-                        <div class="nta-group{{ area.current ? '' : ' closed' }}">
-                            {% for tab in area.tabs %}
-                                <a class="ntt{{ tab.current ? ' on' }}{{ tab.parent ? ' par' }}{{ tab.parent and not tab.open ? ' closed' }}" href="{{ tab.url }}">{{ tab.label }}
-                                    {%- if tab.parent %}<button class="chev" type="button" aria-label="Toggle {{ tab.label }}"
-                                            data-action="sidebar-tree#toggleSubtree">{{ ux_icon('lucide:chevron-down') }}</button>{% endif -%}
-                                </a>
-                                {# The children are always rendered — folding is a class, never an
-                                   omission, or the caret would have nothing to reopen. #}
-                                {% if tab.modules is not empty %}
-                                    <div class="ntgroup{{ tab.open ? '' : ' closed' }}">
-                                        {% for module in tab.modules %}
-                                            <a class="ntm{{ module.current ? ' on' }}" href="{{ module.url }}"><i class="mdot"></i>{{ module.name }}</a>
-                                        {% endfor %}
-                                    </div>
-                                {% endif %}
-                            {% endfor %}
-                        </div>
-                    {% endfor %}
-                </div>
-                {# The board is the C-suite surface, so it sits top-level — but it is another slice
-                   of this batch, so it degrades to a named-but-unbuilt item until its route lands. #}
-                {% if _nav.performanceUrl %}
-                    <a class="nav-item{{ _nav.performance ? ' on' }}" href="{{ _nav.performanceUrl }}">{{ ux_icon('lucide:trending-up') }}<span>Performance</span></a>
-                {% else %}
-                    <span class="nav-item off" title="Performance — coming soon">{{ ux_icon('lucide:trending-up') }}<span>Performance</span></span>
-                {% endif %}
-                <div class="nav-hd">Organization</div>
-                {# Departments are a lens everyone looks through, so the item is not gated the way
-                   Team is — only its management chrome is. #}
-                <a class="nav-item{{ _nav.departments ? ' on' }}" href="{{ path('app_departments') }}">{{ ux_icon('lucide:building') }}<span>Departments</span></a>
-                {% if is_granted('ROLE_MANAGER') %}
-                    <a class="nav-item{{ _nav.team ? ' on' }}" href="{{ path('app_team') }}">{{ ux_icon('lucide:users') }}<span>Team</span></a>
-                {% endif %}
-                <div class="nav-hd">System</div>
-                <a class="nav-item{{ app.current_route starts with 'storage_files' ? ' on' }}" href="{{ path('storage_files') }}" title="Files">{{ ux_icon('lucide:images') }}<span>Files</span></a>
-                <span class="nav-item off" title="Alerts — planned (workflow + audit roadmap)">{{ ux_icon('lucide:bell') }}<span>Alerts</span></span>
-            </nav>
-            <div class="side-foot">
-                <span class="row" style="cursor:default" title="Settings — coming soon">{{ ux_icon('lucide:settings') }}<span>Settings</span></span>
-            </div>
-        </aside>
+   THE NAV AND THE TAB STRIP ARE NOT HERE ANY MORE, and that is the point. Their
+   content is composed in Uhifadhi\Navigation and reaches the shell through its
+   two seams, so the sidebar's area branch and the strip above a page read one
+   list instead of the two hand-kept copies that used to live in this file and
+   in a Twig partial beside it.
 
-        <main class="main">
-            {% if is_granted('IS_IMPERSONATOR') %}
-                <div class="impersonation-banner">
-                    {{ ux_icon('lucide:venetian-mask') }}
-                    <span>Impersonating <b>{{ app.user.fullName }}</b></span>
-                    <a href="{{ path('dashboard_index', {_switch_user: '_exit'}) }}">Exit</a>
-                </div>
-            {% endif %}
-            <header class="topbar">
-                <span class="tb-right">
-                    <span class="live"><i></i>worker</span>
-                    <span class="tb-icon" title="Alerts — coming soon">{{ ux_icon('lucide:bell') }}</span>
-                    <button class="tb-icon" type="button" {{ stimulus_controller('theme') }} data-action="theme#toggle"
-                            title="Toggle theme" aria-label="Toggle theme">{{ ux_icon('lucide:sun') }}</button>
-                    {% if app.user %}
-                        <span class="user" title="{{ app.user.email }}">
-                            <span class="avatar">{{ (app.user.firstName|first ~ app.user.lastName|first)|upper }}</span>
-                            <span class="uinfo"><b>{{ app.user.fullName }}</b><em>{{ app.user.teamRole.label }}</em></span>
-                        </span>
-                        <a class="tb-icon" href="{{ path('app_logout') }}" title="Sign out" aria-label="Sign out">{{ ux_icon('lucide:log-out') }}</a>
-                    {% endif %}
-                </span>
-            </header>
+   EVERY PAGE THAT EXTENDS THIS still fills `content` exactly as before — that
+   socket is the shell's main slot and it kept its name so that this extraction
+   changed no page and no module bundle. New pages should extend
+   `@UhifadhiShell/page.html.twig` instead and fill `shell_page`: they then get
+   the crumb, page head, tab strip and flashes without typing any of them. #}
+{% extends '@UhifadhiShell/shell.html.twig' %}
 
-            {% block content %}{% endblock %}
+{# One place the whole platform reads its satellite imagery from — the map
+   module's seam. Every map controller, this application's own and every
+   module's, reads this one attribute, so a layer cannot draw one way on an area
+   page and another inside a module. Attributes are not content, so this is the
+   shell's one variable rather than one of its blocks; it is set outside every
+   block and lands on the document's <body> tag. #}
+{% set shell_body_attributes = map_basemap_attributes() %}
 
-            <div class="page" style="padding-top:0">
-                <div class="footer">{% block footer %}Uhifadhi — operations platform for protected areas.{% endblock %}</div>
-            </div>
-        </main>
-    </div>
+{% block stylesheets %}
+    {# parent() FIRST: the shell's sheet defines the tokens app.css reads. #}
+    {{ parent() }}
+    {{ include('_document_head.html.twig') }}
 {% endblock %}
+
+{% block importmap %}{{ importmap('app') }}{% endblock %}
+
+{% block shell_banner %}
+    {% if is_granted('IS_IMPERSONATOR') %}
+        <div class="impersonation-banner">
+            {{ ux_icon('lucide:venetian-mask') }}
+            <span>Impersonating <b>{{ app.user.fullName }}</b></span>
+            <a href="{{ path('dashboard_index', {_switch_user: '_exit'}) }}">Exit</a>
+        </div>
+    {% endif %}
+{% endblock %}
+
+{# The account cluster. It sits in this block rather than in the shell because
+   every line of it needs a viewer, and the shell is required to render on an
+   installation that has not grown a team yet. #}
+{% block shell_topbar_actions %}
+    <span class="live"><i></i>worker</span>
+    <span class="tb-icon" title="Alerts — coming soon">{{ ux_icon('lucide:bell') }}</span>
+    {# The shell's theme toggle, placed rather than appended: parent() is what
+       decides where it sits among this application's own chrome. #}
+    {{ parent() }}
+    {% if app.user %}
+        <span class="user" title="{{ app.user.email }}">
+            <span class="avatar">{{ (app.user.firstName|first ~ app.user.lastName|first)|upper }}</span>
+            <span class="uinfo"><b>{{ app.user.fullName }}</b><em>{{ app.user.teamRole.label }}</em></span>
+        </span>
+        <a class="tb-icon" href="{{ path('app_logout') }}" title="Sign out" aria-label="Sign out">{{ ux_icon('lucide:log-out') }}</a>
+    {% endif %}
+{% endblock %}
+
+{% block shell_sidebar_footer %}
+    <span class="row" style="cursor:default" title="Settings — coming soon">{{ ux_icon('lucide:settings') }}<span>Settings</span></span>
+{% endblock %}
+
+{% block shell_footer %}Uhifadhi — operations platform for protected areas.{% endblock %}

@@ -1,0 +1,28 @@
+{# WHAT THIS DEPLOYMENT PUTS IN EVERY HEAD, and the shell does not.
+
+   The shell owns the document and the theme tokens; it does not own where this
+   installation gets its typefaces, what its favicon is, or which development
+   tooling is attached. Those are a deployment's decisions — a bundle that
+   loaded a font from a third-party CDN on every page of every installation
+   would be making a privacy decision on somebody else's behalf.
+
+   Included from the `stylesheets` socket of both rungs this application uses:
+   the shell (layout.html.twig, every signed-in page) and the document
+   (security/login.html.twig, which has no furniture to show a stranger). #}
+
+{# The same mark the sidebar draws — one source, so the tab and the brand agree. #}
+<link rel="icon" href="{{ asset('icon.svg') }}" type="image/svg+xml">
+<link rel="apple-touch-icon" href="{{ asset('icon.svg') }}">
+
+{# The design system's faces, named by the shell's --font-* tokens and loaded
+   here: Archivo (display) and JetBrains Mono (data and labels). #}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+
+{% set frankenphp_hot_reload = app.request.server.get('FRANKENPHP_HOT_RELOAD') %}
+{% if frankenphp_hot_reload %}
+    <meta name="frankenphp-hot-reload:url" content="{{ frankenphp_hot_reload }}">
+    <script src="https://cdn.jsdelivr.net/npm/idiomorph"></script>
+    <script src="https://cdn.jsdelivr.net/npm/frankenphp-hot-reload/+esm" type="module"></script>
+{% endif %}
