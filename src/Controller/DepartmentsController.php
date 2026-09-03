@@ -22,13 +22,13 @@ use Symfony\Component\Routing\Requirement\Requirement;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Uid\Uuid;
 use Uhifadhi\Entity\Department;
-use Uhifadhi\Entity\Module;
 use Uhifadhi\Model\DepartmentsWidgets;
 use Uhifadhi\Model\WidgetDom;
 use Uhifadhi\Service\DepartmentService;
 use Uhifadhi\Service\DepartmentsSurface;
 use Uhifadhi\Service\WidgetEndpoint;
 use Uhifadhi\Service\WidgetService;
+use UhifadhiLabs\Trunk\Entity\Module;
 
 /**
  * The org-wide departments surface: the widget dashboard, its library, and the handful of

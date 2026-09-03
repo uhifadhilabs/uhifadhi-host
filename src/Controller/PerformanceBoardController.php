@@ -25,13 +25,13 @@ use Uhifadhi\Model\PerformanceBoardView;
 use Uhifadhi\Model\PerformanceBoardWidgets;
 use Uhifadhi\Model\WidgetDom;
 use Uhifadhi\Module\DepartmentKpi;
-use Uhifadhi\Repository\AreaModuleRepository;
 use Uhifadhi\Repository\AreaOfInterestRepository;
 use Uhifadhi\Repository\DepartmentGoalRepository;
 use Uhifadhi\Service\DepartmentKpiService;
 use Uhifadhi\Service\DepartmentsSurface;
 use Uhifadhi\Service\WidgetEndpoint;
 use Uhifadhi\Service\WidgetService;
+use UhifadhiLabs\Trunk\Repository\AreaModuleRepository;
 
 /**
  * The org-wide comparative board: `GET /departments/performance`.

@@ -17,8 +17,8 @@ use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 use Uhifadhi\Entity\AreaOfInterest;
 use Uhifadhi\Model\Widget;
 use Uhifadhi\Model\WidgetGroup;
-use Uhifadhi\Service\AreaModuleLedger;
 use Uhifadhi\Service\AreaOverviewCatalogue;
+use UhifadhiLabs\Trunk\Service\AreaModuleLedger;
 
 /**
  * THE SEAM, DRAWN HONESTLY — the not-installed-here section, last in the

@@ -21,3 +21,14 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+
+    # THE TRUNK'S SERVICES, NAMED FOR AUTOWIRING. A reusable bundle's services
+    # are private and prefixed with its alias (that is the bundle best practice,
+    # and uhifadhi/trunk-module follows it), so nothing in src/ can be given one
+    # by type without an alias here. These are the ones this application reads;
+    # everything else the trunk owns, it owns alone.
+    UhifadhiLabs\Trunk\Service\ModuleCatalogue: '@trunk.catalogue'
+    UhifadhiLabs\Trunk\Service\AreaModuleService: '@trunk.area_modules'
+    UhifadhiLabs\Trunk\Service\AreaModuleLedger: '@trunk.area_module_ledger'
+    UhifadhiLabs\Trunk\Service\ModuleEntryRouteResolver: '@trunk.entry_routes'
+    UhifadhiLabs\Trunk\Service\ModulePermissionCatalogue: '@trunk.permissions'

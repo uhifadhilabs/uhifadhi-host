@@ -25,10 +25,10 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Uhifadhi\Entity\AreaOfInterest;
 use Uhifadhi\Exception\BoundaryImportException;
 use Uhifadhi\Form\AreaUploadType;
-use Uhifadhi\Repository\AreaModuleRepository;
 use Uhifadhi\Repository\AreaOfInterestRepository;
 use Uhifadhi\Service\AreaCardService;
 use Uhifadhi\Service\BoundaryImportService;
+use UhifadhiLabs\Trunk\Repository\AreaModuleRepository;
 
 /**
  * The dashboard pages: areas index (home), boundary upload, and the per-area

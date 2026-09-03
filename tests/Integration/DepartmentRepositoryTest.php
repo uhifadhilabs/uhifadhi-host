@@ -17,10 +17,10 @@ use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Uhifadhi\Entity\Department;
-use Uhifadhi\Entity\Module;
 use Uhifadhi\Factory\DepartmentFactory;
 use Uhifadhi\Factory\ModuleFactory;
 use Uhifadhi\Repository\DepartmentRepository;
+use UhifadhiLabs\Trunk\Entity\Module;
 use Zenstruck\Foundry\Test\Factories;
 
 /**

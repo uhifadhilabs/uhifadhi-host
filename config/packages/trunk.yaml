@@ -1,0 +1,20 @@
+# The trunk: the module seam runtime every uhifadhi module registers with.
+#
+# There is deliberately no key listing modules — installing a bundle IS the
+# declaration, and a second place to enable a module is a second place for the
+# two to disagree. The tree is closed: an unknown key fails loudly.
+trunk:
+    # Where a module the catalogue cannot place is filed. A provider hands over
+    # a category as a string and the trunk coerces it, so a third-party bundle
+    # can never break the catalogue with a typo.
+    default_category: operations
+
+doctrine:
+    orm:
+        # THE AREA SEAM. The trunk owns the record of which modules an area has,
+        # but areas belong to this application — so the trunk maps that
+        # association to an interface and we resolve it to our own entity.
+        # Without this line the per-area table has no target and the catalogue
+        # is deployment-wide only.
+        resolve_target_entities:
+            UhifadhiLabs\Trunk\Area\AreaInterface: Uhifadhi\Entity\AreaOfInterest

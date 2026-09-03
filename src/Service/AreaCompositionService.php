@@ -14,12 +14,12 @@ declare(strict_types=1);
 namespace Uhifadhi\Service;
 
 use Doctrine\ORM\EntityManagerInterface;
-use Uhifadhi\Entity\AreaModule;
 use Uhifadhi\Entity\AreaOfInterest;
-use Uhifadhi\Entity\Module;
 use Uhifadhi\Model\ParkedModule;
-use Uhifadhi\Repository\AreaModuleRepository;
-use Uhifadhi\Repository\ModuleRepository;
+use UhifadhiLabs\Trunk\Entity\AreaModule;
+use UhifadhiLabs\Trunk\Entity\Module;
+use UhifadhiLabs\Trunk\Repository\AreaModuleRepository;
+use UhifadhiLabs\Trunk\Repository\ModuleRepository;
 
 /**
  * The read + write model behind the "customize modules" screen: an area's active sub-nav, its

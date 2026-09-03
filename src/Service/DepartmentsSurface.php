@@ -15,11 +15,11 @@ namespace Uhifadhi\Service;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Uhifadhi\Entity\Department;
-use Uhifadhi\Entity\Module;
 use Uhifadhi\Entity\Position;
 use Uhifadhi\Entity\User;
 use Uhifadhi\Repository\DepartmentRepository;
-use Uhifadhi\Repository\ModuleRepository;
+use UhifadhiLabs\Trunk\Entity\Module;
+use UhifadhiLabs\Trunk\Repository\ModuleRepository;
 
 /**
  * Everything the departments surface's widgets read, gathered ONCE.

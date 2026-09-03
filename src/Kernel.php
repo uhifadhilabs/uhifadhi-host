@@ -14,24 +14,15 @@ declare(strict_types=1);
 namespace Uhifadhi;
 
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Kernel as BaseKernel;
-use UhifadhiLabs\ModuleContracts\ModuleProviderInterface;
 
+/**
+ * Nothing to add. The `uhifadhi.module` tag used to be autoconfigured here;
+ * it now ships with the thing that COLLECTS it — uhifadhi/trunk-module — so a
+ * freshly planted seed with that one bundle on it already has a working seam,
+ * without an application writing a line of it.
+ */
 class Kernel extends BaseKernel
 {
     use MicroKernelTrait;
-
-    /**
-     * Tag every module provider — a built-in module's or an installed module
-     * bundle's — with `uhifadhi.module`, so the catalogue seed and the grid
-     * collect both through one seam. Done here (not via services.yaml
-     * `_instanceof`, which only reaches this app's own services) so a bundle's
-     * autoconfigured provider is tagged too.
-     */
-    protected function build(ContainerBuilder $container): void
-    {
-        $container->registerForAutoconfiguration(ModuleProviderInterface::class)
-            ->addTag('uhifadhi.module');
-    }
 }

@@ -15,10 +15,10 @@ namespace Uhifadhi\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
 use Uhifadhi\Entity\Department;
-use Uhifadhi\Entity\Module;
 use Uhifadhi\Module\DepartmentKpi;
 use Uhifadhi\Module\DepartmentKpiProviderInterface;
 use Uhifadhi\Service\DepartmentKpiService;
+use UhifadhiLabs\Trunk\Entity\Module;
 
 /**
  * The KPI seam's rules, stated as tests.

@@ -19,6 +19,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Uhifadhi\Entity\Trait\TimestampableTrait;
 use Uhifadhi\Entity\Trait\UuidTrait;
 use Uhifadhi\Repository\DepartmentRepository;
+use UhifadhiLabs\Trunk\Entity\Module;
 
 /**
  * An org-wide unit of the authority (Protection & Security, Ecology, Tourism, …) and the
@@ -44,11 +45,18 @@ class Department
     private ?string $name = null;
 
     /**
-     * The modules this department works in — the owning side of `department_module`.
+     * The modules this department works in — the owning side, and now the ONLY
+     * side, of `department_module`.
+     *
+     * A module belongs to uhifadhi/trunk-module, which knows nothing about
+     * departments and must not: a department is this application's lens over the
+     * catalogue, invented here, and a runtime that carried the inverse collection
+     * would be carrying a concept only its host has. The join table is unchanged
+     * — it was always defined on this side.
      *
      * @var Collection<int, Module>
      */
-    #[ORM\ManyToMany(targetEntity: Module::class, inversedBy: 'departments')]
+    #[ORM\ManyToMany(targetEntity: Module::class)]
     #[ORM\JoinTable(name: 'department_module')]
     #[ORM\JoinColumn(name: 'department_id', onDelete: 'CASCADE')]
     #[ORM\InverseJoinColumn(name: 'module_id', onDelete: 'CASCADE')]
@@ -93,9 +101,6 @@ class Department
     {
         if (!$this->modules->contains($module)) {
             $this->modules->add($module);
-            // Both sides stay in sync so Module::getDepartments() is trustworthy in memory too;
-            // the guard above ends the recursion.
-            $module->addDepartment($this);
         }
 
         return $this;
@@ -103,9 +108,7 @@ class Department
 
     public function removeModule(Module $module): static
     {
-        if ($this->modules->removeElement($module)) {
-            $module->removeDepartment($this);
-        }
+        $this->modules->removeElement($module);
 
         return $this;
     }

@@ -16,7 +16,6 @@ namespace Uhifadhi\Tests\Integration;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Uhifadhi\Entity\Department;
-use Uhifadhi\Entity\Module;
 use Uhifadhi\Entity\Position;
 use Uhifadhi\Entity\User;
 use Uhifadhi\Factory\DepartmentFactory;
@@ -26,6 +25,7 @@ use Uhifadhi\Factory\UserFactory;
 use Uhifadhi\Repository\DepartmentRepository;
 use Uhifadhi\Repository\PositionRepository;
 use Uhifadhi\Service\DepartmentService;
+use UhifadhiLabs\Trunk\Entity\Module;
 use Zenstruck\Foundry\Test\Factories;
 
 /**

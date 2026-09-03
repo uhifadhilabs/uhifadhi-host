@@ -15,15 +15,15 @@ namespace Uhifadhi\Tests\Integration;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Uhifadhi\Entity\Module;
-use Uhifadhi\Enum\ModuleCategory;
 use Uhifadhi\Factory\AreaModuleFactory;
 use Uhifadhi\Factory\AreaOfInterestFactory;
 use Uhifadhi\Factory\ModuleFactory;
 use Uhifadhi\Model\ParkedModule;
-use Uhifadhi\Repository\AreaModuleRepository;
-use Uhifadhi\Repository\ModuleRepository;
 use Uhifadhi\Service\AreaCompositionService;
+use UhifadhiLabs\Trunk\Entity\Module;
+use UhifadhiLabs\Trunk\Enum\ModuleCategory;
+use UhifadhiLabs\Trunk\Repository\AreaModuleRepository;
+use UhifadhiLabs\Trunk\Repository\ModuleRepository;
 use Zenstruck\Foundry\Test\Factories;
 
 /**

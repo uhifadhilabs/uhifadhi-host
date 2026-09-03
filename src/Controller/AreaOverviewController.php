@@ -23,12 +23,12 @@ use Symfony\Component\Uid\Uuid;
 use Uhifadhi\Entity\AreaOfInterest;
 use Uhifadhi\Model\WidgetCatalog;
 use Uhifadhi\Model\WidgetDom;
-use Uhifadhi\Repository\AreaModuleRepository;
 use Uhifadhi\Service\AreaOverviewCatalogue;
 use Uhifadhi\Service\AreaOverviewComposer;
 use Uhifadhi\Service\AreaOverviewContext;
 use Uhifadhi\Service\WidgetEndpoint;
 use Uhifadhi\Service\WidgetService;
+use UhifadhiLabs\Trunk\Repository\AreaModuleRepository;
 
 /**
  * THE AREA OVERVIEW — `/areas/{uuid}`, the widget surface the host owns and

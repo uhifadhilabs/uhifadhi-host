@@ -413,22 +413,25 @@
     "twig/extra-bundle": {
         "version": "v3.24.0"
     },
+    "uhifadhi/fixtures-module": {
+        "version": "dev-main"
+    },
     "uhifadhi/incident-module": {
         "version": "dev-main"
     },
     "uhifadhi/map-module": {
         "version": "dev-main"
     },
-    "uhifadhilabs/patrol-bundle": {
-        "version": "dev-main"
-    },
     "uhifadhi/patrol-module": {
         "version": "dev-main"
     },
-    "uhifadhi/fixtures-module": {
+    "uhifadhi/storage-module": {
         "version": "dev-main"
     },
-    "uhifadhi/storage-module": {
+    "uhifadhi/trunk-module": {
+        "version": "dev-main"
+    },
+    "uhifadhilabs/patrol-bundle": {
         "version": "dev-main"
     },
     "zenstruck/foundry": {

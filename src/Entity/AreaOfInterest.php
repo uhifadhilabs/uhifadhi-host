@@ -17,8 +17,15 @@ use Doctrine\ORM\Mapping as ORM;
 use Uhifadhi\Entity\Trait\TimestampableTrait;
 use Uhifadhi\Entity\Trait\UuidTrait;
 use Uhifadhi\Repository\AreaOfInterestRepository;
+use UhifadhiLabs\Trunk\Area\AreaInterface;
 
 /**
+ * THE TRUNK'S AREA, RESOLVED. The module seam runtime owns the record of which
+ * modules an area has switched on, and maps that association to its own
+ * {@see AreaInterface}; config/packages/trunk.yaml resolves the interface to
+ * this class. That is what lets a bundle hold a per-area table without
+ * defining — or requiring — this application's area model.
+ *
  * A named area of interest — a study/clip boundary in the shared Spatial kernel (the
  * NCA boundary and, later, buffers). `geom` is a MultiPolygon in WGS84, exchanged
  * as GeoJSON via the fundi-postgis geometry type. Addressed publicly by UUID (URLs
@@ -27,7 +34,7 @@ use Uhifadhi\Repository\AreaOfInterestRepository;
 #[ORM\Entity(repositoryClass: AreaOfInterestRepository::class)]
 #[ORM\Table(name: 'area_of_interest')]
 #[ORM\HasLifecycleCallbacks]
-class AreaOfInterest
+class AreaOfInterest implements AreaInterface
 {
     use TimestampableTrait;
     use UuidTrait;

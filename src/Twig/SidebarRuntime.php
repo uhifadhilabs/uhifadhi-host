@@ -21,9 +21,9 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Uid\Uuid;
 use Twig\Extension\RuntimeExtensionInterface;
 use Uhifadhi\Entity\AreaOfInterest;
-use Uhifadhi\Repository\AreaModuleRepository;
 use Uhifadhi\Repository\AreaOfInterestRepository;
-use Uhifadhi\Service\ModuleEntryRouteResolver;
+use UhifadhiLabs\Trunk\Repository\AreaModuleRepository;
+use UhifadhiLabs\Trunk\Service\ModuleEntryRouteResolver;
 
 /**
  * Builds the sidebar's LOCATION TREE (design ruling F): Areas ─ every area ─ the current area's

@@ -22,20 +22,18 @@ use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Twig\Environment;
 use Uhifadhi\Entity\AreaOfInterest;
-use Uhifadhi\Entity\Module;
-use Uhifadhi\Enum\ModuleCategory;
-use Uhifadhi\Enum\ModuleStatus;
 use Uhifadhi\Factory\AreaOfInterestFactory;
 use Uhifadhi\Overview\AttentionItem;
 use Uhifadhi\Overview\AttentionSeverity;
 use Uhifadhi\Overview\MapLayer;
 use Uhifadhi\Overview\NowTile;
 use Uhifadhi\Overview\PulseEvent;
-use Uhifadhi\Repository\AreaModuleRepository;
 use Uhifadhi\Service\AreaOverviewCatalogue;
 use Uhifadhi\Service\AreaOverviewComposer;
 use Uhifadhi\Service\AreaOverviewContext;
 use Uhifadhi\Service\OverviewCopy;
+use UhifadhiLabs\Trunk\Entity\Module;
+use UhifadhiLabs\Trunk\Repository\AreaModuleRepository;
 use Zenstruck\Foundry\Test\Factories;
 
 /**
@@ -233,7 +231,7 @@ final class OverviewPartialRenderTest extends KernelTestCase
 
     /**
      * AO·08 DRAWS THE SEAM, WHICH MEANS DRAWING BOTH SIDES OF IT. The design's
-     * table lists what this area has AND, muted underneath, what the catalogue
+     * table lists what this area has AND, muted underneath, what the deployment
      * holds that it has not — "Permits · nothing — not installed in this area ·
      * —". A card that only ever lists the installed ones says "8 in the
      * catalogue" over two rows and leaves a person to wonder what the other six
@@ -241,37 +239,42 @@ final class OverviewPartialRenderTest extends KernelTestCase
      *
      * Nothing is invented for such a row: the catalogue's name, and the fact
      * that it contributed nothing here.
+     *
+     * THE ABSENCE IS A PARKED MODULE, not an orphan row. This used to write a
+     * bare `module` row for a module no bundle provides, and the seam runtime
+     * now refuses to offer one — a catalogue is the INSTALLED set, and a tile
+     * for a module nobody has installed links to code that is not there. So the
+     * absence is staged the way a real one occurs: a module this deployment
+     * genuinely has, switched off for this area.
      */
     public function testTheModulesCardRowsACatalogueModuleThisAreaDoesNotHave(): void
     {
         $em = $this->service(EntityManagerInterface::class);
-        $em->persist(new Module()
-            ->setSlug('permits')
-            ->setName('Permits')
-            ->setCategory(ModuleCategory::Pressure)
-            ->setStatus(ModuleStatus::Template)
-            ->setDataSource('Permit register')
-            ->setPosition(90));
+
+        $assignments = $this->service(AreaModuleRepository::class)->activeForArea($this->area);
+        $parked = end($assignments);
+        self::assertNotFalse($parked);
+        $parkedName = (string) $parked->getModule()?->getName();
+        $parked->setActive(false);
         $em->flush();
 
-        // The area's own modules are unchanged: nothing was installed, so the
-        // catalogue simply grew by one that this area does not have.
-        $context = $this->service(AreaOverviewContext::class)->for($this->area, $this->installed, self::now());
+        $remaining = $this->installedSlugs();
+        $context = $this->service(AreaOverviewContext::class)->for($this->area, $remaining, self::now());
         $html = $this->render($this->partials['modules'], $context);
 
         $rows = new Crawler($html)->filter('table.tbl tr');
         self::assertSame(
-            \count($this->installed) + 2, // the header row, the installed ones, and Permits
+            \count($remaining) + 2, // the header row, the ones still on, and the parked one
             $rows->count(),
             'The card does not row the catalogue module this area has not installed.',
         );
 
         $absent = $rows->last();
-        self::assertStringContainsString('Permits', $absent->text());
+        self::assertStringContainsString($parkedName, $absent->text());
         self::assertStringContainsString('nothing — not installed in this area', $absent->text());
 
         // The header's count and the rows now describe the same catalogue.
-        self::assertStringContainsString(\count($this->installed) + 1 .' in the catalogue', $html);
+        self::assertStringContainsString(\count($remaining) + 1 .' in the catalogue', $html);
     }
 
     /**
@@ -519,7 +522,7 @@ final class OverviewPartialRenderTest extends KernelTestCase
 
         $application = new Application($kernel);
         $application->setAutoExit(false);
-        $application->run(new ArrayInput(['command' => 'app:seed:catalogue']), new NullOutput());
+        $application->run(new ArrayInput(['command' => 'trunk:catalogue:seed']), new NullOutput());
 
         // The seed parks a bundle's module so an admin opts in per area. This
         // test is the opted-in case: every widget the deployment can draw.

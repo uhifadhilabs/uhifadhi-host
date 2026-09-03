@@ -14,12 +14,12 @@ declare(strict_types=1);
 namespace Uhifadhi\Tests\Functional;
 
 use Doctrine\ORM\EntityManagerInterface;
-use Uhifadhi\Entity\AreaModule;
-use Uhifadhi\Enum\ModuleCategory;
-use Uhifadhi\Enum\ModuleStatus;
 use Uhifadhi\Factory\AreaModuleFactory;
 use Uhifadhi\Factory\AreaOfInterestFactory;
 use Uhifadhi\Factory\ModuleFactory;
+use UhifadhiLabs\Trunk\Entity\AreaModule;
+use UhifadhiLabs\Trunk\Enum\ModuleCategory;
+use UhifadhiLabs\Trunk\Enum\ModuleStatus;
 
 /**
  * The customize-modules page and its mutations, through a real login (composing an area is the

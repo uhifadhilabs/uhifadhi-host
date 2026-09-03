@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5afe33254151f01b6875e7c92f4e40ef",
+    "content-hash": "82ebbd20e26b03bfc0392847427664b6",
     "packages": [
         {
             "name": "api-platform/core",
@@ -8644,12 +8644,12 @@
             "source": {
                 "type": "git",
                 "url": "git@github.com:uhifadhilabs/fixtures-module.git",
-                "reference": "56a168d9040d95c553118d554694f39c458d8f08"
+                "reference": "9b2cbcda6db625b61ded8fc6b6d68b008d666613"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/uhifadhilabs/fixtures-module/zipball/56a168d9040d95c553118d554694f39c458d8f08",
-                "reference": "56a168d9040d95c553118d554694f39c458d8f08",
+                "url": "https://api.github.com/repos/uhifadhilabs/fixtures-module/zipball/9b2cbcda6db625b61ded8fc6b6d68b008d666613",
+                "reference": "9b2cbcda6db625b61ded8fc6b6d68b008d666613",
                 "shasum": ""
             },
             "require": {
@@ -8660,7 +8660,9 @@
                 "symfony/dependency-injection": "^7.3 || ^8.0",
                 "symfony/framework-bundle": "^7.3 || ^8.0",
                 "symfony/http-kernel": "^7.3 || ^8.0",
-                "symfony/password-hasher": "^7.3 || ^8.0"
+                "symfony/password-hasher": "^7.3 || ^8.0",
+                "uhifadhi/module-contracts": "dev-main",
+                "uhifadhi/trunk-module": "dev-main"
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^3.95",
@@ -8726,7 +8728,7 @@
                 "source": "https://github.com/uhifadhilabs/fixtures-module/tree/main",
                 "issues": "https://github.com/uhifadhilabs/fixtures-module/issues"
             },
-            "time": "2026-09-02T19:44:49+00:00"
+            "time": "2026-09-03T00:25:26+00:00"
         },
         {
             "name": "uhifadhi/incident-module",
@@ -9256,6 +9258,100 @@
                 "issues": "https://github.com/uhifadhilabs/storage-module/issues"
             },
             "time": "2026-09-02T20:26:32+00:00"
+        },
+        {
+            "name": "uhifadhi/trunk-module",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "git@github.com:uhifadhilabs/trunk-module.git",
+                "reference": "69ee723e7d01ce64d952dbc2b135f6becba149c4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/uhifadhilabs/trunk-module/zipball/69ee723e7d01ce64d952dbc2b135f6becba149c4",
+                "reference": "69ee723e7d01ce64d952dbc2b135f6becba149c4",
+                "shasum": ""
+            },
+            "require": {
+                "doctrine/doctrine-bundle": "^3.0",
+                "doctrine/orm": "^3.5",
+                "php": ">=8.4",
+                "symfony/config": "^7.3 || ^8.0",
+                "symfony/console": "^7.3 || ^8.0",
+                "symfony/dependency-injection": "^7.3 || ^8.0",
+                "symfony/framework-bundle": "^7.3 || ^8.0",
+                "symfony/http-kernel": "^7.3 || ^8.0",
+                "symfony/uid": "^7.3 || ^8.0",
+                "uhifadhi/module-contracts": "dev-main"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.95",
+                "phpstan/phpstan": "^2.2",
+                "phpunit/phpunit": "^13.2"
+            },
+            "default-branch": true,
+            "type": "symfony-bundle",
+            "extra": {
+                "branch-alias": {
+                    "dev-main": "0.1-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "UhifadhiLabs\\Trunk\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "UhifadhiLabs\\Trunk\\Tests\\": "tests/",
+                    "Uhifadhi\\Entity\\": "tests/Integration/Fixtures/Uhifadhi/Entity/"
+                }
+            },
+            "scripts": {
+                "cs:fix": [
+                    "php-cs-fixer fix"
+                ],
+                "cs:check": [
+                    "php-cs-fixer fix --dry-run --diff"
+                ],
+                "phpstan": [
+                    "phpstan analyse --no-progress --memory-limit=1G"
+                ],
+                "test": [
+                    "phpunit"
+                ],
+                "check": [
+                    "@cs:check",
+                    "@phpstan",
+                    "@test"
+                ]
+            },
+            "license": [
+                "AGPL-3.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Ezekiel Mjema",
+                    "homepage": "https://github.com/eemjema"
+                }
+            ],
+            "description": "The trunk: the module seam runtime every uhifadhi module registers with — the catalogue, per-area installation, the permission declarations modules contribute, and the seed that keeps them in step.",
+            "keywords": [
+                "catalogue",
+                "conservation",
+                "module",
+                "platform",
+                "runtime",
+                "seam",
+                "symfony",
+                "uhifadhi"
+            ],
+            "support": {
+                "source": "https://github.com/uhifadhilabs/trunk-module/tree/main",
+                "issues": "https://github.com/uhifadhilabs/trunk-module/issues"
+            },
+            "time": "2026-09-03T00:29:07+00:00"
         },
         {
             "name": "webmozart/assert",
@@ -13382,7 +13478,8 @@
         "uhifadhi/map-module": 20,
         "uhifadhi/module-contracts": 20,
         "uhifadhi/patrol-module": 20,
-        "uhifadhi/storage-module": 20
+        "uhifadhi/storage-module": 20,
+        "uhifadhi/trunk-module": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,

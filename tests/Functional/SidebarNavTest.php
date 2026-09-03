@@ -14,11 +14,11 @@ declare(strict_types=1);
 namespace Uhifadhi\Tests\Functional;
 
 use Uhifadhi\Entity\AreaOfInterest;
-use Uhifadhi\Enum\ModuleCategory;
-use Uhifadhi\Enum\ModuleStatus;
 use Uhifadhi\Factory\AreaModuleFactory;
 use Uhifadhi\Factory\AreaOfInterestFactory;
 use Uhifadhi\Factory\ModuleFactory;
+use UhifadhiLabs\Trunk\Enum\ModuleCategory;
+use UhifadhiLabs\Trunk\Enum\ModuleStatus;
 
 /**
  * The one sidebar (layout.html.twig): grouped sections — OBSERVATORY / ORGANIZATION / SYSTEM —

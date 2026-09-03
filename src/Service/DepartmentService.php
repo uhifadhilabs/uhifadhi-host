@@ -15,10 +15,10 @@ namespace Uhifadhi\Service;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Uhifadhi\Entity\Department;
-use Uhifadhi\Entity\Module;
 use Uhifadhi\Entity\User;
 use Uhifadhi\Repository\DepartmentRepository;
 use Uhifadhi\Repository\PositionRepository;
+use UhifadhiLabs\Trunk\Entity\Module;
 
 /**
  * Department administration and the department lens. Departments are the organizational view of

@@ -14,11 +14,11 @@ declare(strict_types=1);
 namespace Uhifadhi\Tests\Integration;
 
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Uhifadhi\Entity\AreaModule;
 use Uhifadhi\Factory\AreaModuleFactory;
 use Uhifadhi\Factory\AreaOfInterestFactory;
 use Uhifadhi\Factory\ModuleFactory;
-use Uhifadhi\Repository\AreaModuleRepository;
+use UhifadhiLabs\Trunk\Entity\AreaModule;
+use UhifadhiLabs\Trunk\Repository\AreaModuleRepository;
 use Zenstruck\Foundry\Test\Factories;
 
 /**

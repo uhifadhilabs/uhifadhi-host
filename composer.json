@@ -55,7 +55,8 @@
         "uhifadhi/module-contracts": "dev-main",
         "uhifadhi/patrol-module": "dev-main",
         "uhifadhi/fixtures-module": "dev-main",
-        "uhifadhi/storage-module": "dev-main"
+        "uhifadhi/storage-module": "dev-main",
+        "uhifadhi/trunk-module": "dev-main"
     },
     "config": {
         "allow-plugins": {
@@ -148,6 +149,11 @@
         "zenstruck/foundry": "^2.11"
     },
     "repositories": [
+        {
+            "name": "trunk-module",
+            "type": "vcs",
+            "url": "https://github.com/uhifadhilabs/trunk-module"
+        },
         {
             "name": "module-contracts",
             "type": "vcs",

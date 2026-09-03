@@ -17,13 +17,13 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DomCrawler\Crawler;
 use Twig\Environment;
 use Twig\TwigFunction;
-use Uhifadhi\Entity\Module;
 use Uhifadhi\Entity\User;
 use Uhifadhi\Factory\DepartmentFactory;
 use Uhifadhi\Factory\ModuleFactory;
 use Uhifadhi\Factory\PositionFactory;
 use Uhifadhi\Factory\UserFactory;
 use Uhifadhi\Service\DepartmentLens;
+use UhifadhiLabs\Trunk\Entity\Module;
 use Zenstruck\Foundry\Test\Factories;
 
 /**

@@ -14,9 +14,6 @@ declare(strict_types=1);
 namespace Uhifadhi\Tests\Functional;
 
 use Uhifadhi\Entity\AreaOfInterest;
-use Uhifadhi\Entity\Module;
-use Uhifadhi\Enum\ModuleCategory;
-use Uhifadhi\Enum\ModuleStatus;
 use Uhifadhi\Enum\TeamRoleEnum;
 use Uhifadhi\Factory\AreaModuleFactory;
 use Uhifadhi\Factory\AreaOfInterestFactory;
@@ -24,6 +21,9 @@ use Uhifadhi\Factory\DepartmentFactory;
 use Uhifadhi\Factory\ModuleFactory;
 use Uhifadhi\Factory\PositionFactory;
 use Uhifadhi\Factory\UserFactory;
+use UhifadhiLabs\Trunk\Entity\Module;
+use UhifadhiLabs\Trunk\Enum\ModuleCategory;
+use UhifadhiLabs\Trunk\Enum\ModuleStatus;
 
 /**
  * The area's top-level tabs (Overview / Modules / Settings) and the Modules-tab card grid: the

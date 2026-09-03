@@ -2068,6 +2068,10 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         }>,
  *     }>,
  * }
+ * @psalm-type TrunkConfig = array{
+ *     default_category?: scalar|Param|null, // Catalogue category an unrecognised provider category is coerced to. // Default: "operations"
+ *     dev_tools?: bool|Param, // Register dev-only tooling (seeders, fixtures). The recipe enables this via when@dev/when@test. // Default: false
+ * }
  * @psalm-type ConfigType = array{
  *     imports?: ImportsConfig,
  *     parameters?: ParametersConfig,
@@ -2091,6 +2095,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     flysystem?: FlysystemConfig,
  *     storage?: StorageConfig,
  *     incident?: IncidentConfig,
+ *     trunk?: TrunkConfig,
  *     "when@dev"?: array{
  *         imports?: ImportsConfig,
  *         parameters?: ParametersConfig,
@@ -2118,6 +2123,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         flysystem?: FlysystemConfig,
  *         storage?: StorageConfig,
  *         incident?: IncidentConfig,
+ *         trunk?: TrunkConfig,
  *     },
  *     "when@prod"?: array{
  *         imports?: ImportsConfig,
@@ -2142,6 +2148,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         flysystem?: FlysystemConfig,
  *         storage?: StorageConfig,
  *         incident?: IncidentConfig,
+ *         trunk?: TrunkConfig,
  *     },
  *     "when@test"?: array{
  *         imports?: ImportsConfig,
@@ -2169,6 +2176,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         flysystem?: FlysystemConfig,
  *         storage?: StorageConfig,
  *         incident?: IncidentConfig,
+ *         trunk?: TrunkConfig,
  *     },
  *     ...<string, ExtensionType|array{ // extra keys must follow the when@%env% pattern or match an extension alias
  *         imports?: ImportsConfig,

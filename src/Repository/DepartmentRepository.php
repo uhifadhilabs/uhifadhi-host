@@ -16,7 +16,7 @@ namespace Uhifadhi\Repository;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Uhifadhi\Entity\Department;
-use Uhifadhi\Entity\Module;
+use UhifadhiLabs\Trunk\Entity\Module;
 
 /**
  * @extends ServiceEntityRepository<Department>
@@ -70,29 +70,39 @@ final class DepartmentRepository extends ServiceEntityRepository
             return $byModule;
         }
 
-        // Queried from the Module side: a Department root would be de-duplicated by the
-        // hydrator, collapsing a department that claims several of the given modules.
-        /** @var list<Module> $rows */
-        $rows = $this->getEntityManager()->createQueryBuilder()
-            ->select('m', 'd')
-            ->from(Module::class, 'm')
-            ->leftJoin('m.departments', 'd')
+        // THE PAIRS, NOT THE OBJECTS. A module belongs to the trunk and carries no
+        // departments collection to walk — a department is this application's lens
+        // over the catalogue, and the runtime that owns modules has no business
+        // knowing the concept exists. So the attachment is read as what it is in
+        // the database: rows of the join table, ordered once, in SQL.
+        //
+        // Reading it as pairs also avoids the trap the previous shape had to work
+        // around: hydrating entities across a filtered join leaves each side
+        // holding a collection that looks complete and is not.
+        /** @var list<array{moduleId: int, departmentId: int}> $pairs */
+        $pairs = $this->createQueryBuilder('d')
+            ->select('m.id AS moduleId', 'd.id AS departmentId')
+            ->join('d.modules', 'm')
             ->where('m.id IN (:ids)')
             ->setParameter('ids', $ids)
             ->orderBy('d.name', 'ASC')
             ->getQuery()
-            ->getResult();
+            ->getScalarResult();
 
-        foreach ($rows as $module) {
-            $id = $module->getId();
-            if (null === $id) {
-                continue;
+        if ([] === $pairs) {
+            return $byModule;
+        }
+
+        $departments = [];
+        foreach ($this->findBy(['id' => array_column($pairs, 'departmentId')]) as $department) {
+            $departments[(int) $department->getId()] = $department;
+        }
+
+        foreach ($pairs as $pair) {
+            $department = $departments[$pair['departmentId']] ?? null;
+            if (null !== $department) {
+                $byModule[$pair['moduleId']][] = $department;
             }
-            $claimants = array_values($module->getDepartments()->toArray());
-            // Sorted here, not in DQL: a collection already hydrated in this unit of work
-            // keeps its own order, and the caller is promised one.
-            usort($claimants, static fn (Department $a, Department $b): int => ($a->getName() ?? '') <=> ($b->getName() ?? ''));
-            $byModule[$id] = $claimants;
         }
 
         return $byModule;
