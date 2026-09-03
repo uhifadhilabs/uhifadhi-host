@@ -8643,13 +8643,13 @@
             "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "git@github.com:uhifadhilabs/fixtures-module.git",
-                "reference": "9b2cbcda6db625b61ded8fc6b6d68b008d666613"
+                "url": "https://github.com/uhifadhilabs/fixtures-module.git",
+                "reference": "a08f345b805386632ea9a3a0e5b707e5db1cce14"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/uhifadhilabs/fixtures-module/zipball/9b2cbcda6db625b61ded8fc6b6d68b008d666613",
-                "reference": "9b2cbcda6db625b61ded8fc6b6d68b008d666613",
+                "url": "https://api.github.com/repos/uhifadhilabs/fixtures-module/zipball/a08f345b805386632ea9a3a0e5b707e5db1cce14",
+                "reference": "a08f345b805386632ea9a3a0e5b707e5db1cce14",
                 "shasum": ""
             },
             "require": {
@@ -8679,13 +8679,16 @@
             },
             "autoload": {
                 "psr-4": {
-                    "UhifadhiLabs\\Fixtures\\": "src/"
+                    "Uhifadhi\\Fixtures\\": "src/"
                 }
             },
             "autoload-dev": {
                 "psr-4": {
-                    "UhifadhiLabs\\Fixtures\\Tests\\": "tests/",
-                    "Uhifadhi\\": "tests/Fixtures/Uhifadhi/"
+                    "Uhifadhi\\Fixtures\\Tests\\": "tests/",
+                    "Uhifadhi\\Entity\\": "tests/Fixtures/Uhifadhi/Entity/",
+                    "Uhifadhi\\Enum\\": "tests/Fixtures/Uhifadhi/Enum/",
+                    "Uhifadhi\\Repository\\": "tests/Fixtures/Uhifadhi/Repository/",
+                    "Uhifadhi\\Service\\": "tests/Fixtures/Uhifadhi/Service/"
                 }
             },
             "scripts": {
@@ -8728,7 +8731,7 @@
                 "source": "https://github.com/uhifadhilabs/fixtures-module/tree/main",
                 "issues": "https://github.com/uhifadhilabs/fixtures-module/issues"
             },
-            "time": "2026-09-03T00:25:26+00:00"
+            "time": "2026-09-03T02:43:33+00:00"
         },
         {
             "name": "uhifadhi/incident-module",
@@ -8736,12 +8739,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/uhifadhilabs/incident-module.git",
-                "reference": "cd8a554bae8f42a65666756c109ac3a826aac565"
+                "reference": "f79bd1725d90b114fa9ce1c02d3d87b649957f6c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/uhifadhilabs/incident-module/zipball/cd8a554bae8f42a65666756c109ac3a826aac565",
-                "reference": "cd8a554bae8f42a65666756c109ac3a826aac565",
+                "url": "https://api.github.com/repos/uhifadhilabs/incident-module/zipball/f79bd1725d90b114fa9ce1c02d3d87b649957f6c",
+                "reference": "f79bd1725d90b114fa9ce1c02d3d87b649957f6c",
                 "shasum": ""
             },
             "require": {
@@ -8788,12 +8791,12 @@
             },
             "autoload": {
                 "psr-4": {
-                    "UhifadhiLabs\\Incident\\": "src/"
+                    "Uhifadhi\\Incident\\": "src/"
                 }
             },
             "autoload-dev": {
                 "psr-4": {
-                    "UhifadhiLabs\\Incident\\Tests\\": "tests/",
+                    "Uhifadhi\\Incident\\Tests\\": "tests/",
                     "Uhifadhi\\Entity\\": "tests/Fixtures/Uhifadhi/Entity/",
                     "Uhifadhi\\Exception\\": "tests/Fixtures/Uhifadhi/Exception/",
                     "Uhifadhi\\Model\\": "tests/Fixtures/Uhifadhi/Model/",
@@ -8845,20 +8848,20 @@
                 "source": "https://github.com/uhifadhilabs/incident-module/tree/main",
                 "issues": "https://github.com/uhifadhilabs/incident-module/issues"
             },
-            "time": "2026-09-02T20:10:54+00:00"
+            "time": "2026-09-03T02:46:17+00:00"
         },
         {
             "name": "uhifadhi/map-module",
             "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "git@github.com:uhifadhilabs/map-module.git",
-                "reference": "e8e4d31a9193043ec1d1648fe9fdba787a1408bb"
+                "url": "https://github.com/uhifadhilabs/map-module.git",
+                "reference": "d0b6ddac8001548f445b14257e60d516d0be4a90"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/uhifadhilabs/map-module/zipball/e8e4d31a9193043ec1d1648fe9fdba787a1408bb",
-                "reference": "e8e4d31a9193043ec1d1648fe9fdba787a1408bb",
+                "url": "https://api.github.com/repos/uhifadhilabs/map-module/zipball/d0b6ddac8001548f445b14257e60d516d0be4a90",
+                "reference": "d0b6ddac8001548f445b14257e60d516d0be4a90",
                 "shasum": ""
             },
             "require": {
@@ -8891,12 +8894,12 @@
             },
             "autoload": {
                 "psr-4": {
-                    "UhifadhiLabs\\Map\\": "src/"
+                    "Uhifadhi\\Map\\": "src/"
                 }
             },
             "autoload-dev": {
                 "psr-4": {
-                    "UhifadhiLabs\\Map\\Tests\\": "tests/"
+                    "Uhifadhi\\Map\\Tests\\": "tests/"
                 }
             },
             "scripts": {
@@ -8942,7 +8945,7 @@
                 "source": "https://github.com/uhifadhilabs/map-module/tree/main",
                 "issues": "https://github.com/uhifadhilabs/map-module/issues"
             },
-            "time": "2026-09-02T20:26:31+00:00"
+            "time": "2026-09-03T02:44:20+00:00"
         },
         {
             "name": "uhifadhi/module-contracts",
@@ -8950,12 +8953,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/uhifadhilabs/module-contracts.git",
-                "reference": "08117219971c241e43e8fde4ac2d867c885e7f45"
+                "reference": "e444237490bbd8d0f2fbf4d1b1f33eac5603a7fc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/uhifadhilabs/module-contracts/zipball/08117219971c241e43e8fde4ac2d867c885e7f45",
-                "reference": "08117219971c241e43e8fde4ac2d867c885e7f45",
+                "url": "https://api.github.com/repos/uhifadhilabs/module-contracts/zipball/e444237490bbd8d0f2fbf4d1b1f33eac5603a7fc",
+                "reference": "e444237490bbd8d0f2fbf4d1b1f33eac5603a7fc",
                 "shasum": ""
             },
             "require": {
@@ -8975,12 +8978,12 @@
             },
             "autoload": {
                 "psr-4": {
-                    "UhifadhiLabs\\ModuleContracts\\": "src/"
+                    "Uhifadhi\\ModuleContracts\\": "src/"
                 }
             },
             "autoload-dev": {
                 "psr-4": {
-                    "UhifadhiLabs\\ModuleContracts\\Tests\\": "tests/"
+                    "Uhifadhi\\ModuleContracts\\Tests\\": "tests/"
                 }
             },
             "scripts": {
@@ -9022,7 +9025,7 @@
                 "source": "https://github.com/uhifadhilabs/module-contracts/tree/main",
                 "issues": "https://github.com/uhifadhilabs/module-contracts/issues"
             },
-            "time": "2026-09-03T01:06:13+00:00"
+            "time": "2026-09-03T02:36:59+00:00"
         },
         {
             "name": "uhifadhi/patrol-module",
@@ -9030,12 +9033,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/uhifadhilabs/patrol-module.git",
-                "reference": "828584e071fada6abb8e54c8139e68465b1a5598"
+                "reference": "cd77c4f71db0f2d7346203bb869c01e537bc3e61"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/uhifadhilabs/patrol-module/zipball/828584e071fada6abb8e54c8139e68465b1a5598",
-                "reference": "828584e071fada6abb8e54c8139e68465b1a5598",
+                "url": "https://api.github.com/repos/uhifadhilabs/patrol-module/zipball/cd77c4f71db0f2d7346203bb869c01e537bc3e61",
+                "reference": "cd77c4f71db0f2d7346203bb869c01e537bc3e61",
                 "shasum": ""
             },
             "require": {
@@ -9087,12 +9090,12 @@
             },
             "autoload": {
                 "psr-4": {
-                    "UhifadhiLabs\\Patrol\\": "src/"
+                    "Uhifadhi\\Patrol\\": "src/"
                 }
             },
             "autoload-dev": {
                 "psr-4": {
-                    "UhifadhiLabs\\Patrol\\Tests\\": "tests/",
+                    "Uhifadhi\\Patrol\\Tests\\": "tests/",
                     "Uhifadhi\\Entity\\": "tests/Fixtures/Uhifadhi/Entity/",
                     "Uhifadhi\\Exception\\": "tests/Fixtures/Uhifadhi/Exception/",
                     "Uhifadhi\\Model\\": "tests/Fixtures/Uhifadhi/Model/",
@@ -9146,7 +9149,7 @@
                 "source": "https://github.com/uhifadhilabs/patrol-module/tree/main",
                 "issues": "https://github.com/uhifadhilabs/patrol-module/issues"
             },
-            "time": "2026-09-02T20:26:34+00:00"
+            "time": "2026-09-03T02:46:20+00:00"
         },
         {
             "name": "uhifadhi/storage-module",
@@ -9154,12 +9157,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/uhifadhilabs/storage-module.git",
-                "reference": "7cf68ca37ca871a7b720dc2e36017d56b8ad80bf"
+                "reference": "19c1298ac478c21f89877f39bc8d7ca3543b83b3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/uhifadhilabs/storage-module/zipball/7cf68ca37ca871a7b720dc2e36017d56b8ad80bf",
-                "reference": "7cf68ca37ca871a7b720dc2e36017d56b8ad80bf",
+                "url": "https://api.github.com/repos/uhifadhilabs/storage-module/zipball/19c1298ac478c21f89877f39bc8d7ca3543b83b3",
+                "reference": "19c1298ac478c21f89877f39bc8d7ca3543b83b3",
                 "shasum": ""
             },
             "require": {
@@ -9204,12 +9207,12 @@
             },
             "autoload": {
                 "psr-4": {
-                    "UhifadhiLabs\\Storage\\": "src/"
+                    "Uhifadhi\\Storage\\": "src/"
                 }
             },
             "autoload-dev": {
                 "psr-4": {
-                    "UhifadhiLabs\\Storage\\Tests\\": "tests/",
+                    "Uhifadhi\\Storage\\Tests\\": "tests/",
                     "Uhifadhi\\Model\\": "tests/Fixtures/Uhifadhi/Model/",
                     "Uhifadhi\\Service\\": "tests/Fixtures/Uhifadhi/Service/"
                 }
@@ -9257,7 +9260,7 @@
                 "source": "https://github.com/uhifadhilabs/storage-module/tree/main",
                 "issues": "https://github.com/uhifadhilabs/storage-module/issues"
             },
-            "time": "2026-09-02T20:26:32+00:00"
+            "time": "2026-09-03T02:43:32+00:00"
         },
         {
             "name": "uhifadhi/trunk-module",
@@ -9265,12 +9268,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/uhifadhilabs/trunk-module.git",
-                "reference": "9a5b07b1ac1a59bdd37e84dfd5caf4cf8f0d1d70"
+                "reference": "e319b1d3bf4018637550bb5d6aca89b06843d7b1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/uhifadhilabs/trunk-module/zipball/9a5b07b1ac1a59bdd37e84dfd5caf4cf8f0d1d70",
-                "reference": "9a5b07b1ac1a59bdd37e84dfd5caf4cf8f0d1d70",
+                "url": "https://api.github.com/repos/uhifadhilabs/trunk-module/zipball/e319b1d3bf4018637550bb5d6aca89b06843d7b1",
+                "reference": "e319b1d3bf4018637550bb5d6aca89b06843d7b1",
                 "shasum": ""
             },
             "require": {
@@ -9300,12 +9303,12 @@
             },
             "autoload": {
                 "psr-4": {
-                    "UhifadhiLabs\\Trunk\\": "src/"
+                    "Uhifadhi\\Trunk\\": "src/"
                 }
             },
             "autoload-dev": {
                 "psr-4": {
-                    "UhifadhiLabs\\Trunk\\Tests\\": "tests/",
+                    "Uhifadhi\\Trunk\\Tests\\": "tests/",
                     "Uhifadhi\\Entity\\": "tests/Integration/Fixtures/Uhifadhi/Entity/"
                 }
             },
@@ -9352,7 +9355,7 @@
                 "source": "https://github.com/uhifadhilabs/trunk-module/tree/main",
                 "issues": "https://github.com/uhifadhilabs/trunk-module/issues"
             },
-            "time": "2026-09-03T02:02:53+00:00"
+            "time": "2026-09-03T02:27:21+00:00"
         },
         {
             "name": "webmozart/assert",

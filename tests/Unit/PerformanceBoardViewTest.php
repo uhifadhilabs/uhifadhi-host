@@ -17,7 +17,7 @@ use PHPUnit\Framework\TestCase;
 use Uhifadhi\Entity\Department;
 use Uhifadhi\Model\PerformanceBoardView;
 use Uhifadhi\Module\DepartmentKpi;
-use UhifadhiLabs\Trunk\Entity\Module;
+use Uhifadhi\Trunk\Entity\Module;
 
 /**
  * The board's arithmetic, away from HTTP.

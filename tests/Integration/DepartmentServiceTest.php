@@ -25,7 +25,7 @@ use Uhifadhi\Factory\UserFactory;
 use Uhifadhi\Repository\DepartmentRepository;
 use Uhifadhi\Repository\PositionRepository;
 use Uhifadhi\Service\DepartmentService;
-use UhifadhiLabs\Trunk\Entity\Module;
+use Uhifadhi\Trunk\Entity\Module;
 use Zenstruck\Foundry\Test\Factories;
 
 /**

@@ -32,8 +32,8 @@ use Uhifadhi\Service\AreaOverviewCatalogue;
 use Uhifadhi\Service\AreaOverviewComposer;
 use Uhifadhi\Service\AreaOverviewContext;
 use Uhifadhi\Service\OverviewCopy;
-use UhifadhiLabs\Trunk\Entity\Module;
-use UhifadhiLabs\Trunk\Repository\AreaModuleRepository;
+use Uhifadhi\Trunk\Entity\Module;
+use Uhifadhi\Trunk\Repository\AreaModuleRepository;
 use Zenstruck\Foundry\Test\Factories;
 
 /**

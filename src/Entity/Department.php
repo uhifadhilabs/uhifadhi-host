@@ -19,7 +19,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Uhifadhi\Entity\Trait\TimestampableTrait;
 use Uhifadhi\Entity\Trait\UuidTrait;
 use Uhifadhi\Repository\DepartmentRepository;
-use UhifadhiLabs\Trunk\Entity\Module;
+use Uhifadhi\Trunk\Entity\Module;
 
 /**
  * An org-wide unit of the authority (Protection & Security, Ecology, Tourism, …) and the

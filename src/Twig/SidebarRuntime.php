@@ -22,8 +22,8 @@ use Symfony\Component\Uid\Uuid;
 use Twig\Extension\RuntimeExtensionInterface;
 use Uhifadhi\Entity\AreaOfInterest;
 use Uhifadhi\Repository\AreaOfInterestRepository;
-use UhifadhiLabs\Trunk\Repository\AreaModuleRepository;
-use UhifadhiLabs\Trunk\Service\ModuleEntryRouteResolver;
+use Uhifadhi\Trunk\Repository\AreaModuleRepository;
+use Uhifadhi\Trunk\Service\ModuleEntryRouteResolver;
 
 /**
  * Builds the sidebar's LOCATION TREE (design ruling F): Areas ─ every area ─ the current area's

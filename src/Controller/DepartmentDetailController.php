@@ -38,8 +38,8 @@ use Uhifadhi\Service\DepartmentKpiService;
 use Uhifadhi\Service\DepartmentLens;
 use Uhifadhi\Service\WidgetEndpoint;
 use Uhifadhi\Service\WidgetService;
-use UhifadhiLabs\Trunk\Repository\AreaModuleRepository;
-use UhifadhiLabs\Trunk\Repository\ModuleRepository;
+use Uhifadhi\Trunk\Repository\AreaModuleRepository;
+use Uhifadhi\Trunk\Repository\ModuleRepository;
 
 /**
  * ONE department, at its own address: `GET /departments/{uuid}`.
@@ -457,7 +457,7 @@ final class DepartmentDetailController extends AbstractController
      * modules it attaches, so this is the intersection and nothing more. It is not a measure of
      * the department's work — the KPI seam is.
      *
-     * @return array<string, list<\UhifadhiLabs\Trunk\Entity\Module>>
+     * @return array<string, list<\Uhifadhi\Trunk\Entity\Module>>
      */
     private function footprint(Department $department): array
     {

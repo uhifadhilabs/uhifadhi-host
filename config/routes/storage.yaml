@@ -12,5 +12,5 @@
 # The whole controller directory: serving AND the Files hub (/files — the
 # cross-module registry the sidebar's "Files" entry opens).
 storage:
-    resource: '@UhifadhiLabsStorageBundle/src/Controller/'
+    resource: '@UhifadhiStorageBundle/src/Controller/'
     type: attribute

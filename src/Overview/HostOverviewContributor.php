@@ -21,7 +21,7 @@ use Uhifadhi\Repository\AreaOfInterestRepository;
 use Uhifadhi\Repository\ZoneRepository;
 use Uhifadhi\Service\AreaCardService;
 use Uhifadhi\Service\AreaOverviewCatalogue;
-use UhifadhiLabs\Trunk\Service\AreaModuleLedger;
+use Uhifadhi\Trunk\Service\AreaModuleLedger;
 
 /**
  * THE HOST'S OWN CONTRIBUTION TO THE AREA OVERVIEW — and almost nothing on the

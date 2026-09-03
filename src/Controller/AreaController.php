@@ -28,7 +28,7 @@ use Uhifadhi\Form\AreaUploadType;
 use Uhifadhi\Repository\AreaOfInterestRepository;
 use Uhifadhi\Service\AreaCardService;
 use Uhifadhi\Service\BoundaryImportService;
-use UhifadhiLabs\Trunk\Repository\AreaModuleRepository;
+use Uhifadhi\Trunk\Repository\AreaModuleRepository;
 
 /**
  * The dashboard pages: areas index (home), boundary upload, and the per-area

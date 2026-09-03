@@ -31,7 +31,7 @@ use Uhifadhi\Service\DepartmentKpiService;
 use Uhifadhi\Service\DepartmentsSurface;
 use Uhifadhi\Service\WidgetEndpoint;
 use Uhifadhi\Service\WidgetService;
-use UhifadhiLabs\Trunk\Repository\AreaModuleRepository;
+use Uhifadhi\Trunk\Repository\AreaModuleRepository;
 
 /**
  * The org-wide comparative board: `GET /departments/performance`.

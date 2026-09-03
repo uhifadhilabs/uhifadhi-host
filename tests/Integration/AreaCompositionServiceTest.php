@@ -20,10 +20,10 @@ use Uhifadhi\Factory\AreaOfInterestFactory;
 use Uhifadhi\Factory\ModuleFactory;
 use Uhifadhi\Model\ParkedModule;
 use Uhifadhi\Service\AreaCompositionService;
-use UhifadhiLabs\Trunk\Entity\Module;
-use UhifadhiLabs\Trunk\Enum\ModuleCategory;
-use UhifadhiLabs\Trunk\Repository\AreaModuleRepository;
-use UhifadhiLabs\Trunk\Repository\ModuleRepository;
+use Uhifadhi\Trunk\Entity\Module;
+use Uhifadhi\Trunk\Enum\ModuleCategory;
+use Uhifadhi\Trunk\Repository\AreaModuleRepository;
+use Uhifadhi\Trunk\Repository\ModuleRepository;
 use Zenstruck\Foundry\Test\Factories;
 
 /**

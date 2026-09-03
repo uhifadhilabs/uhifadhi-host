@@ -17,8 +17,8 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Uhifadhi\Factory\AreaModuleFactory;
 use Uhifadhi\Factory\AreaOfInterestFactory;
 use Uhifadhi\Factory\ModuleFactory;
-use UhifadhiLabs\Trunk\Entity\AreaModule;
-use UhifadhiLabs\Trunk\Repository\AreaModuleRepository;
+use Uhifadhi\Trunk\Entity\AreaModule;
+use Uhifadhi\Trunk\Repository\AreaModuleRepository;
 use Zenstruck\Foundry\Test\Factories;
 
 /**

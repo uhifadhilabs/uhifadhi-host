@@ -17,7 +17,7 @@
 
 {% block stylesheets %}
     {{ parent() }}
-    <link rel="stylesheet" href="{{ asset(constant('UhifadhiLabs\\Map\\UhifadhiLabsMapBundle::LEAFLET_CSS')) }}">
+    <link rel="stylesheet" href="{{ asset(constant('Uhifadhi\\Map\\UhifadhiMapBundle::LEAFLET_CSS')) }}">
     {# THE HOST LOADS EVERY INSTALLED MODULE'S STYLESHEET. A module's widgets wear the module's own
        vocabulary, and this is the one surface where somebody else renders them — without this every
        chip on a contributed plate renders naked. A third module adds a third link and nothing else.
@@ -28,7 +28,7 @@
 {% endblock %}
 
 {% block javascripts %}
-    <script src="{{ asset(constant('UhifadhiLabs\\Map\\UhifadhiLabsMapBundle::LEAFLET_JS')) }}"></script>
+    <script src="{{ asset(constant('Uhifadhi\\Map\\UhifadhiMapBundle::LEAFLET_JS')) }}"></script>
     {{ parent() }}
     {# type="module" is deferred by definition, so the library is armed after the DOM exists. #}
     <script type="module">

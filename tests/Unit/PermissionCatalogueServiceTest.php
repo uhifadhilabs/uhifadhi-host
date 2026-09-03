@@ -15,10 +15,10 @@ namespace Uhifadhi\Tests\Unit\Service;
 
 use PHPUnit\Framework\TestCase;
 use Uhifadhi\Enum\PermissionEnum;
+use Uhifadhi\ModuleContracts\ModulePermission;
+use Uhifadhi\ModuleContracts\ModuleProviderInterface;
+use Uhifadhi\ModuleContracts\ModuleProviderTrait;
 use Uhifadhi\Service\PermissionCatalogueService;
-use UhifadhiLabs\ModuleContracts\ModulePermission;
-use UhifadhiLabs\ModuleContracts\ModuleProviderInterface;
-use UhifadhiLabs\ModuleContracts\ModuleProviderTrait;
 
 /**
  * One catalogue for every permission that exists in this deployment: the app's

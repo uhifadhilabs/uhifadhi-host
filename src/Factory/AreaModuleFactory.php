@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Uhifadhi\Factory;
 
-use UhifadhiLabs\Trunk\Entity\AreaModule;
+use Uhifadhi\Trunk\Entity\AreaModule;
 use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
 /**

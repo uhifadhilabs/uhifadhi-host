@@ -16,9 +16,9 @@ namespace Uhifadhi\Tests\Functional;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Uid\Uuid;
 use Uhifadhi\Factory\AreaOfInterestFactory;
-use UhifadhiLabs\Patrol\Entity\Observation;
-use UhifadhiLabs\Patrol\Entity\ObservationPhoto;
-use UhifadhiLabs\Patrol\Entity\Patrol;
+use Uhifadhi\Patrol\Entity\Observation;
+use Uhifadhi\Patrol\Entity\ObservationPhoto;
+use Uhifadhi\Patrol\Entity\Patrol;
 
 /**
  * THE FILES HUB IS STOCKED BY THE MODULES, and this is the host's proof of it.

@@ -20,11 +20,11 @@ use Uhifadhi\Entity\Position;
 use Uhifadhi\Entity\User;
 use Uhifadhi\Enum\PermissionEnum;
 use Uhifadhi\Enum\TeamRoleEnum;
+use Uhifadhi\ModuleContracts\ModulePermission;
+use Uhifadhi\ModuleContracts\ModuleProviderInterface;
+use Uhifadhi\ModuleContracts\ModuleProviderTrait;
 use Uhifadhi\Security\PermissionVoter;
 use Uhifadhi\Service\PermissionCatalogueService;
-use UhifadhiLabs\ModuleContracts\ModulePermission;
-use UhifadhiLabs\ModuleContracts\ModuleProviderInterface;
-use UhifadhiLabs\ModuleContracts\ModuleProviderTrait;
 
 /**
  * The voter is the single action-level gate: managing tiers (Super Admin / Admin /

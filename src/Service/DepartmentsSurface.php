@@ -18,8 +18,8 @@ use Uhifadhi\Entity\Department;
 use Uhifadhi\Entity\Position;
 use Uhifadhi\Entity\User;
 use Uhifadhi\Repository\DepartmentRepository;
-use UhifadhiLabs\Trunk\Entity\Module;
-use UhifadhiLabs\Trunk\Repository\ModuleRepository;
+use Uhifadhi\Trunk\Entity\Module;
+use Uhifadhi\Trunk\Repository\ModuleRepository;
 
 /**
  * Everything the departments surface's widgets read, gathered ONCE.

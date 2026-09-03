@@ -17,8 +17,8 @@ use Uhifadhi\Entity\AreaOfInterest;
 use Uhifadhi\Factory\AreaModuleFactory;
 use Uhifadhi\Factory\AreaOfInterestFactory;
 use Uhifadhi\Factory\ModuleFactory;
-use UhifadhiLabs\Trunk\Enum\ModuleCategory;
-use UhifadhiLabs\Trunk\Enum\ModuleStatus;
+use Uhifadhi\Trunk\Enum\ModuleCategory;
+use Uhifadhi\Trunk\Enum\ModuleStatus;
 
 /**
  * The one sidebar (layout.html.twig): grouped sections — OBSERVATORY / ORGANIZATION / SYSTEM —

@@ -15,7 +15,7 @@ namespace Uhifadhi\Service;
 
 use Uhifadhi\Entity\Department;
 use Uhifadhi\Entity\User;
-use UhifadhiLabs\Trunk\Entity\Module;
+use Uhifadhi\Trunk\Entity\Module;
 
 /**
  * The department lens, on its own so it stays pure: no database, no state — only the entities

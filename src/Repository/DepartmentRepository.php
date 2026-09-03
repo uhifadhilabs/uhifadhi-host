@@ -16,7 +16,7 @@ namespace Uhifadhi\Repository;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Uhifadhi\Entity\Department;
-use UhifadhiLabs\Trunk\Entity\Module;
+use Uhifadhi\Trunk\Entity\Module;
 
 /**
  * @extends ServiceEntityRepository<Department>

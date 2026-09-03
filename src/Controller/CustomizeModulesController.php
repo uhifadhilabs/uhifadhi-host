@@ -23,8 +23,8 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Uid\Uuid;
 use Uhifadhi\Entity\AreaOfInterest;
 use Uhifadhi\Service\AreaCompositionService;
-use UhifadhiLabs\Trunk\Repository\AreaModuleRepository;
-use UhifadhiLabs\Trunk\Repository\ModuleRepository;
+use Uhifadhi\Trunk\Repository\AreaModuleRepository;
+use Uhifadhi\Trunk\Repository\ModuleRepository;
 
 /**
  * "Customize modules" — the per-area module shop: choose which modules appear on an area, reorder

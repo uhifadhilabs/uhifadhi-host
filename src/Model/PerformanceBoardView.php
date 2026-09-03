@@ -187,7 +187,7 @@ final class PerformanceBoardView
                 // period ago did not "move up", it arrived.
                 'shift' => null !== $rank && null !== $was ? $was - $rank : null,
                 'search' => mb_strtolower($name.' '.implode(' ', array_map(
-                    static fn (\UhifadhiLabs\Trunk\Entity\Module $module): string => (string) $module->getName(),
+                    static fn (\Uhifadhi\Trunk\Entity\Module $module): string => (string) $module->getName(),
                     $modules,
                 ))),
                 'cells' => $cells,

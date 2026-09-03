@@ -18,7 +18,7 @@ use Uhifadhi\Entity\AreaOfInterest;
 use Uhifadhi\Model\Widget;
 use Uhifadhi\Model\WidgetGroup;
 use Uhifadhi\Service\AreaOverviewCatalogue;
-use UhifadhiLabs\Trunk\Service\AreaModuleLedger;
+use Uhifadhi\Trunk\Service\AreaModuleLedger;
 
 /**
  * THE SEAM, DRAWN HONESTLY — the not-installed-here section, last in the

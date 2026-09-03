@@ -1,3 +1,3 @@
 patrol:
-    resource: '@UhifadhiLabsPatrolBundle/src/Controller/'
+    resource: '@UhifadhiPatrolBundle/src/Controller/'
     type: attribute

@@ -20,7 +20,7 @@ use Uhifadhi\Entity\Department;
 use Uhifadhi\Factory\DepartmentFactory;
 use Uhifadhi\Factory\ModuleFactory;
 use Uhifadhi\Repository\DepartmentRepository;
-use UhifadhiLabs\Trunk\Entity\Module;
+use Uhifadhi\Trunk\Entity\Module;
 use Zenstruck\Foundry\Test\Factories;
 
 /**

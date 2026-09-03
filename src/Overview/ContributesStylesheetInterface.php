@@ -31,7 +31,7 @@ namespace Uhifadhi\Overview;
  * this, and the host asks it nothing.
  *
  * The path is what the asset mapper serves the bundle's public/ under, e.g.
- * `bundles/uhifadhilabsincident/incidents.css` — the module knows its own
+ * `bundles/uhifadhiincident/incidents.css` — the module knows its own
  * bundle's name and the host must not have to derive it.
  */
 interface ContributesStylesheetInterface

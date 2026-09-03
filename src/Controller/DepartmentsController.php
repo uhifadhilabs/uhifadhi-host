@@ -28,7 +28,7 @@ use Uhifadhi\Service\DepartmentService;
 use Uhifadhi\Service\DepartmentsSurface;
 use Uhifadhi\Service\WidgetEndpoint;
 use Uhifadhi\Service\WidgetService;
-use UhifadhiLabs\Trunk\Entity\Module;
+use Uhifadhi\Trunk\Entity\Module;
 
 /**
  * The org-wide departments surface: the widget dashboard, its library, and the handful of

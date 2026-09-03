@@ -2,5 +2,5 @@
 # library, case files and the report flow, all nested under their area:
 # /areas/{uuid}/modules/incidents/…
 incident:
-    resource: '@UhifadhiLabsIncidentBundle/src/Controller/'
+    resource: '@UhifadhiIncidentBundle/src/Controller/'
     type: attribute

@@ -18,7 +18,7 @@ use Uhifadhi\Entity\Department;
 use Uhifadhi\Module\DepartmentKpi;
 use Uhifadhi\Module\DepartmentKpiProviderInterface;
 use Uhifadhi\Service\DepartmentKpiService;
-use UhifadhiLabs\Trunk\Entity\Module;
+use Uhifadhi\Trunk\Entity\Module;
 
 /**
  * The KPI seam's rules, stated as tests.

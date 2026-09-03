@@ -27,8 +27,8 @@ services:
     # and uhifadhi/trunk-module follows it), so nothing in src/ can be given one
     # by type without an alias here. These are the ones this application reads;
     # everything else the trunk owns, it owns alone.
-    UhifadhiLabs\Trunk\Service\ModuleCatalogue: '@trunk.catalogue'
-    UhifadhiLabs\Trunk\Service\AreaModuleService: '@trunk.area_modules'
-    UhifadhiLabs\Trunk\Service\AreaModuleLedger: '@trunk.area_module_ledger'
-    UhifadhiLabs\Trunk\Service\ModuleEntryRouteResolver: '@trunk.entry_routes'
-    UhifadhiLabs\Trunk\Service\ModulePermissionCatalogue: '@trunk.permissions'
+    Uhifadhi\Trunk\Service\ModuleCatalogue: '@trunk.catalogue'
+    Uhifadhi\Trunk\Service\AreaModuleService: '@trunk.area_modules'
+    Uhifadhi\Trunk\Service\AreaModuleLedger: '@trunk.area_module_ledger'
+    Uhifadhi\Trunk\Service\ModuleEntryRouteResolver: '@trunk.entry_routes'
+    Uhifadhi\Trunk\Service\ModulePermissionCatalogue: '@trunk.permissions'

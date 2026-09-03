@@ -18,7 +18,7 @@ use Uhifadhi\Entity\Department;
 use Uhifadhi\Entity\Position;
 use Uhifadhi\Entity\User;
 use Uhifadhi\Service\DepartmentLens;
-use UhifadhiLabs\Trunk\Entity\Module;
+use Uhifadhi\Trunk\Entity\Module;
 
 /**
  * The department lens: a re-ordering, never a filter. Every module handed in comes back out —

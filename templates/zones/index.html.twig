@@ -14,12 +14,12 @@
 
 {% block stylesheets %}
     {{ parent() }}
-    <link rel="stylesheet" href="{{ asset(constant('UhifadhiLabs\\Map\\UhifadhiLabsMapBundle::LEAFLET_CSS')) }}">
+    <link rel="stylesheet" href="{{ asset(constant('Uhifadhi\\Map\\UhifadhiMapBundle::LEAFLET_CSS')) }}">
 {% endblock %}
 
 {% block javascripts %}
     {# Self-hosted Leaflet UMD → window.L, before the controllers that read it. #}
-    <script src="{{ asset(constant('UhifadhiLabs\\Map\\UhifadhiLabsMapBundle::LEAFLET_JS')) }}"></script>
+    <script src="{{ asset(constant('Uhifadhi\\Map\\UhifadhiMapBundle::LEAFLET_JS')) }}"></script>
     {{ parent() }}
 {% endblock %}
 

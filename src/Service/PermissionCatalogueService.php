@@ -16,7 +16,7 @@ namespace Uhifadhi\Service;
 use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 use Uhifadhi\Enum\PermissionEnum;
 use Uhifadhi\Model\Permission;
-use UhifadhiLabs\ModuleContracts\ModuleProviderInterface;
+use Uhifadhi\ModuleContracts\ModuleProviderInterface;
 
 /**
  * The single catalogue of every permission that exists in this deployment:

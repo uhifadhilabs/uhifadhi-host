@@ -22,7 +22,7 @@ use Uhifadhi\Entity\Department;
 use Uhifadhi\Module\DepartmentKpi;
 use Uhifadhi\Module\DepartmentKpiProviderInterface;
 use Uhifadhi\Service\DepartmentKpiService;
-use UhifadhiLabs\Trunk\Entity\Module;
+use Uhifadhi\Trunk\Entity\Module;
 
 /**
  * The WIRING of the department-KPI seam, which no unit test can prove: that a class implementing

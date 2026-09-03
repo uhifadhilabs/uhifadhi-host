@@ -13,9 +13,9 @@ declare(strict_types=1);
 
 namespace Uhifadhi\Factory;
 
-use UhifadhiLabs\Trunk\Entity\Module;
-use UhifadhiLabs\Trunk\Enum\ModuleCategory;
-use UhifadhiLabs\Trunk\Enum\ModuleStatus;
+use Uhifadhi\Trunk\Entity\Module;
+use Uhifadhi\Trunk\Enum\ModuleCategory;
+use Uhifadhi\Trunk\Enum\ModuleStatus;
 use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
 /**
