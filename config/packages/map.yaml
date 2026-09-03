@@ -1,21 +1,64 @@
 # The map platform (uhifadhi/map-module) — self-hosted Leaflet, the basemap
 # seam, the boundary drawing and the map chrome every map in the product wears.
 #
-# WHICH IMAGERY. Nothing is configured here, so every environment gets the
-# bundle's default: `esri`, the keyless World Imagery. That is a change of
-# DEFAULT, not of behaviour — Esri is what the product has actually been drawing
-# all along. Satellite was Google-first with Esri as a silent understudy, and
-# Google refuses satellite outright for this EEA-billed account (403 on
-# createSession), so the fallback drew everywhere while the console filled with
-# refusals. Defaulting to the source that works removes the question.
+# WHICH IMAGERY. Nothing is set here, so every environment gets the bundle's
+# default: `esri`, the keyless World Imagery. It draws everywhere, costs
+# nothing and needs no account, which is what a fresh installation wants.
 #
-# Production still asks Google, because production is where the key lives and
-# where an account or region change would first be worth noticing. Nothing is
-# lost if the refusal stands: the layer stays on Esri exactly as it does today,
-# now without re-earning the 403 on every map and every remount.
+# To use Google satellite instead, set the provider in an environment you
+# actually hold a key for — typically prod only — and leave the rest on Esri:
+#
+#   when@prod:
+#       map:
+#           satellite:
+#               provider: google
+#               google:
+#                   api_key: '%env(default::UHIFADHI_GOOGLE_MAPS_API_KEY)%'
+#
+# The key is public by nature — it travels inside every tile URL — so restrict
+# it by HTTP referrer at Google rather than treating it as a secret. An unset
+# key is a valid state: the bundle falls back to Esri and asks nobody. Note
+# that some accounts and regions are refused satellite outright (a 403 on
+# createSession); if that is yours, stay on Esri rather than re-earning the
+# refusal on every map.
 map:
     module_category: operations
 
+# THE THREE IMPORTMAP LINES THIS RECIPE CANNOT WRITE.
+#
+# The bundle registers its own assets/ directory under the AssetMapper
+# namespace @uhifadhi/map-module, but importmap entries are read from the
+# host's single importmap.php and AssetMapper offers no extension point for a
+# bundle to contribute to it. Flex cannot patch a PHP file, so until Symfony
+# supports bundle importmap contributions these three lines are added BY HAND
+# to importmap.php:
+#
+#   'uhifadhi/basemaps'   => ['path' => '@uhifadhi/map-module/basemaps.js'],
+#   'uhifadhi/boundary'   => ['path' => '@uhifadhi/map-module/boundary.js'],
+#   'uhifadhi/map-chrome' => ['path' => '@uhifadhi/map-module/chrome.js'],
+#
+# They are bare specifiers on purpose: every importer — the host's own map
+# controllers and each module's map — imports the NAME, never the path, so the
+# files can move underneath them without touching a single import site.
+
+# ─────────────────────────────────────────────────────────────────────────────
+# THIS DEPLOYMENT'S HALF. Everything above is the recipe's, byte for byte
+# (uhifadhi/map-module 0.1); everything below is ours, and it is the step the
+# recipe's own comment describes — "set the provider in an environment you
+# actually hold a key for". Kept in one block at the end on purpose: a
+# `composer recipes:install uhifadhi/map-module --force` overwrites this file
+# with the recipe's version, and restoring one contiguous hunk is a review
+# rather than an excavation.
+#
+# Production asks Google because production is where the key lives and where an
+# account or region change would first be worth noticing. Everything else stays
+# on Esri, which is what this product has actually been drawing all along:
+# satellite used to be Google-first with Esri as a silent understudy, Google
+# refuses satellite outright for this billing account (403 on createSession),
+# and so the understudy drew every map while the console filled with refusals.
+# Nothing is lost if the refusal stands — the layer stays exactly where it is,
+# now without re-earning the 403 on every map and every remount.
+# ─────────────────────────────────────────────────────────────────────────────
 when@prod:
     map:
         satellite:

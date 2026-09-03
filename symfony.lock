@@ -414,19 +414,67 @@
         "version": "v3.24.0"
     },
     "uhifadhi/fixtures-module": {
-        "version": "dev-main"
+        "version": "0.1",
+        "recipe": {
+            "repo": "github.com/uhifadhilabs/recipes",
+            "branch": "main",
+            "version": "0.1",
+            "ref": "d5516cefe10609c241f3cbcf3385eb0dbd76a248"
+        },
+        "files": [
+            "config/packages/fixtures.yaml"
+        ]
     },
     "uhifadhi/incident-module": {
-        "version": "dev-main"
+        "version": "0.1",
+        "recipe": {
+            "repo": "github.com/uhifadhilabs/recipes",
+            "branch": "main",
+            "version": "0.1",
+            "ref": "0d6c715bdc5fc54277e4f9a76f5c5bb5b8661642"
+        },
+        "files": [
+            "config/packages/incident.yaml",
+            "config/routes/incident.yaml"
+        ]
     },
     "uhifadhi/map-module": {
-        "version": "dev-main"
+        "version": "0.1",
+        "recipe": {
+            "repo": "github.com/uhifadhilabs/recipes",
+            "branch": "main",
+            "version": "0.1",
+            "ref": "a55fae1186b0f8ac6e915f34bfee7f1707fd9ae3"
+        },
+        "files": [
+            "config/packages/map.yaml"
+        ]
     },
     "uhifadhi/patrol-module": {
-        "version": "dev-main"
+        "version": "0.1",
+        "recipe": {
+            "repo": "github.com/uhifadhilabs/recipes",
+            "branch": "main",
+            "version": "0.1",
+            "ref": "118a580f801897b7239382221377599c1b84c785"
+        },
+        "files": [
+            "config/packages/patrol.yaml",
+            "config/routes/patrol.yaml"
+        ]
     },
     "uhifadhi/storage-module": {
-        "version": "dev-main"
+        "version": "0.1",
+        "recipe": {
+            "repo": "github.com/uhifadhilabs/recipes",
+            "branch": "main",
+            "version": "0.1",
+            "ref": "8ce2e234f1092f940ebae7261bdfea5adb6abd2e"
+        },
+        "files": [
+            "config/packages/storage.yaml",
+            "config/routes/storage.yaml"
+        ]
     },
     "uhifadhi/trunk-module": {
         "version": "0.1",
@@ -434,7 +482,7 @@
             "repo": "github.com/uhifadhilabs/recipes",
             "branch": "main",
             "version": "0.1",
-            "ref": "1c92356db57d76043463f67842b07099cf0bee50"
+            "ref": "685ad632fe2d3096d57e6c056fec6269b0a15fc4"
         },
         "files": [
             "config/packages/trunk.yaml"
