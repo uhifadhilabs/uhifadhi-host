@@ -16,9 +16,9 @@ namespace Uhifadhi\Service;
 use Uhifadhi\Entity\AreaOfInterest;
 use Uhifadhi\Entity\Department;
 use Uhifadhi\Entity\User;
-use Uhifadhi\Trunk\Entity\Module;
-use Uhifadhi\Trunk\Enum\ModuleCategory;
-use Uhifadhi\Trunk\Service\ModuleEntryRouteResolver;
+use Uhifadhi\Seam\Entity\Module;
+use Uhifadhi\Seam\Enum\ModuleCategory;
+use Uhifadhi\Seam\Service\ModuleEntryRouteResolver;
 
 /**
  * Builds the area's Modules-tab card grid: one content-ful card per active module, grouped by the

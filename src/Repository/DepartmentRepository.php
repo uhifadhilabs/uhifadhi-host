@@ -16,7 +16,7 @@ namespace Uhifadhi\Repository;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Uhifadhi\Entity\Department;
-use Uhifadhi\Trunk\Entity\Module;
+use Uhifadhi\Seam\Entity\Module;
 
 /**
  * @extends ServiceEntityRepository<Department>
@@ -70,7 +70,7 @@ final class DepartmentRepository extends ServiceEntityRepository
             return $byModule;
         }
 
-        // THE PAIRS, NOT THE OBJECTS. A module belongs to the trunk and carries no
+        // THE PAIRS, NOT THE OBJECTS. A module belongs to the seam and carries no
         // departments collection to walk — a department is this application's lens
         // over the catalogue, and the runtime that owns modules has no business
         // knowing the concept exists. So the attachment is read as what it is in

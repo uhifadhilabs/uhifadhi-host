@@ -7,7 +7,7 @@
     "require": {
         "api-platform/core": "^4.3",
         "doctrine/doctrine-bundle": "^3.3",
-        "doctrine/doctrine-migrations-bundle": "^4.0",
+        "doctrine/doctrine-migrations-bundle": "^4.0.1",
         "doctrine/orm": "3.6.7",
         "ext-ctype": "*",
         "ext-iconv": "*",
@@ -56,7 +56,7 @@
         "uhifadhi/patrol-module": "dev-main",
         "uhifadhi/fixtures-module": "dev-main",
         "uhifadhi/storage-module": "dev-main",
-        "uhifadhi/trunk-module": "dev-main"
+        "uhifadhi/seam-module": "dev-main"
     },
     "config": {
         "allow-plugins": {
@@ -150,9 +150,9 @@
     },
     "repositories": [
         {
-            "name": "trunk-module",
+            "name": "seam-module",
             "type": "vcs",
-            "url": "https://github.com/uhifadhilabs/trunk-module"
+            "url": "https://github.com/uhifadhilabs/seam-module"
         },
         {
             "name": "module-contracts",

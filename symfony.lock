@@ -476,7 +476,7 @@
             "config/routes/storage.yaml"
         ]
     },
-    "uhifadhi/trunk-module": {
+    "uhifadhi/seam-module": {
         "version": "0.1",
         "recipe": {
             "repo": "github.com/uhifadhilabs/recipes",
@@ -485,7 +485,7 @@
             "ref": "685ad632fe2d3096d57e6c056fec6269b0a15fc4"
         },
         "files": [
-            "config/packages/trunk.yaml"
+            "config/packages/seam.yaml"
         ]
     },
     "uhifadhilabs/patrol-bundle": {

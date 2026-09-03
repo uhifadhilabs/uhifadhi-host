@@ -24,7 +24,7 @@ use Uhifadhi\Factory\DepartmentFactory;
 use Uhifadhi\Factory\ModuleFactory;
 use Uhifadhi\Factory\PositionFactory;
 use Uhifadhi\Factory\UserFactory;
-use Uhifadhi\Trunk\Entity\Module;
+use Uhifadhi\Seam\Entity\Module;
 use Zenstruck\Foundry\Test\Factories;
 
 /**

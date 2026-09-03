@@ -24,11 +24,11 @@ use Symfony\Component\Uid\Uuid;
 use Uhifadhi\Entity\Department;
 use Uhifadhi\Model\DepartmentsWidgets;
 use Uhifadhi\Model\WidgetDom;
+use Uhifadhi\Seam\Entity\Module;
 use Uhifadhi\Service\DepartmentService;
 use Uhifadhi\Service\DepartmentsSurface;
 use Uhifadhi\Service\WidgetEndpoint;
 use Uhifadhi\Service\WidgetService;
-use Uhifadhi\Trunk\Entity\Module;
 
 /**
  * The org-wide departments surface: the widget dashboard, its library, and the handful of

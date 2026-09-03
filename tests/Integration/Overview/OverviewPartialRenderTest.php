@@ -28,12 +28,12 @@ use Uhifadhi\Overview\AttentionSeverity;
 use Uhifadhi\Overview\MapLayer;
 use Uhifadhi\Overview\NowTile;
 use Uhifadhi\Overview\PulseEvent;
+use Uhifadhi\Seam\Entity\Module;
+use Uhifadhi\Seam\Repository\AreaModuleRepository;
 use Uhifadhi\Service\AreaOverviewCatalogue;
 use Uhifadhi\Service\AreaOverviewComposer;
 use Uhifadhi\Service\AreaOverviewContext;
 use Uhifadhi\Service\OverviewCopy;
-use Uhifadhi\Trunk\Entity\Module;
-use Uhifadhi\Trunk\Repository\AreaModuleRepository;
 use Zenstruck\Foundry\Test\Factories;
 
 /**
@@ -522,7 +522,7 @@ final class OverviewPartialRenderTest extends KernelTestCase
 
         $application = new Application($kernel);
         $application->setAutoExit(false);
-        $application->run(new ArrayInput(['command' => 'trunk:catalogue:seed']), new NullOutput());
+        $application->run(new ArrayInput(['command' => 'seam:catalogue:seed']), new NullOutput());
 
         // The seed parks a bundle's module so an admin opts in per area. This
         // test is the opted-in case: every widget the deployment can draw.

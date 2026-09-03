@@ -1,4 +1,4 @@
-# The trunk (uhifadhi/trunk-module) — the module seam runtime every uhifadhi
+# The seam (uhifadhi/seam-module) — the module seam runtime every uhifadhi
 # module registers with: the catalogue of what this deployment has, the record
 # of what each area switched on, the permissions modules declare, and the seed
 # that keeps them in step.
@@ -8,10 +8,10 @@
 # than being ignored. A freshly planted seed with this bundle and nothing else
 # boots, has an empty catalogue, and is harmless:
 #
-#   bin/console trunk:catalogue:seed
+#   bin/console seam:catalogue:seed
 #   → Catalogue reconciled: 0 module(s) from 0 installed provider(s).
 #
-# ZERO MODULES IS NOT ZERO TABLES, though: the trunk owns `module` and
+# ZERO MODULES IS NOT ZERO TABLES, though: the seam owns `module` and
 # `area_module`, so an installation still has a schema to create. The area
 # block at the bottom of this file is the step between installing this bundle
 # and having any tables at all — read it before you reach for
@@ -21,53 +21,53 @@
 # declaration — a module is in the catalogue because its provider carries the
 # uhifadhi.module tag — and a second place to enable one is a second place for
 # the two to disagree.
-trunk:
+seam:
     # Where a module the catalogue cannot place is filed. A provider hands its
-    # category over as a string and the trunk coerces it, so a module bundle
+    # category over as a string and the seam coerces it, so a module bundle
     # written by somebody else can never break the catalogue with a typo.
     default_category: operations
 
 # Dev-only tooling hangs off this flag, so a production installation never
 # grows a command that writes invented catalogue rows.
 when@dev:
-    trunk:
+    seam:
         dev_tools: true
 
 when@test:
-    trunk:
+    seam:
         dev_tools: true
 
 # THE ONE LINE THIS RECIPE CANNOT WRITE FOR YOU — and it is REQUIRED, not an
 # extra you add later.
 #
-# The trunk owns the record of which modules an AREA has switched on — but an
+# The seam owns the record of which modules an AREA has switched on — but an
 # area belongs to your application, not to the bundle. So the bundle maps that
 # association to an interface it publishes, and you resolve the interface to
 # your own entity. A recipe cannot do it: it has no way to know what your area
 # class is called, or whether you have one yet.
 #
 # HOW FAR YOU GET WITHOUT IT — honestly. The bundle installs, the container
-# compiles, the kernel boots, and `trunk:catalogue:seed` runs. What you CANNOT
+# compiles, the kernel boots, and `seam:catalogue:seed` runs. What you CANNOT
 # do is touch the schema. Anything that walks the metadata —
 # `doctrine:schema:create`, `doctrine:schema:update`, `doctrine:migrations:diff`
 # — stops on the unresolved interface:
 #
 #   In MappingException.php line 72:
-#     Class 'Uhifadhi\Trunk\Entity\AreaInterface' does not exist
+#     Class 'Uhifadhi\Seam\Entity\AreaInterface' does not exist
 #
 # That is not a bug to route around. The per-area ledger has a NOT NULL foreign
 # key to an area; there is no half of this schema that exists without one.
 #
 # THE STEP, IN FULL. Give your application an area entity that implements
-# Uhifadhi\Trunk\Entity\AreaInterface (it asks for getId() and nothing
+# Uhifadhi\Seam\Entity\AreaInterface (it asks for getId() and nothing
 # else) — a project planted from the uhifadhi seed puts it in src/Entity/ under
-# the seed's PSR-4 root, `Uhifadhi\`:
+# the seed's PSR-4 root, the stock Symfony `App\`:
 #
 #   // src/Entity/AreaOfInterest.php
-#   namespace Uhifadhi\Entity;
+#   namespace App\Entity;
 #
 #   use Doctrine\ORM\Mapping as ORM;
-#   use Uhifadhi\Trunk\Entity\AreaInterface;
+#   use Uhifadhi\Seam\Entity\AreaInterface;
 #
 #   #[ORM\Entity]
 #   class AreaOfInterest implements AreaInterface
@@ -83,25 +83,27 @@ when@test:
 #   doctrine:
 #       orm:
 #           resolve_target_entities:
-#               Uhifadhi\Trunk\Entity\AreaInterface: Uhifadhi\Entity\AreaOfInterest
+#               Uhifadhi\Seam\Entity\AreaInterface: App\Entity\AreaOfInterest
 #
-# MIND THE MAPPING PREFIX. `Uhifadhi\Entity`, not `App\Entity`: the stock
+# MIND THE MAPPING PREFIX — it has to cover the class you just named. The stock
 # doctrine-bundle recipe writes an `App\Entity` prefix into
-# config/packages/doctrine.yaml, which is not the seed's root namespace. The
-# seed ships that line already corrected; if you planted before it did, a
-# `Uhifadhi\Entity\…` class fails with
+# config/packages/doctrine.yaml, which is the seed's root, so an area entity in
+# src/Entity/ is already mapped and there is nothing to correct. If you moved
+# your entities elsewhere, or your project does not use the `App\` root, the
+# resolve_target_entities line above still resolves but the class it names is
+# not in the metadata chain, and you get
 #
-#   The class 'Uhifadhi\Entity\AreaOfInterest' was not found in the chain
-#   configured namespaces App\Entity, Uhifadhi\Trunk\Entity
+#   The class 'App\Entity\AreaOfInterest' was not found in the chain
+#   configured namespaces App\Entity, Uhifadhi\Seam\Entity
 #
 # THEN, in this order:
 #
 #   bin/console doctrine:database:create
 #   bin/console doctrine:migrations:diff      # your history, your migration
 #   bin/console doctrine:migrations:migrate
-#   bin/console trunk:catalogue:seed
+#   bin/console seam:catalogue:seed
 #
-# The trunk ships entities, not migrations: the tables are the trunk's, but the
+# The seam ships entities, not migrations: the tables are the seam's, but the
 # migration history is yours, and a vendor replaying its own versions into it
 # would fight every `diff` you ever run. `doctrine/doctrine-migrations-bundle`
 # arrives as a dependency of this bundle for exactly that reason — the ring
@@ -113,15 +115,15 @@ when@test:
 
 # ─────────────────────────────────────────────────────────────────────────────
 # THIS DEPLOYMENT'S HALF. Everything above is the recipe's, byte for byte
-# (uhifadhi/trunk-module 0.1); below is the block the recipe just told us to
+# (uhifadhi/seam-module 0.1); below is the block the recipe just told us to
 # write, with our own area class in it. Kept contiguous at the end so that a
-# `composer recipes:install uhifadhi/trunk-module --force` — which overwrites
+# `composer recipes:install uhifadhi/seam-module --force` — which overwrites
 # this file with the recipe's version — costs one hunk to restore.
 #
-# Uhifadhi\Entity\AreaOfInterest implements Uhifadhi\Trunk\Entity\AreaInterface;
+# Uhifadhi\Entity\AreaOfInterest implements Uhifadhi\Seam\Entity\AreaInterface;
 # it asks for getId() and nothing else.
 # ─────────────────────────────────────────────────────────────────────────────
 doctrine:
     orm:
         resolve_target_entities:
-            Uhifadhi\Trunk\Entity\AreaInterface: Uhifadhi\Entity\AreaOfInterest
+            Uhifadhi\Seam\Entity\AreaInterface: Uhifadhi\Entity\AreaOfInterest

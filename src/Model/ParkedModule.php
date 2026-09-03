@@ -13,8 +13,8 @@ declare(strict_types=1);
 
 namespace Uhifadhi\Model;
 
-use Uhifadhi\Trunk\Entity\AreaModule;
-use Uhifadhi\Trunk\Entity\Module;
+use Uhifadhi\Seam\Entity\AreaModule;
+use Uhifadhi\Seam\Entity\Module;
 
 /**
  * One entry of an area's parked-module shop. A module is parked either because the area has a

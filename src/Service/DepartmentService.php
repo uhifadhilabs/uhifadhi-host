@@ -18,7 +18,7 @@ use Uhifadhi\Entity\Department;
 use Uhifadhi\Entity\User;
 use Uhifadhi\Repository\DepartmentRepository;
 use Uhifadhi\Repository\PositionRepository;
-use Uhifadhi\Trunk\Entity\Module;
+use Uhifadhi\Seam\Entity\Module;
 
 /**
  * Department administration and the department lens. Departments are the organizational view of

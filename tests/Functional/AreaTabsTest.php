@@ -21,9 +21,9 @@ use Uhifadhi\Factory\DepartmentFactory;
 use Uhifadhi\Factory\ModuleFactory;
 use Uhifadhi\Factory\PositionFactory;
 use Uhifadhi\Factory\UserFactory;
-use Uhifadhi\Trunk\Entity\Module;
-use Uhifadhi\Trunk\Enum\ModuleCategory;
-use Uhifadhi\Trunk\Enum\ModuleStatus;
+use Uhifadhi\Seam\Entity\Module;
+use Uhifadhi\Seam\Enum\ModuleCategory;
+use Uhifadhi\Seam\Enum\ModuleStatus;
 
 /**
  * The area's top-level tabs (Overview / Modules / Settings) and the Modules-tab card grid: the

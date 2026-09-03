@@ -27,11 +27,11 @@ use Uhifadhi\Model\WidgetDom;
 use Uhifadhi\Module\DepartmentKpi;
 use Uhifadhi\Repository\AreaOfInterestRepository;
 use Uhifadhi\Repository\DepartmentGoalRepository;
+use Uhifadhi\Seam\Repository\AreaModuleRepository;
 use Uhifadhi\Service\DepartmentKpiService;
 use Uhifadhi\Service\DepartmentsSurface;
 use Uhifadhi\Service\WidgetEndpoint;
 use Uhifadhi\Service\WidgetService;
-use Uhifadhi\Trunk\Repository\AreaModuleRepository;
 
 /**
  * The org-wide comparative board: `GET /departments/performance`.

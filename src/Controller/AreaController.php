@@ -26,9 +26,9 @@ use Uhifadhi\Entity\AreaOfInterest;
 use Uhifadhi\Exception\BoundaryImportException;
 use Uhifadhi\Form\AreaUploadType;
 use Uhifadhi\Repository\AreaOfInterestRepository;
+use Uhifadhi\Seam\Repository\AreaModuleRepository;
 use Uhifadhi\Service\AreaCardService;
 use Uhifadhi\Service\BoundaryImportService;
-use Uhifadhi\Trunk\Repository\AreaModuleRepository;
 
 /**
  * The dashboard pages: areas index (home), boundary upload, and the per-area

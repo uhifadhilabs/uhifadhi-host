@@ -21,8 +21,8 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Uhifadhi\Entity\Department;
 use Uhifadhi\Module\DepartmentKpi;
 use Uhifadhi\Module\DepartmentKpiProviderInterface;
+use Uhifadhi\Seam\Entity\Module;
 use Uhifadhi\Service\DepartmentKpiService;
-use Uhifadhi\Trunk\Entity\Module;
 
 /**
  * The WIRING of the department-KPI seam, which no unit test can prove: that a class implementing

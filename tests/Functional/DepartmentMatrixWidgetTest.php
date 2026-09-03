@@ -29,7 +29,7 @@ use Uhifadhi\Factory\DepartmentFactory;
 use Uhifadhi\Factory\ModuleFactory;
 use Uhifadhi\Model\WidgetDom;
 use Uhifadhi\Repository\DepartmentRepository;
-use Uhifadhi\Trunk\Entity\Module;
+use Uhifadhi\Seam\Entity\Module;
 
 /**
  * The departments 'matrix' widget: the whole org in one grid — departments down, every module
@@ -172,7 +172,7 @@ final class DepartmentMatrixWidgetTest extends AuthenticatedWebTestCase
      * THE MODULE OPEN/CLOSED RULE, on this widget: installing a module grows the matrix and
      * NOTHING is edited to make that happen.
      *
-     * The columns are the installed catalogue ({@see \Uhifadhi\Trunk\Repository\ModuleRepository::catalogue()}),
+     * The columns are the installed catalogue ({@see \Uhifadhi\Seam\Repository\ModuleRepository::catalogue()}),
      * never a list this template or its service knows by name — so a module scaffolded tomorrow
      * appears here at install with zero edits, exactly as it appears in the modules tab and the
      * permission catalogue.

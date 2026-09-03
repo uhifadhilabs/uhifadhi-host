@@ -18,7 +18,7 @@ use Symfony\Component\HttpKernel\Kernel as BaseKernel;
 
 /**
  * Nothing to add. The `uhifadhi.module` tag used to be autoconfigured here;
- * it now ships with the thing that COLLECTS it — uhifadhi/trunk-module — so a
+ * it now ships with the thing that COLLECTS it — uhifadhi/seam-module — so a
  * freshly planted seed with that one bundle on it already has a working seam,
  * without an application writing a line of it.
  */

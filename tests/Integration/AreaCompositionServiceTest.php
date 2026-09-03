@@ -19,11 +19,11 @@ use Uhifadhi\Factory\AreaModuleFactory;
 use Uhifadhi\Factory\AreaOfInterestFactory;
 use Uhifadhi\Factory\ModuleFactory;
 use Uhifadhi\Model\ParkedModule;
+use Uhifadhi\Seam\Entity\Module;
+use Uhifadhi\Seam\Enum\ModuleCategory;
+use Uhifadhi\Seam\Repository\AreaModuleRepository;
+use Uhifadhi\Seam\Repository\ModuleRepository;
 use Uhifadhi\Service\AreaCompositionService;
-use Uhifadhi\Trunk\Entity\Module;
-use Uhifadhi\Trunk\Enum\ModuleCategory;
-use Uhifadhi\Trunk\Repository\AreaModuleRepository;
-use Uhifadhi\Trunk\Repository\ModuleRepository;
 use Zenstruck\Foundry\Test\Factories;
 
 /**

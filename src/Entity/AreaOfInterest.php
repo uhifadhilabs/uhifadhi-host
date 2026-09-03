@@ -17,12 +17,12 @@ use Doctrine\ORM\Mapping as ORM;
 use Uhifadhi\Entity\Trait\TimestampableTrait;
 use Uhifadhi\Entity\Trait\UuidTrait;
 use Uhifadhi\Repository\AreaOfInterestRepository;
-use Uhifadhi\Trunk\Entity\AreaInterface;
+use Uhifadhi\Seam\Entity\AreaInterface;
 
 /**
- * THE TRUNK'S AREA, RESOLVED. The module seam runtime owns the record of which
+ * THE SEAM'S AREA, RESOLVED. The module seam runtime owns the record of which
  * modules an area has switched on, and maps that association to its own
- * {@see AreaInterface}; config/packages/trunk.yaml resolves the interface to
+ * {@see AreaInterface}; config/packages/seam.yaml resolves the interface to
  * this class. That is what lets a bundle hold a per-area table without
  * defining — or requiring — this application's area model.
  *

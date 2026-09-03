@@ -17,10 +17,10 @@ use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
 /**
- * The catalogue's icon column — and the only schema change the trunk extraction
+ * The catalogue's icon column — and the only schema change the seam extraction
  * needed.
  *
- * The module seam moved out of this application and into uhifadhi/trunk-module:
+ * The module seam moved out of this application and into uhifadhi/seam-module:
  * the Module and AreaModule entities, their repositories, the catalogue seed.
  * The TABLES did not move. `module` and `area_module` keep their names, their
  * columns and their constraints, the bundle writes those names out explicitly

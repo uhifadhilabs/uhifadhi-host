@@ -17,8 +17,8 @@ use PHPUnit\Framework\TestCase;
 use Uhifadhi\Entity\Department;
 use Uhifadhi\Entity\Position;
 use Uhifadhi\Entity\User;
+use Uhifadhi\Seam\Entity\Module;
 use Uhifadhi\Service\DepartmentLens;
-use Uhifadhi\Trunk\Entity\Module;
 
 /**
  * The department lens: a re-ordering, never a filter. Every module handed in comes back out —

@@ -17,8 +17,8 @@ use PHPUnit\Framework\TestCase;
 use Uhifadhi\Entity\Department;
 use Uhifadhi\Module\DepartmentKpi;
 use Uhifadhi\Module\DepartmentKpiProviderInterface;
+use Uhifadhi\Seam\Entity\Module;
 use Uhifadhi\Service\DepartmentKpiService;
-use Uhifadhi\Trunk\Entity\Module;
 
 /**
  * The KPI seam's rules, stated as tests.

@@ -19,7 +19,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Uhifadhi\Entity\Trait\TimestampableTrait;
 use Uhifadhi\Entity\Trait\UuidTrait;
 use Uhifadhi\Repository\DepartmentRepository;
-use Uhifadhi\Trunk\Entity\Module;
+use Uhifadhi\Seam\Entity\Module;
 
 /**
  * An org-wide unit of the authority (Protection & Security, Ecology, Tourism, …) and the
@@ -48,7 +48,7 @@ class Department
      * The modules this department works in — the owning side, and now the ONLY
      * side, of `department_module`.
      *
-     * A module belongs to uhifadhi/trunk-module, which knows nothing about
+     * A module belongs to uhifadhi/seam-module, which knows nothing about
      * departments and must not: a department is this application's lens over the
      * catalogue, invented here, and a runtime that carried the inverse collection
      * would be carrying a concept only its host has. The join table is unchanged

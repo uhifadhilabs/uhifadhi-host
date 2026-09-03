@@ -17,9 +17,9 @@ use Doctrine\ORM\EntityManagerInterface;
 use Uhifadhi\Factory\AreaModuleFactory;
 use Uhifadhi\Factory\AreaOfInterestFactory;
 use Uhifadhi\Factory\ModuleFactory;
-use Uhifadhi\Trunk\Entity\AreaModule;
-use Uhifadhi\Trunk\Enum\ModuleCategory;
-use Uhifadhi\Trunk\Enum\ModuleStatus;
+use Uhifadhi\Seam\Entity\AreaModule;
+use Uhifadhi\Seam\Enum\ModuleCategory;
+use Uhifadhi\Seam\Enum\ModuleStatus;
 
 /**
  * The customize-modules page and its mutations, through a real login (composing an area is the

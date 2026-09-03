@@ -22,9 +22,9 @@ use Symfony\Component\Routing\Requirement\Requirement;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Uid\Uuid;
 use Uhifadhi\Entity\AreaOfInterest;
+use Uhifadhi\Seam\Repository\AreaModuleRepository;
+use Uhifadhi\Seam\Repository\ModuleRepository;
 use Uhifadhi\Service\AreaCompositionService;
-use Uhifadhi\Trunk\Repository\AreaModuleRepository;
-use Uhifadhi\Trunk\Repository\ModuleRepository;
 
 /**
  * "Customize modules" — the per-area module shop: choose which modules appear on an area, reorder

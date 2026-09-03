@@ -15,17 +15,28 @@ permissions and seed commands.
 Uhifadhi is structured like the thing it protects:
 
 > **the seed — [`uhifadhi/uhifadhi`](https://github.com/uhifadhilabs/uhifadhi)**
-> (planted once) → **`uhifadhi/trunk-module`** (the seam
-> runtime every module registers with) → **branches** (the modules: patrol,
-> incident, roster, map, team, widget, area…) → **`uhifadhi/canopy-module`**
-> (the visible crown).
+> (planted once) → **the seam —
+> [`uhifadhi/seam-module`](https://github.com/uhifadhilabs/seam-module)** (where
+> every module registers) → **branches** (the modules: patrol, incident, roster,
+> map, team, widget, area…) → **the shell —
+> [`uhifadhi/shell-module`](https://github.com/uhifadhilabs/shell-module)** (what
+> you see).
+
+**The tree is a picture, not a naming scheme.** It is the fastest way to explain
+the shape and it lives in prose only — the packages are named for what they do,
+so an import says what it is without the metaphor. The two platform packages
+were `trunk-module` and `canopy-module` until that rule was written down; on a
+conservation platform, `Uhifadhi\Canopy\` plausibly means real canopy. The
+sentence the renames bought is the whole architecture:
+
+> **A module registers with the seam and renders in the shell.**
 
 The seed is the project template — copied once, so boring it never changes.
 Everything above it is a bundle, updated forever through composer: modules branch
-from the trunk, and the canopy is the interface the whole organism shows the sky.
-A custom module registers with the trunk and shows in the canopy — the
+from the seam, and the shell is the interface the whole organism shows the sky.
+A custom module registers with the seam and shows in the shell — the
 [module-contracts](https://github.com/uhifadhilabs/module-contracts) package is
-the DNA every branch carries without carrying the whole trunk.
+the DNA every branch carries without carrying the whole seam.
 
 Spatial data lives in **PostGIS** via
 [`fundistadi/postgis-bundle`](https://github.com/fundistadi/postgis-bundle) —

@@ -37,5 +37,5 @@ return [
     League\FlysystemBundle\FlysystemBundle::class => ['all' => true],
     Uhifadhi\Storage\UhifadhiStorageBundle::class => ['all' => true],
     Uhifadhi\Incident\UhifadhiIncidentBundle::class => ['all' => true],
-    Uhifadhi\Trunk\UhifadhiTrunkBundle::class => ['all' => true],
+    Uhifadhi\Seam\UhifadhiSeamBundle::class => ['all' => true],
 ];
