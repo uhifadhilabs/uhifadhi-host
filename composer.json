@@ -127,7 +127,7 @@
             "allow-contrib": false,
             "require": "8.1.*",
             "endpoint": [
-                "https://raw.githubusercontent.com/uhifadhilabs/recipes/flex/main/index.json",
+                "https://api.github.com/repos/uhifadhilabs/recipes/contents/index.json?ref=flex/main",
                 "flex://defaults"
             ]
         }

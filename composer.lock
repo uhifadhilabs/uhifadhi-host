@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "82ebbd20e26b03bfc0392847427664b6",
+    "content-hash": "77949d7a5d2b0e474cb2f2a848db594e",
     "packages": [
         {
             "name": "api-platform/core",
@@ -9264,13 +9264,13 @@
             "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "git@github.com:uhifadhilabs/trunk-module.git",
-                "reference": "69ee723e7d01ce64d952dbc2b135f6becba149c4"
+                "url": "https://github.com/uhifadhilabs/trunk-module.git",
+                "reference": "f429f9ca169cca3f94cb8c1c28f74db926106150"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/uhifadhilabs/trunk-module/zipball/69ee723e7d01ce64d952dbc2b135f6becba149c4",
-                "reference": "69ee723e7d01ce64d952dbc2b135f6becba149c4",
+                "url": "https://api.github.com/repos/uhifadhilabs/trunk-module/zipball/f429f9ca169cca3f94cb8c1c28f74db926106150",
+                "reference": "f429f9ca169cca3f94cb8c1c28f74db926106150",
                 "shasum": ""
             },
             "require": {
@@ -9351,7 +9351,7 @@
                 "source": "https://github.com/uhifadhilabs/trunk-module/tree/main",
                 "issues": "https://github.com/uhifadhilabs/trunk-module/issues"
             },
-            "time": "2026-09-03T00:29:07+00:00"
+            "time": "2026-09-03T01:00:40+00:00"
         },
         {
             "name": "webmozart/assert",

@@ -17,7 +17,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Uhifadhi\Entity\Trait\TimestampableTrait;
 use Uhifadhi\Entity\Trait\UuidTrait;
 use Uhifadhi\Repository\AreaOfInterestRepository;
-use UhifadhiLabs\Trunk\Area\AreaInterface;
+use UhifadhiLabs\Trunk\Entity\AreaInterface;
 
 /**
  * THE TRUNK'S AREA, RESOLVED. The module seam runtime owns the record of which

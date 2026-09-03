@@ -429,7 +429,16 @@
         "version": "dev-main"
     },
     "uhifadhi/trunk-module": {
-        "version": "dev-main"
+        "version": "0.1",
+        "recipe": {
+            "repo": "github.com/uhifadhilabs/recipes",
+            "branch": "main",
+            "version": "0.1",
+            "ref": "1c92356db57d76043463f67842b07099cf0bee50"
+        },
+        "files": [
+            "config/packages/trunk.yaml"
+        ]
     },
     "uhifadhilabs/patrol-bundle": {
         "version": "dev-main"

@@ -1,20 +1,51 @@
-# The trunk: the module seam runtime every uhifadhi module registers with.
+# The trunk (uhifadhi/trunk-module) — the module seam runtime every uhifadhi
+# module registers with: the catalogue of what this deployment has, the record
+# of what each area switched on, the permissions modules declare, and the seed
+# that keeps them in step.
 #
-# There is deliberately no key listing modules — installing a bundle IS the
-# declaration, and a second place to enable a module is a second place for the
-# two to disagree. The tree is closed: an unknown key fails loudly.
+# ZERO MODULES IS A WORKING INSTALLATION. Nothing below is required — both keys
+# have defaults and the tree is closed, so an unknown key fails loudly rather
+# than being ignored. A freshly planted seed with this bundle and nothing else
+# boots, has an empty catalogue, and is harmless:
+#
+#   bin/console trunk:catalogue:seed
+#   → Catalogue reconciled: 0 module(s) from 0 installed provider(s).
+#
+# THERE IS DELIBERATELY NO KEY LISTING MODULES. Installing a bundle IS the
+# declaration — a module is in the catalogue because its provider carries the
+# uhifadhi.module tag — and a second place to enable one is a second place for
+# the two to disagree.
 trunk:
-    # Where a module the catalogue cannot place is filed. A provider hands over
-    # a category as a string and the trunk coerces it, so a third-party bundle
-    # can never break the catalogue with a typo.
+    # Where a module the catalogue cannot place is filed. A provider hands its
+    # category over as a string and the trunk coerces it, so a module bundle
+    # written by somebody else can never break the catalogue with a typo.
     default_category: operations
 
+# Dev-only tooling hangs off this flag, so a production installation never
+# grows a command that writes invented catalogue rows.
+when@dev:
+    trunk:
+        dev_tools: true
+
+when@test:
+    trunk:
+        dev_tools: true
+
+# THE ONE LINE THE RECIPE COULD NOT WRITE, written. Everything above this
+# comment came from the recipe; this block is ours, and it is the step the
+# recipe's own instructions describe.
+#
+# The trunk owns the record of which modules an AREA has switched on — but an
+# area belongs to this application, not to the bundle. So the bundle maps that
+# association to an interface it publishes, and we resolve the interface to our
+# entity (Uhifadhi\Entity\AreaOfInterest implements it; it asks for getId() and
+# nothing else). A recipe cannot do this: it has no way to know what our area
+# class is called.
+#
+# Without it the catalogue still works and is still deployment-wide; what we
+# would not have is the per-area half, because the per-area table would have
+# nothing to point at.
 doctrine:
     orm:
-        # THE AREA SEAM. The trunk owns the record of which modules an area has,
-        # but areas belong to this application — so the trunk maps that
-        # association to an interface and we resolve it to our own entity.
-        # Without this line the per-area table has no target and the catalogue
-        # is deployment-wide only.
         resolve_target_entities:
-            UhifadhiLabs\Trunk\Area\AreaInterface: Uhifadhi\Entity\AreaOfInterest
+            UhifadhiLabs\Trunk\Entity\AreaInterface: Uhifadhi\Entity\AreaOfInterest
