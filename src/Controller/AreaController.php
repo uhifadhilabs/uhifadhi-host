@@ -65,14 +65,16 @@ final class AreaController extends AbstractController
             ];
         }
 
-        $counts = ['all' => \count($rows), 'live' => 0, 'fire' => 0, 'alerts' => 0, 'queued' => 0];
+        // Only counts the register can actually move: a pill stuck at 0 by construction
+        // is furniture. "Fire module" and "With alerts" were exactly that and are gone;
+        // an alerts-capable module bundle brings its own pill back with a real count.
+        $counts = ['all' => \count($rows), 'live' => 0, 'queued' => 0];
         foreach ($rows as $r) {
             if ($r['liveModules'] > 0) {
                 ++$counts['live'];
             } else {
                 ++$counts['queued'];
             }
-            // fire / alerts stay 0 until an alerts-capable module bundle ships.
         }
 
         return $this->render('dashboard/index.html.twig', ['rows' => $rows, 'counts' => $counts]);

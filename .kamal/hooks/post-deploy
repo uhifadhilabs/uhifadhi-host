@@ -1,6 +1,7 @@
 #!/bin/sh
-# Runs after a successful deploy — applies DB migrations inside the live container so
-# `kamal deploy` is one command. Skipped on rollback (don't migrate onto old code).
+# Runs after a successful deploy — applies DB migrations and reconciles the module
+# catalogue inside the live container, so `kamal deploy` is one command. Skipped on
+# rollback (don't migrate onto old code).
 set -e
 
 case "$KAMAL_COMMAND" in
@@ -9,6 +10,15 @@ case "$KAMAL_COMMAND" in
     # One container only — a bare `app exec` runs on EVERY role, racing
     # concurrent migrations into duplicate-table errors when roles multiply.
     kamal app exec --reuse --primary --roles web "php bin/console doctrine:migrations:migrate --no-interaction"
+
+    # Then reconcile the module catalogue with the module bundles this image actually
+    # ships. Without it a deploy that installs a new module bundle leaves the catalogue
+    # at the previous release's shape — the module's pages answer, but no area can
+    # switch it on because it is in no shop. The command is create-only by design: it
+    # refreshes each catalogue row from its provider and backfills only the per-area
+    # assignments that are missing, never overruling an admin's on/off or ordering.
+    echo "post-deploy » reconciling the module catalogue"
+    kamal app exec --reuse --primary --roles web "php bin/console seam:catalogue:seed --no-interaction"
     ;;
   *)
     echo "post-deploy » skipping migrations for '$KAMAL_COMMAND'"

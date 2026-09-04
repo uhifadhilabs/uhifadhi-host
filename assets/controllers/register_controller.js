@@ -2,8 +2,9 @@ import { Controller } from '@hotwired/stimulus';
 
 /*
  * The areas register: wires the search box, the filter pills (All / Live data /
- * Fire module / With alerts / Queued) and column sorting — all client-side over the
- * rendered rows. Each <tr> carries data-* keys; pills carry data-filter; sortable
+ * Queued) and column sorting — all client-side over the rendered rows. A pill exists
+ * only where the host can count the thing it filters on.
+ * Each <tr> carries data-* keys; pills carry data-filter; sortable
  * <th> carry data-sort. Default sort: total loss, descending (matches the design).
  */
 export default class extends Controller {
@@ -89,8 +90,6 @@ export default class extends Controller {
         switch (this.filter) {
             case 'live': return row.dataset.live === '1';
             case 'queued': return row.dataset.live === '0';
-            case 'fire': return row.dataset.fire === '1';
-            case 'alerts': return Number(row.dataset.alerts || 0) > 0;
             default: return true; // all
         }
     }

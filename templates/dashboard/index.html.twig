@@ -37,8 +37,6 @@
                     {% for p in [
                         {k: 'all', label: 'All', n: counts.all},
                         {k: 'live', label: 'Live data', n: counts.live},
-                        {k: 'fire', label: 'Fire module', n: counts.fire},
-                        {k: 'alerts', label: 'With alerts', n: counts.alerts},
                         {k: 'queued', label: 'Queued', n: counts.queued},
                     ] %}
                         <a href="#" data-register-target="pill" data-filter="{{ p.k }}"
@@ -65,7 +63,7 @@
                                 data-action="click->register#open"
                                 data-href="{{ path('dashboard_area_show', {uuid: row.area.uuid}) }}"
                                 data-name="{{ row.area.name|lower }}"
-                                data-live="{{ row.liveModules > 0 ? 1 : 0 }}" data-fire="0" data-alerts="0"
+                                data-live="{{ row.liveModules > 0 ? 1 : 0 }}"
                                 data-km2="{{ row.areaKm2 }}">
                                 <td>
                                     <div style="display:flex;gap:12px;align-items:center">
