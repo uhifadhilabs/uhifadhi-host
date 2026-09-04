@@ -19,6 +19,17 @@ case "$KAMAL_COMMAND" in
     # assignments that are missing, never overruling an admin's on/off or ordering.
     echo "post-deploy » reconciling the module catalogue"
     kamal app exec --reuse --primary --roles web "php bin/console seam:catalogue:seed --no-interaction"
+
+    # And the incident taxonomy, for the same reason and to the same bar. Without it the filing
+    # form's "What kind" list is EMPTY and no incident can be reported at all — which is exactly
+    # what production shipped with, because the taxonomy is seeded rows and a fresh database has
+    # none. It clears the create-only test the catalogue seed set: idempotent (a second run
+    # changes nothing), non-destructive (a category dropped from the configuration is left in
+    # place, never deleted — incidents are filed against it), and it re-states configuration
+    # rather than user work. Nothing in the app edits these rows, so there is no admin decision
+    # here for a deploy to overrule.
+    echo "post-deploy » reconciling the incident taxonomy"
+    kamal app exec --reuse --primary --roles web "php bin/console incidents:taxonomy:sync --no-interaction"
     ;;
   *)
     echo "post-deploy » skipping migrations for '$KAMAL_COMMAND'"
