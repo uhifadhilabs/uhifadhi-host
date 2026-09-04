@@ -1,0 +1,109 @@
+{# ADD A COLLEAGUE: the account itself — email, name, tier, and (for a tier that does not hold
+   everything by tier) the position that grants their permissions.
+
+   The password is GENERATED and shown ONCE, right here, on the answer. Nothing is emailed: this
+   deployment sends no mail, so the handover is the admin reading the password out. That is why
+   the screen answers by rendering rather than redirecting — a redirect would throw the one copy
+   away — and why a fresh visit shows no password at all. #}
+{% extends 'layout.html.twig' %}
+
+{% block title %}New member — Uhifadhi{% endblock %}
+
+{% block content %}
+    <div class="page">
+        <div class="crumb"><a href="{{ path('dashboard_index') }}">uhifadhi</a> / <a href="{{ path('app_team') }}">team</a> / member</div>
+        <div class="pghead">
+            <div>
+                <h1 class="pg">New member</h1>
+                <p class="pgsub">A member signs in with their <b>email</b>. Their <b>tier</b> is the coarse
+                    permission — Super Admin, Admin and Manager administer the team;
+                    <b>Staff</b> hold exactly their position’s permissions, which is why a position is
+                    asked for below. The password is generated here and shown <b>once</b>: hand it over
+                    yourself, nothing is emailed.</p>
+            </div>
+        </div>
+
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="c tm-flash"><span class="acc">{{ label == 'error' ? '!' : '✓' }}</span> {{ message }}</div>
+            {% endfor %}
+        {% endfor %}
+
+        <div class="tm-formwrap">
+            {% if created %}
+                {# The one copy of the password. Stated as a handover, not as a receipt. #}
+                <div class="c tm-cred">
+                    <span class="tab"><span class="idx">PL·11</span>Credentials<span class="src">· shown once</span></span>
+                    <p class="tm-hint">Give these to <b>{{ created.user.fullName }}</b> now. The password is not
+                        stored in readable form and this page will not show it again — if it is lost, create a new
+                        password for them from the console.</p>
+                    <dl class="tm-credlist">
+                        <dt>Email</dt>
+                        <dd class="mono">{{ created.user.email }}</dd>
+                        <dt>Password</dt>
+                        <dd class="mono" data-generated-password>{{ created.password }}</dd>
+                        <dt>Tier</dt>
+                        <dd><span class="tier t-{{ created.user.teamRole.value }}">{{ created.user.teamRole.label }}</span></dd>
+                        <dt>Position</dt>
+                        <dd>
+                            {% if created.user.teamRole.canManageContent %}
+                                <span class="fog mono tm-none">— by tier</span>
+                            {% elseif created.user.position %}
+                                <b>{{ created.user.position.department ? created.user.position.department.name : 'Unfiled' }}</b>
+                                / {{ created.user.position.name }}
+                            {% else %}
+                                <span class="fog mono tm-none">unassigned</span>
+                            {% endif %}
+                        </dd>
+                    </dl>
+                </div>
+            {% endif %}
+
+            {{ form_start(form) }}
+                <div class="c">
+                    <span class="tab"><span class="idx">PL·12</span>Member<span class="src">· email + name + tier</span></span>
+
+                    <div class="tm-formerrors">{{ form_errors(form) }}</div>
+
+                    <label class="matrix-label" for="{{ form.email.vars.id }}"><span class="step">1</span>Email</label>
+                    {{ form_widget(form.email, {attr: {class: 'fld', placeholder: 'e.g. name@authority.go.tz'}}) }}
+                    <div class="r tm-fielderrors">{{ form_errors(form.email) }}</div>
+
+                    <label class="matrix-label tm-spaced" for="{{ form.firstName.vars.id }}"><span class="step">2</span>Name</label>
+                    {{ form_widget(form.firstName, {attr: {class: 'fld', placeholder: 'First name'}}) }}
+                    <div class="r tm-fielderrors">{{ form_errors(form.firstName) }}</div>
+                    <div class="tm-spaced-sm">{{ form_widget(form.lastName, {attr: {class: 'fld', placeholder: 'Last name'}}) }}</div>
+                    <div class="r tm-fielderrors">{{ form_errors(form.lastName) }}</div>
+
+                    <label class="matrix-label tm-spaced" for="tm-tier"><span class="step">3</span>Tier</label>
+                    <select class="fld sel" id="tm-tier" name="tier" required>
+                        {% for candidate in tiers %}
+                            <option value="{{ candidate.value }}" {{ tier.value == candidate.value ? 'selected' }}>{{ candidate.label }}</option>
+                        {% endfor %}
+                    </select>
+                    <p class="tm-hint">Super Admin, Admin and Manager administer the team. Only <b>Staff</b> and
+                        <b>Manager</b> take a position — Super Admin and Admin hold every permission by tier, so a
+                        position picked for them is dropped.</p>
+
+                    <label class="matrix-label tm-spaced" for="tm-position"><span class="step">4</span>Position</label>
+                    {# Department-first, in band order: a bare "Analyst" names two different positions. #}
+                    <select class="fld sel" id="tm-position" name="position">
+                        <option value="">— unassigned —</option>
+                        {% for candidate in positions %}
+                            <option value="{{ candidate.uuidString }}" {{ position and position.uuidString == candidate.uuidString ? 'selected' }}>
+                                {{ candidate.department ? candidate.department.name : 'Unfiled' }} / {{ candidate.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <p class="tm-hint">A member’s department follows their position. It can be set later from the
+                        People widget, so leaving this unassigned is a real answer.</p>
+
+                    <div class="tm-formfoot">
+                        <a href="{{ path('app_team') }}" class="fog tm-back">← Back to team</a>
+                        <button type="submit" class="cta tm-submit">Create member</button>
+                    </div>
+                </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+{% endblock %}

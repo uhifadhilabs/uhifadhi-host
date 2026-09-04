@@ -25,6 +25,8 @@ use Symfony\Component\Uid\Uuid;
 use Uhifadhi\Entity\Department;
 use Uhifadhi\Entity\Position;
 use Uhifadhi\Entity\User;
+use Uhifadhi\Enum\TeamRoleEnum;
+use Uhifadhi\Form\MemberType;
 use Uhifadhi\Form\PositionType;
 use Uhifadhi\Model\Permission;
 use Uhifadhi\Model\TeamWidgets;
@@ -367,6 +369,60 @@ final class TeamController extends AbstractController
         return $this->redirectToRoute('app_team');
     }
 
+    /**
+     * ADD A COLLEAGUE — the one act the roster never offered, so an account could only be made
+     * from a console the client does not have. Super Admin only: it hands out a TIER, and a tier
+     * is the coarsest permission the app has (Admin and Manager may administer positions, not
+     * mint the people who hold them).
+     *
+     * There is no mail flow in this deployment, so nothing is emailed and nothing is confirmed:
+     * the account is verified from birth and the app generates the password, shown ONCE on the
+     * answer page for the admin to hand over. That is why a successful create RENDERS rather
+     * than redirects — a Post/Redirect/Get would throw the one copy of the password away.
+     */
+    #[Route('/members/new', name: 'app_team_member_new', methods: ['GET', 'POST'])]
+    #[IsGranted('ROLE_SUPER_ADMIN')]
+    public function memberNew(Request $request): Response
+    {
+        $form = $this->createForm(MemberType::class, ['email' => '', 'firstName' => '', 'lastName' => '']);
+        $form->handleRequest($request);
+
+        $tier = $this->tierFromRequest($request);
+        $position = $this->positionFromRequest($request);
+        $created = null;
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $email = $this->fieldFrom($form, 'email');
+            if ($this->team->emailIsFree($email)) {
+                $created = $this->team->createMember(
+                    $email,
+                    $this->fieldFrom($form, 'firstName'),
+                    $this->fieldFrom($form, 'lastName'),
+                    $tier,
+                    $position,
+                );
+                $this->addFlash('success', \sprintf(
+                    'Created %s as %s. Hand them the password below — it is shown once.',
+                    $created['user']->getFullName(),
+                    $tier->label(),
+                ));
+                // A fresh form: the screen's next job is the next colleague, not this one again.
+                $form = $this->createForm(MemberType::class, ['email' => '', 'firstName' => '', 'lastName' => '']);
+            } else {
+                $this->addFlash('error', \sprintf('“%s” already belongs to a member of this team.', $email));
+            }
+        }
+
+        return $this->render('team/member_form.html.twig', [
+            'form' => $form,
+            'tiers' => TeamRoleEnum::cases(),
+            'tier' => $tier,
+            'positions' => $this->team->positionsInBandOrder(),
+            'position' => $position,
+            'created' => $created,
+        ]);
+    }
+
     #[Route('/members/{uuid}/assign', name: 'app_team_member_assign', requirements: ['uuid' => Requirement::UUID], methods: ['POST'])]
     public function memberAssign(
         #[MapEntity(mapping: ['uuid' => 'uuid'])] User $member,
@@ -472,9 +528,21 @@ final class TeamController extends AbstractController
     /** The submitted name — a non-empty string once the form is valid (NotBlank). */
     private function nameFrom(FormInterface $form): string
     {
-        $name = $form->get('name')->getData();
+        return $this->fieldFrom($form, 'name');
+    }
 
-        return \is_string($name) ? trim($name) : '';
+    /** One submitted text field, trimmed — non-empty once the form is valid (NotBlank). */
+    private function fieldFrom(FormInterface $form, string $field): string
+    {
+        $value = $form->get($field)->getData();
+
+        return \is_string($value) ? trim($value) : '';
+    }
+
+    /** The submitted tier. An unknown or absent value is Staff — the tier that grants nothing by itself. */
+    private function tierFromRequest(Request $request): TeamRoleEnum
+    {
+        return TeamRoleEnum::tryFrom($request->request->getString('tier')) ?? TeamRoleEnum::Staff;
     }
 
     /**

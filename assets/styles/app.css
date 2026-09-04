@@ -2281,6 +2281,20 @@ table.tbl td.dcell + td { white-space: nowrap; }
 .tm-back { font-size: 12px; text-decoration: none; }
 .tm-submit { margin-left: auto; border: 0; cursor: pointer; }
 
+/* ---- the member screen: the credentials shown once ----------------------- */
+.tm-spaced-sm { margin-top: 8px; }
+.tm-cred { margin-bottom: 18px; }
+.tm-credlist {
+    display: grid; grid-template-columns: 92px 1fr; gap: 8px 14px;
+    margin: 14px 0 0; font-size: 13px; align-items: baseline;
+}
+.tm-credlist dt {
+    font-family: var(--font-display); font-size: 10.5px; font-weight: 700;
+    letter-spacing: .1em; text-transform: uppercase; color: rgb(var(--c-dim));
+}
+.tm-credlist dd { margin: 0; word-break: break-all; }
+.tm-credlist dd.mono { font-size: 13.5px; }
+
 /* ---- widget-preview safety ----------------------------------------------- */
 /* The library's preview column is narrower than a page: a wide positions table
    scrolls inside its own widget rather than pushing the page sideways. */

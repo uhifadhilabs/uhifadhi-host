@@ -23,6 +23,11 @@
                     <b>inside</b> its department.</p>
             </div>
             <div class="pgact w-pgact">
+                {# Minting a person hands out a TIER, so it is Super Admin only — the one action on
+                   this page that is not open to every tier the controller lets in. #}
+                {% if is_granted('ROLE_SUPER_ADMIN') %}
+                    <a class="tgl w-act" href="{{ path('app_team_member_new') }}">{{ ux_icon('lucide:user-plus') }}New member</a>
+                {% endif %}
                 <a class="tgl w-act" href="{{ path('app_team_position_new') }}">{{ ux_icon('lucide:plus') }}New position</a>
                 <a class="tgl w-act" href="{{ path('app_team_widgets') }}">{{ ux_icon('lucide:layout-grid') }}Widget library</a>
             </div>

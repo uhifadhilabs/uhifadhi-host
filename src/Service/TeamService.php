@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Uhifadhi\Service;
 
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Uhifadhi\Entity\Department;
 use Uhifadhi\Entity\Position;
 use Uhifadhi\Entity\User;
@@ -54,10 +55,18 @@ final readonly class TeamService
      */
     public const int TONES = 6;
 
+    /**
+     * The alphabet a generated password is drawn from. The password is handed over by hand —
+     * read aloud across a desk or typed off a note — so every character a reader confuses with
+     * another (0/O, 1/l/I) is out. Length, not alphabet size, carries the entropy.
+     */
+    private const string ALPHABET = 'abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+
     public function __construct(
         private EntityManagerInterface $em,
         private UserRepository $users,
         private DepartmentRepository $departments,
+        private UserPasswordHasherInterface $hasher,
     ) {
     }
 
@@ -252,6 +261,62 @@ final readonly class TeamService
     {
         $position->setDepartment($department);
         $this->em->flush();
+    }
+
+    /**
+     * Whether this email is free to take. Asked in the app's own words so a duplicate is a
+     * sentence on the screen rather than a 500 from the unique index behind it.
+     */
+    public function emailIsFree(string $email): bool
+    {
+        return null === $this->users->findOneByEmail(trim($email));
+    }
+
+    /**
+     * Create a member and hand back the password they were given. There is NO mail flow in this
+     * deployment, so an account is verified from birth and its password is generated here and
+     * shown to the creating admin exactly once — the handover is out of band, by design.
+     *
+     * A position is only ever kept for a tier that does not already hold everything by tier
+     * ({@see canManage()}); on a managing tier it would be meaningless, so it is dropped rather
+     * than stored as a decoration.
+     *
+     * @return array{user: User, password: string}
+     */
+    public function createMember(
+        string $email,
+        string $firstName,
+        string $lastName,
+        TeamRoleEnum $tier,
+        ?Position $position = null,
+    ): array {
+        $password = self::generatePassword();
+
+        $user = new User()
+            ->setEmail(trim($email))
+            ->setFirstName(trim($firstName))
+            ->setLastName(trim($lastName))
+            ->setTeamRole($tier)
+            ->setPosition($tier->canManageContent() ? null : $position)
+            ->setVerified(true);
+        $user->setPassword($this->hasher->hashPassword($user, $password));
+
+        $this->em->persist($user);
+        $this->em->flush();
+
+        return ['user' => $user, 'password' => $password];
+    }
+
+    /** A one-off password for a new member — see {@see self::ALPHABET} for why it reads the way it does. */
+    public static function generatePassword(int $length = 20): string
+    {
+        $last = \strlen(self::ALPHABET) - 1;
+        $password = '';
+        for ($i = 0; $i < $length; ++$i) {
+            $password .= self::ALPHABET[random_int(0, $last)];
+        }
+
+        return $password;
     }
 
     public function assignPosition(User $user, ?Position $position): void
