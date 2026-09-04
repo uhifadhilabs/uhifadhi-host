@@ -227,19 +227,98 @@ final class TeamManagementTest extends AuthenticatedWebTestCase
 
         $crawler = $client->request('GET', '/team/positions/'.$ranger->getUuidString().'/edit');
         self::assertResponseIsSuccessful();
-        // On edit the department is stated, not editable — a position does not move.
-        self::assertCount(0, $crawler->filter('select[name="department"]'));
-        self::assertStringContainsString('Protection Service', $crawler->filter('.tm-deptfixed')->text());
+        // The edit screen states the department AS A SELECT, preselected on the one it holds:
+        // this is the screen that owns a position whole, so it is where its department is set.
+        $selected = $crawler->filter('select[name="department"] option[selected]');
+        self::assertCount(1, $selected);
+        self::assertSame((string) $protection->getUuidString(), $selected->attr('value'));
 
         // Ecology's Analyst is no obstacle: the check runs against Protection Service alone.
         $token = $crawler->filter('input[name="position[_token]"]')->attr('value');
         $client->request('POST', '/team/positions/'.$ranger->getUuidString().'/edit', [
             'position' => ['name' => 'Analyst', '_token' => $token],
+            'department' => $protection->getUuidString(),
             'permissions' => [PermissionEnum::AreaView->value],
         ]);
 
         self::assertResponseRedirects('/team');
         self::assertCount(2, $this->positions()->findBy(['name' => 'Analyst']));
+    }
+
+    /**
+     * THE EDIT SCREEN IS WHERE A POSITION'S DEPARTMENT IS SET.
+     *
+     * It used to state the department read-only and send the reader to "the Positions widget" —
+     * which only ever offered the move for UNFILED positions, so for a filed one the sentence
+     * named a control that does not exist. The screen that owns the position owns its department.
+     */
+    public function testTheEditScreenMovesAPositionToAnotherDepartmentAndItsHoldersMoveWithIt(): void
+    {
+        $client = static::createClient();
+        $ecology = DepartmentFactory::createOne(['name' => 'Ecology']);
+        $protection = DepartmentFactory::createOne(['name' => 'Protection Service']);
+        $ranger = PositionFactory::createOne(['name' => 'Ranger', 'department' => $ecology]);
+        $holder = UserFactory::createOne(['teamRole' => TeamRoleEnum::Staff, 'position' => $ranger]);
+        $this->loginAs($client, TeamRoleEnum::Manager);
+
+        $crawler = $client->request('GET', '/team/positions/'.$ranger->getUuidString().'/edit');
+        // The dead-end sentence is gone: there is a control here, so nothing points elsewhere.
+        self::assertStringNotContainsString('from the Positions widget', (string) $client->getResponse()->getContent());
+
+        $client->request('POST', '/team/positions/'.$ranger->getUuidString().'/edit', [
+            'position' => ['name' => 'Ranger', '_token' => $crawler->filter('input[name="position[_token]"]')->attr('value')],
+            'department' => $protection->getUuidString(),
+            'permissions' => [PermissionEnum::AreaView->value],
+        ]);
+
+        self::assertResponseRedirects('/team');
+        self::assertSame('Protection Service', $this->positionByName('Ranger')?->getDepartment()?->getName());
+        // Membership is indirect: the holder followed without their row being touched.
+        self::assertSame('Protection Service', $this->reload($holder)->getPosition()?->getDepartment()?->getName());
+    }
+
+    public function testAMoveIntoADepartmentThatAlreadyHasTheNameIsRefusedInWords(): void
+    {
+        $client = static::createClient();
+        $ecology = DepartmentFactory::createOne(['name' => 'Ecology']);
+        $protection = DepartmentFactory::createOne(['name' => 'Protection Service']);
+        $analyst = PositionFactory::createOne(['name' => 'Analyst', 'department' => $ecology]);
+        PositionFactory::createOne(['name' => 'Analyst', 'department' => $protection]);
+        $this->loginAs($client, TeamRoleEnum::Manager);
+
+        $crawler = $client->request('GET', '/team/positions/'.$analyst->getUuidString().'/edit');
+        $crawler = $client->request('POST', '/team/positions/'.$analyst->getUuidString().'/edit', [
+            'position' => ['name' => 'Analyst', '_token' => $crawler->filter('input[name="position[_token]"]')->attr('value')],
+            'department' => $protection->getUuidString(),
+            'permissions' => [PermissionEnum::AreaView->value],
+        ]);
+
+        // Refused as a sentence on the screen, not a 500 from the unique index behind it.
+        self::assertResponseIsSuccessful();
+        self::assertStringContainsString('Analyst', $crawler->filter('.tm-flash')->text());
+        self::assertSame('Ecology', $this->positionByName('Analyst')?->getDepartment()?->getName());
+    }
+
+    /**
+     * A position may also be sent BACK to the holding pen — the select's first option is Unfiled,
+     * and it is a real answer, not a placeholder.
+     */
+    public function testTheEditScreenCanUnfileAPosition(): void
+    {
+        $client = static::createClient();
+        $ecology = DepartmentFactory::createOne(['name' => 'Ecology']);
+        $ranger = PositionFactory::createOne(['name' => 'Ranger', 'department' => $ecology]);
+        $this->loginAs($client, TeamRoleEnum::Manager);
+
+        $crawler = $client->request('GET', '/team/positions/'.$ranger->getUuidString().'/edit');
+        $client->request('POST', '/team/positions/'.$ranger->getUuidString().'/edit', [
+            'position' => ['name' => 'Ranger', '_token' => $crawler->filter('input[name="position[_token]"]')->attr('value')],
+            'department' => 'unfiled',
+            'permissions' => [PermissionEnum::AreaView->value],
+        ]);
+
+        self::assertResponseRedirects('/team');
+        self::assertNull($this->positionByName('Ranger')?->getDepartment());
     }
 
     public function testStaffHaveNoAccessToTheTeamScreen(): void

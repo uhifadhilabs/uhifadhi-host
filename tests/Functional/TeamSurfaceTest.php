@@ -227,6 +227,80 @@ final class TeamSurfaceTest extends AuthenticatedWebTestCase
         );
     }
 
+    // ------------------------------------------------- the page's own furniture
+
+    /**
+     * WIDGET-ID CHIPS ARE DESIGN-WORKSPACE FURNITURE, NOT PRODUCT UI.
+     *
+     * "PL·01", "PL·02" are the numbers the static design files carry so a reviewer can point at a
+     * plate by name. They mean nothing to a ranger reading the roster, and a product screen that
+     * ships them is showing the reader the scaffolding. The library page renders EVERY widget in
+     * the catalogue, so asking it is asking all of them at once.
+     */
+    public function testNoWidgetIdChipShipsOnTheTeamSurface(): void
+    {
+        $client = static::createClient();
+        $this->twinAnalysts();
+        $this->loginAs($client, TeamRoleEnum::Manager);
+
+        foreach (['/team', '/team/widgets', '/team/positions/new'] as $path) {
+            $crawler = $client->request('GET', $path);
+            self::assertResponseIsSuccessful();
+
+            self::assertCount(0, $crawler->filter('.c .tab .idx'), $path.' ships no widget-id chip');
+            self::assertDoesNotMatchRegularExpression(
+                '/\bPL[·.]\d/u',
+                (string) $client->getResponse()->getContent(),
+                $path.' ships no PL· design reference',
+            );
+        }
+    }
+
+    /**
+     * THE PLATE TAB MUST NOT BE CLIPPED BY ITS OWN CARD.
+     *
+     * The tab straddles the card's top border (`position: absolute; top: -9px`), so any scroll
+     * container on the card itself cuts the title in half — `overflow-x: auto` computes
+     * `overflow-y` to `auto` too, and a scroll container clips its positioned descendants. The
+     * fix is the one this stylesheet already uses for wide registers (.ztblwrap): the SCROLL goes
+     * on a wrapper around the table, never on the plate.
+     *
+     * This pins the structure. That the title then renders whole is a visual fact, checked by
+     * rasterizing the page.
+     */
+    public function testAWideTeamTableScrollsInAWrapperRatherThanInThePlateItself(): void
+    {
+        $client = static::createClient();
+        $this->twinAnalysts();
+        $this->loginAs($client, TeamRoleEnum::Manager);
+
+        $crawler = $client->request('GET', '/team');
+
+        foreach (['[data-people]', '[data-positions="a"]'] as $plate) {
+            self::assertCount(
+                0,
+                $crawler->filter($plate.' > table.tbl'),
+                $plate.' does not hold its table directly — the scroll wrapper is between them',
+            );
+            self::assertCount(1, $crawler->filter($plate.' > .tm-tblwrap > table.tbl'), $plate.' scrolls in a wrapper');
+        }
+    }
+
+    /**
+     * "File…" spelled with an ellipsis promises a further step — a dialog, a second screen. There
+     * is none: the button files the position there and then. It is the SAVE for the select beside
+     * it, and it has to read like one.
+     */
+    public function testTheUnfiledRowsDepartmentSelectIsSavedByAPlainFileButton(): void
+    {
+        $crawler = $this->widget('positions_a');
+
+        $form = $crawler->filter('[data-positions="a"] tr.prow form[action$="/department"]');
+        self::assertCount(1, $form, 'the holding pen offers exactly one file control');
+        self::assertCount(1, $form->filter('select[name="department"]'));
+        self::assertSame('File', trim($form->filter('button[type="submit"]')->text()));
+    }
+
     // ------------------------------------------------------------------ library
 
     public function testTheLibraryOffersTheFiveDirectionsAndDeclaresEveryWidget(): void

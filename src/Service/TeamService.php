@@ -227,14 +227,24 @@ final readonly class TeamService
     }
 
     /**
+     * Save a position whole: its name, its permissions and the department it belongs to. The
+     * department is part of the same save because moving re-scopes the name — the caller has
+     * already asked {@see nameIsFree()} against the TARGET department, so the two land together
+     * or not at all. Holders follow by inheritance; none of their rows are touched.
+     *
      * @param list<string> $permissionValues catalogue-validated values — core
      *                                       and module-declared permissions alike
      */
-    public function updatePosition(Position $position, string $name, array $permissionValues): void
-    {
-        // A locked position keeps its label (reserved); its permissions may still change.
+    public function updatePosition(
+        Position $position,
+        string $name,
+        array $permissionValues,
+        ?Department $department = null,
+    ): void {
+        // A locked position keeps its label (reserved) and its department; permissions may change.
         if (!$position->isLocked()) {
             $position->setName(trim($name));
+            $position->setDepartment($department);
         }
         $position->setPermissionValues($permissionValues);
 
@@ -305,6 +315,27 @@ final readonly class TeamService
         $this->em->flush();
 
         return ['user' => $user, 'password' => $password];
+    }
+
+    /**
+     * Give an EXISTING member a new password, and hand it back to be shown once.
+     *
+     * The other half of a deployment with no mail flow. Creation shows the password once, which
+     * is correct and is also the whole failure mode: an admin who closed that page, or who
+     * inherited an account somebody else made, has no way back to it and no "forgot password"
+     * mail to fall back on. Same alphabet, same show-once rule, same out-of-band handover — this
+     * is the creation act performed again on an account that already exists.
+     *
+     * Every session the member currently holds keeps working; it is the PASSWORD that changed,
+     * and the old one stops authenticating immediately.
+     */
+    public function regeneratePassword(User $user): string
+    {
+        $password = self::generatePassword();
+        $user->setPassword($this->hasher->hashPassword($user, $password));
+        $this->em->flush();
+
+        return $password;
     }
 
     /** A one-off password for a new member — see {@see self::ALPHABET} for why it reads the way it does. */

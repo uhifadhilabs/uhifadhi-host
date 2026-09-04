@@ -1,11 +1,10 @@
 {# The full create/edit screen for one position: its department, its name, its permission matrix.
 
-   DEPARTMENT IS FIELD ONE on create, and it is required — the uniqueness check runs against the
-   chosen department only, so the name field cannot be answered until it is. On EDIT the
-   department is stated and read-only: a position does not move between departments, because
-   moving it would silently re-scope its name against a set of names nobody was looking at. The
-   one exception is the unfiled holding pen, whose File… control lives on the position rows
-   themselves — where the transition is visible as a transition. #}
+   DEPARTMENT IS FIELD ONE, on create and on edit alike, and it is required — the uniqueness
+   check runs against the chosen department only, so the name field cannot be answered until it
+   is. Moving a position DOES re-scope its name, which is why the move belongs here, on the screen
+   that owns the position whole and re-checks the name as part of the save, rather than on a row
+   control that could only ever reach the unfiled holding pen. #}
 {% extends 'layout.html.twig' %}
 
 {% block title %}{{ heading }} — Uhifadhi{% endblock %}
@@ -31,33 +30,27 @@
         <div class="tm-formwrap">
             {{ form_start(form) }}
                 <div class="c">
-                    <span class="tab"><span class="idx">PL·10</span>Position<span class="src">· department + name + permissions</span></span>
+                    <span class="tab">Position<span class="src">· department + name + permissions</span></span>
 
                     <div class="tm-formerrors">{{ form_errors(form) }}</div>
 
                     <label class="matrix-label" for="tm-department"><span class="step">1</span>Department</label>
-                    {% if position %}
-                        {# Stated, not editable: see the banner. #}
-                        <p class="tm-deptfixed">
-                            {% if department %}
-                                <b>{{ department.name }}</b><span class="dept-via">this position’s department</span>
-                            {% else %}
-                                <b>Unfiled</b><span class="dept-via">file it from the Positions widget</span>
-                            {% endif %}
-                        </p>
-                    {% else %}
-                        <select class="fld sel" id="tm-department" name="department" required>
-                            <option value="" disabled {{ department ? '' : 'selected' }}>— choose a department —</option>
-                            {% for candidate in departments %}
-                                <option value="{{ candidate.uuidString }}" {{ department and department.uuidString == candidate.uuidString ? 'selected' }}>{{ candidate.name }}</option>
-                            {% endfor %}
-                            {# A non-empty sentinel so `required` still blocks the placeholder: the
-                               controller reads anything that is not a department uuid as unfiled. #}
-                            <option value="unfiled">Unfiled — no department yet</option>
-                        </select>
-                        <p class="tm-hint">The name below only has to be free in <b>this</b> department. Another
-                            department may already have one spelled the same way, and that is expected.</p>
-                    {% endif %}
+                    {# The same control on create and on edit. This screen owns the position whole,
+                       so it owns its department: the row-level File control only ever offered the
+                       move for an UNFILED position, which left a filed one with nowhere to go. #}
+                    <select class="fld sel" id="tm-department" name="department" required>
+                        <option value="" disabled {{ department or position ? '' : 'selected' }}>— choose a department —</option>
+                        {% for candidate in departments %}
+                            <option value="{{ candidate.uuidString }}" {{ department and department.uuidString == candidate.uuidString ? 'selected' }}>{{ candidate.name }}</option>
+                        {% endfor %}
+                        {# A non-empty sentinel so `required` still blocks the placeholder: the
+                           controller reads anything that is not a department uuid as unfiled. #}
+                        <option value="unfiled" {{ position and not department ? 'selected' }}>Unfiled — no department yet</option>
+                    </select>
+                    <p class="tm-hint">The name below only has to be free in <b>this</b> department. Another
+                        department may already have one spelled the same way, and that is expected.
+                        {% if position %}Moving this position re-checks its name against the department it
+                            moves into, and every holder moves with it.{% endif %}</p>
 
                     <label class="matrix-label tm-spaced" for="{{ form.name.vars.id }}"><span class="step">2</span>Name</label>
                     {{ form_widget(form.name, {attr: {class: 'fld', placeholder: 'e.g. Analyst'}}) }}
