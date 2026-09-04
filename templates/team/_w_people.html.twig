@@ -13,14 +13,19 @@
 {% import 'team/_positions.html.twig' as pos %}
 
 <div class="c" data-people>
-    <span class="tab"><span class="idx">PL·01</span>People<span class="src">· {{ members|length }} member{{ members|length == 1 ? '' : 's' }}</span></span>
+    <span class="tab">People<span class="src">· {{ members|length }} member{{ members|length == 1 ? '' : 's' }}</span></span>
 
+    {# The scroll lives on this wrapper, never on the plate: a plate that scrolls itself clips the
+       tab hanging over its own top border, and the title is cut in half. #}
+    <div class="tm-tblwrap">
     <table class="tbl">
         <thead>
         <tr>
             <th>Member</th><th>Email</th><th>Tier</th><th>Position</th>
             <th class="dept-col">Department</th>
             {% if canManage %}<th>Assign</th>{% endif %}
+            {# Handing somebody a way in is a Super Admin act, exactly as minting them is. #}
+            {% if is_granted('ROLE_SUPER_ADMIN') %}<th>Password</th>{% endif %}
         </tr>
         </thead>
         <tbody>
@@ -80,12 +85,33 @@
                         {% endif %}
                     </td>
                 {% endif %}
+
+                {# THE RECOVERY THIS DEPLOYMENT WOULD OTHERWISE NOT HAVE. No mail is sent here, so
+                   there is no "forgot password" link: an account whose generated password was
+                   never written down is locked out. This generates another one, shown once. #}
+                {% if is_granted('ROLE_SUPER_ADMIN') %}
+                    <td>
+                        {# data-turbo off: the answer RENDERS the one copy of the password, and
+                           Turbo Drive discards any form response that is not a redirect. #}
+                        <form method="post" data-turbo="false"
+                              action="{{ path('app_team_member_password', {uuid: member.uuidString}) }}">
+                            <input type="hidden" name="_token" value="{{ csrf_token('team_member_password_' ~ member.uuidString) }}">
+                            <button class="open-btn" type="submit"
+                                    {{ stimulus_controller('confirm-modal') }}
+                                    data-action="click->confirm-modal#ask"
+                                    data-confirm-modal-title-value="New password for {{ member.fullName }}?"
+                                    data-confirm-modal-message-value="Their current password stops working immediately. The new one is shown once, on the next screen, for you to hand over — nothing is emailed."
+                                    data-confirm-modal-confirm-label-value="Generate password">Regenerate</button>
+                        </form>
+                    </td>
+                {% endif %}
             </tr>
         {% else %}
-            <tr><td colspan="6"><span class="fog tm-none">Nobody on the team yet.</span></td></tr>
+            <tr><td colspan="7"><span class="fog tm-none">Nobody on the team yet.</span></td></tr>
         {% endfor %}
         </tbody>
     </table>
+    </div>
 
     <p class="use"><b>Department is read-only here</b> — it follows the position. Move a position to
         another department and every holder moves with it. A position is always written

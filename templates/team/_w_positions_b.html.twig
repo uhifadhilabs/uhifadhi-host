@@ -16,7 +16,7 @@
 {% for band in bands|filter(b => b.key == scope) %}{% set chosen = band %}{% endfor %}
 
 <div class="c" data-positions="b" data-f="{{ chosen ? chosen.key : 'all' }}">
-    <span class="tab"><span class="idx">PL·02</span>Positions<span class="src">· {{ positions|length }} · filtered by department</span></span>
+    <span class="tab">Positions<span class="src">· {{ positions|length }} · filtered by department</span></span>
     <p class="use tm-lead">Pick a department and the table is <b>only</b> that department — so a bare
         <b>Analyst</b> is never ambiguous, because you can see whose list you are in. In <b>All</b>, every name is
         written department-first: <span class="mono tm-eg">Ecology / Analyst</span>.</p>
@@ -54,6 +54,8 @@
         </div>
     {% endif %}
 
+    {# The scroll lives on this wrapper, never on the plate — see _w_people. #}
+    <div class="tm-tblwrap">
     <table class="tbl" data-postbl>
         <thead><tr><th>Position</th><th>Permissions</th><th class="num">Held by</th><th></th></tr></thead>
         <tbody>
@@ -79,6 +81,7 @@
         {% endif %}
         </tbody>
     </table>
+    </div>
 
     <p class="use"><b>Unfiled is a chip like any other</b> — drawn dashed, and the one place a position
         without a department can be found.</p>

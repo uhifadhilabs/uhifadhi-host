@@ -13,7 +13,7 @@
 {% import 'team/_positions.html.twig' as pos %}
 
 <div class="c" data-positions="a">
-    <span class="tab"><span class="idx">PL·02</span>Positions<span class="src">· {{ positions|length }} · grouped by department</span></span>
+    <span class="tab">Positions<span class="src">· {{ positions|length }} · grouped by department</span></span>
     <p class="use tm-lead">One table, banded by department. A position is never shown outside its band, so
         <b>Analyst</b> under one department and <b>Analyst</b> under another can only be read as two rows in two
         different places. Creating a position happens <b>inside a band</b> — the department is chosen by where you type.</p>
@@ -22,6 +22,8 @@
         <p class="use">No departments and no positions yet. Create a department first — a position’s name is
             unique inside its department, so a position needs one to be unique in.</p>
     {% else %}
+        {# The scroll lives on this wrapper, never on the plate — see _w_people. #}
+        <div class="tm-tblwrap">
         <table class="tbl">
             <thead><tr><th>Position</th><th>Permissions</th><th class="num">Held by</th><th></th></tr></thead>
             <tbody>
@@ -61,7 +63,7 @@
                         <td class="num">
                             {% if band.department is null and departments is not empty and canManage %}
                                 {# The holding pen's one real action, on the row itself. #}
-                                <div class="posact">{{ pos.fileForm(position, departments, manageToken, 'File…') }}{{ pos.actions(position, canManage) }}</div>
+                                <div class="posact">{{ pos.fileForm(position, departments, manageToken, 'File') }}{{ pos.actions(position, canManage) }}</div>
                             {% else %}
                                 {{ pos.actions(position, canManage) }}
                             {% endif %}
@@ -78,8 +80,9 @@
             {% endfor %}
             </tbody>
         </table>
+        </div>
 
         <p class="use"><b>Unfiled is a transition state, not a department.</b> It sorts last, is drawn dashed,
-            and its only real action is <em>File…</em> — which moves a position into a real department, holders and all.</p>
+            and its only real action is <em>File</em> — which moves a position into a real department, holders and all.</p>
     {% endif %}
 </div>

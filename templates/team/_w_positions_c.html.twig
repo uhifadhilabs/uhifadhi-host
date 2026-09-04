@@ -11,7 +11,7 @@
 {% import 'team/_positions.html.twig' as pos %}
 
 <div class="c" data-positions="c">
-    <span class="tab"><span class="idx">PL·02</span>Positions<span class="src">· department-first</span></span>
+    <span class="tab">Positions<span class="src">· department-first</span></span>
     <p class="use tm-lead">The section stops being a list of positions and becomes a list of
         <b>departments that own positions</b>. A card is a boundary you can see: two cards, two Analysts,
         no possible confusion — and adding a position is a button that already knows which department it belongs to.</p>
@@ -56,7 +56,7 @@
                                 {{ pos.perms(position) }}
                                 <div class="pacts">
                                     {% if band.department is null and departments is not empty and canManage %}
-                                        {{ pos.fileForm(position, departments, manageToken, 'File…') }}
+                                        {{ pos.fileForm(position, departments, manageToken, 'File') }}
                                     {% endif %}
                                     {{ pos.actions(position, canManage) }}
                                 </div>

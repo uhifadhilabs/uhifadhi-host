@@ -287,7 +287,7 @@ final class ZonesSurfaceTest extends AuthenticatedWebTestCase
         self::assertCount(1, $crawler->filter('[data-w="detail"] form[data-zone-rename]'));
         self::assertCount(1, $crawler->filter('[data-w="detail"] form[data-zone-delete]'));
         // The consequence, in plain English, beside the button that causes it.
-        self::assertStringContainsString('stay exactly where they are', $crawler->filter('[data-w="detail"] .danger')->text());
+        self::assertStringContainsString('stay exactly where they are', $crawler->filter('[data-w="detail"] .dangerbar')->text());
         // And it asks first, through the platform's confirm modal — never the browser's dialog.
         self::assertStringContainsString(
             'confirm-modal',

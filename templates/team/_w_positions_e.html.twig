@@ -13,7 +13,7 @@
 {% import 'team/_positions.html.twig' as pos %}
 
 <div class="c" data-positions="e">
-    <span class="tab"><span class="idx">PL·02</span>Positions<span class="src">· split manager</span></span>
+    <span class="tab">Positions<span class="src">· split manager</span></span>
     <p class="use tm-lead">Departments on the left, that department’s positions on the right. You are always
         <b>inside exactly one department</b>, and the right pane says which — so a bare <b>Analyst</b> is
         unambiguous by construction. Scales to twenty departments without the page getting longer.</p>
@@ -70,7 +70,7 @@
 
                         {% if band.department is null %}
                             <p class="use tm-penlead"><b>Not a department.</b> A holding pen for positions created before
-                                departments existed. <em>File…</em> moves one into a real department, holders and all.</p>
+                                departments existed. <em>File</em> moves one into a real department, holders and all.</p>
                         {% endif %}
 
                         <table class="tbl">
@@ -84,7 +84,7 @@
                                     <td class="num">{{ holders[position.id]|default(0) }}</td>
                                     <td class="num">
                                         {% if band.department is null and departments is not empty and canManage %}
-                                            <div class="posact">{{ pos.fileForm(position, departments, manageToken, 'File…') }}{{ pos.actions(position, canManage) }}</div>
+                                            <div class="posact">{{ pos.fileForm(position, departments, manageToken, 'File') }}{{ pos.actions(position, canManage) }}</div>
                                         {% else %}
                                             {{ pos.actions(position, canManage) }}
                                         {% endif %}

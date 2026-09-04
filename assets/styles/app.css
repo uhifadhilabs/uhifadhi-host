@@ -186,9 +186,15 @@
 }
 .user { display: flex; align-items: center; gap: 9px; padding: 4px 6px 4px 4px; border-radius: 10px; cursor: pointer; }
 .user:hover { background: rgb(var(--c-raised)); }
+/* FLEX, and it says justify-content out loud. The initials used to sit against the pill's left
+   edge, and the cause was not here at all: the bare `.sm` grid below (now `.smgrid`) out-cascaded
+   this rule's `display` and gave every `.avatar.sm` four grid columns, so the letters landed in a
+   6.5px first column. Flex + justify-content states the centring in one axis-independent way that
+   no stray `grid-template-columns` can reinterpret. */
 .avatar {
     width: 30px; height: 30px; border-radius: 9px; background: rgb(var(--c-acc)); color: rgb(var(--c-accT));
-    font-family: var(--font-display); font-weight: 700; font-size: 12px; display: grid; place-items: center; flex-shrink: 0;
+    font-family: var(--font-display); font-weight: 700; font-size: 12px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
 }
 .uinfo { display: flex; flex-direction: column; line-height: 1.25; }
 .uinfo b { font-size: 12.5px; color: rgb(var(--c-tx)); font-weight: 600; }
@@ -2297,9 +2303,18 @@ table.tbl td.dcell + td { white-space: nowrap; }
 
 /* ---- widget-preview safety ----------------------------------------------- */
 /* The library's preview column is narrower than a page: a wide positions table
-   scrolls inside its own widget rather than pushing the page sideways. */
+   scrolls inside its own widget rather than pushing the page sideways.
+
+   THE SCROLL GOES ON A WRAPPER, NEVER ON THE PLATE. A plate's tab straddles its
+   top border (position: absolute; top: -9px) and the plate is its containing
+   block — and `overflow-x: auto` computes overflow-y to auto too, making the
+   plate a scroll container, which CLIPS its positioned descendants. That sliced
+   "People · N members" and "Positions · N · grouped by department" in half along
+   the card edge. Same shape as .ztblwrap, for the same reason.
+   overflow-y is stated so a table that is not tall shows no stray vertical bar. */
 [data-positions] table.tbl, [data-people] table.tbl { width: 100%; }
-[data-positions], [data-people] { min-width: 0; overflow-x: auto; }
+[data-positions], [data-people] { min-width: 0; }
+.tm-tblwrap { overflow-x: auto; overflow-y: hidden; }
 
 /* ============================================================================
    ZONES — the per-area zone surface.
@@ -2617,19 +2632,28 @@ table.tbl td.dcell + td { white-space: nowrap; }
     font: 500 9px var(--font-mono); letter-spacing: .12em; text-transform: uppercase;
     color: rgb(var(--c-dim)); display: block; margin-top: 6px;
 }
-/* The consequence, in plain English, beside the button that causes it. */
-.danger {
+/* The consequence, in plain English, beside the button that causes it.
+   NAMED .dangerbar, NOT .danger: `danger` is already the destructive MODIFIER this app puts on
+   buttons and cards (.open-btn.danger, .softbtn.danger, .c.danger). A bare `.danger` block rule
+   sits later in this file than .open-btn and out-cascades it at equal specificity, so the
+   Positions row's Delete button was rendered AS THIS PANEL — 40px tall against Edit's 25px, in a
+   12px font, inside a dashed red box. Same disease as the bare `.who` above. */
+.dangerbar {
     display: flex; gap: 10px; align-items: center; margin-top: 12px; padding: 10px 12px;
     border-radius: 10px; font-size: 12px; color: rgb(var(--c-fog));
     border: 1px dashed color-mix(in srgb, rgb(var(--c-fail)) 40%, transparent);
 }
-.danger b { color: rgb(var(--c-tx)); }
-.danger svg { width: 15px; height: 15px; flex: none; color: rgb(var(--c-fail)); }
-.danger form { margin-left: auto; flex: none; }
-.danger button {
+.dangerbar b { color: rgb(var(--c-tx)); }
+.dangerbar svg { width: 15px; height: 15px; flex: none; color: rgb(var(--c-fail)); }
+.dangerbar form { margin-left: auto; flex: none; }
+.dangerbar button {
     border-color: color-mix(in srgb, rgb(var(--c-fail)) 45%, transparent); color: rgb(var(--c-fail));
 }
-.danger button:hover { color: rgb(var(--c-fail)); border-color: rgb(var(--c-fail)); }
+.dangerbar button:hover { color: rgb(var(--c-fail)); border-color: rgb(var(--c-fail)); }
+/* The destructive modifier, stated on each button vocabulary that wears it — it used to borrow
+   its red from the panel rule above, which is exactly how the panel reached the buttons. */
+.softbtn.danger { color: rgb(var(--c-fail)); border-color: color-mix(in srgb, rgb(var(--c-fail)) 45%, transparent); }
+.softbtn.danger:hover { color: rgb(var(--c-fail)); border-color: rgb(var(--c-fail)); }
 .zhint, .zrule { font-size: 12px; line-height: 1.6; color: rgb(var(--c-fog)); margin: 12px 0 0; }
 .zhint { margin: 0 0 10px; }
 .zhint b, .zrule b { color: rgb(var(--c-tx)); font-weight: 600; }
@@ -3120,7 +3144,13 @@ th.sortable.on.desc .sortmark { border-bottom: 0; border-top: 5px solid rgb(var(
 .drillhead { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 6px 0 16px; }
 .drillchips { margin-left: auto; justify-content: flex-end; min-width: 0; }
 .drilllbl { margin: 20px 0 10px; }
-.sm { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+/* NAMED .smgrid, NOT .sm — `sm` is already this app's SIZE MODIFIER (`.avatar.sm`, the small
+   initials pill on every roster). A bare `.sm { display: grid; grid-template-columns: repeat(4,
+   1fr) }` sits later in this file than `.avatar`, out-cascades it at equal specificity, and turned
+   every 26px avatar into a FOUR-COLUMN GRID: the initials landed in a 6.5px first column and read
+   as jammed against the pill's left edge. Third instance of the bare-one-word-class disease in
+   this stylesheet, after `.who` and `.danger`. The tile it lays out is `.smt`. */
+.smgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
 .smt {
     min-width: 0; padding: 12px 12px 11px; border: 1px solid var(--c-ln);
     border-radius: 11px; background: rgb(var(--c-cv));

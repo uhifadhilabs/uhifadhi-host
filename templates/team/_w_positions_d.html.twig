@@ -16,11 +16,13 @@
 {% for band in bands %}{% set tones = tones|merge({(band.key): band.tone}) %}{% endfor %}
 
 <div class="c" data-positions="d">
-    <span class="tab"><span class="idx">PL·02</span>Positions<span class="src">· {{ positions|length }} · department-qualified</span></span>
+    <span class="tab">Positions<span class="src">· {{ positions|length }} · department-qualified</span></span>
     <p class="use tm-lead">The department becomes the <b>first identity column</b>, and every position is written
         <span class="mono tm-eg">Ecology / Analyst</span> everywhere it appears — here, in People, in the member
         assign dropdown, in audit lines. Sorting, searching and pasting a name all keep the department attached.</p>
 
+    {# The scroll lives on this wrapper, never on the plate — see _w_people. #}
+    <div class="tm-tblwrap">
     <table class="tbl">
         <thead><tr><th class="dcol">Department</th><th>Position</th><th>Permissions</th><th class="num">Held by</th><th></th></tr></thead>
         <tbody>
@@ -40,7 +42,7 @@
                 <td class="num">{{ holders[position.id]|default(0) }}</td>
                 <td class="num">
                     {% if position.department is null and departments is not empty and canManage %}
-                        <div class="posact">{{ pos.fileForm(position, departments, manageToken, 'File…') }}{{ pos.actions(position, canManage) }}</div>
+                        <div class="posact">{{ pos.fileForm(position, departments, manageToken, 'File') }}{{ pos.actions(position, canManage) }}</div>
                     {% else %}
                         {{ pos.actions(position, canManage) }}
                     {% endif %}
@@ -51,6 +53,7 @@
         {% endfor %}
         </tbody>
     </table>
+    </div>
 
     {# Department is field ONE and it is required: the uniqueness check runs against the chosen
        department only, which is exactly why it is asked before the name. #}
