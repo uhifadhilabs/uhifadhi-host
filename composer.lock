@@ -8856,12 +8856,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/uhifadhilabs/map-module.git",
-                "reference": "d0b6ddac8001548f445b14257e60d516d0be4a90"
+                "reference": "c426484cd0c77def7602dc418ef56c208a2cb812"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/uhifadhilabs/map-module/zipball/d0b6ddac8001548f445b14257e60d516d0be4a90",
-                "reference": "d0b6ddac8001548f445b14257e60d516d0be4a90",
+                "url": "https://api.github.com/repos/uhifadhilabs/map-module/zipball/c426484cd0c77def7602dc418ef56c208a2cb812",
+                "reference": "c426484cd0c77def7602dc418ef56c208a2cb812",
                 "shasum": ""
             },
             "require": {
@@ -8871,7 +8871,7 @@
                 "symfony/framework-bundle": "^7.3 || ^8.0",
                 "symfony/http-kernel": "^7.3 || ^8.0",
                 "twig/twig": "^3.12",
-                "uhifadhi/module-contracts": "dev-main"
+                "uhifadhi/module-contracts": "^0.1"
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^3.95",
@@ -8879,7 +8879,8 @@
                 "phpunit/phpunit": "^13.2",
                 "symfony/asset": "^7.3 || ^8.0",
                 "symfony/asset-mapper": "^7.3 || ^8.0",
-                "symfony/twig-bundle": "^7.3 || ^8.0"
+                "symfony/twig-bundle": "^7.3 || ^8.0",
+                "uhifadhi/seam-module": "^0.1"
             },
             "suggest": {
                 "symfony/asset-mapper": "Required for the importmap assets (uhifadhi/basemaps, uhifadhi/boundary, uhifadhi/map-chrome) to be served.",
@@ -8938,14 +8939,15 @@
                 "leaflet",
                 "map",
                 "symfony",
+                "symfony-ux",
                 "tiles",
                 "uhifadhi"
             ],
             "support": {
-                "source": "https://github.com/uhifadhilabs/map-module/tree/main",
+                "source": "https://github.com/uhifadhilabs/map-module/tree/v0.1.2",
                 "issues": "https://github.com/uhifadhilabs/map-module/issues"
             },
-            "time": "2026-09-03T02:44:20+00:00"
+            "time": "2026-09-04T07:07:29+00:00"
         },
         {
             "name": "uhifadhi/module-contracts",
