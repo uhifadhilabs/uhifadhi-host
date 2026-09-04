@@ -49,8 +49,12 @@
    every line of it needs a viewer, and the shell is required to render on an
    installation that has not grown a team yet. #}
 {% block shell_topbar_actions %}
-    <span class="live"><i></i>worker</span>
-    <span class="tb-icon" title="Alerts — coming soon">{{ ux_icon('lucide:bell') }}</span>
+    {# NOTHING STANDS HERE THAT DOES NOTHING. A pulsing "worker" light that read
+       no worker and a bell that opened nothing both used to sit ahead of the
+       toggle; a ranger reads chrome as a claim about the application, so an
+       unbuilt surface is absent rather than present-but-inert. The bell comes
+       back the day there is a feed to open — which needs a notification seam on
+       the shell and a module-side provider behind it, not a span. #}
     {# The shell's theme toggle, placed rather than appended: parent() is what
        decides where it sits among this application's own chrome. #}
     {{ parent() }}
@@ -63,8 +67,9 @@
     {% endif %}
 {% endblock %}
 
-{% block shell_sidebar_footer %}
-    <span class="row" style="cursor:default" title="Settings — coming soon">{{ ux_icon('lucide:settings') }}<span>Settings</span></span>
-{% endblock %}
+{# NO SIDEBAR FOOTER. It held one unclickable "Settings — coming soon" row, and
+   the shell draws the footer strip only when this block has content — so
+   leaving the block unfilled removes the strip with it. Area settings already
+   live where they belong, on the area's own tab. #}
 
 {% block shell_footer %}Uhifadhi — operations platform for protected areas.{% endblock %}

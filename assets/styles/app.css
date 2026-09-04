@@ -166,24 +166,8 @@
     font-size: 11px;
     color: rgb(var(--c-fog));
 }
-.live {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    color: rgb(var(--c-acc));
-    font-weight: 600;
-}
-.live i {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: rgb(var(--c-acc));
-    font-style: normal;
-    animation: pulse 2s ease-in-out infinite;
-    box-shadow: 0 0 8px var(--accGlow);
-}
-@keyframes pulse { 0%, 100% { opacity: 1 } 50% { opacity: .3 } }
-@media (prefers-reduced-motion: reduce) { .live i { animation: none } }
+/* The `.live` status light and its `pulse` keyframes went out with the topbar's
+   "worker" indicator: the dot animated on every page while reading nothing. */
 .tgl {
     border: 1px solid var(--c-ln2);
     background: none;

@@ -246,6 +246,12 @@ final class HostNavigation implements NavigationSourceInterface
     }
 
     /**
+     * ONLY BUILT SURFACES. An Alerts row used to sit under Files with no URL at
+     * all, drawn inert because the surface is on the roadmap rather than in the
+     * application. A row you cannot click is a promise the sidebar cannot keep,
+     * so a planned surface is simply not listed until its route exists — and
+     * then `url()` above lists it without anybody editing this method.
+     *
      * @return list<NavItem>
      */
     private function system(string $route): array
@@ -257,12 +263,6 @@ final class HostNavigation implements NavigationSourceInterface
                 icon: 'lucide:images',
                 hint: 'Files',
                 current: str_starts_with($route, 'storage_files'),
-            ),
-            new NavItem(
-                label: 'Alerts',
-                url: null,
-                icon: 'lucide:bell',
-                hint: 'Alerts — planned (workflow + audit roadmap)',
             ),
         ];
     }
