@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Uhifadhi\Service;
 
 use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
+use Uhifadhi\Entity\User;
 use Uhifadhi\Enum\PermissionEnum;
 use Uhifadhi\Model\Permission;
 use Uhifadhi\ModuleContracts\ModuleProviderInterface;
@@ -70,6 +71,31 @@ final class PermissionCatalogueService
         }
 
         return array_values($catalogue);
+    }
+
+    /**
+     * EVERY PERMISSION THIS ACCOUNT HOLDS, as a flat list of values.
+     *
+     * The enumerating twin of {@see \Uhifadhi\Security\PermissionVoter}: the voter answers "does
+     * this account hold X?", one attribute at a time, which is all a page ever needs. A field
+     * device needs the whole set in advance — it goes offline, and a refusal discovered at the
+     * first upload is a day of walking already spent. Same two rules, stated once each:
+     * a managing tier holds the catalogue entire, and Staff hold exactly their position's values.
+     *
+     * Module-declared permissions are included without this class knowing what any of them mean —
+     * they are catalogue entries like the core ones, which is the whole point of the catalogue.
+     * Values a position still stores for an UNINSTALLED module are dropped, exactly as the voter
+     * stops being able to decide them.
+     *
+     * @return list<string> in catalogue order: core first, then module-declared
+     */
+    public function heldBy(User $user): array
+    {
+        if ($user->getTeamRole()->canManageContent()) {
+            return array_map(static fn (Permission $p): string => $p->value, $this->all());
+        }
+
+        return $this->knownValues($user->getPosition()?->getPermissionValues() ?? []);
     }
 
     public function has(string $value): bool

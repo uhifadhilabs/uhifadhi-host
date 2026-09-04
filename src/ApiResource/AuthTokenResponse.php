@@ -24,13 +24,20 @@ namespace Uhifadhi\ApiResource;
 final readonly class AuthTokenResponse
 {
     /**
-     * @param array{id: string, name: string} $ranger who the token belongs to,
-     *                                                as the app displays them
+     * @param array{id: string, name: string, role: string} $ranger      who the token belongs to,
+     *                                                                   as the app displays them
+     * @param list<string>                                  $permissions every catalogue value the
+     *                                                                   account holds (§2A). An
+     *                                                                   EMPTY array is a refusal;
+     *                                                                   a MISSING field — an older
+     *                                                                   host — means permitted, so
+     *                                                                   this one always sends it
      */
     public function __construct(
         public string $token,
         public string $expiresAt,
         public array $ranger,
+        public array $permissions = [],
     ) {
     }
 }

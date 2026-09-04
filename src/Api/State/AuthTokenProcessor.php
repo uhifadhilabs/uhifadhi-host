@@ -27,6 +27,7 @@ use Uhifadhi\ApiResource\AuthTokenRequest;
 use Uhifadhi\Entity\User;
 use Uhifadhi\Repository\UserRepository;
 use Uhifadhi\Service\ApiTokenManager;
+use Uhifadhi\Service\PermissionCatalogueService;
 
 /**
  * Signs a field device in — API-CONTRACT.md §2.
@@ -48,6 +49,7 @@ final class AuthTokenProcessor implements ProcessorInterface
         private readonly RequestStack $requestStack,
         private readonly RateLimiterFactoryInterface $apiTokenIdLimiter,
         private readonly RateLimiterFactoryInterface $apiTokenIpLimiter,
+        private readonly PermissionCatalogueService $catalogue,
     ) {
     }
 
@@ -83,13 +85,23 @@ final class AuthTokenProcessor implements ProcessorInterface
         return new JsonResponse([
             'token' => $plaintext,
             'expiresAt' => ContractFormat::timestamp($token->getExpiresAt()),
-            'ranger' => [
-                'id' => ContractFormat::rangerId($user),
-                'name' => $user->getFullName(),
-                // What the app's account screen prints under the name: the held
-                // position's name, or the tier's label for the unfiled — never blank.
-                'role' => $user->getPosition()?->getName() ?? $user->getTeamRole()->label(),
-            ],
+            // Includes 'role' — what the app's account screen prints under the name, and what the
+            // refusal screens name as the thing to change: the held position's name, or the tier's
+            // label for the unfiled. Never blank.
+            'ranger' => MeProvider::ranger($user),
+            /*
+             * THE EARLY SIGNAL (§2A). D1 said this endpoint could not answer "may they record
+             * patrols?" without the host learning what a patrol is, so the refusal waited for the
+             * first upload — hours later, possibly out of signal, after a day of walking. It does
+             * not have to: the host sends the account's WHOLE permission set, catalogue values and
+             * nothing else, and the app reads the one member it understands. The host is no less
+             * blind to modules than before.
+             *
+             * Always sent, including empty. An empty array is a refusal; a MISSING field means
+             * permitted (an older host that predates this), so omitting it for some accounts and
+             * not others would read as a grant.
+             */
+            'permissions' => $this->catalogue->heldBy($user),
         ]);
     }
 
