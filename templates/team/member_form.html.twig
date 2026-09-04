@@ -33,10 +33,10 @@
             {% if created %}
                 {# The one copy of the password. Stated as a handover, not as a receipt. #}
                 <div class="c tm-cred">
-                    <span class="tab"><span class="idx">PL·11</span>Credentials<span class="src">· shown once</span></span>
+                    <span class="tab">Credentials<span class="src">· shown once</span></span>
                     <p class="tm-hint">Give these to <b>{{ created.user.fullName }}</b> now. The password is not
-                        stored in readable form and this page will not show it again — if it is lost, create a new
-                        password for them from the console.</p>
+                        stored in readable form and this page will not show it again — if it is lost,
+                        <b>Regenerate</b> on their roster row makes another one.</p>
                     <dl class="tm-credlist">
                         <dt>Email</dt>
                         <dd class="mono">{{ created.user.email }}</dd>
@@ -59,9 +59,13 @@
                 </div>
             {% endif %}
 
-            {{ form_start(form) }}
+            {# TURBO IS OFF FOR THIS FORM, deliberately. Turbo Drive is on app-wide and refuses any
+               form response that is not a redirect — and a successful create here RENDERS, because
+               the one copy of the generated password lives in that response. With Turbo on, the
+               panel above never reaches the screen. There is nothing reactive to lose. #}
+            {{ form_start(form, {attr: {'data-turbo': 'false'}}) }}
                 <div class="c">
-                    <span class="tab"><span class="idx">PL·12</span>Member<span class="src">· email + name + tier</span></span>
+                    <span class="tab">Member<span class="src">· email + name + tier</span></span>
 
                     <div class="tm-formerrors">{{ form_errors(form) }}</div>
 

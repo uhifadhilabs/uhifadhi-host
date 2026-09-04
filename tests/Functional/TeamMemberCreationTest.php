@@ -173,6 +173,26 @@ final class TeamMemberCreationTest extends AuthenticatedWebTestCase
         self::assertCount(0, $crawler->filter('[data-generated-password]'));
     }
 
+    /**
+     * TURBO WOULD THROW THE PASSWORD AWAY.
+     *
+     * Turbo Drive is on app-wide (controllers.json → turbo-core, eager), and it refuses any form
+     * response that is not a redirect: "Form responses must redirect to another location". This
+     * screen answers a successful POST by RENDERING — that is the whole design, because the one
+     * copy of the generated password lives in that response — so Turbo would discard it and the
+     * admin would never see the panel. The form opts out; there is nothing to make reactive here.
+     */
+    public function testTheCreateFormOptsOutOfTurboSoTheShownOncePanelSurvives(): void
+    {
+        $client = static::createClient();
+        $this->loginAs($client, TeamRoleEnum::SuperAdmin);
+
+        $crawler = $client->request('GET', '/team/members/new');
+
+        // The form the email field sits in is the one that must opt out.
+        self::assertCount(1, $crawler->filter('form[data-turbo="false"] input[name="member[email]"]'));
+    }
+
     private function users(): UserRepository
     {
         /** @var UserRepository $repository */
