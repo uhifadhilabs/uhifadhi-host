@@ -25,7 +25,7 @@
    page and another inside a module. Attributes are not content, so this is the
    shell's one variable rather than one of its blocks; it is set outside every
    block and lands on the document's <body> tag. #}
-{% set shell_body_attributes = map_basemap_attributes() %}
+{% set shell_body_attributes = map_basemap_attributes() ~ ' data-controller="localtime"' %}
 
 {% block stylesheets %}
     {# parent() FIRST: the shell's sheet defines the tokens app.css reads. #}

@@ -1,0 +1,142 @@
+{# Bits the widget partials share. The dashboard and the widget library render
+   the SAME partials, and the partials render these macros, so a change to a
+   chip, a date or the map viewer lands on both screens at once — there is no
+   second copy to keep in step.
+
+   Every binding comes from PatrolDashboard (src/Model/PatrolDashboard.php); the
+   patrol type vocabulary comes from the deployment's patrol.types config, never
+   from code, and the per-type colour from PatrolDashboardService::typeColors()
+   so PHP and Twig cannot disagree about it. #}
+
+{# Macros here call each other through `_self`, not through an import: a
+   top-level {% import %} only runs when a template is RENDERED, and this one
+   never is — the partials import its macros instead. #}
+
+{# The one fallback hex in the templates: a patrol whose type the deployment has
+   since dropped still gets drawn. Mirrors PatrolDashboardService::TRACK_COLORS[0]. #}
+{% macro color(typeColor, key) %}{{ typeColor[key]|default('#3ED9A8') }}{% endmacro %}
+
+{% macro type_chip(key, types, typeColor) %}
+    <span class="chip patrol-tchip" style="--patrol-track: {{ _self.color(typeColor, key) }}">{{ types[key].label|default(key)|lower }}</span>
+{% endmacro %}
+
+{# Explicit, lowercase, like the design's tables: "sat 22 aug · 06:10". #}
+{# HOST OVERRIDE (uhifadhi-host): the started instant is UTC; wrapped in a machine
+   <time datetime="…"> so the host's `localtime` controller reformats it to the
+   signed-in viewer's own browser zone. With no JS the UTC text still shows. #}
+{% macro started(patrol) %}
+    {%- if patrol.startedAt -%}
+        <time datetime="{{ patrol.startedAt|date('c', 'UTC') }}">{{ patrol.startedAt|date('D j M')|lower }} · {{ patrol.startedAt|date('H:i') }}</time>
+    {%- else -%}—{%- endif -%}
+{% endmacro %}
+
+{% macro duration(patrol) %}
+    {%- if patrol.startedAt and patrol.endedAt -%}
+        {%- set mins = ((patrol.endedAt.timestamp - patrol.startedAt.timestamp) / 60)|round(0, 'floor') -%}
+        {{ (mins // 60) }} h {{ '%02d'|format(mins % 60) }}
+    {%- else -%}—{%- endif -%}
+{% endmacro %}
+
+{% macro distance(patrol) %}
+    {%- if patrol.distanceKm is not null -%}{{ patrol.distanceKm|number_format(1) }} km{%- else -%}—{%- endif -%}
+{% endmacro %}
+
+{% macro lead_name(user) %}
+    {%- if user -%}{{ user.firstName|first }}. {{ user.lastName }}{%- else -%}—{%- endif -%}
+{% endmacro %}
+
+{% macro initials(user) %}
+    {%- if user -%}{{ user.firstName|first }}{{ user.lastName|first }}{%- else -%}··{%- endif -%}
+{% endmacro %}
+
+{# One filter row drives the map AND the log (the design's own caption). The
+   chips publish a `patrol:filter` document event; every coverage map and every
+   patrol list on the page answers it, and every other chip row re-marks itself,
+   so the row above the map and the row above the log always agree.
+
+   The counts stay server-rendered: filtering is a way of LOOKING at the month,
+   not a different month.
+   The type pills and the station menu both filter, client-side; each type pill
+   wears the colour of the tracks it filters, straight from typeColors().
+   TODO(patrol_period): the "this month ▾" chip still only labels the period —
+   changing it means fetching a different month, not hiding rows.
+   DEFERRED(zones): the design's "zone ▾" chip needs a zone concept the bundle
+   does not have — omitted rather than rendered dead. #}
+{% macro filters(dashboard, types, typeColor) %}
+    <div class="patrol-chiprow" {{ stimulus_controller('@uhifadhi/patrol-module/filters') }}>
+        <button type="button" class="mchip on" data-patrol-type="all" aria-pressed="true"
+                {{ stimulus_target('@uhifadhi/patrol-module/filters', 'chip') }}
+                {{ stimulus_action('@uhifadhi/patrol-module/filters', 'choose') }}>all · {{ dashboard.totalCount }}</button>
+        {% for key, type in types %}
+            {# The pill wears the colour of the tracks it filters — the one
+               typeColors() map, never a second palette (the map-legend rule). #}
+            <button type="button" class="mchip patrol-tfilter" data-patrol-type="{{ key }}" aria-pressed="false"
+                    style="--patrol-track: {{ _self.color(typeColor, key) }}"
+                    {{ stimulus_target('@uhifadhi/patrol-module/filters', 'chip') }}
+                    {{ stimulus_action('@uhifadhi/patrol-module/filters', 'choose') }}><i></i>{{ type.label|lower }} · {{ dashboard.typeCounts[key]|default(0) }}</button>
+        {% endfor %}
+        <details class="patrol-menu" {{ stimulus_target('@uhifadhi/patrol-module/filters', 'stationMenu') }}>
+            <summary class="mchip patrol-ghost"><span {{ stimulus_target('@uhifadhi/patrol-module/filters', 'stationLabel') }}>station ▾</span></summary>
+            <div class="patrol-menu-list">
+                {% if dashboard.stations|length %}
+                    <button type="button" class="patrol-menu-item on" data-patrol-station="all"
+                            {{ stimulus_target('@uhifadhi/patrol-module/filters', 'station') }}
+                            {{ stimulus_action('@uhifadhi/patrol-module/filters', 'chooseStation') }}>all stations</button>
+                {% endif %}
+                {% for station in dashboard.stations %}
+                    <button type="button" class="patrol-menu-item" data-patrol-station="{{ station }}"
+                            {{ stimulus_target('@uhifadhi/patrol-module/filters', 'station') }}
+                            {{ stimulus_action('@uhifadhi/patrol-module/filters', 'chooseStation') }}>{{ station }}</button>
+                {% else %}
+                    <span class="patrol-menu-item patrol-menu-empty">no stations yet</span>
+                {% endfor %}
+            </div>
+        </details>
+        <span class="mchip patrol-ghost">this month ▾</span>
+    </div>
+{% endmacro %}
+
+{# The coverage viewer: the design's satellite frame (zoom column, layers menu,
+   fullscreen, source label) around a canvas the Stimulus controller turns into
+   a real Leaflet map — self-hosted, `window.L`, the SAME tile sources the host's
+   area map uses.
+
+   The payload is built by PatrolDashboardService::coveragePayload (boundary +
+   every patrol that actually recorded a track), so the dashboard's two maps and
+   the library's previews cannot be handed different data, and its shape is
+   unit-tested rather than assembled here in Twig.
+
+   The layer menu is CLOSED until the layers pill is clicked (the design file
+   draws it open for convenience; closed-by-default is the ruling).
+
+   Station markers carry the design's labels; a station has no coordinates of its
+   own (docs/design-decisions.md §1), so each is placed at the first recorded
+   point of a patrol that set out from it — see coveragePayload.
+
+   The DIM pill toggles the outside-the-area scrim, on by default here, exactly
+   as it works on the host's area map. Every control is a real <button>: these
+   change the map, so they must be keyboard reachable — and Stimulus binds no
+   default event to a <b>, so the design file's <b> silently never wired up. #}
+{% macro viewer(payload, label) %}
+    <div class="patrol-viewer"
+         {{ stimulus_controller('@uhifadhi/patrol-module/coverage-map', {payload: payload}) }}>
+        <div class="patrol-canvas" data-patrol-coverage-map role="img" aria-label="{{ label }}"
+             {{ stimulus_target('@uhifadhi/patrol-module/coverage-map', 'canvas') }}></div>
+        <span class="patrol-ol patrol-ol-src">satellite · live · tracks this month</span>
+        {# No controls written here: the host's platform chrome module
+           (uhifadhi/map-chrome, imported by leaflet_plate.js) builds zoom, DIM,
+           the base-layer menu and fullscreen into this frame. One definition for
+           the area map and every module map, and no markup to keep in step
+           across two repos. #}
+    </div>
+{% endmacro %}
+
+{# The map legend, identical under both viewers (host convention: every layer
+   ships a legend, and the same layer reads the same everywhere). #}
+{% macro legend(types, typeColor) %}
+    <div class="patrol-legend">
+        {% for key in types|keys %}{{ _self.type_chip(key, types, typeColor) }}{% endfor %}
+        <span class="chip idle patrol-stationkey"><i></i>station</span>
+        <span class="patrol-note">patrol tracks may cross the boundary · a station sits where its patrols set out · in fullscreen this legend floats bottom-right (host convention)</span>
+    </div>
+{% endmacro %}
