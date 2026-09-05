@@ -1,0 +1,99 @@
+{# ============================================================================
+   HOST OVERRIDE of @UhifadhiIncident/report/_drawer.html.twig — the same one
+   difference the page override carries: step 3 ("People & evidence", its CAN
+   WAIT sub-rows and the "Then, on the record" explainer) is replaced by a single
+   quiet line above the File control. Both containers show the same form, so both
+   had to change together. Everything else is the module's template verbatim.
+
+   CONTAINER B — THE SLIDE-OVER. Filing FROM a record: another module's prefill
+   seam, and the register's report control carrying context.
+
+   SCOPED TO THE CONTENT PANE. The panel comes in from the right edge of the main
+   pane at full height, and its dimming backdrop covers exactly that pane — the
+   sidebar stays visible on the left and the top bar above. Filing never costs
+   anybody their place in the app, only their place on the page.
+
+   THE PAGE BEHIND NEVER GOES AWAY. Under the panel is this area's register, real
+   rows and legible, so filing about something you can still see never means
+   having to remember it. The panel is narrow on purpose: one column, read top to
+   bottom, no two-column form to scan.
+
+   CLOSING IS EXPLICIT, AND ONLY EXPLICIT. The X closes it, and Escape does
+   exactly what the X does — including asking first when anything has been typed.
+   THE DIMMED REGISTER CLOSES NOTHING: a click that missed the panel may not
+   discard a report in progress. Both ways out lead to the same place, and say so:
+   back to the record this filing came from.
+
+   IT IS STILL A ROUTE. Reloading re-opens the panel over the same register with
+   the same source card, because the container is decided by the address, not by
+   a click.
+
+   AND IT IS THE SAME FORM. Every step below is the same partial the full page
+   renders, at a narrower width — one set, never two copies.
+
+   Parameters: controller, area, categories, prefill, chosen, csrfToken, errors,
+               createUrl, cancelUrl, sourceFiles, behind
+   ========================================================================== #}
+<div {{ stimulus_controller(controller) }}>
+    {# ── THE PAGE BEHIND ─────────────────────────────────────────────────── #}
+    <div class="crumb"><a href="{{ path('dashboard_index') }}">uhifadhi</a> / <a href="{{ path('dashboard_area_show', {uuid: area.uuid}) }}">{{ area.name|lower }}</a> / <a href="{{ path('incident_dashboard', {uuid: area.uuid}) }}">incidents</a> / new</div>
+
+    <div class="pghead">
+        <div>
+            <h1 class="pg">{{ area.name }} — Incidents</h1>
+            <p class="pgsub">Filing from {{ prefill.label }}. Its category guess, place, time and note came with it —
+                two more answers and the incident exists.</p>
+        </div>
+        <div class="pgact w-pgact">
+            <a class="tgl w-act" href="{{ cancelUrl }}">{{ ux_icon('lucide:chevron-left') }} Back without filing</a>
+        </div>
+    </div>
+
+    {{ include('@UhifadhiIncident/report/_behind.html.twig', {area: area, behind: behind}, with_context: false) }}
+
+    {# ── THE SLIDE-OVER ──────────────────────────────────────────────────── #}
+    <div class="ro-slideover" {{ stimulus_target(controller, 'slideover') }}>
+        {# THE DIMMED REGISTER DOES NOT CLOSE ANYTHING. It dims and it swallows
+           clicks, and that is all: a report in progress may not be discarded by
+           a click that missed the panel. Nothing is wired to it. #}
+        <div class="ro-slideback"></div>
+
+        <aside class="ro-drawer" role="dialog" aria-modal="true" aria-label="Report an incident">
+            <div class="ro-dhd">
+                <div>
+                    <h3>Report an incident</h3>
+                    <p>Two answers and it exists. The rest can follow on the record.</p>
+                </div>
+                {# A real link, so it works with no JavaScript at all; the
+                   controller takes it over to play the panel out and to ask
+                   before discarding anything typed. #}
+                <a class="x" href="{{ cancelUrl }}" {{ stimulus_action(controller, 'close') }}
+                   aria-label="Close without filing">&times;</a>
+            </div>
+
+            {# input and change both bubble, so ONE action on the form re-reads the
+               gate whatever the filer typed into. #}
+            <form class="ro-dform" method="post" action="{{ createUrl }}"
+                  {{ stimulus_target(controller, 'form')|stimulus_action(controller, 'gate', 'input')|stimulus_action(controller, 'gate', 'change') }}>
+                {{ include('@UhifadhiIncident/report/_carry.html.twig', {csrfToken: csrfToken, prefill: prefill, errors: errors}, with_context: false) }}
+
+                <div class="ro-dbody">
+                    {{ include('@UhifadhiIncident/report/_source.html.twig', {prefill: prefill, files: sourceFiles}, with_context: false) }}
+
+                    {{ include('@UhifadhiIncident/report/_secthd.html.twig', {n: 1, heading: 'What kind', mark: 'req', markLabel: 'needed'}, with_context: false) }}
+                    {{ include('@UhifadhiIncident/report/_kind.html.twig', {controller: controller, categories: categories, chosen: chosen, compact: true}, with_context: false) }}
+
+                    {{ include('@UhifadhiIncident/report/_secthd.html.twig', {n: 2, heading: 'What happened', mark: null, markLabel: null}, with_context: false) }}
+                    {{ include('@UhifadhiIncident/report/_what.html.twig', {controller: controller, categories: categories, chosen: chosen, prefill: prefill, compact: true}, with_context: false) }}
+
+                    {# ONE LINE, NOT A SECTION — the same host ruling the full page
+                       carries; see templates/bundles/.../report/_page.html.twig. #}
+                    <p class="use">Only the kind, what happened and where are needed now. Severity, people, evidence and
+                        money are added on the record afterwards.</p>
+                </div>
+
+                {{ include('@UhifadhiIncident/report/_gate.html.twig', {controller: controller, chosen: chosen, prefill: prefill, cancelUrl: cancelUrl, compact: true}, with_context: false) }}
+            </form>
+        </aside>
+    </div>
+</div>

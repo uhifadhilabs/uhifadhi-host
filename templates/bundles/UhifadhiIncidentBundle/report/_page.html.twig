@@ -1,0 +1,83 @@
+{# ============================================================================
+   HOST OVERRIDE of @UhifadhiIncident/report/_page.html.twig.
+
+   ONE DIFFERENCE from the module's own copy, and it is the ruling this file
+   exists for: step 3 — "People & evidence", its four CAN WAIT sub-rows and the
+   "Then, on the record" explainer — is gone, replaced by a single quiet line
+   beside the File control. The quick-file discipline is unchanged; only its
+   presentation shrank. Everything else below is the module's template verbatim,
+   so keep it in step when the bundle moves.
+
+   CONTAINER A — THE FULL PAGE. Standalone filing: a deep link, a fresh tab, the
+   dashboard's Report button when it is not anchored to a record.
+
+   A PAGE, NOT AN OVERLAY. Filing an incident is the most consequential thing this
+   product asks anybody to do, and it must not be something a click beside it can
+   throw away. A route survives a reload, a dropped connection, a second tab and a
+   pasted link; it prints; and it is the same address another module's "file as
+   incident" button already points at. The steps become plain headed sections down
+   one column — there is room, so nothing has to hide.
+
+   The steps themselves are the SHARED partials — the drawer renders the very same
+   files at a narrower width.
+
+   Parameters: controller, area, categories, prefill, chosen, csrfToken, errors,
+               createUrl, cancelUrl, sourceFiles
+   ========================================================================== #}
+<div class="crumb"><a href="{{ path('dashboard_index') }}">uhifadhi</a> / <a href="{{ path('dashboard_area_show', {uuid: area.uuid}) }}">{{ area.name|lower }}</a> / <a href="{{ path('incident_dashboard', {uuid: area.uuid}) }}">incidents</a> / new</div>
+
+<div class="pghead">
+    <div>
+        <h1 class="pg">Report an incident</h1>
+        <p class="pgsub">Three answers file an incident — a kind, one line saying what happened, and a place. How bad it
+            was, who was involved, what it cost and anything that shows it can be added here or on the record
+            afterwards, where the timeline keeps who added what and when.</p>
+    </div>
+    <div class="pgact w-pgact">
+        <a class="tgl w-act" href="{{ cancelUrl }}">{{ ux_icon('lucide:chevron-left') }} Back to incidents</a>
+    </div>
+</div>
+
+<div {{ stimulus_controller(controller) }}>
+    {% if prefill.hasProvenance %}
+        {{ include('@UhifadhiIncident/report/_source.html.twig', {prefill: prefill, files: sourceFiles}, with_context: false) }}
+    {% endif %}
+
+    {# input and change both bubble, so ONE action on the form re-reads the gate
+       whatever the filer typed into. #}
+    <form class="ro-form" method="post" action="{{ createUrl }}"
+          {{ stimulus_action(controller, 'gate', 'input')|stimulus_action(controller, 'gate', 'change') }}>
+        {{ include('@UhifadhiIncident/report/_carry.html.twig', {csrfToken: csrfToken, prefill: prefill, errors: errors}, with_context: false) }}
+
+        <div class="ro-sect">
+            {{ include('@UhifadhiIncident/report/_secthd.html.twig', {n: 1, heading: 'What kind of incident', mark: 'req', markLabel: 'needed to file'}, with_context: false) }}
+            {{ include('@UhifadhiIncident/report/_kind.html.twig', {controller: controller, categories: categories, chosen: chosen, compact: false}, with_context: false) }}
+        </div>
+
+        <div class="ro-sect">
+            {{ include('@UhifadhiIncident/report/_secthd.html.twig', {n: 2, heading: 'What happened', mark: null, markLabel: null}, with_context: false) }}
+            {{ include('@UhifadhiIncident/report/_what.html.twig', {controller: controller, categories: categories, chosen: chosen, prefill: prefill, compact: false}, with_context: false) }}
+        </div>
+
+        {# THE THINGS THAT CAN WAIT ARE ONE LINE HERE, not a section. The module
+           ships a third step for them; this deployment says the same thing in a
+           sentence beside the File control, because a filer at the roadside reads
+           the discipline once and then files. Nothing about the discipline
+           changed — only how much screen it costs to be told it. #}
+        <p class="use">Only the kind, what happened and where are needed now. Severity, people, evidence and money are
+            added on the record afterwards.</p>
+
+        {{ include('@UhifadhiIncident/report/_gate.html.twig', {controller: controller, chosen: chosen, prefill: prefill, cancelUrl: cancelUrl, compact: false}, with_context: false) }}
+    </form>
+</div>
+
+<div class="c i-rules">
+    <span class="tab"><span class="idx">IN·RO</span>The rules the form enforces<span class="src">· the container may change; these do not</span></span>
+    <div class="rln"><span>Required to file</span><span class="mono acc">a category · one line saying what happened · a place</span></div>
+    <div class="rln"><span>Never required</span><span class="mono">how bad, people, evidence, money — they follow on the record</span></div>
+    <div class="rln"><span>The File control</span><span class="mono">dead until the required answers exist · the server refuses the same filing</span></div>
+    <div class="rln"><span>Starting state</span><span class="mono">reported — never verified</span></div>
+    <div class="rln"><span>Provenance</span><span class="mono">written once, never editable</span></div>
+    <div class="use">A report is cheap and a verification is expensive. Filing may never cost more than those three
+        answers — and an incomplete report may never reach a register that cannot hold it.</div>
+</div>
