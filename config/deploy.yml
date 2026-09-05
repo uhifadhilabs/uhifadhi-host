@@ -63,9 +63,11 @@ env:
     - APP_SECRET
     - DATABASE_URL                   # points at the `db` accessory below
     # Telemetry's OWN database (src/Telemetry) — a SEPARATE database in the SAME `db`
-    # accessory. Same host/user/password as DATABASE_URL, dbname `uhifadhi_telemetry`.
-    # The post-deploy hook creates it (doctrine:database:create --connection=telemetry)
-    # and migrates it (telemetry:migrate) automatically.
+    # accessory. NO separate secret needed: the deploy workflow DERIVES this from
+    # DATABASE_URL (same host/user/password, dbname `uhifadhi` -> `uhifadhi_telemetry`);
+    # set a TELEMETRY_DATABASE_URL repo secret only to override. The post-deploy hook
+    # then creates it (doctrine:database:create --connection=telemetry) and migrates it
+    # (telemetry:migrate) automatically.
     - TELEMETRY_DATABASE_URL
     - UHIFADHI_GOOGLE_MAPS_API_KEY   # Map Tiles satellite base (referrer-restricted at Google)
 

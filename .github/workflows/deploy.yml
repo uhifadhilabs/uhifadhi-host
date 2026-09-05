@@ -58,8 +58,10 @@ jobs:
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           APP_SECRET: ${{ secrets.APP_SECRET }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          # Telemetry's own database — same cluster/creds as DATABASE_URL, dbname
-          # uhifadhi_telemetry. See config/deploy.yml and .kamal/secrets.example.
+          # Telemetry's own database. No separate secret required: it is DERIVED from
+          # DATABASE_URL below (same cluster/creds, dbname uhifadhi_telemetry). This env
+          # is only the OPTIONAL override — set a TELEMETRY_DATABASE_URL repo secret to
+          # point telemetry somewhere else; leave it unset and the derivation is used.
           TELEMETRY_DATABASE_URL: ${{ secrets.TELEMETRY_DATABASE_URL }}
           UHIFADHI_GOOGLE_MAPS_API_KEY: ${{ secrets.UHIFADHI_GOOGLE_MAPS_API_KEY }}
           # Composer auth for the image build (BuildKit secret via kamal
@@ -69,6 +71,13 @@ jobs:
           CERTIFICATE_PEM: ${{ secrets.CERTIFICATE_PEM }}
           PRIVATE_KEY_PEM: ${{ secrets.PRIVATE_KEY_PEM }}
         run: |
+          # Telemetry's DB URL is DERIVED from DATABASE_URL — same host/user/password,
+          # dbname uhifadhi -> uhifadhi_telemetry — so no separate secret is needed. The
+          # sed swaps ONLY the database-name path segment (matched when followed by "?" or
+          # end-of-string), never the username or host. An explicit TELEMETRY_DATABASE_URL
+          # secret, if set, wins (the ${VAR:-...} default only fills an empty/unset value).
+          export TELEMETRY_DATABASE_URL="${TELEMETRY_DATABASE_URL:-$(printf '%s' "$DATABASE_URL" | sed -E 's#/uhifadhi(\?|$)#/uhifadhi_telemetry\1#')}"
+
           # Kamal reads .kamal/secrets (gitignored). Recreate it referencing the env above.
           cat > .kamal/secrets <<'EOF'
           KAMAL_REGISTRY_PASSWORD=$KAMAL_REGISTRY_PASSWORD
