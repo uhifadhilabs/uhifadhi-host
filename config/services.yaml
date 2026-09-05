@@ -18,6 +18,13 @@ services:
     # this creates a service per class whose id is the fully-qualified class name
     Uhifadhi\:
         resource: '../src/'
+        # Telemetry wires itself (config/packages/telemetry.yaml): it owns a second
+        # DBAL connection and a per-environment sink, neither of which autowiring can
+        # pick. Keeping it out of the blanket also keeps it self-contained — the day
+        # it becomes uhifadhilabs/telemetry-module, this exclude and that file leave
+        # together and nothing else here has to change.
+        exclude:
+            - '../src/Telemetry/'
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

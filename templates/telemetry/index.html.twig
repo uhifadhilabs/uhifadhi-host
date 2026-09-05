@@ -1,0 +1,71 @@
+{# TELEMETRY — the capture list. Super-Admin-only (enforced in the controller).
+   A dev tool: filter, scan failures-first, click into one. #}
+{% extends 'layout.html.twig' %}
+
+{% block title %}Telemetry — Uhifadhi{% endblock %}
+
+{% block content %}
+    <div class="page tel">
+        <div class="crumb"><a href="{{ path('dashboard_index') }}">uhifadhi</a> / telemetry</div>
+        <div class="pghead">
+            <div>
+                <h1 class="pg">Telemetry</h1>
+                <p class="pgsub">Every <code>/api</code> round-trip the server saw — redacted, photos digested. Failures first.</p>
+            </div>
+        </div>
+
+        <form class="tel-filters c" method="get" action="{{ path('telemetry_index') }}">
+            <label>User<input type="text" name="user" value="{{ filters.user }}" placeholder="email"></label>
+            <label>Status<input type="number" name="status" value="{{ filters.status }}" placeholder="e.g. 422"></label>
+            <label>Endpoint<input type="text" name="endpoint" value="{{ filters.endpoint }}" placeholder="/api/…"></label>
+            <label>Since<input type="datetime-local" name="since" value="{{ filters.since }}"></label>
+            <label>Until<input type="datetime-local" name="until" value="{{ filters.until }}"></label>
+            <label class="tel-check"><input type="checkbox" name="failures" value="1" {{ filters.failures ? 'checked' }}> Failures only</label>
+            <div class="tel-filter-actions">
+                <button type="submit" class="cta">{{ ux_icon('lucide:filter') }}Filter</button>
+                <a class="btn" href="{{ path('telemetry_index') }}">Reset</a>
+            </div>
+        </form>
+
+        {% if result.items is empty %}
+            <div class="c tel-empty">
+                <p class="disp">No captures match.</p>
+                <p class="fog">Once a device calls <code>/api</code>, its request and response land here.</p>
+            </div>
+        {% else %}
+            <div class="c tel-table-wrap">
+                <table class="tel-table">
+                    <thead>
+                        <tr><th>When (UTC)</th><th>Method</th><th>Endpoint</th><th>Status</th><th>User</th><th>ms</th><th>Files</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for capture in result.items %}
+                            <tr class="tel-row {{ capture.failure ? 'tel-row--fail' }}"
+                                onclick="window.location='{{ path('telemetry_show', {id: capture.id}) }}'">
+                                <td class="tel-when">{{ capture.capturedAt|date('Y-m-d H:i:s') }}</td>
+                                <td><span class="tel-method">{{ capture.method }}</span></td>
+                                <td class="tel-path">{{ capture.path }}</td>
+                                <td><span class="tel-status {{ capture.failure ? 'tel-status--fail' : 'tel-status--ok' }}">{{ capture.statusCode }}</span></td>
+                                <td>{{ capture.userEmail ?? '—' }}</td>
+                                <td class="tel-num">{{ capture.durationMs }}</td>
+                                <td class="tel-num">{{ capture.files|length ?: '—' }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="tel-pager">
+                <span class="fog">{{ result.total }} capture(s)</span>
+                <span class="tel-pager-nav">
+                    {% if result.hasPrevious %}
+                        <a class="btn" href="{{ path('telemetry_index', filters|merge({page: page - 1})) }}">{{ ux_icon('lucide:chevron-left') }}Newer bands</a>
+                    {% endif %}
+                    {% if result.hasNext %}
+                        <a class="btn" href="{{ path('telemetry_index', filters|merge({page: page + 1})) }}">Older{{ ux_icon('lucide:chevron-right') }}</a>
+                    {% endif %}
+                </span>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

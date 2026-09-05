@@ -58,6 +58,9 @@ jobs:
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           APP_SECRET: ${{ secrets.APP_SECRET }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          # Telemetry's own database — same cluster/creds as DATABASE_URL, dbname
+          # uhifadhi_telemetry. See config/deploy.yml and .kamal/secrets.example.
+          TELEMETRY_DATABASE_URL: ${{ secrets.TELEMETRY_DATABASE_URL }}
           UHIFADHI_GOOGLE_MAPS_API_KEY: ${{ secrets.UHIFADHI_GOOGLE_MAPS_API_KEY }}
           # Composer auth for the image build (BuildKit secret via kamal
           # builder.secrets): private uhifadhilabs packages install from GitHub.
@@ -72,6 +75,7 @@ jobs:
           POSTGRES_PASSWORD=$POSTGRES_PASSWORD
           APP_SECRET=$APP_SECRET
           DATABASE_URL=$DATABASE_URL
+          TELEMETRY_DATABASE_URL=$TELEMETRY_DATABASE_URL
           UHIFADHI_GOOGLE_MAPS_API_KEY=$UHIFADHI_GOOGLE_MAPS_API_KEY
           COMPOSER_AUTH=$COMPOSER_AUTH
           CERTIFICATE_PEM=$CERTIFICATE_PEM

@@ -1,17 +1,32 @@
 doctrine:
     dbal:
-        url: '%env(resolve:DATABASE_URL)%'
+        default_connection: default
+        connections:
+            default:
+                url: '%env(resolve:DATABASE_URL)%'
 
-        # Hide GDAL/OGR bookkeeping (ogr_system_tables — legacy of pre-ORM loads)
-        # from migrations:diff / schema:validate. The pipeline no longer creates
-        # it (staging is a Doctrine entity now); this is cheap insurance.
-        schema_filter: '~^(?!ogr_)~'
+                # Hide GDAL/OGR bookkeeping (ogr_system_tables — legacy of pre-ORM loads)
+                # from migrations:diff / schema:validate. The pipeline no longer creates
+                # it (staging is a Doctrine entity now); this is cheap insurance.
+                schema_filter: '~^(?!ogr_)~'
 
-        # IMPORTANT: You MUST configure your server version,
-        # either here or in the DATABASE_URL env var (see .env file)
-        #server_version: '16'
+                # IMPORTANT: You MUST configure your server version,
+                # either here or in the DATABASE_URL env var (see .env file)
+                #server_version: '16'
 
-        profiling_collect_backtrace: '%kernel.debug%'
+                profiling_collect_backtrace: '%kernel.debug%'
+
+            # TELEMETRY'S OWN DATABASE, on its own connection (see
+            # config/packages/telemetry.yaml and src/Telemetry/). In production this
+            # points at a SEPARATE `uhifadhi_telemetry` database in the same PostGIS
+            # accessory as the app's; in dev/test it is a file-backed SQLite. It shares
+            # NOTHING with `default` — not a table, not a migration history — so the
+            # monitor can never tangle with a domain migration, and dropping the whole
+            # telemetry database never touches an operational row. Its schema is a
+            # separate migration set (migrations-telemetry/, applied with --conn=telemetry).
+            telemetry:
+                url: '%env(resolve:TELEMETRY_DATABASE_URL)%'
+                profiling_collect_backtrace: '%kernel.debug%'
     orm:
         validate_xml_mapping: true
         naming_strategy: doctrine.orm.naming_strategy.underscore
@@ -31,8 +46,15 @@ doctrine:
 when@test:
     doctrine:
         dbal:
-            # "TEST_TOKEN" is typically set by ParaTest
-            dbname_suffix: '_test%env(default::TEST_TOKEN)%'
+            connections:
+                default:
+                    # "TEST_TOKEN" is typically set by ParaTest
+                    dbname_suffix: '_test%env(default::TEST_TOKEN)%'
+                    # The parent file's keys must be restated: a named connection is
+                    # replaced wholesale by an override, not deep-merged field by field.
+                    url: '%env(resolve:DATABASE_URL)%'
+                    schema_filter: '~^(?!ogr_)~'
+                    profiling_collect_backtrace: '%kernel.debug%'
 
 when@prod:
     doctrine:

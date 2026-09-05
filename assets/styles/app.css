@@ -3538,3 +3538,72 @@ th.sortable.on.desc .sortmark { border-bottom: 0; border-top: 5px solid rgb(var(
     .ao-flow a { flex: 1 1 30%; }
     .ao-ident .f + .f::before { display: none; }
 }
+
+/* ============================================================================
+   TELEMETRY — the Super-Admin API monitor (src/Telemetry, /telemetry).
+   A dev tool, styled in the survey-plate tokens so it reads as one system with
+   the rest of the app: cards are .c, buttons .cta/.btn. Everything below is the
+   little the monitor needs that has no equivalent already — the filter bar, the
+   capture table with its failures-first row tint, the status pills, and the two
+   read-only payload panels.
+   ========================================================================== */
+.tel code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
+
+.tel-filters {
+    display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: flex-end;
+    padding: 14px 16px; margin-bottom: 16px;
+}
+.tel-filters label { display: flex; flex-direction: column; gap: 4px; font-size: 11px; color: rgb(var(--c-fog)); text-transform: uppercase; letter-spacing: .04em; }
+.tel-filters input[type="text"], .tel-filters input[type="number"], .tel-filters input[type="datetime-local"] {
+    background: rgb(var(--c-raised)); border: 1px solid var(--c-ln); border-radius: 7px;
+    padding: 7px 9px; color: rgb(var(--c-tx)); font-size: 13px; font-family: inherit; min-width: 150px;
+}
+.tel-filters .tel-check { flex-direction: row; align-items: center; gap: 7px; text-transform: none; letter-spacing: 0; font-size: 13px; color: rgb(var(--c-tx)); }
+.tel-filter-actions { display: flex; gap: 8px; margin-left: auto; }
+.tel-filters .cta { border: 0; cursor: pointer; font-family: inherit; }
+
+.tel-empty { text-align: center; padding: 48px 20px; }
+.tel-empty .disp { font-size: 16px; font-weight: 700; margin: 0 0 6px; }
+
+.tel-table-wrap { padding: 0; overflow-x: auto; }
+.tel-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.tel-table th { text-align: left; padding: 11px 14px; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: rgb(var(--c-fog)); border-bottom: 1px solid var(--c-ln); }
+.tel-table td { padding: 10px 14px; border-bottom: 1px solid var(--c-ln); color: rgb(var(--c-tx)); }
+.tel-row { cursor: pointer; }
+.tel-row:hover td { background: rgb(var(--c-raised)); }
+.tel-row--fail td { background: rgb(var(--c-fail) / .06); }
+.tel-row--fail:hover td { background: rgb(var(--c-fail) / .12); }
+.tel-when { color: rgb(var(--c-fog)); white-space: nowrap; }
+.tel-num { text-align: right; font-variant-numeric: tabular-nums; }
+.tel-path, .tel-method { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.tel-method { font-weight: 700; font-size: 12px; }
+
+.tel-status { display: inline-block; min-width: 34px; text-align: center; padding: 2px 8px; border-radius: 6px; font-weight: 700; font-size: 12px; font-variant-numeric: tabular-nums; }
+.tel-status--ok { color: rgb(var(--c-acc)); background: rgb(var(--c-acc) / .12); }
+.tel-status--fail { color: rgb(var(--c-fail)); background: rgb(var(--c-fail) / .14); }
+
+.tel-pager { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; }
+.tel-pager-nav { display: flex; gap: 8px; }
+
+.tel-meta { padding: 14px 16px; margin-bottom: 16px; }
+.tel-meta dl { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 24px; margin: 0; }
+.tel-meta dt { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: rgb(var(--c-fog)); }
+.tel-meta dd { margin: 2px 0 0; color: rgb(var(--c-tx)); font-size: 13px; word-break: break-word; }
+
+.tel-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+@media (max-width: 900px) { .tel-cols { grid-template-columns: 1fr; } .tel-meta dl { grid-template-columns: 1fr; } }
+.tel-panel { padding: 16px; }
+.tel-h { font-size: 13px; text-transform: uppercase; letter-spacing: .05em; color: rgb(var(--c-tx)); margin: 0 0 12px; }
+.tel-sub { font-size: 12px; font-weight: 600; color: rgb(var(--c-tx)); margin: 16px 0 7px; }
+.tel-sub:first-of-type { margin-top: 0; }
+.tel-kv { width: 100%; border-collapse: collapse; font-size: 12px; }
+.tel-kv th, .tel-kv td { text-align: left; padding: 5px 8px; border-bottom: 1px solid var(--c-ln); color: rgb(var(--c-tx)); vertical-align: top; }
+.tel-kv th { color: rgb(var(--c-fog)); font-weight: 600; white-space: nowrap; }
+.tel-hash code { font-size: 11px; color: rgb(var(--c-dim)); }
+.tel-body {
+    background: rgb(var(--c-cv)); border: 1px solid var(--c-ln); border-radius: 8px;
+    padding: 12px; margin: 0; font-size: 12px; line-height: 1.5; color: rgb(var(--c-tx));
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; white-space: pre-wrap; word-break: break-word;
+    max-height: 480px; overflow: auto;
+}
+.tel-trunc { color: rgb(var(--c-warn)); font-size: 11px; text-transform: uppercase; letter-spacing: .04em; margin-left: 6px; }

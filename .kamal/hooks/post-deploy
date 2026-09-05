@@ -30,6 +30,26 @@ case "$KAMAL_COMMAND" in
     # here for a deploy to overrule.
     echo "post-deploy » reconciling the incident taxonomy"
     kamal app exec --reuse --primary --roles web "php bin/console incidents:taxonomy:sync --no-interaction"
+
+    # Telemetry's SEPARATE database (src/Telemetry) — created if absent, then migrated
+    # on its OWN connection, so the API monitor catches /api traffic from the moment the
+    # release is up. Both steps are idempotent and touch only the telemetry database (a
+    # distinct `uhifadhi_telemetry` in the same accessory), never the app's.
+    #
+    # DELIBERATELY NON-FATAL, and LAST. The monitor must never break the thing it
+    # monitors — that rule extends to the deploy: if TELEMETRY_DATABASE_URL is unset or
+    # the telemetry database is unreachable, telemetry stays dark (captures fail-safe and
+    # are swallowed) but the app's own deploy still succeeds. Run after every app-critical
+    # step above so a telemetry hiccup can never stop them. To activate telemetry, set the
+    # TELEMETRY_DATABASE_URL secret (see config/deploy.yml / .kamal/secrets.example) and
+    # redeploy — these steps then create and migrate it.
+    echo "post-deploy » creating + migrating the telemetry database (non-fatal)"
+    if kamal app exec --reuse --primary --roles web "php bin/console doctrine:database:create --connection=telemetry --if-not-exists --no-interaction" \
+       && kamal app exec --reuse --primary --roles web "php bin/console telemetry:migrate --no-interaction"; then
+      echo "post-deploy » telemetry database ready"
+    else
+      echo "post-deploy » WARNING: telemetry setup skipped/failed (is TELEMETRY_DATABASE_URL set?) — app deploy unaffected"
+    fi
     ;;
   *)
     echo "post-deploy » skipping migrations for '$KAMAL_COMMAND'"

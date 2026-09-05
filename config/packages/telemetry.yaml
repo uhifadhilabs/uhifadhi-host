@@ -1,0 +1,84 @@
+# yaml-language-server: $schema=../../vendor/symfony/dependency-injection/Loader/schema/services.schema.json
+
+# TELEMETRY — the API request/response monitor (src/Telemetry, namespace
+# Uhifadhi\Telemetry). This one file wires the whole feature; nothing about it
+# leaks into the host's own services.yaml beyond a single exclude. When Telemetry
+# is extracted into uhifadhi/telemetry-module, this becomes the bundle's
+# Resources/config/services.yaml almost verbatim.
+#
+# The second DBAL connection it writes to ("telemetry") is declared in
+# config/packages/doctrine.yaml; the environment that database lives in is set via
+# TELEMETRY_DATABASE_URL (.env).
+
+parameters:
+    # Total stored body budget per capture. A patrol-with-photo payload is huge; the
+    # redactor already drops photo bytes, and this caps whatever is left so one
+    # request can never fill the telemetry database. 64 KiB.
+    telemetry.body_cap: 65536
+    # A JSON string field at/over this many bytes is stored as {omitted, size, sha256}
+    # rather than verbatim — this is what turns a base64 photo into a digest.
+    telemetry.base64_field_threshold: 2048
+    # Default retention for `telemetry:prune`. A monitor, not an archive.
+    telemetry.retention_days: 30
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    # Subscriber, controller, command, resolver, redactor — everything but the
+    # value objects, which are constructed with `new`, never injected.
+    Uhifadhi\Telemetry\:
+        resource: '../../src/Telemetry/'
+        exclude:
+            - '../../src/Telemetry/Model/'
+
+    # THE SIZE/PRIVACY BUDGET, made configurable rather than hard-coded.
+    Uhifadhi\Telemetry\Capture\Redactor:
+        arguments:
+            $bodyCap: '%telemetry.body_cap%'
+            $base64FieldThreshold: '%telemetry.base64_field_threshold%'
+
+    # "Who is authenticated" is the one host-coupled line of the capture.
+    Uhifadhi\Telemetry\Capture\CapturedUserResolver: '@Uhifadhi\Telemetry\Capture\SecurityUserResolver'
+
+    # BOTH SINKS write to the telemetry connection — not the app's default one.
+    # Autowiring cannot know which connection to pick, so it is named here.
+    Uhifadhi\Telemetry\Store\PostgresCaptureStore:
+        arguments:
+            $connection: '@doctrine.dbal.telemetry_connection'
+    Uhifadhi\Telemetry\Store\SqliteCaptureStore:
+        arguments:
+            $connection: '@doctrine.dbal.telemetry_connection'
+
+    # THE ACTIVE SINK. Production default: Postgres (the separate telemetry database
+    # in the same cluster). dev/test override it to the embedded SQLite sink below.
+    Uhifadhi\Telemetry\Store\CaptureStore: '@Uhifadhi\Telemetry\Store\PostgresCaptureStore'
+
+    Uhifadhi\Telemetry\Command\PruneCapturesCommand:
+        arguments:
+            $defaultRetentionDays: '%telemetry.retention_days%'
+
+    # Runs migrations-telemetry/ against the telemetry connection only (see the
+    # command's docblock for why this exists instead of --conn=telemetry).
+    Uhifadhi\Telemetry\Command\TelemetryMigrateCommand:
+        arguments:
+            $connection: '@doctrine.dbal.telemetry_connection'
+            $migrationsPath: '%kernel.project_dir%/migrations-telemetry'
+
+when@dev:
+    services:
+        # No separate Postgres locally — the file-backed SQLite sink just works.
+        Uhifadhi\Telemetry\Store\CaptureStore: '@Uhifadhi\Telemetry\Store\SqliteCaptureStore'
+
+when@test:
+    services:
+        Uhifadhi\Telemetry\Store\CaptureStore: '@Uhifadhi\Telemetry\Store\SqliteCaptureStore'
+
+    # Keep the telemetry (SQLite) connection OUT of DAMA's transaction wrapping, so
+    # the sink's lazily-created schema survives between tests. `default` keeps its
+    # rollback-per-test isolation exactly as before.
+    dama_doctrine_test:
+        enable_static_connection:
+            default: true
+            telemetry: false

@@ -1,0 +1,83 @@
+{# TELEMETRY — one capture, in full. The redacted raw payload the server received
+   and the response it returned. This is the screen you open to read a ranger's
+   failed sync. #}
+{% extends 'layout.html.twig' %}
+
+{% block title %}Capture {{ capture.statusCode }} {{ capture.path }} — Telemetry{% endblock %}
+
+{% block content %}
+    <div class="page tel">
+        <div class="crumb">
+            <a href="{{ path('dashboard_index') }}">uhifadhi</a> /
+            <a href="{{ path('telemetry_index') }}">telemetry</a> / capture
+        </div>
+        <div class="pghead">
+            <div>
+                <h1 class="pg">
+                    <span class="tel-method">{{ capture.method }}</span>
+                    <span class="tel-path">{{ capture.path }}</span>
+                </h1>
+                <p class="pgsub">
+                    <span class="tel-status {{ capture.failure ? 'tel-status--fail' : 'tel-status--ok' }}">{{ capture.statusCode }}</span>
+                    · {{ capture.capturedAt|date('Y-m-d H:i:s') }} UTC · {{ capture.durationMs }} ms
+                </p>
+            </div>
+            <div class="pgact"><a class="btn" href="{{ path('telemetry_index') }}">{{ ux_icon('lucide:arrow-left') }}Back</a></div>
+        </div>
+
+        <div class="c tel-meta">
+            <dl>
+                <div><dt>User</dt><dd>{{ capture.userEmail ?? 'anonymous' }}{% if capture.userId %} (#{{ capture.userId }}){% endif %}</dd></div>
+                <div><dt>User-Agent</dt><dd>{{ capture.userAgent ?? '—' }}</dd></div>
+                <div><dt>Capture ID</dt><dd><code>{{ capture.id }}</code></dd></div>
+                {% if capture.query is not empty %}
+                    <div><dt>Query</dt><dd><code>{{ capture.query|json_encode }}</code></dd></div>
+                {% endif %}
+            </dl>
+        </div>
+
+        <div class="tel-cols">
+            <section class="c tel-panel">
+                <h2 class="tel-h">Request</h2>
+
+                <h3 class="tel-sub">Headers <span class="fog">(credentials redacted)</span></h3>
+                <table class="tel-kv">
+                    {% for name, value in capture.requestHeaders %}
+                        <tr><th>{{ name }}</th><td>{{ value }}</td></tr>
+                    {% endfor %}
+                </table>
+
+                {% if capture.files is not empty %}
+                    <h3 class="tel-sub">Uploaded files <span class="fog">(metadata only — bytes never stored)</span></h3>
+                    <table class="tel-kv">
+                        <tr><th>Field</th><th>Name</th><th>Size</th><th>Type</th><th>sha256</th></tr>
+                        {% for file in capture.files %}
+                            <tr>
+                                <td>{{ file.field }}</td>
+                                <td>{{ file.originalName ?? '—' }}</td>
+                                <td class="tel-num">{{ file.size }}</td>
+                                <td>{{ file.mimeType ?? '—' }}</td>
+                                <td class="tel-hash"><code>{{ file.sha256 ?? '—' }}</code></td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                {% endif %}
+
+                <h3 class="tel-sub">
+                    Body
+                    {% if capture.requestBodyTruncated %}<span class="tel-trunc">truncated to cap</span>{% endif %}
+                </h3>
+                <pre class="tel-body">{{ capture.requestBody ?: '(empty)' }}</pre>
+            </section>
+
+            <section class="c tel-panel">
+                <h2 class="tel-h">Response</h2>
+                <h3 class="tel-sub">
+                    Body
+                    {% if capture.responseBodyTruncated %}<span class="tel-trunc">truncated to cap</span>{% endif %}
+                </h3>
+                <pre class="tel-body">{{ capture.responseBody ?: '(empty)' }}</pre>
+            </section>
+        </div>
+    </div>
+{% endblock %}
